@@ -120,6 +120,16 @@
   line-height: 1.4;
 }
 
+.infoAlert {
+  background-color: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 .submitBtn {
   width: 100%;
   background-color: var(--accent);

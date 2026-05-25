@@ -1,22 +1,26 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { supabase } from "../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../utils/supabaseServer";
+import { supabase as dbClient } from "../../utils/supabaseClient";
 import DashboardClient from "./DashboardClient";
 import { Note } from "../../data/mockData";
 
 export default async function DashboardPage() {
-  const cookieStore = await cookies();
-  const sessionEmail = cookieStore.get("session_email")?.value;
+  // 1. Authentication check via Supabase Auth
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // 1. Authentication check
-  if (!sessionEmail) {
+  if (!user?.email) {
     redirect("/login");
   }
+
+  const sessionEmail = user.email;
 
   // 2. Fetch purchases from Supabase database
   let purchasedNotes: Note[] = [];
   try {
-    const { data: dbPurchases, error } = await supabase
+    const { data: dbPurchases, error } = await (dbClient as any)
       .from("purchases")
       .select("*, notes(*)")
       .eq("email", sessionEmail)
@@ -26,7 +30,7 @@ export default async function DashboardPage() {
       console.error("Error fetching purchases for dashboard:", error);
     } else if (dbPurchases) {
       purchasedNotes = dbPurchases
-        .filter((item) => item.notes !== null)
+        .filter((item: any) => item.notes !== null)
         .map((item: any) => ({
           id: item.notes.id,
           title: item.notes.title,

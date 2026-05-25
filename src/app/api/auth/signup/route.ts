@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
-import { supabase } from "../../../../utils/supabaseClient";
-import { hashPassword, generateSalt } from "../../../../utils/auth";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+
+const ALLOWED_DOMAINS = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  "proton.me",
+  "aol.com",
+  "live.com",
+  "zohomail.in",
+  "zohomail.com",
+  "privateacademy.in",
+];
 
 export async function POST(request: Request) {
   try {
@@ -14,30 +27,20 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const emailParts = cleanEmail.split("@");
-    const domain = emailParts[emailParts.length - 1];
+    const domain = cleanEmail.split("@").pop() || "";
 
-    const allowedDomains = [
-      "gmail.com",
-      "yahoo.com",
-      "outlook.com",
-      "hotmail.com",
-      "icloud.com",
-      "proton.me",
-      "aol.com",
-      "live.com",
-      "zohomail.in",
-      "zohomail.com",
-      "privateacademy.in"
-    ];
-
-    if (!allowedDomains.includes(domain)) {
+    // 1. Domain restriction
+    if (!ALLOWED_DOMAINS.includes(domain)) {
       return NextResponse.json(
-        { error: "Unsupported email domain. Please use a supported email provider." },
+        {
+          error:
+            "Unsupported email domain. Please use a supported email provider (e.g. Gmail, Yahoo, Outlook).",
+        },
         { status: 400 }
       );
     }
 
+    // 2. Password length check
     if (password.length < 6) {
       return NextResponse.json(
         { error: "Password must be at least 6 characters long" },
@@ -45,54 +48,54 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Check if user already exists
-    const { data: existingUser, error: fetchError } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", cleanEmail)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.error("Error checking existing user:", fetchError);
-      return NextResponse.json(
-        { error: "Database verification error" },
-        { status: 500 }
-      );
-    }
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "A user with this email address already exists" },
-        { status: 400 }
-      );
-    }
-
-    // 2. Hash password and insert
-    const salt = generateSalt();
-    const passwordHash = hashPassword(password, salt);
-
-    const { error: insertError } = await supabase.from("users").insert({
+    // 3. Sign up via Supabase Auth — sends confirmation email automatically
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.auth.signUp({
       email: cleanEmail,
-      password_hash: passwordHash,
-      salt: salt,
+      password,
     });
 
-    if (insertError) {
-      console.error("Error creating user:", insertError);
+    if (error) {
+      // Graceful rate-limit message
+      const msg = error.message.toLowerCase();
+      if (
+        msg.includes("rate limit") ||
+        msg.includes("too many") ||
+        msg.includes("email rate")
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "RATE_LIMIT", // special code — frontend will show branded message
+          },
+          { status: 429 }
+        );
+      }
+
+      // User already exists (Supabase returns a 200 with a dummy session for
+      // security — but some versions do return an error, handle both)
+      if (msg.includes("already registered") || msg.includes("already exists")) {
+        return NextResponse.json(
+          { error: "An account with this email already exists. Please log in." },
+          { status: 400 }
+        );
+      }
+
+      console.error("Signup error from Supabase Auth:", error);
       return NextResponse.json(
-        { error: "Database registration failed" },
-        { status: 500 }
+        { error: error.message || "Signup failed. Please try again." },
+        { status: 400 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: "User registered successfully",
+      message: "CONFIRM_EMAIL", // frontend will show "check your email" message
     });
-  } catch (error: any) {
-    console.error("Signup error:", error);
+  } catch (err: any) {
+    console.error("Signup route error:", err);
     return NextResponse.json(
-      { error: "Internal signup processing error" },
+      { error: "Internal signup error. Please try again." },
       { status: 500 }
     );
   }

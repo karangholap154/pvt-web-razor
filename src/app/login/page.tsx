@@ -4,26 +4,50 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./login.module.css";
 
+const ALLOWED_DOMAINS = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  "proton.me",
+  "aol.com",
+  "live.com",
+  "zohomail.in",
+  "zohomail.com",
+  "privateacademy.in",
+];
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // Safe local redirect fallback to /dashboard
   const redirectParam = searchParams.get("redirect");
-  const redirectUrl = (redirectParam && redirectParam.startsWith("/")) ? redirectParam : "/dashboard";
+  const redirectUrl =
+    redirectParam && redirectParam.startsWith("/") ? redirectParam : "/dashboard";
+
+  // Check for confirmation_failed error from the callback route
+  const callbackError = searchParams.get("error");
 
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    callbackError === "confirmation_failed"
+      ? "Email confirmation link is invalid or expired. Please sign up again."
+      : null
+  );
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [infoMsg, setInfoMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
+    setInfoMsg(null);
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !password) {
@@ -31,25 +55,12 @@ function LoginForm() {
       return;
     }
 
-    const emailParts = cleanEmail.split("@");
-    const domain = emailParts[emailParts.length - 1];
-
-    const allowedDomains = [
-      "gmail.com",
-      "yahoo.com",
-      "outlook.com",
-      "hotmail.com",
-      "icloud.com",
-      "proton.me",
-      "aol.com",
-      "live.com",
-      "zohomail.in",
-      "zohomail.com",
-      "privateacademy.in"
-    ];
-
-    if (!allowedDomains.includes(domain)) {
-      setError("Registration and login are restricted to supported email providers (e.g., gmail.com, yahoo.com, outlook.com, proton.me, privateacademy.in, etc.).");
+    // Client-side domain check
+    const domain = cleanEmail.split("@").pop() || "";
+    if (!ALLOWED_DOMAINS.includes(domain)) {
+      setError(
+        "Registration and login are restricted to supported email providers (e.g. Gmail, Yahoo, Outlook, iCloud, Proton, privateacademy.in)."
+      );
       return;
     }
 
@@ -67,7 +78,8 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const endpoint = activeTab === "login" ? "/api/auth/login" : "/api/auth/signup";
+      const endpoint =
+        activeTab === "login" ? "/api/auth/login" : "/api/auth/signup";
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -77,21 +89,37 @@ function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Special branded rate-limit message
+        if (data.error === "RATE_LIMIT" || response.status === 429) {
+          setInfoMsg(
+            "🚀 Private Academy Engineering is growing fast! Our email service has reached its limit for now. Please try signing up again in a little while."
+          );
+          return;
+        }
         throw new Error(data.error || "Something went wrong. Please try again.");
       }
 
       if (activeTab === "login") {
         setSuccessMsg("Logged in successfully! Redirecting...");
-        // Delay redirect slightly to show success message
         setTimeout(() => {
           router.push(redirectUrl);
-          router.refresh(); // Refresh layout to show updated navbar links
+          router.refresh();
         }, 1000);
       } else {
-        setSuccessMsg("Signup successful! You can now log in.");
-        setActiveTab("login");
-        setPassword("");
-        setConfirmPassword("");
+        // Signup success — show "check your email" message
+        if (data.message === "CONFIRM_EMAIL") {
+          setInfoMsg(
+            `📧 We've sent a confirmation link to ${cleanEmail}. Please check your inbox (and spam folder) and click the link to activate your account.`
+          );
+          setActiveTab("login");
+          setPassword("");
+          setConfirmPassword("");
+        } else {
+          setSuccessMsg("Signup successful! You can now log in.");
+          setActiveTab("login");
+          setPassword("");
+          setConfirmPassword("");
+        }
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -122,6 +150,7 @@ function LoginForm() {
               setActiveTab("login");
               setError(null);
               setSuccessMsg(null);
+              setInfoMsg(null);
             }}
           >
             Login
@@ -133,6 +162,7 @@ function LoginForm() {
               setActiveTab("signup");
               setError(null);
               setSuccessMsg(null);
+              setInfoMsg(null);
             }}
           >
             Sign Up
@@ -141,6 +171,7 @@ function LoginForm() {
 
         {error && <div className={styles.errorAlert}>{error}</div>}
         {successMsg && <div className={styles.successAlert}>{successMsg}</div>}
+        {infoMsg && <div className={styles.infoAlert}>{infoMsg}</div>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputGroup}>
@@ -151,7 +182,7 @@ function LoginForm() {
               type="email"
               id="email"
               className={styles.input}
-              placeholder="student@example.com"
+              placeholder="student@gmail.com"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -193,7 +224,11 @@ function LoginForm() {
             </div>
           )}
 
-          <button type="submit" className={styles.submitBtn} disabled={loading}>
+          <button
+            type="submit"
+            className={styles.submitBtn}
+            disabled={loading}
+          >
             {loading ? (
               <div className={styles.loadingSpinner}></div>
             ) : activeTab === "login" ? (
@@ -210,16 +245,40 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className={styles.container}>
-        <div style={{ textAlign: "center", padding: "2rem", color: "var(--text-secondary)" }}>
-          <div style={{ width: "30px", height: "30px", border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1rem auto" }}></div>
-          <h3>Loading Authentication...</h3>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "calc(100vh - 140px)",
+            padding: "2rem",
+            color: "var(--text-secondary)",
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                width: "30px",
+                height: "30px",
+                border: "3px solid rgba(255,255,255,0.1)",
+                borderTopColor: "var(--accent)",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+                margin: "0 auto 1rem auto",
+              }}
+            ></div>
+            <h3>Loading...</h3>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <LoginForm />
     </Suspense>
   );
 }
-

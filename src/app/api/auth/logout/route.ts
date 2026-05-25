@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 
 export async function GET(request: Request) {
-  const cookieStore = await cookies();
-  cookieStore.delete("session_email");
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
 
   const requestUrl = new URL(request.url);
   const origin = requestUrl.origin;

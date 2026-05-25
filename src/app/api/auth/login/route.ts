@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { supabase } from "../../../../utils/supabaseClient";
-import { hashPassword } from "../../../../utils/auth";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+
+const ALLOWED_DOMAINS = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  "proton.me",
+  "aol.com",
+  "live.com",
+  "zohomail.in",
+  "zohomail.com",
+  "privateacademy.in",
+];
 
 export async function POST(request: Request) {
   try {
@@ -15,82 +27,56 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const emailParts = cleanEmail.split("@");
-    const domain = emailParts[emailParts.length - 1];
+    const domain = cleanEmail.split("@").pop() || "";
 
-    const allowedDomains = [
-      "gmail.com",
-      "yahoo.com",
-      "outlook.com",
-      "hotmail.com",
-      "icloud.com",
-      "proton.me",
-      "aol.com",
-      "live.com",
-      "zohomail.in",
-      "zohomail.com",
-      "privateacademy.in"
-    ];
-
-    if (!allowedDomains.includes(domain)) {
+    // 1. Domain restriction
+    if (!ALLOWED_DOMAINS.includes(domain)) {
       return NextResponse.json(
-        { error: "Unsupported email domain. Please use a supported email provider." },
+        {
+          error:
+            "Unsupported email domain. Please use a supported email provider (e.g. Gmail, Yahoo, Outlook).",
+        },
         { status: 400 }
       );
     }
 
-    // 1. Fetch user by email
-    const { data: user, error: fetchError } = await supabase
-      .from("users")
-      .select("password_hash, salt")
-      .eq("email", cleanEmail)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.error("Login verification query error:", fetchError);
-      return NextResponse.json(
-        { error: "Authentication query failed" },
-        { status: 500 }
-      );
-    }
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
-
-    // 2. Verify password hash
-    const computedHash = hashPassword(password, user.salt);
-    const isValid = computedHash === user.password_hash;
-
-    if (!isValid) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
-
-    // 3. Set session cookie
-    const cookieStore = await cookies();
-    cookieStore.set("session_email", cleanEmail, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/",
+    // 2. Sign in via Supabase Auth — sessions stored in cookies automatically
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password,
     });
+
+    if (error) {
+      const msg = error.message.toLowerCase();
+
+      // Email not confirmed yet
+      if (msg.includes("email not confirmed") || msg.includes("not confirmed")) {
+        return NextResponse.json(
+          {
+            error:
+              "Please confirm your email first. Check your inbox for the confirmation link we sent.",
+          },
+          { status: 401 }
+        );
+      }
+
+      // Invalid credentials
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       email: cleanEmail,
       message: "Logged in successfully",
     });
-  } catch (error: any) {
-    console.error("Login error:", error);
+  } catch (err: any) {
+    console.error("Login route error:", err);
     return NextResponse.json(
-      { error: "Internal login processing error" },
+      { error: "Internal login error. Please try again." },
       { status: 500 }
     );
   }

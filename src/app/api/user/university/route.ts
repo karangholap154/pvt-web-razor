@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { supabase } from "../../../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+import { supabase as dbClient } from "../../../../utils/supabaseClient";
 
 const ALLOWED_UNIVERSITIES = [
   "Mumbai University",
@@ -13,47 +13,59 @@ const ALLOWED_UNIVERSITIES = [
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionEmail = cookieStore.get("session_email")?.value;
+    // 1. Get session from Supabase Auth
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!sessionEmail) {
+    if (!user?.email) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const sessionEmail = user.email;
     const { university } = await request.json();
 
     if (!university || !ALLOWED_UNIVERSITIES.includes(university)) {
-      return NextResponse.json({ error: "Invalid university selection" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid university selection" },
+        { status: 400 }
+      );
     }
 
-    // Check if university is already set (permanent — cannot be changed)
-    const { data: user } = await supabase
+    // 2. Check if university is already set (permanent — cannot be changed)
+    const { data: existingUser } = await (dbClient as any)
       .from("users")
       .select("university")
       .eq("email", sessionEmail)
-      .maybeSingle() as any;
+      .maybeSingle();
 
-    if (user?.university) {
+    if (existingUser?.university) {
       return NextResponse.json(
         { error: "University has already been set and cannot be changed" },
         { status: 400 }
       );
     }
 
-    // Set the university
-    const { error: updateError } = await supabase
+    // 3. Upsert the row — creates it if the user doesn't exist in the custom table yet
+    const { error: upsertError } = await (dbClient as any)
       .from("users")
-      .update({ university } as any)
-      .eq("email", sessionEmail);
+      .upsert({ email: sessionEmail, university }, { onConflict: "email" });
 
-    if (updateError) {
-      console.error("University update error:", updateError);
-      return NextResponse.json({ error: "Failed to save university" }, { status: 500 });
+    if (upsertError) {
+      console.error("University upsert error:", upsertError);
+      return NextResponse.json(
+        { error: "Failed to save university" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true, university });
   } catch (error) {
     console.error("University set error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

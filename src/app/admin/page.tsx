@@ -1,17 +1,16 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase as dbClient } from "../../utils/supabaseClient";
 import { isAdmin } from "../../utils/auth";
+import { createSupabaseServerClient } from "../../utils/supabaseServer";
 import AdminConsole from "./AdminConsole";
 import styles from "./admin.module.css";
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const sessionEmail = cookieStore.get("session_email")?.value;
-
-  // 1. Session check: If completely logged out, go to login
-  if (!sessionEmail) {
+  // 1. Session check via Supabase Auth
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) {
     redirect("/login");
   }
 
@@ -28,7 +27,7 @@ export default async function AdminPage() {
           </svg>
           <h2 className={styles.deniedTitle}>Access Denied</h2>
           <p className={styles.deniedText}>
-            Your email address <strong style={{ color: "var(--text-primary)" }}>{sessionEmail}</strong> is not authorized to access the Admin Panel console. Please contact the administrator.
+            Your email address <strong style={{ color: "var(--text-primary)" }}>{user.email}</strong> is not authorized to access the Admin Panel console. Please contact the administrator.
           </p>
           <Link href="/" className={styles.btnCancel} style={{ textDecoration: "none", display: "inline-block" }}>
             Return to Homepage
@@ -45,7 +44,7 @@ export default async function AdminPage() {
 
   try {
     // Fetch notes
-    const { data: dbNotes } = await supabase
+    const { data: dbNotes } = await dbClient
       .from("notes")
       .select("*")
       .order("title", { ascending: true });
@@ -64,7 +63,7 @@ export default async function AdminPage() {
     }
 
     // Fetch articles
-    const { data: dbArticles } = await supabase
+    const { data: dbArticles } = await dbClient
       .from("articles")
       .select("*")
       .order("created_at", { ascending: false });
@@ -93,7 +92,7 @@ export default async function AdminPage() {
     }
 
     // Fetch projects
-    const { data: dbProjects } = await supabase
+    const { data: dbProjects } = await dbClient
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });

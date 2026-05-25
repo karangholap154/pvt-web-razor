@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import { cookies } from "next/headers";
 import { isAdmin } from "../utils/auth";
+import { createSupabaseServerClient } from "../utils/supabaseServer";
 import Navbar from "./Navbar";
 import "./globals.css";
 import styles from "./layout.module.css";
@@ -127,8 +127,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const sessionEmail = cookieStore.get("session_email")?.value;
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const sessionEmail = user?.email ?? undefined;
   const isUserAdmin = await isAdmin();
 
   return (

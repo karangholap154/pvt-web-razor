@@ -1,27 +1,29 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { supabase } from "../../../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+import { supabase as dbClient } from "../../../../utils/supabaseClient";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionEmail = cookieStore.get("session_email")?.value;
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!sessionEmail) {
+    if (!user?.email) {
       return NextResponse.json({ authenticated: false });
     }
 
-    // Fetch user's university from DB
-    const { data: user } = await supabase
+    // Fetch user's university from our custom users table (keyed by email)
+    const { data: userData } = await (dbClient as any)
       .from("users")
       .select("university")
-      .eq("email", sessionEmail)
-      .maybeSingle() as any;
+      .eq("email", user.email)
+      .maybeSingle();
 
     return NextResponse.json({
       authenticated: true,
-      email: sessionEmail,
-      university: user?.university ?? null,
+      email: user.email,
+      university: userData?.university ?? null,
     });
   } catch (error) {
     console.error("Session fetch error:", error);
