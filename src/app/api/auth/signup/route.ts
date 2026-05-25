@@ -14,6 +14,29 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    const emailParts = cleanEmail.split("@");
+    const domain = emailParts[emailParts.length - 1];
+
+    const allowedDomains = [
+      "gmail.com",
+      "yahoo.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "proton.me",
+      "aol.com",
+      "live.com",
+      "zohomail.in",
+      "zohomail.com",
+      "privateacademy.in"
+    ];
+
+    if (!allowedDomains.includes(domain)) {
+      return NextResponse.json(
+        { error: "Unsupported email domain. Please use a supported email provider." },
+        { status: 400 }
+      );
+    }
 
     if (password.length < 6) {
       return NextResponse.json(

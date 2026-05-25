@@ -25,9 +25,31 @@ function LoginForm() {
     setError(null);
     setSuccessMsg(null);
 
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !password) {
       setError("Please fill in all fields.");
+      return;
+    }
+
+    const emailParts = cleanEmail.split("@");
+    const domain = emailParts[emailParts.length - 1];
+
+    const allowedDomains = [
+      "gmail.com",
+      "yahoo.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "proton.me",
+      "aol.com",
+      "live.com",
+      "zohomail.in",
+      "zohomail.com",
+      "privateacademy.in"
+    ];
+
+    if (!allowedDomains.includes(domain)) {
+      setError("Registration and login are restricted to supported email providers (e.g., gmail.com, yahoo.com, outlook.com, proton.me, privateacademy.in, etc.).");
       return;
     }
 
