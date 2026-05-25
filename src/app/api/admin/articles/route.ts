@@ -20,6 +20,24 @@ function formatDate(): string {
   return new Date().toLocaleDateString("en-US", options);
 }
 
+// Helper to calculate read time
+function calculateReadTime(content: string): string {
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  return `${minutes} min read`;
+}
+
+// Helper to auto-generate summary
+function generateSummary(content: string): string {
+  if (!content) return "";
+  const cleanText = content
+    .replace(/[#*`_]/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .trim();
+  if (cleanText.length <= 150) return cleanText;
+  return cleanText.slice(0, 147) + "...";
+}
+
 // 1. Create Article (POST)
 export async function POST(request: Request) {
   try {
@@ -27,11 +45,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { title, author, date, readTime, category, summary, content } = await request.json();
+    const { title, category, content } = await request.json();
 
-    if (!title || !author || !category || !content) {
+    if (!title || !category || !content) {
       return NextResponse.json(
-        { error: "Title, author, category, and content are required" },
+        { error: "Title, category, and content are required" },
         { status: 400 }
       );
     }
@@ -40,14 +58,15 @@ export async function POST(request: Request) {
     const rand = crypto.randomBytes(3).toString("hex");
     const id = `art-${slugify(title)}-${rand}`;
 
+    const computedReadTime = calculateReadTime(content);
+    const computedSummary = generateSummary(content);
+
     const { data, error } = await supabase.from("articles").insert({
       id,
       title,
-      author,
-      date: date || formatDate(),
-      read_time: readTime || "3 min read",
+      read_time: computedReadTime,
       category,
-      summary: summary || "",
+      summary: computedSummary,
       content,
     }).select().single();
 
@@ -73,24 +92,25 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { id, title, author, date, readTime, category, summary, content } = await request.json();
+    const { id, title, category, content } = await request.json();
 
-    if (!id || !title || !author || !category || !content) {
+    if (!id || !title || !category || !content) {
       return NextResponse.json(
-        { error: "ID, Title, author, category, and content are required" },
+        { error: "ID, Title, category, and content are required" },
         { status: 400 }
       );
     }
+
+    const computedReadTime = calculateReadTime(content);
+    const computedSummary = generateSummary(content);
 
     const { data, error } = await supabase
       .from("articles")
       .update({
         title,
-        author,
-        date: date || formatDate(),
-        read_time: readTime || "3 min read",
+        read_time: computedReadTime,
         category,
-        summary: summary || "",
+        summary: computedSummary,
         content,
       })
       .eq("id", id)

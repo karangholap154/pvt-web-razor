@@ -1071,9 +1071,7 @@ function HomeContent() {
           finalArticles = dbArticles.map((item) => ({
             id: item.id,
             title: item.title,
-            author: item.author,
-            date: item.date,
-            readTime: item.read_time || "",
+            readTime: `${Math.max(1, Math.ceil((item.content || "").trim().split(/\s+/).filter(Boolean).length / 200))} min read`,
             category: item.category as any,
             summary: item.summary || "",
             content: item.content || "",
@@ -1438,8 +1436,7 @@ function HomeContent() {
                 <Link href={`/articles#${art.id}`} key={art.id} className="custom-widget-card">
                   <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{art.category}</span>
                   <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3 }}>{art.title}</span>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
-                    <span>{art.author}</span>
+                  <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
                     <span>{art.readTime}</span>
                   </div>
                 </Link>

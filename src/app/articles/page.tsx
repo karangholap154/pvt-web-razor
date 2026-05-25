@@ -7,6 +7,22 @@ import modalStyles from "../page.module.css"; // Reuse modal styling classes
 import { Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
 
+function calculateReadTime(content: string): string {
+  const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  return `${minutes} min read`;
+}
+
+function generateSummary(content: string): string {
+  if (!content) return "";
+  const cleanText = content
+    .replace(/[#*`_]/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .trim();
+  if (cleanText.length <= 150) return cleanText;
+  return cleanText.slice(0, 147) + "...";
+}
+
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,16 +47,17 @@ export default function ArticlesPage() {
           setArticles([]);
         } else {
           setArticles(
-            data.map((item) => ({
-              id: item.id,
-              title: item.title,
-              author: item.author,
-              date: item.date,
-              readTime: item.read_time || "",
-              category: item.category as any,
-              summary: item.summary || "",
-              content: item.content || ""
-            }))
+            data.map((item) => {
+              const content = item.content || "";
+              return {
+                id: item.id,
+                title: item.title,
+                readTime: calculateReadTime(content),
+                category: item.category as any,
+                summary: generateSummary(content),
+                content: content
+              };
+            })
           );
         }
       } catch (err) {
@@ -90,8 +107,8 @@ export default function ArticlesPage() {
     setActiveArticle(null);
     if (typeof window !== "undefined") {
       window.history.pushState(
+        {},
         "",
-        document.title,
         window.location.pathname + window.location.search
       );
     }
@@ -133,16 +150,11 @@ export default function ArticlesPage() {
             <article className={styles.card} key={art.id} id={art.id}>
               <div className={styles.cardHeader}>
                 <span className={styles.categoryTag}>{art.category}</span>
-                <span className={styles.meta}>{art.date}</span>
               </div>
               <h2 className={styles.cardTitle}>{art.title}</h2>
               <p className={styles.summary}>{art.summary}</p>
               
-              <div className={styles.authorMeta}>
-                <div>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>By </span>
-                  <span className={styles.authorName}>{art.author}</span>
-                </div>
+              <div className={styles.authorMeta} style={{ justifyContent: "flex-end" }}>
                 <span className={styles.readTime}>{art.readTime}</span>
               </div>
 
@@ -184,9 +196,8 @@ export default function ArticlesPage() {
 
             {/* Modal Body */}
             <div className={modalStyles.modalBody}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>
-                <span>Published by: <strong>{activeArticle.author}</strong></span>
-                <span>Date: {activeArticle.date} | {activeArticle.readTime}</span>
+              <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.85rem", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>
+                <span>{activeArticle.readTime}</span>
               </div>
               
               <div className={styles.articleContent} id="full-article-body">

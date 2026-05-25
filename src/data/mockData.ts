@@ -13,8 +13,8 @@ export interface Note {
 export interface Article {
   id: string;
   title: string;
-  author: string;
-  date: string;
+  author?: string;
+  date?: string;
   readTime: string;
   category: "Guidance" | "Tutorial" | "Project Ideas" | "Software Tips";
   summary: string;

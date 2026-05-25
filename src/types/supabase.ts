@@ -16,33 +16,27 @@ export type Database = {
     Tables: {
       articles: {
         Row: {
-          author: string
           category: string | null
           content: string | null
           created_at: string | null
-          date: string
           id: string
           read_time: string | null
           summary: string | null
           title: string
         }
         Insert: {
-          author: string
           category?: string | null
           content?: string | null
           created_at?: string | null
-          date: string
           id: string
           read_time?: string | null
           summary?: string | null
           title: string
         }
         Update: {
-          author?: string
           category?: string | null
           content?: string | null
           created_at?: string | null
-          date?: string
           id?: string
           read_time?: string | null
           summary?: string | null
@@ -60,6 +54,7 @@ export type Database = {
           price: number | null
           semester: string
           title: string
+          university: string | null
           video_url: string | null
         }
         Insert: {
@@ -71,6 +66,7 @@ export type Database = {
           price?: number | null
           semester: string
           title: string
+          university?: string | null
           video_url?: string | null
         }
         Update: {
@@ -82,6 +78,7 @@ export type Database = {
           price?: number | null
           semester?: string
           title?: string
+          university?: string | null
           video_url?: string | null
         }
         Relationships: []
@@ -154,7 +151,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "notes"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       users: {
@@ -164,6 +161,7 @@ export type Database = {
           id: string
           password_hash: string
           salt: string
+          university: string | null
         }
         Insert: {
           created_at?: string | null
@@ -171,6 +169,7 @@ export type Database = {
           id?: string
           password_hash: string
           salt: string
+          university?: string | null
         }
         Update: {
           created_at?: string | null
@@ -178,6 +177,7 @@ export type Database = {
           id?: string
           password_hash?: string
           salt?: string
+          university?: string | null
         }
         Relationships: []
       }

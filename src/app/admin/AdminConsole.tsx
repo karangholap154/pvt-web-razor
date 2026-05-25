@@ -132,7 +132,7 @@ export default function AdminConsole({
     setModalAction("edit");
     setArticleId(art.id);
     setArticleTitle(art.title);
-    setArticleAuthor(art.author);
+    setArticleAuthor(art.author || "");
     setArticleDate(art.date || "");
     setArticleReadTime(art.readTime || "");
     setArticleCategory(art.category);
@@ -252,17 +252,13 @@ export default function AdminConsole({
           );
         }
       } else if (activeTab === "articles") {
-        if (!articleTitle.trim() || !articleAuthor.trim() || !articleContent.trim()) {
-          throw new Error("Title, Author, and Content are required");
+        if (!articleTitle.trim() || !articleContent.trim()) {
+          throw new Error("Title and Content are required");
         }
         const body = {
           id: articleId,
           title: articleTitle,
-          author: articleAuthor,
-          date: articleDate,
-          readTime: articleReadTime,
           category: articleCategory,
-          summary: articleSummary,
           content: articleContent,
         };
 
@@ -279,8 +275,8 @@ export default function AdminConsole({
           const newArticle: Article = {
             id: data.article.id,
             title: data.article.title,
-            author: data.article.author,
-            date: data.article.date,
+            author: data.article.author || undefined,
+            date: data.article.date || undefined,
             readTime: data.article.read_time,
             category: data.article.category,
             summary: data.article.summary,
@@ -294,8 +290,8 @@ export default function AdminConsole({
                 ? {
                     id: data.article.id,
                     title: data.article.title,
-                    author: data.article.author,
-                    date: data.article.date,
+                    author: data.article.author || undefined,
+                    date: data.article.date || undefined,
                     readTime: data.article.read_time,
                     category: data.article.category,
                     summary: data.article.summary,
@@ -486,9 +482,7 @@ export default function AdminConsole({
             <thead>
               <tr>
                 <th>Title</th>
-                <th>Author</th>
                 <th>Category</th>
-                <th>Date</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -496,11 +490,9 @@ export default function AdminConsole({
               {articles.map((art) => (
                 <tr key={art.id}>
                   <td style={{ fontWeight: 600 }}>{art.title}</td>
-                  <td>{art.author}</td>
                   <td>
                     <span className={`${styles.badge} ${styles.tagBranch}`}>{art.category}</span>
                   </td>
-                  <td>{art.date}</td>
                   <td>
                     <div className={styles.actionsCell}>
                       <button className={`${styles.btnAction} ${styles.btnEdit}`} onClick={() => openEditArticle(art)} title="Edit">
@@ -706,38 +698,14 @@ export default function AdminConsole({
                       <input type="text" className={styles.input} required value={articleTitle} onChange={(e) => setArticleTitle(e.target.value)} placeholder="e.g. Dynamic Programming Study Guide" />
                     </div>
 
-                    <div className={styles.formGrid}>
-                      <div className={styles.inputGroup}>
-                        <label className={styles.label}>Author Name</label>
-                        <input type="text" className={styles.input} required value={articleAuthor} onChange={(e) => setArticleAuthor(e.target.value)} placeholder="e.g. Prof. Gholap" />
-                      </div>
-
-                      <div className={styles.inputGroup}>
-                        <label className={styles.label}>Category</label>
-                        <select className={styles.select} value={articleCategory} onChange={(e) => setArticleCategory(e.target.value)}>
-                          <option value="Guidance">Guidance</option>
-                          <option value="Tutorial">Tutorial</option>
-                          <option value="Project Ideas">Project Ideas</option>
-                          <option value="Software Tips">Software Tips</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className={styles.formGrid}>
-                      <div className={styles.inputGroup}>
-                        <label className={styles.label}>Read Time (e.g. 5 min read)</label>
-                        <input type="text" className={styles.input} value={articleReadTime} onChange={(e) => setArticleReadTime(e.target.value)} placeholder="e.g. 5 min read" />
-                      </div>
-
-                      <div className={styles.inputGroup}>
-                        <label className={styles.label}>Publish Date (Optional)</label>
-                        <input type="text" className={styles.input} value={articleDate} onChange={(e) => setArticleDate(e.target.value)} placeholder="e.g. May 25, 2026" />
-                      </div>
-                    </div>
-
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>Summary / Teaser</label>
-                      <input type="text" className={styles.input} value={articleSummary} onChange={(e) => setArticleSummary(e.target.value)} placeholder="A one-sentence teaser..." />
+                      <label className={styles.label}>Category</label>
+                      <select className={styles.select} value={articleCategory} onChange={(e) => setArticleCategory(e.target.value)}>
+                        <option value="Guidance">Guidance</option>
+                        <option value="Tutorial">Tutorial</option>
+                        <option value="Project Ideas">Project Ideas</option>
+                        <option value="Software Tips">Software Tips</option>
+                      </select>
                     </div>
 
                     <div className={styles.inputGroup}>

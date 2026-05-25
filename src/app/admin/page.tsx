@@ -70,16 +70,26 @@ export default async function AdminPage() {
       .order("created_at", { ascending: false });
 
     if (dbArticles) {
-      articles = dbArticles.map((item) => ({
-        id: item.id,
-        title: item.title,
-        author: item.author,
-        date: item.date,
-        readTime: item.read_time || "",
-        category: item.category as any,
-        summary: item.summary || "",
-        content: item.content || "",
-      }));
+      articles = dbArticles.map((item) => {
+        const content = item.content || "";
+        const words = content.trim().split(/\s+/).filter(Boolean).length;
+        const readTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
+
+        const cleanText = content
+          .replace(/[#*`_]/g, "")
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+          .trim();
+        const summary = cleanText.length <= 150 ? cleanText : cleanText.slice(0, 147) + "...";
+
+        return {
+          id: item.id,
+          title: item.title,
+          readTime,
+          category: item.category as any,
+          summary,
+          content,
+        };
+      });
     }
 
     // Fetch projects
