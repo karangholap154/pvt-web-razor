@@ -53,6 +53,7 @@ export default async function AdminPage() {
       notes = dbNotes.map((item) => ({
         id: item.id,
         title: item.title,
+        university: item.university || "",
         branch: item.branch as any,
         semester: item.semester,
         description: item.description || "",
