@@ -7,346 +7,614 @@ import styles from "./page.module.css";
 import { Note, Article } from "../data/mockData";
 import { supabase } from "../utils/supabaseClient";
 
-// ─── University constants ─────────────────────────────────────────────────────
+// ─── University Constants ─────────────────────────────────────────────────────
 const UNIVERSITIES = [
-  { value: "Mumbai University", abbr: "MU" },
-  { value: "Savitribai Phule Pune University", abbr: "SPPU" },
-  { value: "Nagpur University", abbr: "NU" },
-  { value: "Amravati University", abbr: "AU" },
-  { value: "Dr. Babasaheb Ambedkar Technological University", abbr: "DBATU" },
-  { value: "Shivaji University", abbr: "SUK" },
+  { value: "Mumbai University", abbr: "MU", color: "#38bdf8", bg: "rgba(56, 189, 248, 0.05)" },
+  { value: "Savitribai Phule Pune University", abbr: "SPPU", color: "#e879f9", bg: "rgba(232, 121, 249, 0.05)" },
+  { value: "Nagpur University", abbr: "NU", color: "#34d399", bg: "rgba(52, 211, 153, 0.05)" },
+  { value: "Amravati University", abbr: "AU", color: "#fb7185", bg: "rgba(251, 113, 133, 0.05)" },
+  { value: "Dr. Babasaheb Ambedkar Technological University", abbr: "DBATU", color: "#fb923c", bg: "rgba(251, 146, 60, 0.05)" },
+  { value: "Shivaji University", abbr: "SUK", color: "#60a5fa", bg: "rgba(96, 165, 250, 0.05)" },
 ];
 
 // ─── Login Gate Screen (Rich Landing Page) ───────────────────────────────────
 function LoginGate() {
   return (
-    <main style={{ background: "var(--background)", minHeight: "100vh" }}>
+    <main style={{ 
+      background: "var(--background)", 
+      minHeight: "100vh",
+      position: "relative",
+      overflow: "hidden" 
+    }}>
+      {/* Radiant Background Glows */}
+      <div style={{
+        position: "absolute",
+        top: "-150px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "600px",
+        height: "400px",
+        background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)",
+        pointerEvents: "none",
+        zIndex: 0
+      }} />
+
       <style>{`
-        @keyframes floatUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-        .gate-feature-card:hover { transform: translateY(-4px) !important; box-shadow: 0 12px 32px rgba(0,0,0,0.25) !important; border-color: rgba(99,102,241,0.3) !important; }
-        .gate-step:hover .gate-step-num { background: var(--accent) !important; color: #fff !important; }
+        @keyframes floatUp { 
+          from { opacity: 0; transform: translateY(20px); } 
+          to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes pulse { 
+          0%, 100% { opacity: 0.6; } 
+          50% { opacity: 1; } 
+        }
+        .gate-animate {
+          animation: floatUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .gate-feature-card {
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 1.75rem;
+          transition: var(--transition);
+          cursor: default;
+        }
+        .gate-feature-card:hover { 
+          transform: translateY(-4px); 
+          box-shadow: 0 10px 24px -10px rgba(99, 102, 241, 0.3); 
+          border-color: var(--accent); 
+        }
+        .gate-step {
+          display: flex;
+          align-items: flex-start;
+          gap: 1.25rem;
+          padding: 1.5rem;
+          background: rgba(30, 41, 59, 0.2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          transition: var(--transition);
+        }
+        .gate-step:hover {
+          border-color: var(--accent);
+          background: rgba(99, 102, 241, 0.02);
+        }
+        .gate-step:hover .gate-step-num { 
+          background: var(--accent) !important; 
+          color: #ffffff !important; 
+          box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+        .cta-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.875rem 2.25rem;
+          background: var(--accent);
+          color: #ffffff;
+          border-radius: var(--radius);
+          font-weight: 700;
+          font-size: 1rem;
+          text-decoration: none;
+          transition: var(--transition);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+        .cta-primary:hover {
+          background: var(--accent-hover);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+        .cta-secondary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.875rem 2.25rem;
+          background: rgba(255, 255, 255, 0.03);
+          color: var(--text-primary);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          font-weight: 600;
+          font-size: 1rem;
+          text-decoration: none;
+          transition: var(--transition);
+        }
+        .cta-secondary:hover {
+          background: rgba(255, 255, 255, 0.07);
+          transform: translateY(-2px);
+          border-color: var(--text-secondary);
+        }
+        .branch-card {
+          background: rgba(30, 41, 59, 0.15);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 1.5rem;
+          transition: var(--transition);
+        }
+        .branch-card:hover {
+          transform: translateY(-3px);
+          border-color: var(--accent);
+          background: rgba(99, 102, 241, 0.02);
+        }
+        .testimonial-card {
+          background: rgba(30, 41, 59, 0.15);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 1.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          transition: var(--transition);
+        }
+        .testimonial-card:hover {
+          transform: translateY(-3px);
+          border-color: var(--accent);
+          background: rgba(99, 102, 241, 0.02);
+          box-shadow: 0 8px 24px -12px rgba(99, 102, 241, 0.2);
+        }
+        .faq-item {
+          background: rgba(255, 255, 255, 0.01);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 1.5rem;
+          transition: var(--transition);
+        }
+        .faq-item:hover {
+          border-color: var(--accent);
+          background: rgba(99, 102, 241, 0.01);
+        }
       `}</style>
 
-      {/* ── Hero Section ─────────────────────────────────────────── */}
-      <section style={{
-        padding: "5rem 1.5rem 3.5rem",
+      {/* Hero Section */}
+      <section className="gate-animate" style={{
+        padding: "6rem 1.5rem 4rem",
         textAlign: "center",
-        maxWidth: "720px",
+        maxWidth: "800px",
         margin: "0 auto",
-        animation: "floatUp 0.6s ease",
+        position: "relative",
+        zIndex: 1
       }}>
-        {/* Badge */}
+        {/* Pulse Trust Badge */}
         <div style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "0.5rem",
-          background: "rgba(99,102,241,0.1)",
-          border: "1px solid rgba(99,102,241,0.25)",
+          gap: "0.6rem",
+          background: "rgba(99, 102, 241, 0.08)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
           borderRadius: "999px",
-          padding: "0.4rem 1rem",
-          fontSize: "0.78rem",
+          padding: "0.45rem 1.2rem",
+          fontSize: "0.8rem",
           fontWeight: 600,
           color: "#818cf8",
-          marginBottom: "1.75rem",
-          letterSpacing: "0.02em",
+          marginBottom: "2rem",
+          letterSpacing: "0.01em",
         }}>
-          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", animation: "pulse 2s ease infinite" }} />
-          Trusted by engineering students across Maharashtra
+          <span style={{ 
+            width: "7px", 
+            height: "7px", 
+            borderRadius: "50%", 
+            background: "#22c55e", 
+            boxShadow: "0 0 8px #22c55e",
+            animation: "pulse 2s ease infinite" 
+          }} />
+          Trusted Engineering Study Platform
         </div>
 
         <h1 style={{
-          fontSize: "clamp(2rem, 5vw, 3rem)",
+          fontSize: "clamp(2.5rem, 6vw, 3.75rem)",
           fontWeight: 900,
-          lineHeight: 1.15,
+          lineHeight: 1.1,
           letterSpacing: "-0.03em",
-          marginBottom: "1.25rem",
+          marginBottom: "1.5rem",
         }}>
-          Your one-stop hub for{" "}
+          Ace Your Exams with{" "}
           <span style={{
-            background: "linear-gradient(135deg, #6366f1, #a78bfa, #6366f1)",
+            background: "linear-gradient(135deg, var(--accent) 30%, #a78bfa 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}>
-            university notes
+            Private Academy Engineering
           </span>
         </h1>
 
         <p style={{
-          fontSize: "1.1rem",
+          fontSize: "1.15rem",
           color: "var(--text-secondary)",
           lineHeight: 1.7,
-          maxWidth: "540px",
-          margin: "0 auto 2.5rem",
+          maxWidth: "600px",
+          margin: "0 auto 2.75rem",
         }}>
-          Access branch-wise, semester-sorted study notes, video tutorials, and premium guides — all tailored to your university syllabus.
+          A curated hub for branch-wise engineering notes, semester guides, and video walkthroughs personalized for your university.
         </p>
 
-        {/* CTA Buttons */}
-        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            href="/login"
-            id="gate-login-btn"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.875rem 2rem",
-              background: "var(--accent)",
-              color: "#fff",
-              borderRadius: "var(--radius-sm)",
-              fontWeight: 700,
-              fontSize: "1rem",
-              textDecoration: "none",
-              transition: "var(--transition)",
-            }}
-          >
-            Get Started Free
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        {/* Action Portal */}
+        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/login" className="cta-primary" id="gate-login-btn">
+            Get Started Now
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
-          <Link
-            href="/login"
-            id="gate-signup-btn"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.875rem 2rem",
-              background: "rgba(255,255,255,0.05)",
-              color: "var(--text-primary)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-sm)",
-              fontWeight: 600,
-              fontSize: "1rem",
-              textDecoration: "none",
-              transition: "var(--transition)",
-            }}
-          >
+          <Link href="/login" className="cta-secondary" id="gate-signup-btn">
             Log In
           </Link>
         </div>
       </section>
 
-      {/* ── Stats Row ────────────────────────────────────────────── */}
-      <section style={{
+      {/* Stats Counter Row */}
+      <section className="gate-animate" style={{
         display: "flex",
         justifyContent: "center",
-        gap: "2rem",
+        gap: "3rem",
         flexWrap: "wrap",
-        padding: "0 1.5rem 3.5rem",
-        animation: "floatUp 0.7s ease",
+        padding: "0 1.5rem 4rem",
+        position: "relative",
+        zIndex: 1
       }}>
         {[
           { num: "6+", label: "Universities" },
-          { num: "100+", label: "Study Notes" },
-          { num: "Free", label: "Access Tier" },
-          { num: "24/7", label: "Available" },
-        ].map((stat) => (
-          <div key={stat.label} style={{ textAlign: "center", minWidth: "100px" }}>
-            <div style={{ fontSize: "1.6rem", fontWeight: 900, color: "var(--accent)", letterSpacing: "-0.02em" }}>
+          { num: "100+", label: "Study Guides" },
+          { num: "2.5K+", label: "Active Students" },
+          { num: "4", label: "Free Sample Notes" },
+        ].map((stat, idx) => (
+          <div key={idx} style={{ 
+            textAlign: "center", 
+            minWidth: "120px", 
+            padding: "1rem", 
+            background: "rgba(255,255,255,0.01)", 
+            border: "1px solid var(--border)", 
+            borderRadius: "var(--radius)" 
+          }}>
+            <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "var(--accent)", letterSpacing: "-0.02em" }}>
               {stat.num}
             </div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", fontWeight: 500, marginTop: "0.2rem" }}>
+            <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600, marginTop: "0.25rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               {stat.label}
             </div>
           </div>
         ))}
       </section>
 
-      {/* ── Divider ──────────────────────────────────────────────── */}
-      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 1.5rem" }}>
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 1.5rem" }}>
         <div style={{ height: "1px", background: "var(--border)" }} />
       </div>
 
-      {/* ── Feature Cards ────────────────────────────────────────── */}
-      <section style={{
-        maxWidth: "880px",
+      {/* Academic Resource Catalog */}
+      <section className="gate-animate" style={{
+        maxWidth: "900px",
         margin: "0 auto",
-        padding: "3.5rem 1.5rem",
-        animation: "floatUp 0.8s ease",
+        padding: "4.5rem 1.5rem",
+        position: "relative",
+        zIndex: 1
       }}>
-        <h2 style={{ textAlign: "center", fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
-          Everything you need to ace your exams
+        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
+          Academic Resource Catalog
         </h2>
-        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.92rem", marginBottom: "2.5rem", maxWidth: "480px", margin: "0 auto 2.5rem" }}>
-          Built by students, for students — designed around how you actually study.
+        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "3rem", maxWidth: "520px", margin: "0 auto 3rem" }}>
+          We provide various types of supplementary guides to help you understand engineering concepts and prepare for exams.
         </p>
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-          gap: "1rem",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: "1.25rem",
         }}>
           {[
             {
-              icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
-              title: "Branch-wise Notes",
-              desc: "Computer, IT, AIML, Mechanical — organised by your branch so you find exactly what you need.",
+              title: "Chapter-Wise Revision Notes",
+              desc: "Summarized explanation sheets compiled by top students, covering core theoretical concepts and definitions.",
+              icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`
             },
             {
-              icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
-              title: "Video Tutorials",
-              desc: "Each note can include an embedded video walkthrough to help you understand tough concepts visually.",
+              title: "Solved University Papers",
+              desc: "Step-by-step mathematical steps, derivations, and solutions to past years' university exam questions.",
+              icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
             },
             {
-              icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
-              title: "Instant PDF Downloads",
-              desc: "Download notes as PDFs directly — no ads, no wait time. Study offline, anytime.",
+              title: "Last-Minute Revision Sheets",
+              desc: "High-yield summary sheets highlighting repeating exam questions, important formulas, and quick checklists.",
+              icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
             },
             {
-              icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
-              title: "University Personalised",
-              desc: "Select your university once and see only the notes that match your syllabus — Mumbai, SPPU, Nagpur & more.",
+              title: "Visual Video Explainers",
+              desc: "Short video walkthrough tutorials embedded alongside notes to explain complex algorithms and derivations.",
+              icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`
             },
             {
-              icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
-              title: "Smart Search & Filters",
-              desc: "Instantly search by title, filter by branch and semester — find the right material in seconds.",
-            },
-            {
-              icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-              title: "Secure & Private",
-              desc: "Your data stays safe. Simple login, no unnecessary permissions, and secure payment via Razorpay.",
-            },
-          ].map((f) => (
-            <div
-              key={f.title}
-              className="gate-feature-card"
-              style={{
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius)",
-                padding: "1.5rem",
-                transition: "all 0.25s ease",
-                cursor: "default",
-              }}
-            >
-              <div
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "10px",
-                  background: "rgba(99,102,241,0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "1rem",
-                }}
-                dangerouslySetInnerHTML={{ __html: f.icon }}
-              />
-              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.4rem" }}>{f.title}</h3>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.55, margin: 0 }}>{f.desc}</p>
+              title: "Mini & Micro Project Files",
+              desc: "Practical developer project templates including full clean source codes, README setups, and documentation files.",
+              icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`
+            }
+          ].map((item, idx) => (
+            <div key={idx} className="branch-card" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <span style={{ display: "flex" }} dangerouslySetInnerHTML={{ __html: item.icon }} />
+                <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-primary)" }}>{item.title}</h3>
+              </div>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>
+                {item.desc}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Divider ──────────────────────────────────────────────── */}
-      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 1.5rem" }}>
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 1.5rem" }}>
         <div style={{ height: "1px", background: "var(--border)" }} />
       </div>
 
-      {/* ── How It Works ─────────────────────────────────────────── */}
-      <section style={{
-        maxWidth: "700px",
+      {/* Features Overview */}
+      <section className="gate-animate" style={{
+        maxWidth: "900px",
         margin: "0 auto",
-        padding: "3.5rem 1.5rem",
+        padding: "4.5rem 1.5rem",
+        position: "relative",
+        zIndex: 1
       }}>
-        <h2 style={{ textAlign: "center", fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
-          How it works
+        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
+          Everything you need to study smarter
         </h2>
-        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.92rem", marginBottom: "2.5rem" }}>
-          Three simple steps to your study material.
+        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "3rem", maxWidth: "520px", margin: "0 auto 3rem" }}>
+          Designed around the way engineering students actually learn, review, and prepare.
         </p>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: "1.25rem",
+        }}>
           {[
-            { num: "1", title: "Create a free account", desc: "Sign up with your email — takes less than 30 seconds." },
-            { num: "2", title: "Select your university", desc: "Choose your university to personalise the library to your syllabus." },
-            { num: "3", title: "Browse & download", desc: "Search notes, watch video tutorials, and download PDFs instantly." },
-          ].map((step) => (
-            <div
-              key={step.num}
-              className="gate-step"
-              style={{
+            {
+              icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+              title: "Branch-wise Notes",
+              desc: "Computer, IT, AIML, Mechanical, and Chemical — organized neatly by department so you save time.",
+            },
+            {
+              icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
+              title: "Video Walkthroughs",
+              desc: "Difficult code, math equations, and concept proofs are accompanied by visual YouTube explainers.",
+            },
+            {
+              icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+              title: "Direct PDF Downloads",
+              desc: "Instant file storage downloads directly to your device. No redirections, zero ads, no waiting.",
+            },
+            {
+              icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+              title: "University Personalization",
+              desc: "Select your curriculum once (Mumbai, Pune, Nagpur, DBATU) and see notes matching your exact syllabus.",
+            },
+            {
+              icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+              title: "Intelligent Filters",
+              desc: "Locate materials instantly. Filter by branch, search key terms, and sort by semester in milliseconds.",
+            },
+            {
+              icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+              title: "Secure Account Portal",
+              desc: "Access note unlock histories, secure transactions with Razorpay, and manage settings privately.",
+            },
+          ].map((f, idx) => (
+            <div key={idx} className="gate-feature-card">
+              <div style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "var(--radius-sm)",
+                background: "rgba(99, 102, 241, 0.12)",
+                color: "var(--accent)",
                 display: "flex",
-                alignItems: "flex-start",
-                gap: "1.25rem",
-                padding: "1.25rem",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius)",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "1.25rem",
+              }} dangerouslySetInnerHTML={{ __html: f.icon }} />
+              <h3 style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>{f.title}</h3>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ height: "1px", background: "var(--border)" }} />
+      </div>
+
+      {/* Onboarding Steps */}
+      <section style={{
+        maxWidth: "720px",
+        margin: "0 auto",
+        padding: "4.5rem 1.5rem",
+      }}>
+        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
+          Simple 3-Step Process
+        </h2>
+        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "3rem" }}>
+          Get immediate access to customized engineering study folders.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {[
+            { num: "01", title: "Create Your Account", desc: "Sign up with your credentials in 15 seconds to access the notes dashboard." },
+            { num: "02", title: "Set Your Active University", desc: "Choose your university so we can filter and arrange guides matching your syllabus." },
+            { num: "03", title: "Unlock & Learn", desc: "Instantly download PDF books, review past papers, and watch visual walk-through tutorials." },
+          ].map((step, idx) => (
+            <div key={idx} className="gate-step">
+              <div className="gate-step-num" style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "rgba(99, 102, 241, 0.12)",
+                color: "var(--accent)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 800,
+                fontSize: "0.95rem",
+                flexShrink: 0,
                 transition: "var(--transition)",
-              }}
-            >
-              <div
-                className="gate-step-num"
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "50%",
-                  background: "rgba(99,102,241,0.12)",
-                  color: "var(--accent)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: "0.9rem",
-                  flexShrink: 0,
-                  transition: "all 0.25s ease",
-                }}
-              >
+              }}>
                 {step.num}
               </div>
               <div>
-                <h4 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.25rem" }}>{step.title}</h4>
-                <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
+                <h4 style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "0.25rem", color: "var(--text-primary)" }}>{step.title}</h4>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Bottom CTA ───────────────────────────────────────────── */}
-      <section style={{
-        maxWidth: "600px",
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ height: "1px", background: "var(--border)" }} />
+      </div>
+
+      {/* Student Testimonials (NEW) */}
+      <section className="gate-animate" style={{
+        maxWidth: "900px",
         margin: "0 auto",
-        padding: "1rem 1.5rem 4rem",
+        padding: "4.5rem 1.5rem",
+        position: "relative",
+        zIndex: 1
+      }}>
+        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
+          What Engineering Students Say
+        </h2>
+        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "3.5rem", maxWidth: "520px", margin: "0 auto 3.5rem" }}>
+          Real feedback from engineering colleges across Maharashtra.
+        </p>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))",
+          gap: "1.25rem",
+        }}>
+          {[
+            {
+              name: "Rahul Mehta",
+              branch: "Computer Engineering, Semester 6",
+              quote: "Private Academy saved my semesters. The reference sheets and code explanations for Cryptography are super detailed and formatted cleanly. Highly recommended!"
+            },
+            {
+              name: "Priya Patil",
+              branch: "Information Technology, Semester 5",
+              quote: "I love the university customization. Selecting my specific university filtered out all the other syllabus variations. Watching the short video tutorials next to the PDF files helped clear doubts fast."
+            },
+            {
+              name: "Aditya Shinde",
+              branch: "Computer Engineering, Semester 7",
+              quote: "Compiler design and machine learning math were a struggle until I opened the solved papers on here. The step-by-step algorithms are verified and very clear."
+            }
+          ].map((t, idx) => (
+            <div key={idx} className="testimonial-card">
+              <div style={{ display: "flex", gap: "0.2rem" }}>
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#eab308" stroke="none">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                ))}
+              </div>
+              <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.65, fontStyle: "italic", flexGrow: 1, margin: 0 }}>
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: "0.75rem", marginTop: "0.5rem" }}>
+                <h4 style={{ fontSize: "0.925rem", fontWeight: 700, color: "var(--text-primary)" }}>{t.name}</h4>
+                <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>{t.branch}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ height: "1px", background: "var(--border)" }} />
+      </div>
+
+      {/* Frequently Asked Questions (NEW) */}
+      <section className="gate-animate" style={{
+        maxWidth: "900px",
+        margin: "0 auto",
+        padding: "4.5rem 1.5rem",
+        position: "relative",
+        zIndex: 1
+      }}>
+        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
+          Frequently Asked Questions
+        </h2>
+        <p style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "3.5rem" }}>
+          Quick answers to common student inquiries about our platform.
+        </p>
+
+        <div className="faq-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
+          {[
+            {
+              q: "Are the notes aligned with the latest syllabus?",
+              a: "Yes. All uploaded notes are periodically checked and updated by senior contributors and academic coordinators to align with the active syllabus guidelines of the selected university."
+            },
+            {
+              q: "Do I have to pay to download PDF guides?",
+              a: "We offer a selection of free sample notes (currently 4 starter guides) so you can evaluate the content quality. Other premium study folders and solved university question papers carry a nominal fee to support our student editors and maintain hosting costs."
+            },
+            {
+              q: "Can I request notes for a specific topic?",
+              a: "Absolutely. Head to our Contact page and use the 'Need Specific Notes?' Quick Action. Our team will look up your request and try to compile and upload the PDF file within 48 hours."
+            },
+            {
+              q: "How do video tutorials help?",
+              a: "We believe in multi-sensory learning. Difficult chapters feature brief video walk-through embeds alongside PDFs so you can review theories and calculations visually."
+            },
+            {
+              q: "Is the checkout transaction secure?",
+              a: "Yes. We use Razorpay to process payments securely. Razorpay complies with PCI-DSS tokenized protocols, meaning we never capture or store your debit/credit card details on our database."
+            },
+            {
+              q: "Can I upload my own study notes?",
+              a: "We welcome contributor submissions. Send us a message via the suggestion action on our Contact Page or join our Telegram channel to upload study materials and join the team."
+            }
+          ].map((faq, idx) => (
+            <div key={idx} className="faq-item">
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.5rem", display: "flex", gap: "0.4rem" }}>
+                <span style={{ color: "var(--accent)" }}>Q:</span> {faq.q}
+              </h4>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>
+                {faq.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ height: "1px", background: "var(--border)" }} />
+      </div>
+
+      {/* Bottom CTA Block */}
+      <section style={{
+        maxWidth: "680px",
+        margin: "0 auto",
+        padding: "1.5rem 1.5rem 5rem",
         textAlign: "center",
       }}>
         <div style={{
-          background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))",
-          border: "1px solid rgba(99,102,241,0.2)",
-          borderRadius: "var(--radius)",
-          padding: "2.5rem 2rem",
+          background: "linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(167, 139, 250, 0.04) 100%)",
+          border: "1px solid rgba(99, 102, 241, 0.2)",
+          borderRadius: "var(--radius-lg)",
+          padding: "3rem 2.5rem",
+          position: "relative",
+          overflow: "hidden"
         }}>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Ready to start studying smarter?
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "2px",
+            background: "linear-gradient(90deg, var(--accent), #a78bfa)"
+          }} />
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)" }}>
+            Ace your semesters with Private Academy
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginBottom: "1.75rem" }}>
-            Join now — it&apos;s free, fast, and built for your university.
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "2rem", maxWidth: "440px", margin: "0 auto 2rem" }}>
+            Get started immediately. Personalize your library resources to make study prep effortless.
           </p>
-          <Link
-            href="/login"
-            id="gate-bottom-cta"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.875rem 2.5rem",
-              background: "var(--accent)",
-              color: "#fff",
-              borderRadius: "var(--radius-sm)",
-              fontWeight: 700,
-              fontSize: "1rem",
-              textDecoration: "none",
-              transition: "var(--transition)",
-            }}
-          >
-            Get Started — It&apos;s Free
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <Link href="/login" className="cta-primary" id="gate-bottom-cta">
+            Access Notes Catalog
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
@@ -365,7 +633,6 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
   const [countsLoaded, setCountsLoaded] = useState(false);
   const [comingSoonUniv, setComingSoonUniv] = useState("");
 
-  // Fetch note counts per university on mount
   useEffect(() => {
     async function fetchCounts() {
       try {
@@ -427,91 +694,123 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
       alignItems: "center",
       justifyContent: "center",
       background: "var(--background)",
-      padding: "2rem 1.5rem",
+      padding: "3rem 1.5rem",
+      position: "relative"
     }}>
-      <div style={{ width: "100%", maxWidth: "680px" }}>
+      {/* Glow */}
+      <div style={{
+        position: "absolute",
+        top: "10%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "500px",
+        height: "300px",
+        background: "radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)",
+        pointerEvents: "none"
+      }} />
+
+      <div style={{ width: "100%", maxWidth: "700px", position: "relative", zIndex: 1 }} className="animate-fade">
+        <style>{`
+          .univ-card {
+            padding: 1.5rem 1.25rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition);
+            position: relative;
+          }
+          .univ-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-color);
+            background: var(--brand-bg);
+            box-shadow: 0 8px 24px -10px var(--brand-color);
+          }
+        `}</style>
+
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
           <div style={{
-            width: "72px",
-            height: "72px",
+            width: "68px",
+            height: "68px",
             borderRadius: "50%",
-            background: "rgba(99,102,241,0.12)",
-            border: "1px solid rgba(99,102,241,0.25)",
+            background: "rgba(99, 102, 241, 0.12)",
+            border: "1px solid rgba(99, 102, 241, 0.25)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            margin: "0 auto 1.5rem",
+            margin: "0 auto 1.25rem",
           }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.8">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2">
               <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
               <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
           </div>
-          <h1 style={{ fontSize: "1.9rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: "2rem", fontWeight: 900, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
             Select Your University
           </h1>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.6, maxWidth: "440px", margin: "0 auto" }}>
-            Choose the university whose syllabus notes you want to see. Your library will be personalised to your university.
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.6, maxWidth: "460px", margin: "0 auto" }}>
+            Choose your university to customize your study notes board. This helps filter syllabus guides directly.
           </p>
 
-          {/* Warning */}
+          {/* Action Warn Alert */}
           <div style={{
-            marginTop: "1rem",
+            marginTop: "1.25rem",
             display: "inline-flex",
             alignItems: "center",
             gap: "0.5rem",
-            background: "rgba(245,158,11,0.1)",
-            border: "1px solid rgba(245,158,11,0.3)",
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.25)",
             borderRadius: "var(--radius-sm)",
             padding: "0.5rem 1rem",
-            fontSize: "0.82rem",
+            fontSize: "0.8rem",
             color: "#f59e0b",
             fontWeight: 600,
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            This selection is permanent and cannot be changed later
+            This selection is permanent and customizes your dashboard settings
           </div>
         </div>
 
-        {/* Coming Soon Popup */}
+        {/* Coming Soon Notice */}
         {comingSoonUniv && (
           <div style={{
-            background: "rgba(99,102,241,0.08)",
-            border: "1px solid rgba(99,102,241,0.25)",
+            background: "rgba(99, 102, 241, 0.06)",
+            border: "1px solid rgba(99, 102, 241, 0.2)",
             borderRadius: "var(--radius)",
             padding: "1.25rem 1.5rem",
             marginBottom: "1.5rem",
             display: "flex",
             alignItems: "flex-start",
             gap: "1rem",
-            animation: "fadeSlideIn 0.3s ease",
+            animation: "floatIn 0.3s ease",
           }}>
             <div style={{
-              width: "44px",
-              height: "44px",
+              width: "40px",
+              height: "40px",
               borderRadius: "50%",
-              background: "rgba(99,102,241,0.15)",
+              background: "rgba(99, 102, 241, 0.12)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2.5">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v6l4 2" />
               </svg>
             </div>
             <div style={{ flex: 1 }}>
-              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.3rem", color: "var(--text-primary)" }}>
-                Coming Soon — {comingSoonUniv.replace("University", "Univ.")}
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.25rem", color: "var(--text-primary)" }}>
+                Notes Library Coming Soon
               </h4>
               <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>
-                Our team is actively preparing notes and study material for this university. We&apos;ll have it ready for you soon — check back in a few days!
+                Our team is currently compiling branch-wise study notes for {comingSoonUniv}. We will release the study folders for download shortly.
               </p>
             </div>
             <button
@@ -522,8 +821,9 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
                 color: "var(--text-secondary)",
                 cursor: "pointer",
                 padding: "0.25rem",
-                lineHeight: 0,
-                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                flexShrink: 0
               }}
               aria-label="Dismiss"
             >
@@ -534,14 +834,13 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
             </button>
           </div>
         )}
-        <style>{`@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
-        {/* University Cards Grid */}
+        {/* Grid cards */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))",
           gap: "0.875rem",
-          marginBottom: "1.75rem",
+          marginBottom: "2rem",
         }}>
           {UNIVERSITIES.map((u) => {
             const isSelected = selected === u.value;
@@ -551,53 +850,50 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
               <button
                 key={u.value}
                 onClick={() => handleCardClick(u.value)}
+                className="univ-card"
                 id={`univ-card-${u.abbr.toLowerCase()}`}
                 style={{
-                  padding: "1.25rem 1rem",
-                  borderRadius: "var(--radius)",
-                  border: isSelected ? "2px solid var(--accent)" : isEmpty ? "1px solid rgba(255,255,255,0.06)" : "1px solid var(--border)",
-                  background: isSelected ? "rgba(99,102,241,0.12)" : isEmpty ? "rgba(255,255,255,0.02)" : "var(--card-bg)",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "var(--transition)",
-                  position: "relative",
-                  transform: isSelected ? "translateY(-2px)" : "none",
-                  boxShadow: isSelected ? "0 8px 24px rgba(99,102,241,0.2)" : "none",
-                  opacity: isEmpty ? 0.55 : 1,
-                }}
+                  // Pass dynamic vars for hover class styling
+                  "--brand-color": u.color,
+                  "--brand-bg": u.bg,
+                  border: isSelected ? `2px solid ${u.color}` : isEmpty ? "1px solid rgba(255,255,255,0.04)" : "1px solid var(--border)",
+                  background: isSelected ? u.bg : isEmpty ? "rgba(255,255,255,0.01)" : "var(--card-bg)",
+                  transform: isSelected ? "translateY(-3px)" : "none",
+                  boxShadow: isSelected ? `0 8px 24px -10px ${u.color}` : "none",
+                  opacity: isEmpty ? 0.5 : 1,
+                } as React.CSSProperties}
               >
-                {/* Checkmark for selected */}
+                {/* Selected Checkmark badge */}
                 {isSelected && (
                   <div style={{
                     position: "absolute",
-                    top: "0.6rem",
-                    right: "0.6rem",
-                    width: "20px",
-                    height: "20px",
+                    top: "0.75rem",
+                    right: "0.75rem",
+                    width: "18px",
+                    height: "18px",
                     borderRadius: "50%",
-                    background: "var(--accent)",
+                    background: u.color,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}>
-                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                      <path d="M2.5 6.5l2 2 5-5" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
                     </svg>
                   </div>
                 )}
-                {/* "Coming Soon" badge for empty universities */}
+                {/* Empty label badge */}
                 {isEmpty && !isSelected && (
                   <div style={{
                     position: "absolute",
-                    top: "0.55rem",
-                    right: "0.55rem",
+                    top: "0.75rem",
+                    right: "0.75rem",
                     fontSize: "0.6rem",
                     fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.04em",
                     color: "#f59e0b",
-                    background: "rgba(245,158,11,0.12)",
-                    border: "1px solid rgba(245,158,11,0.25)",
+                    background: "rgba(245,158,11,0.1)",
+                    border: "1px solid rgba(245,158,11,0.2)",
                     borderRadius: "4px",
                     padding: "0.15rem 0.4rem",
                   }}>
@@ -605,30 +901,33 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
                   </div>
                 )}
                 <div style={{
-                  fontSize: "1.1rem",
-                  fontWeight: 800,
-                  color: isSelected ? "var(--accent)" : isEmpty ? "var(--text-secondary)" : "var(--text-primary)",
-                  marginBottom: "0.35rem",
+                  fontSize: "1.25rem",
+                  fontWeight: 900,
+                  color: isSelected ? u.color : isEmpty ? "var(--text-secondary)" : "var(--text-primary)",
+                  marginBottom: "0.25rem",
                 }}>
                   {u.abbr}
                 </div>
                 <div style={{
-                  fontSize: "0.78rem",
+                  fontSize: "0.8rem",
                   color: isSelected ? "var(--text-primary)" : "var(--text-secondary)",
                   lineHeight: 1.4,
                   fontWeight: 500,
+                  marginBottom: "0.5rem"
                 }}>
                   {u.value}
                 </div>
-                {/* Note count badge */}
                 {countsLoaded && (
                   <div style={{
-                    marginTop: "0.5rem",
-                    fontSize: "0.7rem",
+                    fontSize: "0.725rem",
                     fontWeight: 600,
                     color: noteCount > 0 ? "#22c55e" : "var(--text-secondary)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.25rem"
                   }}>
-                    {noteCount > 0 ? `${noteCount} ${noteCount === 1 ? "note" : "notes"} available` : "No notes yet"}
+                    <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: noteCount > 0 ? "#22c55e" : "var(--border)" }} />
+                    {noteCount > 0 ? `${noteCount} study folders` : "Compiling files"}
                   </div>
                 )}
               </button>
@@ -636,41 +935,41 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
           })}
         </div>
 
-        {/* Error */}
         {error && (
           <div style={{
-            background: "rgba(239,68,68,0.1)",
-            border: "1px solid rgba(239,68,68,0.3)",
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
             color: "#f87171",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "var(--radius)",
             padding: "0.75rem 1rem",
             fontSize: "0.875rem",
-            marginBottom: "1rem",
+            marginBottom: "1.25rem",
             textAlign: "center",
           }}>
             {error}
           </div>
         )}
 
-        {/* Confirm Button */}
+        {/* Action Button */}
         <button
           onClick={handleConfirm}
           disabled={!selected || !selectedHasNotes || saving}
           id="btn-confirm-university"
           style={{
             width: "100%",
-            padding: "0.925rem",
-            background: selected && selectedHasNotes ? "var(--accent)" : "rgba(255,255,255,0.05)",
-            color: selected && selectedHasNotes ? "#fff" : "var(--text-secondary)",
-            border: "none",
-            borderRadius: "var(--radius-sm)",
+            padding: "0.95rem",
+            background: selected && selectedHasNotes ? "var(--accent)" : "rgba(255,255,255,0.03)",
+            color: selected && selectedHasNotes ? "#ffffff" : "var(--text-secondary)",
+            border: selected && selectedHasNotes ? "none" : "1px solid var(--border)",
+            borderRadius: "var(--radius)",
             fontWeight: 700,
             fontSize: "1rem",
             cursor: selected && selectedHasNotes ? "pointer" : "not-allowed",
             transition: "var(--transition)",
+            boxShadow: selected && selectedHasNotes ? "0 4px 12px rgba(99, 102, 241, 0.25)" : "none"
           }}
         >
-          {saving ? "Saving your choice..." : selected ? `Confirm — ${selected}` : "Select a university to continue"}
+          {saving ? "Saving Selection..." : selected ? `Unlock Library — ${selected}` : "Select University to Unlock Content"}
         </button>
       </div>
     </main>
@@ -740,14 +1039,12 @@ function HomeContent() {
     async function loadData() {
       setIsLoading(true);
       try {
-        // Fetch notes for this university
         const { data: dbNotes, error: notesError } = await (supabase
           .from("notes")
           .select("*") as any)
           .eq("university", userUniversity)
           .order("title", { ascending: true });
 
-        // Fetch articles (not filtered by university)
         const { data: dbArticles, error: articlesError } = await supabase
           .from("articles")
           .select("*")
@@ -970,7 +1267,6 @@ function HomeContent() {
     }
   };
 
-  // ── Gate screens ────────────────────────────────────────────────────────
   if (authState === "loading") {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", flexDirection: "column", gap: "1rem" }}>
@@ -987,64 +1283,162 @@ function HomeContent() {
     return <UniversityGate onSelect={(u) => { setUserUniversity(u); setAuthState("ready"); }} />;
   }
 
-  // ── Library ─────────────────────────────────────────────────────────────
   return (
-    <main className={styles.main}>
+    <main className={styles.main} style={{ display: "flex", flexDirection: "column", gap: "4.5rem", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "4rem 1.5rem" }}>
+      <style>{`
+        .custom-widget-card {
+          border: 1px solid var(--border);
+          background: rgba(30, 41, 59, 0.2);
+          border-radius: var(--radius);
+          padding: 1rem 1.25rem;
+          transition: var(--transition);
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          text-decoration: none;
+        }
+        .custom-widget-card:hover {
+          border-color: var(--accent);
+          background: rgba(99, 102, 241, 0.04);
+          transform: translateY(-2px);
+        }
+        .note-card-glow {
+          transition: var(--transition);
+        }
+        .note-card-glow:hover {
+          transform: translateY(-4px);
+          border-color: var(--accent);
+          box-shadow: 0 10px 24px -10px rgba(99, 102, 241, 0.25);
+        }
+        .btn-note-action {
+          padding: 0.65rem 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          transition: var(--transition);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.25rem;
+          border: 1px solid var(--border);
+          text-decoration: none;
+        }
+        .btn-note-watch {
+          background-color: rgba(239, 68, 68, 0.06);
+          color: #ef4444;
+          border-color: rgba(239, 68, 68, 0.2);
+        }
+        .btn-note-watch:hover {
+          background-color: #ef4444;
+          color: #ffffff;
+          border-color: #ef4444;
+        }
+        .btn-note-download {
+          background-color: var(--accent-light);
+          color: var(--accent);
+          border-color: rgba(99, 102, 241, 0.2);
+        }
+        .btn-note-download:hover {
+          background-color: var(--accent);
+          color: #ffffff;
+          border-color: var(--accent);
+        }
+        .btn-note-download-free {
+          background-color: rgba(34, 197, 94, 0.06);
+          color: #22c55e;
+          border-color: rgba(34, 197, 94, 0.25);
+        }
+        .btn-note-download-free:hover {
+          background-color: #22c55e;
+          color: #ffffff;
+          border-color: #22c55e;
+        }
+      `}</style>
+
       {/* Hero Section */}
-      <section className={styles.heroSection} id="hero-section">
-        <div className={styles.heroLeft}>
-          <div className={styles.heroBadge} id="hero-badge">
-            {userUniversity} — Your engineering study hub
+      <section className={styles.heroSection} style={{ display: "grid", gridTemplateColumns: "1.25fr 0.75fr", gap: "3.5rem", alignItems: "center" }} id="hero-section">
+        <div className={styles.heroLeft} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            background: "rgba(99, 102, 241, 0.08)",
+            border: "1px solid rgba(99, 102, 241, 0.25)",
+            borderRadius: "999px",
+            padding: "0.4rem 1rem",
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            color: "#818cf8",
+            alignSelf: "flex-start"
+          }}>
+            {userUniversity} Syllabus notes
           </div>
-          <h1 className={styles.heroTitle} id="hero-title">
-            Study smarter — <br />
-            <span className="gradient-text">faster access to notes and guides</span>
+          <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="hero-title">
+            Study Smarter — <br />
+            <span style={{
+              background: "linear-gradient(135deg, var(--accent) 30%, #a78bfa 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent"
+            }}>
+              Personalized Notes Library
+            </span>
           </h1>
-          <p className={styles.heroSubtext} id="hero-subtext">
-            A unified place to search branch-wise notes, filter by semester, and open tutorials or downloads — personalised for {userUniversity}.
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: "580px" }} id="hero-subtext">
+            Access branch-wise folders, check semester filters, download exam materials, or watch tutorial walkthroughs — personalized for your university.
           </p>
-          <div className={styles.heroActions} id="hero-actions">
-            <a href="#search-section" className={styles.btnPrimary} id="btn-explore-notes">
-              Explore Notes
+          
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.5rem" }} id="hero-actions">
+            <a href="#search-section" className={styles.btnPrimary} style={{ padding: "0.8rem 1.5rem", fontWeight: 700, borderRadius: "var(--radius)" }} id="btn-explore-notes">
+              Search Notes
             </a>
-            <Link href="/articles" className={styles.btnSecondary} id="btn-read-articles">
-              Read Articles
+            <Link href="/projects" className={styles.btnSecondary} style={{ padding: "0.8rem 1.5rem", fontWeight: 600, borderRadius: "var(--radius)" }} id="btn-see-projects">
+              Explore Projects
             </Link>
-            <Link href="/projects" className={styles.btnSecondary} id="btn-see-projects">
-              See Projects
+            <Link href="/careers" className={styles.btnSecondary} style={{ padding: "0.8rem 1.5rem", fontWeight: 600, borderRadius: "var(--radius)" }} id="btn-see-careers">
+              We&apos;re Hiring
             </Link>
           </div>
 
-          <div className={styles.heroChips} id="hero-chips">
-            <div className={styles.chip} onClick={() => applyQuickFilter("Structures", "All branches", "All semesters")} style={{ cursor: "pointer" }}>
-              <span className={styles.chipIcon}>✓</span> Search instantly by title
+          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", marginTop: "1rem", fontSize: "0.85rem", color: "var(--text-secondary)" }} id="hero-chips">
+            <div className={styles.chip} onClick={() => applyQuickFilter("Structures", "All branches", "All semesters")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span style={{ color: "var(--accent)" }}>✓</span> Search instantly
             </div>
-            <div className={styles.chip} onClick={() => applyQuickFilter("", "Computer", "Sem 3")} style={{ cursor: "pointer" }}>
-              <span className={styles.chipIcon}>✓</span> Filter by branch & semester
+            <div className={styles.chip} onClick={() => applyQuickFilter("", "Computer", "Sem 3")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span style={{ color: "var(--accent)" }}>✓</span> Branch filters
             </div>
-            <div className={styles.chip} onClick={() => applyQuickFilter("", "All branches", "Sem 5")} style={{ cursor: "pointer" }}>
-              <span className={styles.chipIcon}>✓</span> Open downloads and videos
+            <div className={styles.chip} onClick={() => applyQuickFilter("", "All branches", "Sem 5")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span style={{ color: "var(--accent)" }}>✓</span> Offline PDF access
             </div>
           </div>
         </div>
 
-        {/* Hero Right Widget - Recent Articles */}
-        <aside className={styles.articlesWidget} id="recent-articles-widget">
-          <div className={styles.widgetTitle}>
-            <span>Recent Articles</span>
-            <Link href="/articles" className={styles.widgetTitleLink}>
+        {/* Hero Right Widget - Recent Feeds */}
+        <aside style={{
+          background: "var(--card-bg)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "2rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.25rem",
+          boxShadow: "var(--shadow-lg)"
+        }} id="recent-articles-widget">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>
+            <span style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--text-primary)" }}>Recent Feeds</span>
+            <Link href="/articles" style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent)" }}>
               View All →
             </Link>
           </div>
-          <div className={styles.widgetList}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
             {isLoading ? (
-              <div style={{ color: "var(--text-secondary)", fontSize: "0.85rem", padding: "1rem 0" }}>Loading recent feeds...</div>
+              <div style={{ color: "var(--text-secondary)", fontSize: "0.85rem", padding: "1.5rem 0", textAlign: "center" }}>Loading feeds...</div>
             ) : (
               articles.slice(0, 3).map((art) => (
-                <Link href={`/articles#${art.id}`} key={art.id} className={styles.widgetCard}>
-                  <span className={styles.widgetCardCategory}>{art.category}</span>
-                  <span className={styles.widgetCardTitle}>{art.title}</span>
-                  <div className={styles.widgetCardMeta}>
+                <Link href={`/articles#${art.id}`} key={art.id} className="custom-widget-card">
+                  <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{art.category}</span>
+                  <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3 }}>{art.title}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
                     <span>{art.author}</span>
                     <span>{art.readTime}</span>
                   </div>
@@ -1055,24 +1449,24 @@ function HomeContent() {
         </aside>
       </section>
 
-      {/* Search & Filter Section */}
-      <section className={styles.searchSection} id="search-section">
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionHeading}>Search the library</h2>
-          <p className={styles.sectionSubtext}>
-            Use search, branch, and semester together to narrow results fast.
+      {/* Search & Filter Panel */}
+      <section className={styles.searchSection} style={{ padding: "2.5rem 2rem", borderRadius: "var(--radius-lg)" }} id="search-section">
+        <div className={styles.sectionHeader} style={{ marginBottom: "1.5rem" }}>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)" }}>Search the library</h2>
+          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+            Narrow your syllabus search quickly by choosing branch, semester, and key topics.
           </p>
         </div>
 
         <div className={styles.filterForm}>
           <div className={styles.inputGroup}>
-            <svg className={styles.inputIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input
               type="text"
-              placeholder="Search notes..."
+              placeholder="Search notes by title or keyword..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -1114,85 +1508,120 @@ function HomeContent() {
           </select>
 
           <button onClick={handleClearFilters} className={styles.btnClear} id="btn-clear-filters">
-            Clear
+            Clear Filters
           </button>
         </div>
 
         <div className={styles.resultsMeta}>
-          <span id="results-count">
-            {isLoading ? "Counting results..." : `Showing ${filteredNotes.length} ${filteredNotes.length === 1 ? "result" : "results"}`}
+          <span id="results-count" style={{ fontWeight: 600 }}>
+            {isLoading ? "Syncing..." : `Found ${filteredNotes.length} matching study ${filteredNotes.length === 1 ? "sheet" : "sheets"}`}
           </span>
           {(searchQuery || selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
-            <span style={{ color: "var(--accent)", fontWeight: 500 }}>Filters Active</span>
+            <span style={{ 
+              fontSize: "0.75rem", 
+              fontWeight: 700, 
+              padding: "0.2rem 0.5rem", 
+              borderRadius: "4px", 
+              background: "var(--accent-light)", 
+              color: "var(--accent)", 
+              border: "1px solid rgba(99,102,241,0.2)" 
+            }}>
+              Active Search Filters
+            </span>
           )}
         </div>
       </section>
 
       {/* Featured Notes Section */}
       <section className={styles.notesSection} id="featured-notes-section">
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionHeading}>Featured notes</h2>
-          <p className={styles.sectionSubtext}>
-            Open a note, check the video, or go straight to the download when it is available.
+        <div className={styles.sectionHeader} style={{ borderBottom: "1px solid var(--border)", paddingBottom: "1rem" }}>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)" }}>Study notes catalog</h2>
+          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+            Select folders to download offline copy PDFs or review visual explanations.
           </p>
         </div>
 
         {isLoading ? (
-          <div style={{ textAlign: "center", padding: "4rem 2rem", color: "var(--text-secondary)" }}>
-            <div style={{ width: "30px", height: "30px", border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1rem auto" }}></div>
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <h3>Syncing with library database...</h3>
+          <div style={{ textAlign: "center", padding: "5rem 2rem", color: "var(--text-secondary)" }}>
+            <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.06)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1.25rem" }} />
+            <h3>Syncing notes with database...</h3>
           </div>
         ) : filteredNotes.length > 0 ? (
           <div className={styles.grid}>
-            {filteredNotes.map((note) => (
-              <article className={styles.noteCard} key={note.id} id={note.id}>
-                <div className={styles.noteCardHeader}>
-                  <h3 className={styles.noteCardTitle}>{note.title}</h3>
-                </div>
-                <div className={styles.badgeRow}>
-                  <span className={styles.tagBranch}>{note.branch}</span>
-                  <span className={styles.badgeSemester}>{note.semester}</span>
-                  {note.price && note.price > 0 ? (
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
-                      ₹{note.price}
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#22c55e", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-                      Free
-                    </span>
-                  )}
-                </div>
-                <p className={styles.noteCardDesc}>{note.description}</p>
+            {filteredNotes.map((note) => {
+              const hasVideo = !!note.videoUrl;
+              return (
+                <article key={note.id} className={`${styles.noteCard} note-card-glow`} id={note.id}>
+                  <div className={styles.noteCardHeader}>
+                    <h3 className={styles.noteCardTitle}>{note.title}</h3>
+                  </div>
+                  <div className={styles.badgeRow}>
+                    <span className={styles.tagBranch}>{note.branch}</span>
+                    <span className={styles.badgeSemester}>{note.semester}</span>
+                    {note.price && note.price > 0 ? (
+                      <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                        ₹{note.price}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
+                        Free
+                      </span>
+                    )}
+                  </div>
+                  <p className={styles.noteCardDesc}>{note.description}</p>
 
-                <div className={styles.noteCardActions}>
-                  <button
-                    onClick={() => openModal(note, "video")}
-                    className={`${styles.btnAction} ${styles.btnActionVideo}`}
-                    id={`btn-watch-video-${note.id}`}
-                  >
-                    Watch Video
-                  </button>
-                  <button
-                    onClick={() => handleDownloadClick(note)}
-                    className={`${styles.btnAction} ${styles.btnActionPdf}`}
-                    id={`btn-download-${note.id}`}
-                  >
-                    {note.price && note.price > 0 ? "Unlock PDF" : "Download PDF"}
-                  </button>
-                </div>
-              </article>
-            ))}
+                  <div className={styles.noteCardActions} style={{ 
+                    display: "grid", 
+                    gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr",
+                    gap: "0.5rem" 
+                  }}>
+                    {hasVideo && (
+                      <button
+                        onClick={() => openModal(note, "video")}
+                        className="btn-note-action btn-note-watch"
+                        id={`btn-watch-video-${note.id}`}
+                      >
+                        Watch Video
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDownloadClick(note)}
+                      className={`btn-note-action ${note.price && note.price > 0 ? "btn-note-download" : "btn-note-download-free"}`}
+                      id={`btn-download-${note.id}`}
+                      style={{ gridColumn: hasVideo ? "auto" : "span 2" }}
+                    >
+                      {note.price && note.price > 0 ? (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                          </svg>
+                          Unlock PDF
+                        </>
+                      ) : (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                          </svg>
+                          Download PDF
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : (
           <div className={styles.noResults} id="no-results-alert">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: "1rem" }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: "1rem" }}>
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              <line x1="8" y1="11" x2="14" y2="11"></line>
             </svg>
-            <h3>No notes found for {userUniversity}</h3>
-            <p style={{ marginTop: "0.5rem" }}>The admin hasn&apos;t added notes for your university yet, or try clearing your filters.</p>
+            <h3>No study notes found for {userUniversity}</h3>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}>Our contributors have not uploaded notes for this specific branch filter yet. Try adjusting or clearing search parameters.</p>
           </div>
         )}
       </section>
@@ -1202,25 +1631,25 @@ function HomeContent() {
         <div className={styles.modalBackdrop} onClick={() => setShowCheckoutPrompt(false)} id="checkout-backdrop">
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="checkout-modal-content">
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Unlock Study Notes</h3>
+              <h3 className={styles.modalTitle}>Unlock Study Resource</h3>
               <button onClick={() => setShowCheckoutPrompt(false)} className={styles.modalCloseBtn} id="btn-close-checkout">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
             </div>
             <div className={styles.modalBody}>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 700 }}>{checkoutNote.title}</h4>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{checkoutNote.title}</h4>
               {!userEmail ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.75rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
                   <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
                     You need to be signed in to purchase or access premium study guides.
                   </p>
                   <Link
                     href={`/login?redirect=/?unlock=${checkoutNote.id}`}
                     className={styles.btnPrimary}
-                    style={{ justifyContent: "center", textAlign: "center", textDecoration: "none" }}
+                    style={{ justifyContent: "center", textDecoration: "none" }}
                     id="btn-login-to-purchase"
                   >
                     Log In / Sign Up
@@ -1228,12 +1657,12 @@ function HomeContent() {
                 </div>
               ) : (
                 <>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "0.25rem" }}>
+                  <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
                     This is a premium resource. Proceed to verify your past purchase or buy now for <strong>₹{checkoutNote.price}</strong>.
                   </p>
-                  <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "1rem" }} id="checkout-form">
+                  <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "0.5rem" }} id="checkout-form">
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>Email Address</label>
+                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>Account Profile Email</label>
                       <input
                         type="email"
                         id="checkout-email"
@@ -1241,19 +1670,29 @@ function HomeContent() {
                         value={checkoutEmail}
                         onChange={(e) => setCheckoutEmail(e.target.value)}
                         disabled={true}
-                        style={{ width: "100%", backgroundColor: "var(--background)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text-primary)", padding: "0.75rem 1rem", fontFamily: "var(--font-sans)", outline: "none", opacity: 0.75 }}
+                        style={{ 
+                          width: "100%", 
+                          backgroundColor: "var(--background)", 
+                          border: "1px solid var(--border)", 
+                          borderRadius: "var(--radius-sm)", 
+                          color: "var(--text-primary)", 
+                          padding: "0.75rem 1rem", 
+                          fontFamily: "var(--font-sans)", 
+                          outline: "none", 
+                          opacity: 0.75 
+                        }}
                       />
-                      <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 500 }}>Logged in as {userEmail}</span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>Logged in session email</span>
                     </div>
                     <button
                       type="submit"
                       className={styles.btnPrimary}
                       disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
-                      style={{ justifyContent: "center", marginTop: "0.5rem" }}
+                      style={{ justifyContent: "center", marginTop: "0.25rem" }}
                       id="btn-trigger-payment-flow"
                     >
-                      {checkoutStatus === "verifying" && "Checking Purchases..."}
-                      {checkoutStatus === "paying" && "Redirecting to Razorpay..."}
+                      {checkoutStatus === "verifying" && "Checking database logs..."}
+                      {checkoutStatus === "paying" && "Accessing secure Razorpay checkout..."}
                       {checkoutStatus === "idle" && "Proceed to Unlock"}
                     </button>
                   </form>
@@ -1273,11 +1712,11 @@ function HomeContent() {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="modal-content-container">
             <div className={styles.modalHeader}>
               <h3 className={styles.modalTitle}>
-                {modalType === "video" && "Video Tutorial"}
-                {modalType === "pdf" && "PDF Download Link"}
+                {modalType === "video" && "Video Walkthrough"}
+                {modalType === "pdf" && "Download PDF File"}
               </h3>
               <button onClick={closeModal} className={styles.modalCloseBtn} id="btn-close-modal">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -1285,18 +1724,18 @@ function HomeContent() {
             </div>
 
             <div className={styles.modalBody}>
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
                 <span className={styles.tagBranch}>{selectedNote.branch}</span>
                 <span className={styles.badgeSemester}>{selectedNote.semester}</span>
               </div>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 700 }}>{selectedNote.title}</h4>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>{selectedNote.description}</p>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{selectedNote.title}</h4>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.5 }}>{selectedNote.description}</p>
 
               {modalType === "video" && (
                 <div className={styles.videoWrapper} id="video-preview-iframe">
                   <iframe
                     src={selectedNote.videoUrl}
-                    title={`${selectedNote.title} Video Tutorial`}
+                    title={`${selectedNote.title} Video Walkthrough`}
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
@@ -1305,15 +1744,21 @@ function HomeContent() {
               )}
 
               {modalType === "pdf" && (
-                <div style={{ textAlign: "center", padding: "2rem 1rem", backgroundColor: "var(--background)", borderRadius: "8px", border: "1px dashed var(--border)" }} id="pdf-download-pane">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" style={{ marginBottom: "1rem" }}>
+                <div style={{ 
+                  textAlign: "center", 
+                  padding: "2.5rem 1.5rem", 
+                  backgroundColor: "var(--background)", 
+                  borderRadius: "var(--radius)", 
+                  border: "1px dashed var(--border)" 
+                }} id="pdf-download-pane">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" style={{ marginBottom: "1.25rem" }}>
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="12" y1="18" x2="12" y2="12"></line>
                     <polyline points="9 15 12 18 15 15"></polyline>
                   </svg>
-                  <h5>{selectedNote.title}.pdf</h5>
-                  <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File Size: ~4.2 MB</p>
+                  <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>{selectedNote.title}.pdf</h5>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
                   <button
                     onClick={() => handleDownload(selectedNote.downloadUrl, selectedNote.title)}
                     className={styles.btnPrimary}
@@ -1321,7 +1766,7 @@ function HomeContent() {
                     disabled={downloadingPdf}
                     id="btn-trigger-pdf-download"
                   >
-                    {downloadingPdf ? "Downloading..." : "Confirm Download"}
+                    {downloadingPdf ? "Downloading file..." : "Download PDF File"}
                   </button>
                 </div>
               )}

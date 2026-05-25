@@ -31,6 +31,13 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
     };
   }, [menuOpen]);
 
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(href);
+  };
+
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/articles", label: "Articles" },
@@ -42,13 +49,12 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
 
   return (
     <>
-      {/* Desktop Nav */}
       <nav className={styles.nav} id="desktop-nav" aria-label="Main navigation">
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className={styles.navLink}
+            className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
             id={`nav-link-${link.label.toLowerCase()}`}
           >
             {link.label}
@@ -59,14 +65,18 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
             {isUserAdmin && (
               <Link
                 href="/admin"
-                className={styles.navLink}
+                className={`${styles.navLink} ${isActive("/admin") ? styles.navLinkActive : ""}`}
                 id="nav-link-admin"
                 style={{ border: "1px dashed var(--accent)", color: "var(--accent)" }}
               >
                 Admin Panel
               </Link>
             )}
-            <Link href="/dashboard" className={styles.navLink} id="nav-link-dashboard">
+            <Link
+              href="/dashboard"
+              className={`${styles.navLink} ${isActive("/dashboard") ? styles.navLinkActive : ""}`}
+              id="nav-link-dashboard"
+            >
               Dashboard
             </Link>
             <a href="/api/auth/logout" className={styles.navLink} id="nav-link-logout" style={{ color: "#ef4444" }}>
@@ -141,7 +151,7 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className={styles.mobileNavLink}
+              className={`${styles.mobileNavLink} ${isActive(link.href) ? styles.mobileNavLinkActive : ""}`}
               onClick={() => setMenuOpen(false)}
             >
               {link.label}
@@ -153,7 +163,7 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
               {isUserAdmin && (
                 <Link
                   href="/admin"
-                  className={styles.mobileNavLink}
+                  className={`${styles.mobileNavLink} ${isActive("/admin") ? styles.mobileNavLinkActive : ""}`}
                   style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
                   onClick={() => setMenuOpen(false)}
                 >
@@ -162,7 +172,7 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
               )}
               <Link
                 href="/dashboard"
-                className={styles.mobileNavLink}
+                className={`${styles.mobileNavLink} ${isActive("/dashboard") ? styles.mobileNavLinkActive : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
                 Dashboard
@@ -171,6 +181,7 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
                 href="/api/auth/logout"
                 className={styles.mobileNavLink}
                 style={{ color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
+                onClick={() => setMenuOpen(false)}
               >
                 Logout
               </a>
