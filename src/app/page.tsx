@@ -252,7 +252,6 @@ function LoginGate() {
           { num: "6+", label: "Universities" },
           { num: "100+", label: "Study Guides" },
           { num: "2.5K+", label: "Active Students" },
-          { num: "4", label: "Free Sample Notes" },
         ].map((stat, idx) => (
           <div key={idx} style={{ 
             textAlign: "center", 
@@ -548,7 +547,7 @@ function LoginGate() {
             },
             {
               q: "Do I have to pay to download PDF guides?",
-              a: "We offer a selection of free sample notes (currently 4 starter guides) so you can evaluate the content quality. Other premium study folders and solved university question papers carry a nominal fee to support our student editors and maintain hosting costs."
+              a: "Our premium study folders and solved university question papers carry a nominal fee to support our student editors and maintain hosting costs."
             },
             {
               q: "Can I request notes for a specific topic?",
