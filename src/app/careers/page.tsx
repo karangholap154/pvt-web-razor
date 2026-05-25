@@ -1,121 +1,230 @@
 import Link from "next/link";
-import cardStyles from "../page.module.css"; // Reuse card effects
 
 interface JobRole {
-  id: string;
+  id: number;
   title: string;
+  badge?: string;
   department: string;
+  type: string;
   location: string;
-  stipend: string;
+  experience: string;
+  salary: string;
   description: string;
   requirements: string[];
+  responsibilities: string[];
+  benefits: string[];
 }
 
 const jobOpenings: JobRole[] = [
   {
-    id: "job-sme",
-    title: "Subject Matter Expert (Notes Creator)",
-    department: "Academic Content",
-    location: "Remote / Part-time",
-    stipend: "₹8,000 - ₹15,000 / month",
-    description: "Write clear, structured, and exam-oriented study blueprints and formula sheets for engineering courses.",
+    id: 1,
+    title: 'Content Creator & Educational Specialist',
+    badge: 'Featured',
+    department: 'Content',
+    type: 'Internship',
+    location: 'Remote',
+    experience: '0-1 years',
+    salary: '5-7k/month',
+    description: 'Create high-quality educational content and study materials for engineering students across various universities.',
     requirements: [
-      "Must have scored 8.5+ SGPA/CGPA in the relevant engineering subject.",
-      "Excellent handwriting or ability to type neat LaTeX/Markdown documents.",
-      "Currently pursuing or completed B.E. / B.Tech in Computer, IT, AIML, Mechanical, or Chemical Engineering."
-    ]
+      'Engineering degree (Computer/IT/AIML preferred)',
+      'Excellent written and verbal communication',
+      'Experience in content creation or teaching',
+      'Knowledge of leading engineering university curricula',
+      'Video editing and graphic design skills',
+    ],
+    responsibilities: [
+      'Create study notes and educational materials',
+      'Develop video tutorials and explanations',
+      'Review and update existing content',
+      'Collaborate with subject matter experts',
+      'Ensure content quality and accuracy',
+    ],
+    benefits: [
+      'Impact thousands of students',
+      'Creative content creation tools',
+      'Professional development opportunities',
+      'Flexible schedule',
+      'Performance incentives',
+    ],
   },
   {
-    id: "job-video",
-    title: "Video Tutorial Creator",
-    department: "Multimedia & Video",
-    location: "Remote / Flexible Hours",
-    stipend: "₹1,200 - ₹2,500 / video module",
-    description: "Record concise 10-15 minute screen-cast video tutorials explaining complex concepts and solving numericals.",
+    id: 2,
+    title: 'Marketing Intern',
+    department: 'Marketing',
+    type: 'Internship',
+    location: 'Remote',
+    experience: '0-1 years',
+    salary: '5-7k/month',
+    description: 'Help grow our community and reach more students through digital marketing and social media.',
     requirements: [
-      "Clear verbal communication in English/Hindi.",
-      "Access to a decent microphone, stylus tablet (for writing explanations), and screen recording software.",
-      "Ability to break down heavy derivations or compiler algorithms into plain visual steps."
-    ]
+      'Currently pursuing or recently completed degree',
+      'Strong social media presence and understanding',
+      'Basic knowledge of digital marketing',
+      'Creative thinking and content creation skills',
+      'Excellent communication skills',
+    ],
+    responsibilities: [
+      'Manage social media accounts',
+      'Create engaging content for various platforms',
+      'Assist with marketing campaigns',
+      'Analyze social media metrics',
+      'Support community engagement initiatives',
+    ],
+    benefits: [
+      'Hands-on marketing experience',
+      'Mentorship from senior team members',
+      'Flexible internship schedule',
+      'Certificate of completion',
+      'Potential for full-time offer',
+    ],
   },
-  {
-    id: "job-dev",
-    title: "Platform Frontend Contributor",
-    department: "Engineering",
-    location: "Remote / Internship",
-    stipend: "₹10,000 / month + Certificate",
-    description: "Maintain and upgrade the Private Academy platform, develop interactive mock testing modules, and optimize core web vitals.",
-    requirements: [
-      "Solid hands-on experience with Next.js, React, TypeScript, and CSS Modules.",
-      "Familiarity with Git branching, pull request workflows, and component testing.",
-      "Understanding of SEO, responsive layouts, and modern accessibility guidelines."
-    ]
-  }
 ];
 
 export default function CareersPage() {
   return (
-    <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "3.5rem" }}>
+    <div style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
+      <style>{`
+        @keyframes floatIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade {
+          animation: floatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .job-card {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid var(--border);
+          background: rgba(30, 41, 59, 0.2);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+        .job-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(99, 102, 241, 0.25);
+          background: rgba(30, 41, 59, 0.35);
+          box-shadow: 0 16px 28px -10px rgba(0, 0, 0, 0.4);
+        }
+        .apply-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background-color: var(--accent);
+          color: #fff;
+          font-weight: 700;
+          padding: 0.7rem 1.5rem;
+          border-radius: var(--radius-sm);
+          font-size: 0.875rem;
+          transition: var(--transition);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+          cursor: pointer;
+        }
+        .apply-btn:hover {
+          background-color: var(--accent-hover);
+          transform: translateY(-1px);
+        }
+        .meta-badge {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border);
+          padding: 0.25rem 0.65rem;
+          border-radius: 6px;
+        }
+      `}</style>
+
       {/* Title */}
-      <header style={{ borderBottom: "1px solid var(--border)", paddingBottom: "2rem" }} id="careers-header">
-        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.03em" }} id="careers-title">Careers at Private Academy</h1>
-        <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
-          Help us build the next generation of engineering learning resources. We look for passionate educators and builders.
+      <header className="animate-fade" style={{ borderBottom: "1px solid var(--border)", paddingBottom: "2.5rem", textAlign: "center" }} id="careers-header">
+        <div style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          background: "rgba(99, 102, 241, 0.1)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          borderRadius: "999px",
+          padding: "0.4rem 1rem",
+          fontSize: "0.78rem",
+          fontWeight: 600,
+          color: "#818cf8",
+          marginBottom: "1.25rem",
+          letterSpacing: "0.02em",
+          textTransform: "uppercase"
+        }}>
+          Careers
+        </div>
+        <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="careers-title">
+          Join the{" "}
+          <span style={{
+            background: "linear-gradient(135deg, var(--accent), #a78bfa)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>
+            Academy Team
+          </span>
+        </h1>
+        <p style={{ fontSize: "1.15rem", color: "var(--text-secondary)", marginTop: "1rem", maxWidth: "680px", margin: "1rem auto 0", lineHeight: 1.6 }} id="careers-tagline">
+          Help us build the next generation of engineering learning resources. We look for passionate educators, creative marketers, and builders.
         </p>
       </header>
 
-      {/* Intro section */}
-      <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }} id="careers-culture-section">
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 700 }}>Why Contribute Here?</h2>
-        <p style={{ color: "var(--text-secondary)", lineHeight: "1.7", fontSize: "1rem" }}>
-          Private Academy is a growing community hub. By joining us as a content creator or platform developer, you directly 
-          influence the study routines of thousands of students. We offer flexible remote work, fair competitive stipends, 
-          and letter of recommendation credentials to all active student coordinators.
+      {/* Culture Section */}
+      <section className="animate-fade" style={{ padding: "2rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "rgba(30, 41, 59, 0.1)" }} id="careers-culture-section">
+        <h2 style={{ fontSize: "1.35rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)" }}>Why Contribute Here?</h2>
+        <p style={{ color: "var(--text-secondary)", lineHeight: "1.7", fontSize: "0.95rem" }}>
+          Private Academy is a growing community hub. By joining us as an intern or content creator, you directly influence the study routines of thousands of students. We offer flexible remote work, fair competitive stipends, and letter of recommendation credentials to all active coordinators.
         </p>
       </section>
 
       {/* Jobs Listing */}
-      <section style={{ display: "flex", flexDirection: "column", gap: "2rem" }} id="openings-section">
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 700 }}>Active Openings</h2>
+      <section className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: "2rem" }} id="openings-section">
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>Active Openings</h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           {jobOpenings.map((job) => (
             <article
               key={job.id}
+              className="job-card"
               style={{
-                backgroundColor: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius)",
-                padding: "2rem",
+                borderRadius: "var(--radius-lg)",
+                padding: "2.5rem",
                 display: "flex",
                 flexDirection: "column",
-                gap: "1.25rem"
+                gap: "1.75rem"
               }}
-              id={job.id}
+              id={`job-${job.id}`}
             >
               {/* Job Header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
-                <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)" }}>{job.title}</h3>
-                  <div style={{ display: "flex", gap: "1rem", fontSize: "0.8rem", color: "var(--accent)", fontWeight: 600, marginTop: "0.25rem" }}>
-                    <span>{job.department}</span>
-                    <span>•</span>
-                    <span>{job.location}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1.25rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                    <h3 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)" }}>{job.title}</h3>
+                    {job.badge && (
+                      <span style={{
+                        fontSize: "0.7rem",
+                        fontWeight: 700,
+                        background: "linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%)",
+                        color: "#fff",
+                        padding: "0.2rem 0.6rem",
+                        borderRadius: "4px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em"
+                      }}>
+                        {job.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.15rem" }}>
+                    <span className="meta-badge">{job.department}</span>
+                    <span className="meta-badge">{job.type}</span>
+                    <span className="meta-badge">{job.location}</span>
+                    <span className="meta-badge">{job.experience}</span>
                   </div>
                 </div>
-                <span
-                  style={{
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid var(--border)",
-                    padding: "0.4rem 0.8rem",
-                    borderRadius: "999px",
-                    color: "var(--text-primary)"
-                  }}
-                >
-                  {job.stipend}
-                </span>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                  <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--accent)" }}>{job.salary}</span>
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.1rem" }}>Stipend</span>
+                </div>
               </div>
 
               {/* Description */}
@@ -123,27 +232,66 @@ export default function CareersPage() {
                 {job.description}
               </p>
 
-              {/* Requirements list */}
-              <div>
-                <h4 style={{ fontSize: "0.9rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text-primary)" }}>Requirements:</h4>
-                <ul style={{ listStyleType: "disc", paddingLeft: "1.25rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-                  {job.requirements.map((req, index) => (
-                    <li key={index} style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
-                      {req}
-                    </li>
-                  ))}
-                </ul>
+              {/* Requirements & Responsibilities Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "2rem" }}>
+                {/* Requirements */}
+                <div>
+                  <h4 style={{ fontSize: "0.95rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ color: "var(--accent)" }}>•</span> Requirements
+                  </h4>
+                  <ul style={{ listStyleType: "none", display: "flex", flexDirection: "column", gap: "0.5rem", padding: 0 }}>
+                    {job.requirements.map((req, index) => (
+                      <li key={index} style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5", paddingLeft: "1rem", position: "relative" }}>
+                        <span style={{ position: "absolute", left: 0, color: "rgba(255,255,255,0.2)" }}>-</span>
+                        {req}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Responsibilities */}
+                <div>
+                  <h4 style={{ fontSize: "0.95rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ color: "var(--accent)" }}>•</span> Responsibilities
+                  </h4>
+                  <ul style={{ listStyleType: "none", display: "flex", flexDirection: "column", gap: "0.5rem", padding: 0 }}>
+                    {job.responsibilities.map((resp, index) => (
+                      <li key={index} style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5", paddingLeft: "1rem", position: "relative" }}>
+                        <span style={{ position: "absolute", left: 0, color: "rgba(255,255,255,0.2)" }}>-</span>
+                        {resp}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Benefits */}
+                <div>
+                  <h4 style={{ fontSize: "0.95rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ color: "var(--accent)" }}>•</span> Benefits
+                  </h4>
+                  <ul style={{ listStyleType: "none", display: "flex", flexDirection: "column", gap: "0.5rem", padding: 0 }}>
+                    {job.benefits.map((benefit, index) => (
+                      <li key={index} style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5", paddingLeft: "1rem", position: "relative" }}>
+                        <span style={{ position: "absolute", left: 0, color: "rgba(255,255,255,0.2)" }}>-</span>
+                        {benefit}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
-              {/* Apply action */}
-              <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
+              {/* Apply Action */}
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.5rem", display: "flex", justifyContent: "flex-end" }}>
                 <Link
                   href={`/contact?subject=Application for ${encodeURIComponent(job.title)}`}
-                  className={cardStyles.btnPrimary}
-                  style={{ fontSize: "0.85rem", padding: "0.6rem 1.2rem" }}
+                  className="apply-btn"
                   id={`btn-apply-job-${job.id}`}
                 >
                   Apply for this Role
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
                 </Link>
               </div>
 
