@@ -284,7 +284,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
             {articles && articles.length > 0 ? (
               articles.slice(0, 3).map((art) => (
-                <Link href={`/articles#${art.id}`} key={art.id} className="custom-widget-card">
+                <Link href={`/articles/${art.id}`} key={art.id} className="custom-widget-card">
                   <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{art.category}</span>
                   <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3 }}>{art.title}</span>
                   <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
@@ -1502,7 +1502,7 @@ function HomeContent() {
               <div style={{ color: "var(--text-secondary)", fontSize: "0.85rem", padding: "1.5rem 0", textAlign: "center" }}>Loading feeds...</div>
             ) : (
               articles.slice(0, 3).map((art) => (
-                <Link href={`/articles#${art.id}`} key={art.id} className="custom-widget-card">
+                <Link href={`/articles/${art.id}`} key={art.id} className="custom-widget-card">
                   <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{art.category}</span>
                   <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3 }}>{art.title}</span>
                   <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>

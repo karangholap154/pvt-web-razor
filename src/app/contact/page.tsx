@@ -327,7 +327,7 @@ export default function ContactPage() {
               <div>
                 <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.02em" }}>Location</div>
                 <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                  Mumbai, Maharashtra, India (Remote)
+                  Maharashtra, India
                 </div>
               </div>
             </div>
