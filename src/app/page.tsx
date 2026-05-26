@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { Note, Article } from "../data/mockData";
 import { supabase } from "../utils/supabaseClient";
@@ -977,6 +977,7 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
 
 // ─── Main HomeContent (Notes Library) ────────────────────────────────────────
 function HomeContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const unlockNoteId = searchParams.get("unlock");
 
@@ -1547,9 +1548,24 @@ function HomeContent() {
             {filteredNotes.map((note) => {
               const hasVideo = !!note.videoUrl;
               return (
-                <article key={note.id} className={`${styles.noteCard} note-card-glow`} id={note.id}>
+                <article 
+                  key={note.id} 
+                  className={`${styles.noteCard} note-card-glow`} 
+                  id={note.id}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => router.push(`/notes/${note.id}`)}
+                >
                   <div className={styles.noteCardHeader}>
-                    <h3 className={styles.noteCardTitle}>{note.title}</h3>
+                    <h3 className={styles.noteCardTitle}>
+                      <Link 
+                        href={`/notes/${note.id}`} 
+                        style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+                      >
+                        {note.title}
+                      </Link>
+                    </h3>
                   </div>
                   <div className={styles.badgeRow}>
                     <span className={styles.tagBranch}>{note.branch}</span>
@@ -1573,7 +1589,10 @@ function HomeContent() {
                   }}>
                     {hasVideo && (
                       <button
-                        onClick={() => openModal(note, "video")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal(note, "video");
+                        }}
                         className="btn-note-action btn-note-watch"
                         id={`btn-watch-video-${note.id}`}
                       >
@@ -1581,7 +1600,10 @@ function HomeContent() {
                       </button>
                     )}
                     <button
-                      onClick={() => handleDownloadClick(note)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownloadClick(note);
+                      }}
                       className={`btn-note-action ${note.price && note.price > 0 ? "btn-note-download" : "btn-note-download-free"}`}
                       id={`btn-download-${note.id}`}
                       style={{ gridColumn: hasVideo ? "auto" : "span 2" }}

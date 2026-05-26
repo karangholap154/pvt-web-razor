@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import pageStyles from "../page.module.css"; // Reuse modal and backdrop styling from home page
 import { Note } from "../../data/mockData";
@@ -12,6 +13,7 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ email, notes }: DashboardClientProps) {
+  const router = useRouter();
   // Modal states
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [modalType, setModalType] = useState<"video" | "pdf" | null>(null);
@@ -78,9 +80,24 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
       {notes.length > 0 ? (
         <div className={styles.grid}>
           {notes.map((note) => (
-            <article className={styles.noteCard} key={note.id} id={`purchased-${note.id}`}>
+            <article 
+              className={styles.noteCard} 
+              key={note.id} 
+              id={`purchased-${note.id}`}
+              style={{ cursor: "pointer" }}
+              onClick={() => router.push(`/notes/${note.id}`)}
+            >
               <div className={styles.noteCardHeader}>
-                <h3 className={styles.noteCardTitle}>{note.title}</h3>
+                <h3 className={styles.noteCardTitle}>
+                  <Link 
+                    href={`/notes/${note.id}`} 
+                    style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+                  >
+                    {note.title}
+                  </Link>
+                </h3>
               </div>
               <div className={styles.badgeRow}>
                 <span className={styles.tagBranch}>{note.branch}</span>
@@ -93,14 +110,20 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
               
               <div className={styles.noteCardActions}>
                 <button
-                  onClick={() => openModal(note, "video")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal(note, "video");
+                  }}
                   className={`${styles.btnAction} ${styles.btnActionVideo}`}
                   id={`btn-dashboard-watch-${note.id}`}
                 >
                   Watch Video
                 </button>
                 <button
-                  onClick={() => openModal(note, "pdf")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal(note, "pdf");
+                  }}
                   className={`${styles.btnAction} ${styles.btnActionPdf}`}
                   id={`btn-dashboard-download-${note.id}`}
                 >
