@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./articles.module.css";
-import modalStyles from "../page.module.css"; // Reuse modal styling classes
 import { Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
 
@@ -24,10 +24,10 @@ function generateSummary(content: string): string {
 }
 
 export default function ArticlesPage() {
+  const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [activeArticle, setActiveArticle] = useState<Article | null>(null);
 
   // Filter categories
   const categories = ["All", "Guidance", "Tutorial", "Project Ideas", "Software Tips"];
@@ -77,7 +77,7 @@ export default function ArticlesPage() {
     return articles.filter((art) => art.category === selectedCategory);
   }, [articles, selectedCategory]);
 
-  // Handle Hash Deep Linking on Mount & Hash Change (runs once we have the articles loaded)
+  // Handle Hash Deep Linking redirect to dedicated article page
   useEffect(() => {
     if (isLoading || articles.length === 0) return;
 
@@ -87,32 +87,18 @@ export default function ArticlesPage() {
         const id = hash.replace("#", "");
         const matched = articles.find((art) => art.id === id);
         if (matched) {
-          setActiveArticle(matched);
+          router.push(`/articles/${matched.id}`);
         }
       }
     };
 
-    // Run on mount or when articles load
     handleHashChange();
 
-    // Listen for changes
     window.addEventListener("hashchange", handleHashChange);
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, [isLoading, articles]);
-
-  // Close reader modal and clear URL hash
-  const closeArticle = () => {
-    setActiveArticle(null);
-    if (typeof window !== "undefined") {
-      window.history.pushState(
-        {},
-        "",
-        window.location.pathname + window.location.search
-      );
-    }
-  };
+  }, [isLoading, articles, router]);
 
   return (
     <div className={styles.container}>
@@ -147,11 +133,27 @@ export default function ArticlesPage() {
       ) : (
         <main className={styles.grid} id="articles-grid">
           {filteredArticles.map((art) => (
-            <article className={styles.card} key={art.id} id={art.id}>
+            <article 
+              className={styles.card} 
+              key={art.id} 
+              id={art.id}
+              style={{ cursor: "pointer" }}
+              onClick={() => router.push(`/articles/${art.id}`)}
+            >
               <div className={styles.cardHeader}>
                 <span className={styles.categoryTag}>{art.category}</span>
               </div>
-              <h2 className={styles.cardTitle}>{art.title}</h2>
+              <h2 className={styles.cardTitle}>
+                <Link
+                  href={`/articles/${art.id}`}
+                  style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {art.title}
+                </Link>
+              </h2>
               <p className={styles.summary}>{art.summary}</p>
               
               <div className={styles.authorMeta} style={{ justifyContent: "flex-end" }}>
@@ -159,7 +161,10 @@ export default function ArticlesPage() {
               </div>
 
               <button
-                onClick={() => setActiveArticle(art)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/articles/${art.id}`);
+                }}
                 className={styles.btnRead}
                 style={{ marginTop: "1rem" }}
                 id={`btn-read-full-${art.id}`}
@@ -169,51 +174,6 @@ export default function ArticlesPage() {
             </article>
           ))}
         </main>
-      )}
-
-      {/* Modal Reader Overlay */}
-      {activeArticle && (
-        <div className={modalStyles.modalBackdrop} onClick={closeArticle} id="article-reader-backdrop">
-          <div
-            className={`${modalStyles.modalContent} ${styles.articleModal}`}
-            onClick={(e) => e.stopPropagation()}
-            id="article-reader-content-container"
-          >
-            
-            {/* Modal Header */}
-            <div className={modalStyles.modalHeader}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                <span className={styles.categoryTag}>{activeArticle.category}</span>
-                <h3 className={modalStyles.modalTitle}>{activeArticle.title}</h3>
-              </div>
-              <button onClick={closeArticle} className={modalStyles.modalCloseBtn} id="btn-close-reader">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className={modalStyles.modalBody}>
-              <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.85rem", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>
-                <span>{activeArticle.readTime}</span>
-              </div>
-              
-              <div className={styles.articleContent} id="full-article-body">
-                {activeArticle.content}
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className={modalStyles.modalFooter}>
-              <button onClick={closeArticle} className={modalStyles.btnSecondary} id="btn-close-reader-footer">
-                Close Reader
-              </button>
-            </div>
-
-          </div>
-        </div>
       )}
     </div>
   );
