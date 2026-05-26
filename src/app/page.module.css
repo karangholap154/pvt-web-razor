@@ -310,7 +310,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -573,14 +573,26 @@
   .filterForm > *:first-child {
     grid-column: span 2;
   }
+  
+  .btnClear {
+    grid-column: span 2;
+  }
 }
 
 @media (max-width: 600px) {
+  .searchSection {
+    padding: 1.5rem 1.25rem;
+  }
+
   .filterForm {
     grid-template-columns: 1fr;
   }
   
   .filterForm > *:first-child {
+    grid-column: span 1;
+  }
+
+  .btnClear {
     grid-column: span 1;
   }
   

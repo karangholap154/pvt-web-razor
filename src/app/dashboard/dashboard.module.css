@@ -59,7 +59,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -205,4 +205,30 @@
 .btnExplore:hover {
   background-color: var(--accent-hover);
   transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 2rem 1rem;
+  }
+  
+  .headerArea {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .btnLogout {
+    width: 100%;
+    text-align: center;
+  }
+
+  .noteCard {
+    padding: 1.25rem;
+  }
+
+  .noteCardActions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }

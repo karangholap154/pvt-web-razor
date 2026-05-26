@@ -18,7 +18,7 @@ const UNIVERSITIES = [
 ];
 
 // ─── Login Gate Screen (Rich Landing Page) ───────────────────────────────────
-function LoginGate() {
+function LoginGate({ articles }: { articles: Article[] }) {
   return (
     <main style={{ 
       background: "var(--background)", 
@@ -160,82 +160,143 @@ function LoginGate() {
           border-color: var(--accent);
           background: rgba(99, 102, 241, 0.01);
         }
+        .custom-widget-card {
+          border: 1px solid var(--border);
+          background: rgba(30, 41, 59, 0.2);
+          border-radius: var(--radius);
+          padding: 1rem 1.25rem;
+          transition: var(--transition);
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          text-decoration: none;
+        }
+        .custom-widget-card:hover {
+          border-color: var(--accent);
+          background: rgba(99, 102, 241, 0.04);
+          transform: translateY(-2px);
+        }
       `}</style>
 
       {/* Hero Section */}
       <section className="gate-animate" style={{
         padding: "6rem 1.5rem 4rem",
-        textAlign: "center",
-        maxWidth: "800px",
+        maxWidth: "1200px",
         margin: "0 auto",
         position: "relative",
-        zIndex: 1
+        zIndex: 1,
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+        gap: "3.5rem",
+        alignItems: "center"
       }}>
-        {/* Pulse Trust Badge */}
+        {/* Left Column Content */}
         <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.6rem",
-          background: "rgba(99, 102, 241, 0.08)",
-          border: "1px solid rgba(99, 102, 241, 0.25)",
-          borderRadius: "999px",
-          padding: "0.45rem 1.2rem",
-          fontSize: "0.8rem",
-          fontWeight: 600,
-          color: "#818cf8",
-          marginBottom: "2rem",
-          letterSpacing: "0.01em",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.5rem",
+          alignItems: "flex-start",
+          textAlign: "left"
         }}>
-          <span style={{ 
-            width: "7px", 
-            height: "7px", 
-            borderRadius: "50%", 
-            background: "#22c55e", 
-            boxShadow: "0 0 8px #22c55e",
-            animation: "pulse 2s ease infinite" 
-          }} />
-          Trusted Engineering Study Platform
-        </div>
-
-        <h1 style={{
-          fontSize: "clamp(2.5rem, 6vw, 3.75rem)",
-          fontWeight: 900,
-          lineHeight: 1.1,
-          letterSpacing: "-0.03em",
-          marginBottom: "1.5rem",
-        }}>
-          Ace Your Exams with{" "}
-          <span style={{
-            background: "linear-gradient(135deg, var(--accent) 30%, #a78bfa 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+          {/* Pulse Trust Badge */}
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            background: "rgba(99, 102, 241, 0.08)",
+            border: "1px solid rgba(99, 102, 241, 0.25)",
+            borderRadius: "999px",
+            padding: "0.45rem 1.2rem",
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            color: "#818cf8",
+            letterSpacing: "0.01em",
           }}>
-            Private Academy Engineering
-          </span>
-        </h1>
+            <span style={{ 
+              width: "7px", 
+              height: "7px", 
+              borderRadius: "50%", 
+              background: "#22c55e", 
+              boxShadow: "0 0 8px #22c55e",
+              animation: "pulse 2s ease infinite" 
+            }} />
+            Trusted Engineering Study Platform
+          </div>
 
-        <p style={{
-          fontSize: "1.15rem",
-          color: "var(--text-secondary)",
-          lineHeight: 1.7,
-          maxWidth: "600px",
-          margin: "0 auto 2.75rem",
-        }}>
-          A curated hub for branch-wise engineering notes, semester guides, and video walkthroughs personalized for your university.
-        </p>
+          <h1 style={{
+            fontSize: "clamp(2.5rem, 6vw, 3.5rem)",
+            fontWeight: 900,
+            lineHeight: 1.1,
+            letterSpacing: "-0.03em",
+            margin: 0,
+          }}>
+            Ace Your Exams with{" "}
+            <span style={{
+              background: "linear-gradient(135deg, var(--accent) 30%, #a78bfa 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              Private Academy Engineering
+            </span>
+          </h1>
 
-        {/* Action Portal */}
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/login" className="cta-primary" id="gate-login-btn">
-            Get Started Now
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </Link>
-          <Link href="/login" className="cta-secondary" id="gate-signup-btn">
-            Log In
-          </Link>
+          <p style={{
+            fontSize: "1.1rem",
+            color: "var(--text-secondary)",
+            lineHeight: 1.6,
+            margin: 0,
+          }}>
+            A curated hub for branch-wise engineering notes, semester guides, and video walkthroughs personalized for your university.
+          </p>
+
+          {/* Action Portal */}
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <Link href="/login" className="cta-primary" id="gate-login-btn">
+              Get Started Now
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <Link href="/login" className="cta-secondary" id="gate-signup-btn">
+              Log In
+            </Link>
+          </div>
         </div>
+
+        {/* Hero Right Widget - Recent Feeds */}
+        <aside style={{
+          background: "var(--card-bg)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "2rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.25rem",
+          boxShadow: "var(--shadow-lg)",
+          width: "100%"
+        }} id="gate-recent-articles-widget">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>
+            <span style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--text-primary)" }}>Recent Feeds</span>
+            <Link href="/articles" style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent)" }}>
+              View All →
+            </Link>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+            {articles && articles.length > 0 ? (
+              articles.slice(0, 3).map((art) => (
+                <Link href={`/articles#${art.id}`} key={art.id} className="custom-widget-card">
+                  <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{art.category}</span>
+                  <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3 }}>{art.title}</span>
+                  <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
+                    <span>{art.readTime}</span>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div style={{ color: "var(--text-secondary)", fontSize: "0.85rem", padding: "1.5rem 0", textAlign: "center" }}>Loading feeds...</div>
+            )}
+          </div>
+        </aside>
       </section>
 
       {/* Stats Counter Row */}
@@ -1032,6 +1093,33 @@ function HomeContent() {
     checkAuth();
   }, []);
 
+  // ── Fetch articles on mount ───────────────────────────────────────────
+  useEffect(() => {
+    async function loadArticles() {
+      try {
+        const { data: dbArticles, error: articlesError } = await supabase
+          .from("articles")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!articlesError && dbArticles) {
+          const finalArticles = dbArticles.map((item) => ({
+            id: item.id,
+            title: item.title,
+            readTime: `${Math.max(1, Math.ceil((item.content || "").trim().split(/\s+/).filter(Boolean).length / 200))} min read`,
+            category: item.category as any,
+            summary: item.summary || "",
+            content: item.content || "",
+          }));
+          setArticles(finalArticles);
+        }
+      } catch (err) {
+        console.error("Error loading articles:", err);
+      }
+    }
+    loadArticles();
+  }, []);
+
   // ── Fetch notes filtered by university ─────────────────────────────────
   useEffect(() => {
     if (authState !== "ready" || !userUniversity) return;
@@ -1045,13 +1133,7 @@ function HomeContent() {
           .eq("university", userUniversity)
           .order("title", { ascending: true });
 
-        const { data: dbArticles, error: articlesError } = await supabase
-          .from("articles")
-          .select("*")
-          .order("created_at", { ascending: false });
-
         let finalNotes: Note[] = [];
-        let finalArticles: Article[] = [];
 
         if (!notesError && dbNotes) {
           finalNotes = dbNotes.map((item: any) => ({
@@ -1067,23 +1149,10 @@ function HomeContent() {
           }));
         }
 
-        if (!articlesError && dbArticles) {
-          finalArticles = dbArticles.map((item) => ({
-            id: item.id,
-            title: item.title,
-            readTime: `${Math.max(1, Math.ceil((item.content || "").trim().split(/\s+/).filter(Boolean).length / 200))} min read`,
-            category: item.category as any,
-            summary: item.summary || "",
-            content: item.content || "",
-          }));
-        }
-
         setNotes(finalNotes);
-        setArticles(finalArticles);
       } catch (err) {
         console.error("Error loading data:", err);
         setNotes([]);
-        setArticles([]);
       } finally {
         setIsLoading(false);
       }
@@ -1275,14 +1344,14 @@ function HomeContent() {
     );
   }
 
-  if (authState === "unauthenticated") return <LoginGate />;
+  if (authState === "unauthenticated") return <LoginGate articles={articles} />;
 
   if (authState === "no-university") {
     return <UniversityGate onSelect={(u) => { setUserUniversity(u); setAuthState("ready"); }} />;
   }
 
   return (
-    <main className={styles.main} style={{ display: "flex", flexDirection: "column", gap: "4.5rem", width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "4rem 1.5rem" }}>
+    <main className={styles.main}>
       <style>{`
         .custom-widget-card {
           border: 1px solid var(--border);
@@ -1355,8 +1424,8 @@ function HomeContent() {
       `}</style>
 
       {/* Hero Section */}
-      <section className={styles.heroSection} style={{ display: "grid", gridTemplateColumns: "1.25fr 0.75fr", gap: "3.5rem", alignItems: "center" }} id="hero-section">
-        <div className={styles.heroLeft} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+      <section className={styles.heroSection} id="hero-section">
+        <div className={styles.heroLeft}>
           <div style={{
             display: "inline-flex",
             alignItems: "center",
