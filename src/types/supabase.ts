@@ -48,7 +48,6 @@ export type Database = {
         Row: {
           branch: string
           created_at: string | null
-          description: string | null
           download_url: string | null
           id: string
           price: number | null
@@ -60,7 +59,6 @@ export type Database = {
         Insert: {
           branch: string
           created_at?: string | null
-          description?: string | null
           download_url?: string | null
           id: string
           price?: number | null
@@ -72,7 +70,6 @@ export type Database = {
         Update: {
           branch?: string
           created_at?: string | null
-          description?: string | null
           download_url?: string | null
           id?: string
           price?: number | null
@@ -159,24 +156,18 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
-          password_hash: string
-          salt: string
           university: string | null
         }
         Insert: {
           created_at?: string | null
           email: string
           id?: string
-          password_hash: string
-          salt: string
           university?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string
           id?: string
-          password_hash?: string
-          salt?: string
           university?: string | null
         }
         Relationships: []

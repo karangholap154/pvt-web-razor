@@ -1058,7 +1058,7 @@ function HomeContent() {
             title: item.title,
             branch: item.branch as any,
             semester: item.semester,
-            description: item.description || "",
+            description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
             downloadUrl: item.download_url || "",
             videoUrl: item.video_url || "",
             price: item.price ? Number(item.price) : 0,

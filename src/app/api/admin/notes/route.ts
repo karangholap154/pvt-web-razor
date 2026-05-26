@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { title, branch, semester, description, downloadUrl, videoUrl, price, university } =
+    const { title, branch, semester, downloadUrl, videoUrl, price, university } =
       await request.json();
 
     if (!title || !branch || !semester) {
@@ -42,7 +42,6 @@ export async function POST(request: Request) {
         title,
         branch,
         semester,
-        description: description || "",
         download_url: downloadUrl || "",
         video_url: videoUrl || "",
         price: price ? Number(price) : 0,
@@ -70,7 +69,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { id, title, branch, semester, description, downloadUrl, videoUrl, price, university } =
+    const { id, title, branch, semester, downloadUrl, videoUrl, price, university } =
       await request.json();
 
     if (!id || !title || !branch || !semester) {
@@ -86,7 +85,6 @@ export async function PUT(request: Request) {
         title,
         branch,
         semester,
-        description: description || "",
         download_url: downloadUrl || "",
         video_url: videoUrl || "",
         price: price ? Number(price) : 0,

@@ -44,7 +44,7 @@ export default function AdminConsole({
   const [noteBranch, setNoteBranch] = useState("Computer");
   const [noteSemester, setNoteSemester] = useState("Sem 1");
   const [noteUniversity, setNoteUniversity] = useState("Mumbai University");
-  const [noteDesc, setNoteDesc] = useState("");
+
   const [noteDownload, setNoteDownload] = useState("");
   const [noteVideo, setNoteVideo] = useState("");
   const [notePrice, setNotePrice] = useState("0");
@@ -81,7 +81,6 @@ export default function AdminConsole({
     setNoteBranch("Computer");
     setNoteSemester("Sem 1");
     setNoteUniversity("Mumbai University");
-    setNoteDesc("");
     setNoteDownload("");
     setNoteVideo("");
     setNotePrice("0");
@@ -119,7 +118,6 @@ export default function AdminConsole({
     setNoteBranch(note.branch);
     setNoteSemester(note.semester);
     setNoteUniversity(note.university || "Mumbai University");
-    setNoteDesc(note.description || "");
     setNoteDownload(note.downloadUrl || "");
     setNoteVideo(note.videoUrl || "");
     setNotePrice(note.price?.toString() || "0");
@@ -203,7 +201,6 @@ export default function AdminConsole({
           branch: noteBranch,
           semester: noteSemester,
           university: noteUniversity,
-          description: noteDesc,
           downloadUrl: noteDownload,
           videoUrl: noteVideo,
           price: Number(notePrice) || 0,
@@ -226,7 +223,7 @@ export default function AdminConsole({
             branch: data.note.branch,
             semester: data.note.semester,
             university: data.note.university,
-            description: data.note.description,
+            description: `${data.note.title} - ${data.note.branch} Engineering, ${data.note.semester} | ${data.note.university || ""}`,
             downloadUrl: data.note.download_url,
             videoUrl: data.note.video_url,
             price: Number(data.note.price),
@@ -242,7 +239,7 @@ export default function AdminConsole({
                     branch: data.note.branch,
                     semester: data.note.semester,
                     university: data.note.university,
-                    description: data.note.description,
+                    description: `${data.note.title} - ${data.note.branch} Engineering, ${data.note.semester} | ${data.note.university || ""}`,
                     downloadUrl: data.note.download_url,
                     videoUrl: data.note.video_url,
                     price: Number(data.note.price),
@@ -683,10 +680,6 @@ export default function AdminConsole({
                       </div>
                     </div>
 
-                    <div className={styles.inputGroup}>
-                      <label className={styles.label}>Description</label>
-                      <textarea className={styles.textarea} value={noteDesc} onChange={(e) => setNoteDesc(e.target.value)} placeholder="Brief summary of syllabus/topics covered..." />
-                    </div>
                   </>
                 )}
 
@@ -750,6 +743,7 @@ export default function AdminConsole({
                       <label className={styles.label}>Description</label>
                       <textarea className={styles.textarea} value={projectDesc} onChange={(e) => setProjectDesc(e.target.value)} placeholder="Describe project architecture and goals..." />
                     </div>
+
                   </>
                 )}
               </div>

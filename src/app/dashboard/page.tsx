@@ -36,7 +36,7 @@ export default async function DashboardPage() {
           title: item.notes.title,
           branch: item.notes.branch,
           semester: item.notes.semester,
-          description: item.notes.description || "",
+          description: `${item.notes.title} - ${item.notes.branch} Engineering, ${item.notes.semester} | ${item.notes.university || ""}`,
           downloadUrl: item.notes.download_url || "",
           videoUrl: item.notes.video_url || "",
           price: item.notes.price ? Number(item.notes.price) : 0,
