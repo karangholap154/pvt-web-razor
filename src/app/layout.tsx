@@ -120,6 +120,9 @@ const socialLinks = [
 export const metadata: Metadata = {
   title: "Private Academy | Engineering Study Hub",
   description: "Study smarter — faster access to notes and guides. A unified library for branch-wise engineering notes, semester filters, and tutorials.",
+  icons: {
+    icon: "/pvtimg.png",
+  },
 };
 
 export default async function RootLayout({
