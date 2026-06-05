@@ -24,6 +24,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "verifying" | "paying" | "success" | "error">("idle");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
 
   const isPremium = note.price && note.price > 0;
 
@@ -148,6 +149,8 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
         return;
       }
 
+      setActiveOrderId(orderData.orderId);
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_StVqhHUbbFc4bs",
         amount: orderData.amount,
@@ -195,6 +198,33 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
     } catch (err) {
       console.error("Checkout flow failed:", err);
       alert("Error starting checkout process.");
+      setCheckoutStatus("idle");
+    }
+  };
+
+  // Synchronize payment status manually (fallback if client gets out of sync)
+  const handleSyncPayment = async () => {
+    if (!activeOrderId) return;
+    
+    setCheckoutStatus("verifying");
+    try {
+      const res = await fetch("/api/verify-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: activeOrderId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Payment sync successful! Access granted.");
+        setHasPurchased(true);
+        setCheckoutStatus("success");
+      } else {
+        alert(data.message || "Payment sync failed. No successful transaction found yet.");
+        setCheckoutStatus("idle");
+      }
+    } catch (err) {
+      console.error("Manual sync failed:", err);
+      alert("Error checking payment status.");
       setCheckoutStatus("idle");
     }
   };
@@ -431,6 +461,30 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                       )}
                       {checkoutStatus === "idle" && `Pay ₹${note.price} & Unlock`}
                     </button>
+                    {activeOrderId && (
+                      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <button
+                          type="button"
+                          onClick={handleSyncPayment}
+                          disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
+                          className={styles.btnSecondary}
+                          style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
+                          id="btn-details-sync-payment"
+                        >
+                          {checkoutStatus === "verifying" ? (
+                            <>
+                              <div className={styles.spinner} />
+                              Syncing...
+                            </>
+                          ) : (
+                            "Already Paid? Sync Payment Status"
+                          )}
+                        </button>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
+                          Use this if your payment was deducted but the note did not unlock.
+                        </span>
+                      </div>
+                    )}
                   </form>
                 )}
               </div>
