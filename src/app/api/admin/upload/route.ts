@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     const filePath = `pdfs/${uniqueName}`;
 
     // 4. Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("notes-bucket")
       .upload(filePath, buffer, {
         contentType: "application/pdf",
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       path: filePath,
       fileName: file.name,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Upload route error:", error);
     return NextResponse.json(
       { error: "Internal file upload processing error" },

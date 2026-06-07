@@ -12,7 +12,6 @@ interface NoteDetailsClientProps {
 
 export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   // Session / Authentication state
-  const [userEmail, setUserEmail] = useState("");
   const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
   
   // Purchase verification state
@@ -30,12 +29,36 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
 
   // 1. Fetch user session and authenticate
   useEffect(() => {
+    // Verify purchase in Supabase
+    const verifyUserPurchase = async (email: string) => {
+      setCheckingPurchase(true);
+      try {
+        const cleanEmail = email.trim().toLowerCase();
+        const { data: purchase, error } = await supabase
+          .from("purchases")
+          .select("id")
+          .eq("email", cleanEmail)
+          .eq("note_id", note.id)
+          .eq("status", "success")
+          .maybeSingle();
+
+        if (purchase && !error) {
+          setHasPurchased(true);
+        } else {
+          setHasPurchased(false);
+        }
+      } catch (err) {
+        console.error("Error verifying purchase:", err);
+      } finally {
+        setCheckingPurchase(false);
+      }
+    };
+
     async function checkAuth() {
       try {
         const res = await fetch("/api/auth/me");
         const data = await res.json();
         if (data.authenticated && data.email) {
-          setUserEmail(data.email);
           setCheckoutEmail(data.email);
           setAuthState("authenticated");
           
@@ -62,31 +85,6 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
     }
     checkAuth();
   }, [note.id, isPremium]);
-
-  // Verify purchase in Supabase
-  const verifyUserPurchase = async (email: string) => {
-    setCheckingPurchase(true);
-    try {
-      const cleanEmail = email.trim().toLowerCase();
-      const { data: purchase, error } = await supabase
-        .from("purchases")
-        .select("id")
-        .eq("email", cleanEmail)
-        .eq("note_id", note.id)
-        .eq("status", "success")
-        .maybeSingle();
-
-      if (purchase && !error) {
-        setHasPurchased(true);
-      } else {
-        setHasPurchased(false);
-      }
-    } catch (err) {
-      console.error("Error verifying purchase:", err);
-    } finally {
-      setCheckingPurchase(false);
-    }
-  };
 
   // Download PDF file
   const handleDownload = async () => {
@@ -151,6 +149,16 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
 
       setActiveOrderId(orderData.orderId);
 
+      interface RazorpayResponse {
+        razorpay_order_id: string;
+        razorpay_payment_id: string;
+        razorpay_signature: string;
+      }
+
+      interface RazorpayWindow extends Window {
+        Razorpay?: new (options: unknown) => { open: () => void };
+      }
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_StVqhHUbbFc4bs",
         amount: orderData.amount,
@@ -159,7 +167,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
         description: `Unlock ${note.title}`,
         order_id: orderData.orderId,
         prefill: { email: cleanEmail },
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           try {
             setCheckoutStatus("verifying");
             const verifyRes = await fetch("/api/verify", {
@@ -193,8 +201,11 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
         theme: { color: "#6366f1" },
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
+      const rzpWindow = window as unknown as RazorpayWindow;
+      if (rzpWindow.Razorpay) {
+        const rzp = new rzpWindow.Razorpay(options);
+        rzp.open();
+      }
     } catch (err) {
       console.error("Checkout flow failed:", err);
       alert("Error starting checkout process.");

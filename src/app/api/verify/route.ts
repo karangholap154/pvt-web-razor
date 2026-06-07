@@ -145,7 +145,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Payment successfully verified and registered",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Signature verification error:", error);
     return NextResponse.json(
       { error: "Internal verification processing error" },

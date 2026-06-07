@@ -240,7 +240,7 @@ export default function DisclaimerPage() {
           </p>
           <ul>
             <li>We do not review, endorse, or verify all statements, advertisements, or codes published by third-party creators.</li>
-            <li>A link to a YouTube channel or tutorial video does not imply that the platform represents or takes responsibility for that third party's future updates or changes.</li>
+            <li>A link to a YouTube channel or tutorial video does not imply that the platform represents or takes responsibility for that third party&apos;s future updates or changes.</li>
           </ul>
         </section>
 

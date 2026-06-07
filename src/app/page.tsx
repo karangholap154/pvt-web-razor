@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
@@ -698,9 +698,9 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
       try {
         const counts: Record<string, number> = {};
         for (const u of UNIVERSITIES) {
-          const { count } = await (supabase
+          const { count } = await supabase
             .from("notes")
-            .select("*", { count: "exact", head: true }) as any)
+            .select("*", { count: "exact", head: true })
             .eq("university", u.value);
           counts[u.value] = count ?? 0;
         }
@@ -740,8 +740,9 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save university");
       onSelect(selected);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -1108,7 +1109,7 @@ function HomeContent() {
             id: item.id,
             title: item.title,
             readTime: `${Math.max(1, Math.ceil((item.content || "").trim().split(/\s+/).filter(Boolean).length / 200))} min read`,
-            category: item.category as any,
+            category: item.category as Article["category"],
             summary: item.summary || "",
             content: item.content || "",
           }));
@@ -1128,25 +1129,25 @@ function HomeContent() {
     async function loadData() {
       setIsLoading(true);
       try {
-        const { data: dbNotes, error: notesError } = await (supabase
+        const { data: dbNotes, error: notesError } = await supabase
           .from("notes")
-          .select("*") as any)
-          .eq("university", userUniversity)
+          .select("*")
+          .eq("university", userUniversity!)
           .order("title", { ascending: true });
 
         let finalNotes: Note[] = [];
 
         if (!notesError && dbNotes) {
-          finalNotes = dbNotes.map((item: any) => ({
+          finalNotes = dbNotes.map((item) => ({
             id: item.id,
             title: item.title,
-            branch: item.branch as any,
+            branch: item.branch as Note["branch"],
             semester: item.semester,
             description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
             downloadUrl: item.download_url || "",
             videoUrl: item.video_url || "",
             price: item.price ? Number(item.price) : 0,
-            university: item.university,
+            university: item.university || undefined,
           }));
         }
 
@@ -1182,10 +1183,10 @@ function HomeContent() {
     setSelectedSemester("All semesters");
   };
 
-  const openModal = (note: Note, type: "video" | "pdf") => {
+  const openModal = useCallback((note: Note, type: "video" | "pdf") => {
     setSelectedNote(note);
     setModalType(type);
-  };
+  }, []);
 
   const closeModal = () => {
     setSelectedNote(null);
@@ -1221,7 +1222,7 @@ function HomeContent() {
     }
   };
 
-  const handleDownloadClick = (note: Note) => {
+  const handleDownloadClick = useCallback((note: Note) => {
     if (note.price && note.price > 0) {
       setCheckoutNote(note);
       setCheckoutEmail(userEmail || "");
@@ -1230,20 +1231,23 @@ function HomeContent() {
     } else {
       openModal(note, "pdf");
     }
-  };
+  }, [userEmail, openModal]);
 
   // Automatic purchase recovery on redirect
   useEffect(() => {
     if (authState === "ready" && notes.length > 0 && unlockNoteId) {
       const targetNote = notes.find((n) => n.id === unlockNoteId);
       if (targetNote) {
-        handleDownloadClick(targetNote);
+        const timer = setTimeout(() => {
+          handleDownloadClick(targetNote);
+        }, 0);
         const url = new URL(window.location.href);
         url.searchParams.delete("unlock");
         window.history.replaceState({}, "", url.toString());
+        return () => clearTimeout(timer);
       }
     }
-  }, [authState, notes, unlockNoteId]);
+  }, [authState, notes, unlockNoteId, handleDownloadClick]);
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1285,6 +1289,16 @@ function HomeContent() {
 
       setActiveOrderId(orderData.orderId);
 
+      interface RazorpayResponse {
+        razorpay_order_id: string;
+        razorpay_payment_id: string;
+        razorpay_signature: string;
+      }
+
+      interface RazorpayWindow extends Window {
+        Razorpay?: new (options: unknown) => { open: () => void };
+      }
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_StVqhHUbbFc4bs",
         amount: orderData.amount,
@@ -1293,7 +1307,7 @@ function HomeContent() {
         description: `Unlock ${checkoutNote.title}`,
         order_id: orderData.orderId,
         prefill: { email: cleanEmail },
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           try {
             setCheckoutStatus("verifying");
             const verifyRes = await fetch("/api/verify", {
@@ -1328,8 +1342,11 @@ function HomeContent() {
         theme: { color: "#6366f1" },
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
+      const rzpWindow = window as unknown as RazorpayWindow;
+      if (rzpWindow.Razorpay) {
+        const rzp = new rzpWindow.Razorpay(options);
+        rzp.open();
+      }
     } catch (err) {
       console.error("Checkout submission failed:", err);
       alert("Error starting checkout process.");

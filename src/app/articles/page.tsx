@@ -53,7 +53,7 @@ export default function ArticlesPage() {
                 id: item.id,
                 title: item.title,
                 readTime: calculateReadTime(content),
-                category: item.category as any,
+                category: item.category as Article["category"],
                 summary: generateSummary(content),
                 content: content
               };

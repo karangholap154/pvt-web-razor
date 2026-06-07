@@ -15,8 +15,8 @@ function slugify(text: string): string {
 }
 
 // Helper to parse tech stack to array of strings
-function parseTechStack(input: any): string[] {
-  if (Array.isArray(input)) return input;
+function parseTechStack(input: unknown): string[] {
+  if (Array.isArray(input)) return input as string[];
   if (typeof input === "string") {
     return input.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
   }
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, project: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create project error:", error);
     return NextResponse.json(
       { error: "Internal processing error" },
@@ -102,7 +102,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ success: true, project: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update project error:", error);
     return NextResponse.json(
       { error: "Internal processing error" },
@@ -133,7 +133,7 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: "Project deleted successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete project error:", error);
     return NextResponse.json(
       { error: "Internal processing error" },

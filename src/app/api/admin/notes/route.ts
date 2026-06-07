@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         video_url: videoUrl || "",
         price: price ? Number(price) : 0,
         university: university || null,
-      } as any)
+      })
       .select()
       .single();
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, note: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create note error:", error);
     return NextResponse.json({ error: "Internal processing error" }, { status: 500 });
   }
@@ -89,7 +89,7 @@ export async function PUT(request: Request) {
         video_url: videoUrl || "",
         price: price ? Number(price) : 0,
         university: university || null,
-      } as any)
+      })
       .eq("id", id)
       .select()
       .single();
@@ -100,7 +100,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ success: true, note: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update note error:", error);
     return NextResponse.json({ error: "Internal processing error" }, { status: 500 });
   }
@@ -128,7 +128,7 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: "Note deleted successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete note error:", error);
     return NextResponse.json({ error: "Internal processing error" }, { status: 500 });
   }

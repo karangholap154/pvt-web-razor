@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       amount: order.amount,
       currency: order.currency,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Razorpay order checkout creation failed:", error);
     return NextResponse.json(
       { error: "Internal payment processing error" },

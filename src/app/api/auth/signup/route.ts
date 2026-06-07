@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       success: true,
       message: "CONFIRM_EMAIL", // frontend will show "check your email" message
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Signup route error:", err);
     return NextResponse.json(
       { error: "Internal signup error. Please try again." },

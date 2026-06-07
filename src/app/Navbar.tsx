@@ -16,7 +16,10 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
 
   // Close menu whenever route changes
   useEffect(() => {
-    setMenuOpen(false);
+    const timer = setTimeout(() => {
+      setMenuOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   // Lock body scroll when menu is open

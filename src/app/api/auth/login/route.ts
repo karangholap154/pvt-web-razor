@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       email: cleanEmail,
       message: "Logged in successfully",
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Login route error:", err);
     return NextResponse.json(
       { error: "Internal login error. Please try again." },

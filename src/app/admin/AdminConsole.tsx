@@ -55,11 +55,7 @@ export default function AdminConsole({
   // Article form states
   const [articleId, setArticleId] = useState("");
   const [articleTitle, setArticleTitle] = useState("");
-  const [articleAuthor, setArticleAuthor] = useState("");
-  const [articleDate, setArticleDate] = useState("");
-  const [articleReadTime, setArticleReadTime] = useState("");
   const [articleCategory, setArticleCategory] = useState("Guidance");
-  const [articleSummary, setArticleSummary] = useState("");
   const [articleContent, setArticleContent] = useState("");
 
   // Project form states
@@ -87,11 +83,7 @@ export default function AdminConsole({
     // Reset Article
     setArticleId("");
     setArticleTitle("");
-    setArticleAuthor("");
-    setArticleDate("");
-    setArticleReadTime("");
     setArticleCategory("Guidance");
-    setArticleSummary("");
     setArticleContent("");
     // Reset Project
     setProjectId("");
@@ -130,11 +122,7 @@ export default function AdminConsole({
     setModalAction("edit");
     setArticleId(art.id);
     setArticleTitle(art.title);
-    setArticleAuthor(art.author || "");
-    setArticleDate(art.date || "");
-    setArticleReadTime(art.readTime || "");
     setArticleCategory(art.category);
-    setArticleSummary(art.summary || "");
     setArticleContent(art.content || "");
     setIsModalOpen(true);
   };
@@ -179,8 +167,9 @@ export default function AdminConsole({
 
       setNoteDownload(data.url);
       setUploadSuccess(true);
-    } catch (err: any) {
-      setFormError(err.message || "File upload failed.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "File upload failed.";
+      setFormError(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -348,8 +337,9 @@ export default function AdminConsole({
 
       setIsModalOpen(false);
       resetForms();
-    } catch (err: any) {
-      setFormError(err.message || "Something went wrong.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
+      setFormError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -374,8 +364,9 @@ export default function AdminConsole({
       } else if (activeTab === "projects") {
         setProjects((prev) => prev.filter((p) => p.id !== id));
       }
-    } catch (err: any) {
-      alert(`Delete error: ${err.message}`);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      alert(`Delete error: ${errorMessage}`);
     }
   };
 

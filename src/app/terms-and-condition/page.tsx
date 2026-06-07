@@ -221,7 +221,7 @@ export default function TermsAndConditionPage() {
             Access to certain premium notes requires payment processed via Razorpay:
           </p>
           <ul>
-            <li><strong>Order Completion</strong>: An unlock code or PDF link is activated immediately upon successful transaction verification through Razorpay's API.</li>
+            <li><strong>Order Completion</strong>: An unlock code or PDF link is activated immediately upon successful transaction verification through Razorpay&apos;s API.</li>
             <li><strong>Digital Refund Rules</strong>: Since notes are delivered as instant digital downloads (PDF files), <strong>all transactions are final and non-refundable</strong> once a file has been successfully unlocked. We cannot process refunds for change-of-mind, syllabus mismatches, or exam cancellations.</li>
             <li><strong>Technical Issues</strong>: In the event of double-billing or payment status errors (where bank balances are debited but note access is not granted), contact our team with invoice logs at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a>. We will manually verify and resolve access settings within 24 hours.</li>
           </ul>
@@ -248,7 +248,7 @@ export default function TermsAndConditionPage() {
             <span style={{ color: "var(--accent)" }}>05.</span> Account Prohibitions &amp; Scraping
           </h2>
           <p>
-            To protect our database limits and the platform's stability, you agree not to:
+            To protect our database limits and the platform&apos;s stability, you agree not to:
           </p>
           <ul>
             <li>Deploy automated scripts, bots, scrapers, or browser extensions to bulk-download documents, scrape search terms, or duplicate data.</li>
@@ -266,7 +266,7 @@ export default function TermsAndConditionPage() {
             <span style={{ color: "var(--accent)" }}>06.</span> Limitations &amp; Site Warranties
           </h2>
           <p>
-            The platform is provided on an **"as is"** and **"as available"** basis. Private Academy Engineering makes no warranties that:
+            The platform is provided on an **&quot;as is&quot;** and **&quot;as available&quot;** basis. Private Academy Engineering makes no warranties that:
           </p>
           <ul>
             <li>The platform will remain completely free of errors, typos, or database service interruptions.</li>

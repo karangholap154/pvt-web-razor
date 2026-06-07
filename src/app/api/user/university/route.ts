@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { supabase as dbClient } from "../../../../utils/supabaseClient";
 
 const ALLOWED_UNIVERSITIES = [
   "Mumbai University",
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     // 2. Check if university is already set (permanent — cannot be changed)
-    const { data: existingUser } = await (dbClient as any)
+    const { data: existingUser } = await supabase
       .from("users")
       .select("university")
       .eq("email", sessionEmail)
@@ -48,7 +47,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Upsert the row — creates it if the user doesn't exist in the custom table yet
-    const { error: upsertError } = await (dbClient as any)
+    const { error: upsertError } = await supabase
       .from("users")
       .upsert({ email: sessionEmail, university }, { onConflict: "email" });
 

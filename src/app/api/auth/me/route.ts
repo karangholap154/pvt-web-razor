@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { supabase as dbClient } from "../../../../utils/supabaseClient";
 
 export async function GET() {
   try {
@@ -13,8 +12,7 @@ export async function GET() {
       return NextResponse.json({ authenticated: false });
     }
 
-    // Fetch user's university from our custom users table (keyed by email)
-    const { data: userData } = await (dbClient as any)
+    const { data: userData } = await supabase
       .from("users")
       .select("university")
       .eq("email", user.email)

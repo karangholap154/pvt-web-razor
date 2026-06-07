@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     try {
       const payments = await razorpay.orders.fetchPayments(orderId);
       const successfulPayment = payments.items?.find(
-        (p: any) => p.status === "captured"
+        (p: { status: string; id: string }) => p.status === "captured"
       );
 
       if (successfulPayment) {
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Payment synchronized and note access granted!",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Order sync error:", error);
     return NextResponse.json(
       { error: "Internal payment sync processing error" },

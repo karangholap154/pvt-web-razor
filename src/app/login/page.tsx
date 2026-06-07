@@ -121,8 +121,9 @@ function LoginForm() {
           setConfirmPassword("");
         }
       }
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

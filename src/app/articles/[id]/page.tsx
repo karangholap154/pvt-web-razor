@@ -63,7 +63,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     id: item.id,
     title: item.title,
     readTime: calculateReadTime(item.content || ""),
-    category: item.category as any,
+    category: item.category as Article["category"],
     summary: item.summary || "",
     content: item.content || "",
   };

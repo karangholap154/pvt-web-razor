@@ -1,10 +1,19 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { supabase as dbClient } from "../../utils/supabaseClient";
 import { isAdmin } from "../../utils/auth";
 import { createSupabaseServerClient } from "../../utils/supabaseServer";
 import AdminConsole from "./AdminConsole";
 import styles from "./admin.module.css";
+import { Note, Article } from "../../data/mockData";
+
+interface ProjectDb {
+  id: string;
+  title: string;
+  branch: string;
+  tech_stack: string[] | null;
+  description: string;
+  github_url: string;
+}
 
 export default async function AdminPage() {
   // 1. Session check via Supabase Auth
@@ -38,13 +47,13 @@ export default async function AdminPage() {
   }
 
   // 3. Fetch all database tables
-  let notes: any[] = [];
-  let articles: any[] = [];
-  let projects: any[] = [];
+  let notes: Note[] = [];
+  let articles: Article[] = [];
+  let projects: ProjectDb[] = [];
 
   try {
     // Fetch notes
-    const { data: dbNotes } = await dbClient
+    const { data: dbNotes } = await supabase
       .from("notes")
       .select("*")
       .order("title", { ascending: true });
@@ -53,8 +62,8 @@ export default async function AdminPage() {
       notes = dbNotes.map((item) => ({
         id: item.id,
         title: item.title,
-        university: item.university || "",
-        branch: item.branch as any,
+        university: item.university || undefined,
+        branch: item.branch as Note["branch"],
         semester: item.semester,
         description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
         downloadUrl: item.download_url || "",
@@ -64,7 +73,7 @@ export default async function AdminPage() {
     }
 
     // Fetch articles
-    const { data: dbArticles } = await dbClient
+    const { data: dbArticles } = await supabase
       .from("articles")
       .select("*")
       .order("created_at", { ascending: false });
@@ -85,7 +94,7 @@ export default async function AdminPage() {
           id: item.id,
           title: item.title,
           readTime,
-          category: item.category as any,
+          category: item.category as Article["category"],
           summary,
           content,
         };
@@ -93,7 +102,7 @@ export default async function AdminPage() {
     }
 
     // Fetch projects
-    const { data: dbProjects } = await dbClient
+    const { data: dbProjects } = await supabase
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });

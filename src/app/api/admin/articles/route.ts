@@ -14,11 +14,7 @@ function slugify(text: string): string {
     .replace(/\-\-+/g, "-");
 }
 
-// Helper to format date as "May 25, 2026"
-function formatDate(): string {
-  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
-  return new Date().toLocaleDateString("en-US", options);
-}
+
 
 // Helper to calculate read time
 function calculateReadTime(content: string): string {
@@ -76,7 +72,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, article: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Create article error:", error);
     return NextResponse.json(
       { error: "Internal processing error" },
@@ -123,7 +119,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ success: true, article: data });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Update article error:", error);
     return NextResponse.json(
       { error: "Internal processing error" },
@@ -154,7 +150,7 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: "Article deleted successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Delete article error:", error);
     return NextResponse.json(
       { error: "Internal processing error" },

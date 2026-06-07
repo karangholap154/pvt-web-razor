@@ -142,9 +142,9 @@ export default async function RootLayout({
         {/* Sticky Header / Navbar */}
         <header className={styles.header} id="main-header">
           <div className={styles.navContainer}>
-            <a href="/" className={styles.logo} id="nav-logo">
+            <Link href="/" className={styles.logo} id="nav-logo">
               Private<span className={styles.logoAccent}>Academy</span>
-            </a>
+            </Link>
             <Navbar sessionEmail={sessionEmail} isUserAdmin={isUserAdmin} />
           </div>
         </header>
@@ -195,9 +195,9 @@ export default async function RootLayout({
               
               {/* Brand Col */}
               <div className={styles.footerBrand}>
-                <a href="/" className={styles.logo} style={{ fontSize: "1.4rem", marginBottom: "0.25rem" }}>
+                <Link href="/" className={styles.logo} style={{ fontSize: "1.4rem", marginBottom: "0.25rem" }}>
                   Private<span className={styles.logoAccent}>Academy</span>
-                </a>
+                </Link>
                 <div className={styles.footerTagline}>Engineering Excellence Hub</div>
                 <p className={styles.footerDesc}>
                   Empowering engineering students with comprehensive study materials, important questions, and video tutorials. Quality education accessible to all.
