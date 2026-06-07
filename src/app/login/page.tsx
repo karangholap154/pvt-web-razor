@@ -239,6 +239,35 @@ function LoginForm() {
             )}
           </button>
         </form>
+        <div style={{
+          marginTop: "1.5rem",
+          paddingTop: "1.25rem",
+          borderTop: "1px solid var(--border)",
+          fontSize: "0.825rem",
+          color: "var(--text-secondary)",
+          lineHeight: "1.5",
+          textAlign: "center"
+        }}>
+          <p style={{ marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
+            🔑 Forgot your account email or password?
+          </p>
+          <p>
+            If you purchased notes before and cannot access your account, please email us at{" "}
+            <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>
+              privateacademy.in@gmail.com
+            </a>{" "}
+            or message us on WhatsApp at{" "}
+            <a 
+              href="https://wa.me/919423940547" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: "#22c55e", fontWeight: 600 }}
+            >
+              +91 9423940547
+            </a>{" "}
+            with your transaction details. We will restore your access manually.
+          </p>
+        </div>
       </div>
     </div>
   );
