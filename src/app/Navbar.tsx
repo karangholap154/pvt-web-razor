@@ -8,19 +8,36 @@ import styles from "./layout.module.css";
 interface NavbarProps {
   sessionEmail?: string;
   isUserAdmin?: boolean;
+  avatarUrl?: string;
+  userName?: string;
 }
 
-export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
+export default function Navbar({ sessionEmail, isUserAdmin, avatarUrl, userName }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close menu whenever route changes
+  // Close menu and dropdown whenever route changes
   useEffect(() => {
     const timer = setTimeout(() => {
       setMenuOpen(false);
+      setDropdownOpen(false);
     }, 0);
     return () => clearTimeout(timer);
   }, [pathname]);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleOutsideClick = () => setDropdownOpen(false);
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [dropdownOpen]);
+
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDropdownOpen((prev) => !prev);
+  };
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -64,28 +81,46 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
           </Link>
         ))}
         {sessionEmail ? (
-          <>
-            {isUserAdmin && (
-              <Link
-                href="/admin"
-                className={`${styles.navLink} ${isActive("/admin") ? styles.navLinkActive : ""}`}
-                id="nav-link-admin"
-                style={{ border: "1px dashed var(--accent)", color: "var(--accent)" }}
-              >
-                Admin Panel
-              </Link>
-            )}
-            <Link
-              href="/dashboard"
-              className={`${styles.navLink} ${isActive("/dashboard") ? styles.navLinkActive : ""}`}
-              id="nav-link-dashboard"
+          <div className={styles.profileContainer}>
+            <button 
+              type="button"
+              className={styles.avatarBtn} 
+              onClick={toggleDropdown}
+              aria-label="User menu"
+              aria-haspopup="true"
+              aria-expanded={dropdownOpen}
             >
-              Dashboard
-            </Link>
-            <a href="/api/auth/logout" className={styles.navLink} id="nav-link-logout" style={{ color: "#ef4444" }}>
-              Logout
-            </a>
-          </>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className={styles.avatarImg} referrerPolicy="no-referrer" />
+              ) : (
+                <div className={styles.avatarFallback}>
+                  {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
+                </div>
+              )}
+            </button>
+            
+            {dropdownOpen && (
+              <div className={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
+                <div className={styles.dropdownHeader}>
+                  {userName && <div className={styles.dropdownName}>{userName}</div>}
+                  <div className={styles.dropdownEmail}>{sessionEmail}</div>
+                </div>
+                <div className={styles.dropdownDivider} />
+                <Link href="/dashboard" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
+                  Dashboard
+                </Link>
+                {isUserAdmin && (
+                  <Link href="/admin" className={styles.dropdownItem} style={{ color: "var(--accent)" }} onClick={() => setDropdownOpen(false)}>
+                    Admin Panel
+                  </Link>
+                )}
+                <div className={styles.dropdownDivider} />
+                <a href="/api/auth/logout" className={styles.dropdownItemLogout}>
+                  Logout
+                </a>
+              </div>
+            )}
+          </div>
         ) : (
           <Link href="/login" className={styles.navLinkAuth} id="nav-link-login">
             Login
@@ -202,7 +237,19 @@ export default function Navbar({ sessionEmail, isUserAdmin }: NavbarProps) {
 
         {sessionEmail && (
           <div className={styles.mobileDrawerFooter}>
-            <span className={styles.mobileUserEmail}>Signed in as {sessionEmail}</span>
+            <div className={styles.mobileUserContainer}>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className={styles.mobileAvatarImg} referrerPolicy="no-referrer" />
+              ) : (
+                <div className={styles.mobileAvatarFallback}>
+                  {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className={styles.mobileUserInfo}>
+                {userName && <span className={styles.mobileUserName}>{userName}</span>}
+                <span className={styles.mobileUserEmail}>{sessionEmail}</span>
+              </div>
+            </div>
           </div>
         )}
       </nav>

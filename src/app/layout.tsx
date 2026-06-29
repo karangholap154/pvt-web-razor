@@ -135,6 +135,9 @@ export default async function RootLayout({
   const sessionEmail = user?.email ?? undefined;
   const isUserAdmin = await isAdmin();
 
+  const avatarUrl = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? undefined;
+  const userName = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? undefined;
+
   return (
     <html lang="en">
       <body className="page-container">
@@ -145,7 +148,12 @@ export default async function RootLayout({
             <Link href="/" className={styles.logo} id="nav-logo">
               Private<span className={styles.logoAccent}>Academy</span>
             </Link>
-            <Navbar sessionEmail={sessionEmail} isUserAdmin={isUserAdmin} />
+            <Navbar 
+              sessionEmail={sessionEmail} 
+              isUserAdmin={isUserAdmin} 
+              avatarUrl={avatarUrl}
+              userName={userName}
+            />
           </div>
         </header>
 
