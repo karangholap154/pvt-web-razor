@@ -1,19 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-
-const ALLOWED_DOMAINS = [
-  "gmail.com",
-  "yahoo.com",
-  "outlook.com",
-  "hotmail.com",
-  "icloud.com",
-  "proton.me",
-  "aol.com",
-  "live.com",
-  "zohomail.in",
-  "zohomail.com",
-  "privateacademy.in",
-];
+import { ALLOWED_DOMAINS } from "../../../../utils/constants";
 
 export async function POST(request: Request) {
   try {

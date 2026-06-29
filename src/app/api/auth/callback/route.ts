@@ -1,11 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+import { ALLOWED_DOMAINS } from "../../../../utils/constants";
 
 /**
- * Supabase Auth email confirmation callback.
- * When a user clicks the confirmation link in their email, Supabase redirects
- * them here with a one-time `code` query parameter. We exchange this code
- * for a session, then redirect to the dashboard.
+ * Supabase Auth email confirmation & OAuth callback.
+ * Exchanges the callback `code` for a session, verifies that the user's
+ * email domain is allowed, then redirects to the dashboard.
  */
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -14,9 +14,22 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
+    if (!error && data?.user) {
+      const email = data.user.email;
+      if (email) {
+        const cleanEmail = email.trim().toLowerCase();
+        const domain = cleanEmail.split("@").pop() || "";
+
+        if (!ALLOWED_DOMAINS.includes(domain)) {
+          // Immediately revoke session and log out the user
+          await supabase.auth.signOut();
+          return NextResponse.redirect(
+            `${origin}/login?error=domain_restricted`
+          );
+        }
+      }
       // Confirmation successful — send to dashboard
       return NextResponse.redirect(`${origin}/dashboard`);
     }

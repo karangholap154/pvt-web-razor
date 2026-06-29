@@ -3,20 +3,8 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./login.module.css";
-
-const ALLOWED_DOMAINS = [
-  "gmail.com",
-  "yahoo.com",
-  "outlook.com",
-  "hotmail.com",
-  "icloud.com",
-  "proton.me",
-  "aol.com",
-  "live.com",
-  "zohomail.in",
-  "zohomail.com",
-  "privateacademy.in",
-];
+import { supabase } from "../../utils/supabaseClient";
+import { ALLOWED_DOMAINS } from "../../utils/constants";
 
 function LoginForm() {
   const router = useRouter();
@@ -27,7 +15,7 @@ function LoginForm() {
   const redirectUrl =
     redirectParam && redirectParam.startsWith("/") ? redirectParam : "/dashboard";
 
-  // Check for confirmation_failed error from the callback route
+  // Check for confirmation_failed or domain_restricted error from the callback route
   const callbackError = searchParams.get("error");
 
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
@@ -38,10 +26,37 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(
     callbackError === "confirmation_failed"
       ? "Email confirmation link is invalid or expired. Please sign up again."
+      : callbackError === "domain_restricted"
+      ? "Registration and login are restricted to supported email providers (e.g. Gmail, Yahoo, Outlook, iCloud, Proton, privateacademy.in)."
       : null
   );
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setSuccessMsg(null);
+    setInfoMsg(null);
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(errorMsg);
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -239,6 +254,38 @@ function LoginForm() {
             )}
           </button>
         </form>
+
+        <div className={styles.divider}>
+          <span className={styles.dividerText}>or continue with</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className={styles.googleBtn}
+          disabled={loading}
+        >
+          <svg className={styles.googleIcon} viewBox="0 0 24 24" width="18" height="18">
+            <path
+              fill="#EA4335"
+              d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115Z"
+            />
+            <path
+              fill="#34A853"
+              d="M16.04 15.345c-1.07.727-2.42 1.164-4.04 1.164-2.855 0-5.273-1.89-6.137-4.436L1.79 15.17C3.766 19.11 7.84 21.818 12 21.818c3.055 0 5.864-1.09 8.009-3L16.04 15.345Z"
+            />
+            <path
+              fill="#4285F4"
+              d="M23.82 12.273c0-.818-.082-1.61-.218-2.382H12v4.618h6.636a5.673 5.673 0 0 1-2.454 3.71l3.968 3.072c2.318-2.136 3.67-5.281 3.67-9.018Z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.864 12.073a6.877 6.877 0 0 1 0-2.309L1.838 6.65a11.956 11.956 0 0 0 0 10.8L5.864 12.073Z"
+            />
+          </svg>
+          <span>Sign in with Google</span>
+        </button>
+
         <div style={{
           marginTop: "1.5rem",
           paddingTop: "1.25rem",
