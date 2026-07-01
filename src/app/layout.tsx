@@ -4,6 +4,7 @@ import Script from "next/script";
 import { isAdmin } from "../utils/auth";
 import { createSupabaseServerClient } from "../utils/supabaseServer";
 import Navbar from "./Navbar";
+import FooterWrapper from "./FooterWrapper";
 import "./globals.css";
 import styles from "./layout.module.css";
 
@@ -160,116 +161,119 @@ export default async function RootLayout({
         {/* Content Wrapper */}
         <div style={{ flex: 1, width: "100%" }}>{children}</div>
 
-        {/* Shared Footer */}
-        <footer className={styles.footer} id="main-footer">
-          <div className={styles.navContainer} style={{ flexDirection: "column", alignItems: "stretch" }}>
-            
-            {/* Social Links Badge Grid */}
-            <div className={styles.socialSection}>
-              <h3 className={styles.socialSectionTitle}>Connect with Our Community</h3>
-              <div className={styles.socialCardGrid}>
-                {socialLinks.map((social) => {
-                  const Icon = social.icon;
-                  return (
-                    <a
-                      key={social.name}
-                      href={social.url}
-                      className={styles.socialCard}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div 
-                        className={styles.socialCardIconWrapper} 
-                        style={{ color: social.color, backgroundColor: social.bg }}
-                      >
-                        <Icon />
-                      </div>
-                      <div className={styles.socialCardContent}>
-                        <div className={styles.socialCardName}>{social.name}</div>
-                        <div className={styles.socialCardDesc}>{social.description}</div>
-                      </div>
-                      <div className={styles.socialCardArrow}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className={styles.footerGrid}>
+        {/* Shared Footer wrapped to conditionally hide it */}
+        <FooterWrapper>
+          <footer className={styles.footer} id="main-footer">
+            <div className={styles.navContainer} style={{ flexDirection: "column", alignItems: "stretch" }}>
               
-              {/* Brand Col */}
-              <div className={styles.footerBrand}>
-                <Link href="/" className={styles.logo} style={{ fontSize: "1.4rem", marginBottom: "0.25rem" }}>
-                  Private<span className={styles.logoAccent}>Academy</span>
-                </Link>
-                <div className={styles.footerTagline}>Engineering Excellence Hub</div>
-                <p className={styles.footerDesc}>
-                  Empowering engineering students with comprehensive study materials, important questions, and video tutorials. Quality education accessible to all.
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
-                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
-                  <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 500 }}>All Systems Operational</span>
+              {/* Social Links Badge Grid */}
+              <div className={styles.socialSection}>
+                <h3 className={styles.socialSectionTitle}>Connect with Our Community</h3>
+                <div className={styles.socialCardGrid}>
+                  {socialLinks.map((social) => {
+                    const Icon = social.icon;
+                    return (
+                      <a
+                        key={social.name}
+                        href={social.url}
+                        className={styles.socialCard}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div 
+                          className={styles.socialCardIconWrapper} 
+                          style={{ color: social.color, backgroundColor: social.bg }}
+                        >
+                          <Icon />
+                        </div>
+                        <div className={styles.socialCardContent}>
+                          <div className={styles.socialCardName}>{social.name}</div>
+                          <div className={styles.socialCardDesc}>{social.description}</div>
+                        </div>
+                        <div className={styles.socialCardArrow}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </div>
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Quick Links Col */}
-              <div>
-                <h3 className={styles.footerTitle}>Quick Links</h3>
-                <ul className={styles.footerLinks}>
-                  <li><Link href="/" className={styles.footerLink}>Home</Link></li>
-                  <li><Link href="/articles" className={styles.footerLink}>Articles</Link></li>
-                  <li><Link href="/about" className={styles.footerLink}>About Us</Link></li>
-                  <li><Link href="/projects" className={styles.footerLink}>Projects</Link></li>
-                  <li><Link href="/careers" className={styles.footerLink}>Careers</Link></li>
-                  <li><Link href="/contact" className={styles.footerLink}>Contact</Link></li>
-                </ul>
-              </div>
-
-              {/* Legal Col */}
-              <div>
-                <h3 className={styles.footerTitle}>Legal</h3>
-                <ul className={styles.footerLinks}>
-                  <li><Link href="/privacy-policy" className={styles.footerLink}>Privacy Policy</Link></li>
-                  <li><Link href="/terms-and-condition" className={styles.footerLink}>Terms & Conditions</Link></li>
-                  <li><Link href="/disclaimer" className={styles.footerLink}>Disclaimer</Link></li>
-                </ul>
-              </div>
-
-              {/* Support Col */}
-              <div>
-                <h3 className={styles.footerTitle}>Support</h3>
-                <div className={styles.footerContact}>
-                  <div className={styles.contactItem}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                      <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
-                    <a href="mailto:privateacademy.in@gmail.com" className={styles.contactLink}>
-                      privateacademy.in@gmail.com
-                    </a>
-                  </div>
-                  <div className={styles.contactItem}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                      <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                    <span>Mumbai, Maharashtra, India</span>
+              <div className={styles.footerGrid}>
+                
+                {/* Brand Col */}
+                <div className={styles.footerBrand}>
+                  <Link href="/" className={styles.logo} style={{ fontSize: "1.4rem", marginBottom: "0.25rem" }}>
+                    Private<span className={styles.logoAccent}>Academy</span>
+                  </Link>
+                  <div className={styles.footerTagline}>Engineering Excellence Hub</div>
+                  <p className={styles.footerDesc}>
+                    Empowering engineering students with comprehensive study materials, important questions, and video tutorials. Quality education accessible to all.
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
+                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 500 }}>All Systems Operational</span>
                   </div>
                 </div>
+
+                {/* Quick Links Col */}
+                <div>
+                  <h3 className={styles.footerTitle}>Quick Links</h3>
+                  <ul className={styles.footerLinks}>
+                    <li><Link href="/" className={styles.footerLink}>Home</Link></li>
+                    <li><Link href="/articles" className={styles.footerLink}>Articles</Link></li>
+                    <li><Link href="/about" className={styles.footerLink}>About Us</Link></li>
+                    <li><Link href="/projects" className={styles.footerLink}>Projects</Link></li>
+                    <li><Link href="/careers" className={styles.footerLink}>Careers</Link></li>
+                    <li><Link href="/contact" className={styles.footerLink}>Contact</Link></li>
+                  </ul>
+                </div>
+
+                {/* Legal Col */}
+                <div>
+                  <h3 className={styles.footerTitle}>Legal</h3>
+                  <ul className={styles.footerLinks}>
+                    <li><Link href="/privacy-policy" className={styles.footerLink}>Privacy Policy</Link></li>
+                    <li><Link href="/terms-and-condition" className={styles.footerLink}>Terms & Conditions</Link></li>
+                    <li><Link href="/disclaimer" className={styles.footerLink}>Disclaimer</Link></li>
+                  </ul>
+                </div>
+
+                {/* Support Col */}
+                <div>
+                  <h3 className={styles.footerTitle}>Support</h3>
+                  <div className={styles.footerContact}>
+                    <div className={styles.contactItem}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <a href="mailto:privateacademy.in@gmail.com" className={styles.contactLink}>
+                        privateacademy.in@gmail.com
+                      </a>
+                    </div>
+                    <div className={styles.contactItem}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                      <span>Mumbai, Maharashtra, India</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
+              <div className={styles.footerBottom}>
+                <div>Made with ❤️ by <a href="https://www.karangholap.com/" target="_blank" rel="noopener noreferrer" className={styles.footerAuthorLink}>Karan Gholap</a></div>
+                <div>© {new Date().getFullYear()} Private Academy. All rights reserved.</div>
+              </div>
             </div>
+          </footer>
+        </FooterWrapper>
 
-            <div className={styles.footerBottom}>
-              <div>Made with ❤️ by <a href="https://www.karangholap.com/" target="_blank" rel="noopener noreferrer" className={styles.footerAuthorLink}>Karan Gholap</a></div>
-              <div>© {new Date().getFullYear()} Private Academy. All rights reserved.</div>
-            </div>
-          </div>
-        </footer>
       </body>
     </html>
   );
