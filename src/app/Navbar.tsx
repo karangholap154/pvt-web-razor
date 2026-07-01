@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
 import styles from "./layout.module.css";
 
 interface NavbarProps {
@@ -12,7 +13,13 @@ interface NavbarProps {
   userName?: string;
 }
 
-export default function Navbar({ sessionEmail, isUserAdmin, avatarUrl, userName }: NavbarProps) {
+export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initialIsAdmin, avatarUrl, userName }: NavbarProps) {
+  const { email: contextEmail, isAdmin: contextIsAdmin, authState } = useAuth();
+  
+  const isLoaded = authState !== "loading";
+  const sessionEmail = isLoaded ? contextEmail ?? undefined : initialEmail;
+  const isUserAdmin = isLoaded ? contextIsAdmin : initialIsAdmin;
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const pathname = usePathname();

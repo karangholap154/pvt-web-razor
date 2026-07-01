@@ -1,7 +1,9 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Note } from "../../../data/mockData";
 import { supabase } from "../../../utils/supabaseClient";
 import styles from "./notes.module.css";
@@ -11,9 +13,15 @@ interface NoteDetailsClientProps {
 }
 
 export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
-  // Session / Authentication state
-  const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  // Consume global authentication state
+  const { authState: contextAuthState, email: contextEmail } = useAuth();
   
+  const authState = (contextAuthState === "ready" || contextAuthState === "no-university")
+    ? "authenticated"
+    : contextAuthState === "loading"
+    ? "loading"
+    : "unauthenticated";
+
   // Purchase verification state
   const [hasPurchased, setHasPurchased] = useState(false);
   const [checkingPurchase, setCheckingPurchase] = useState(true);
@@ -27,64 +35,58 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
 
   const isPremium = note.price && note.price > 0;
 
-  // 1. Fetch user session and authenticate
+  // Verify purchase dynamically based on global auth state loading
   useEffect(() => {
-    // Verify purchase in Supabase
-    const verifyUserPurchase = async (email: string) => {
+    if (contextAuthState === "loading") {
       setCheckingPurchase(true);
-      try {
-        const cleanEmail = email.trim().toLowerCase();
-        const { data: purchase, error } = await supabase
-          .from("purchases")
-          .select("id")
-          .eq("email", cleanEmail)
-          .eq("note_id", note.id)
-          .eq("status", "success")
-          .maybeSingle();
+      return;
+    }
 
-        if (purchase && !error) {
-          setHasPurchased(true);
-        } else {
-          setHasPurchased(false);
-        }
-      } catch (err) {
-        console.error("Error verifying purchase:", err);
-      } finally {
-        setCheckingPurchase(false);
+    if (contextAuthState === "unauthenticated") {
+      setCheckoutEmail("");
+      setCheckingPurchase(false);
+      if (!isPremium) {
+        setHasPurchased(true);
+      } else {
+        setHasPurchased(false);
       }
-    };
+      return;
+    }
 
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/auth/me");
-        const data = await res.json();
-        if (data.authenticated && data.email) {
-          setCheckoutEmail(data.email);
-          setAuthState("authenticated");
-          
-          // If note is free, they automatically have access
-          if (!isPremium) {
-            setHasPurchased(true);
-            setCheckingPurchase(false);
-          } else {
-            // Check if user has already purchased the premium note
-            verifyUserPurchase(data.email);
-          }
-        } else {
-          setAuthState("unauthenticated");
-          setCheckingPurchase(false);
-          if (!isPremium) {
-            setHasPurchased(true); // Anyone can access free note even if logged out, but they will be prompted to login to download if they try, or let them download free notes without login? On home page, free notes download directly but unlock prompts login. Let's match homepage.
-          }
-        }
-      } catch (err) {
-        console.error("Auth check failed in note details page:", err);
-        setAuthState("unauthenticated");
+    // Authenticated (ready or no-university)
+    if (contextEmail) {
+      setCheckoutEmail(contextEmail);
+      if (!isPremium) {
+        setHasPurchased(true);
         setCheckingPurchase(false);
+      } else {
+        const verifyUserPurchase = async (email: string) => {
+          setCheckingPurchase(true);
+          try {
+            const cleanEmail = email.trim().toLowerCase();
+            const { data: purchase, error } = await supabase
+              .from("purchases")
+              .select("id")
+              .eq("email", cleanEmail)
+              .eq("note_id", note.id)
+              .eq("status", "success")
+              .maybeSingle();
+
+            if (purchase && !error) {
+              setHasPurchased(true);
+            } else {
+              setHasPurchased(false);
+            }
+          } catch (err) {
+            console.error("Error verifying purchase:", err);
+          } finally {
+            setCheckingPurchase(false);
+          }
+        };
+        verifyUserPurchase(contextEmail);
       }
     }
-    checkAuth();
-  }, [note.id, isPremium]);
+  }, [contextAuthState, contextEmail, note.id, isPremium]);
 
   // Download PDF file
   const handleDownload = async () => {

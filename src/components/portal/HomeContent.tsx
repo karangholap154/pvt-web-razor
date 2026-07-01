@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
 import styles from "../../app/page.module.css";
 import { Note, Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
@@ -25,10 +26,8 @@ export default function HomeContent() {
   const searchParams = useSearchParams();
   const unlockNoteId = searchParams.get("unlock");
 
-  // Auth / gate state
-  const [authState, setAuthState] = useState<"loading" | "unauthenticated" | "no-university" | "ready">("loading");
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userUniversity, setUserUniversity] = useState<string | null>(null);
+  // Consume global authentication state
+  const { authState, email: userEmail, university: userUniversity, refreshAuth } = useAuth();
 
   // Live database states
   const [notes, setNotes] = useState<Note[]>([]);
@@ -51,31 +50,6 @@ export default function HomeContent() {
   const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "verifying" | "paying" | "success" | "error">("idle");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
-
-  // ── Check authentication + university on mount ──────────────────────────
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/auth/me");
-        const data = await res.json();
-        if (!data.authenticated) {
-          setAuthState("unauthenticated");
-          return;
-        }
-        setUserEmail(data.email);
-        if (!data.university) {
-          setAuthState("no-university");
-        } else {
-          setUserUniversity(data.university);
-          setAuthState("ready");
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-        setAuthState("unauthenticated");
-      }
-    }
-    checkAuth();
-  }, []);
 
   // ── Fetch articles on mount ───────────────────────────────────────────
   useEffect(() => {
@@ -374,7 +348,7 @@ export default function HomeContent() {
   if (authState === "unauthenticated") return <LoginGate articles={articles} />;
 
   if (authState === "no-university") {
-    return <UniversityGate onSelect={(u) => { setUserUniversity(u); setAuthState("ready"); }} />;
+    return <UniversityGate onSelect={async () => { await refreshAuth(); }} />;
   }
 
   return (
