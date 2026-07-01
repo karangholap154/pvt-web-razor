@@ -4,7 +4,7 @@
   top: 0;
   width: 100%;
   height: 70px;
-  background-color: rgba(15, 23, 42, 0.85);
+  background-color: rgba(9, 9, 11, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -66,14 +66,14 @@
 
 .navLinkActive {
   color: var(--accent) !important;
-  background-color: rgba(99, 102, 241, 0.08);
+  background-color: rgba(251, 191, 36, 0.08);
   font-weight: 600;
 }
 
 .navLinkAuth {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary) !important;
+  color: #09090b !important;
   background-color: var(--accent);
   transition: var(--transition);
   padding: 0.45rem 1rem;
@@ -128,7 +128,7 @@
   right: 0;
   height: 100dvh;
   width: min(300px, 85vw);
-  background: #0f172a;
+  background: #09090b;
   border-left: 1px solid var(--border);
   z-index: 300;
   display: flex;
@@ -169,7 +169,7 @@
 .mobileCloseBtn:hover {
   color: var(--text-primary);
   border-color: var(--accent);
-  background-color: rgba(99, 102, 241, 0.1);
+  background-color: rgba(251, 191, 36, 0.1);
 }
 
 .mobileNavLinks {
@@ -199,15 +199,15 @@
 
 .mobileNavLinkActive {
   color: var(--accent) !important;
-  background-color: rgba(99, 102, 241, 0.08) !important;
-  border-color: rgba(99, 102, 241, 0.15) !important;
+  background-color: rgba(251, 191, 36, 0.08) !important;
+  border-color: rgba(251, 191, 36, 0.15) !important;
   font-weight: 600;
 }
 
 .mobileNavLinkAuth {
   font-size: 0.975rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #09090b;
   background-color: var(--accent);
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
@@ -234,7 +234,7 @@
 
 /* ─── Footer ────────────────────────────────────────────────── */
 .footer {
-  background-color: #070a13;
+  background-color: #050506;
   border-top: 1px solid rgba(255, 255, 255, 0.02);
   position: relative;
   padding: 5rem 0 3rem 0;
@@ -379,7 +379,7 @@
   gap: 0.875rem;
   padding: 0.875rem;
   border-radius: var(--radius);
-  background: rgba(30, 41, 59, 0.2);
+  background: rgba(24, 24, 27, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -404,7 +404,7 @@
 
 .socialCard:hover {
   transform: translateY(-3px);
-  background: rgba(30, 41, 59, 0.35);
+  background: rgba(24, 24, 27, 0.35);
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.4);
 }
@@ -505,7 +505,7 @@
 
 .avatarBtn:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.35);
 }
 
 .avatarBtn:focus {
@@ -537,7 +537,7 @@
   right: 0;
   margin-top: 0.75rem;
   width: 220px;
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(9, 9, 11, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);

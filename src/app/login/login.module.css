@@ -10,7 +10,7 @@
 .authCard {
   width: 100%;
   max-width: 440px;
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(24, 24, 27, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
@@ -40,7 +40,7 @@
 
 .tabs {
   display: flex;
-  background-color: rgba(15, 23, 42, 0.5);
+  background-color: rgba(9, 9, 11, 0.5);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.25rem;
@@ -61,7 +61,7 @@
 
 .activeTabBtn {
   background-color: var(--accent);
-  color: var(--text-primary);
+  color: #09090b;
 }
 
 .form {
@@ -84,7 +84,7 @@
 
 .input {
   width: 100%;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(9, 9, 11, 0.6);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -97,7 +97,7 @@
 
 .input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
 }
 
 .errorAlert {
@@ -121,9 +121,9 @@
 }
 
 .infoAlert {
-  background-color: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.35);
-  color: #a5b4fc;
+  background-color: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fde047;
   padding: 0.85rem 1rem;
   border-radius: var(--radius-sm);
   font-size: 0.875rem;
@@ -133,7 +133,7 @@
 .submitBtn {
   width: 100%;
   background-color: var(--accent);
-  color: var(--text-primary);
+  color: #09090b;
   border: none;
   font-family: var(--font-sans);
   font-weight: 700;
@@ -224,7 +224,7 @@
 .googleBtn:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
 }
 
 .googleBtn:disabled {

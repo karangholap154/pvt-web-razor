@@ -150,18 +150,18 @@ export default function ContactPage() {
           padding: 1.5rem;
           border: 1px solid var(--border);
           border-radius: var(--radius);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
           transition: var(--transition);
         }
         .info-card:hover {
           transform: translateY(-3px);
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.04);
-          box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08);
+          background: rgba(251, 191, 36, 0.04);
+          box-shadow: 0 8px 24px rgba(251, 191, 36, 0.08);
         }
         .action-card {
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           border-radius: var(--radius);
           transition: var(--transition);
           text-decoration: none;
@@ -174,8 +174,8 @@ export default function ContactPage() {
         .action-card:hover {
           transform: translateY(-3px);
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.04);
-          box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08);
+          background: rgba(251, 191, 36, 0.04);
+          box-shadow: 0 8px 24px rgba(251, 191, 36, 0.08);
         }
         .action-card-header {
           display: flex;
@@ -189,13 +189,13 @@ export default function ContactPage() {
           color: var(--accent);
           padding: 0.2rem 0.5rem;
           border-radius: 6px;
-          border: 1px solid rgba(99, 102, 241, 0.2);
-          background: rgba(99, 102, 241, 0.06);
+          border: 1px solid rgba(251, 191, 36, 0.2);
+          background: rgba(251, 191, 36, 0.06);
           transition: var(--transition);
         }
         .action-card:hover .action-card-badge {
           background: var(--accent);
-          color: #ffffff;
+          color: #09090b;
           border-color: var(--accent);
         }
         .social-card {
@@ -205,7 +205,7 @@ export default function ContactPage() {
           padding: 1.5rem;
           border: 1px solid var(--border);
           border-radius: var(--radius);
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           transition: var(--transition);
           text-decoration: none;
           height: 100%;
@@ -236,7 +236,7 @@ export default function ContactPage() {
           padding: 1.5rem;
           border: 1px solid var(--border);
           border-radius: var(--radius);
-          background: linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%);
+          background: linear-gradient(135deg, rgba(24, 24, 27, 0.3) 0%, rgba(9, 9, 11, 0.3) 100%);
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 2rem;
@@ -265,13 +265,13 @@ export default function ContactPage() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
-          background: "rgba(99, 102, 241, 0.1)",
-          border: "1px solid rgba(99, 102, 241, 0.25)",
+          background: "rgba(251, 191, 36, 0.1)",
+          border: "1px solid rgba(251, 191, 36, 0.25)",
           borderRadius: "999px",
           padding: "0.4rem 1rem",
           fontSize: "0.78rem",
           fontWeight: 600,
-          color: "#818cf8",
+          color: "#facc15",
           marginBottom: "0.75rem",
           letterSpacing: "0.02em",
           textTransform: "uppercase"
@@ -281,7 +281,7 @@ export default function ContactPage() {
         <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="contact-title">
           Contact —{" "}
           <span style={{
-            background: "linear-gradient(135deg, var(--accent), #a78bfa)",
+            background: "linear-gradient(135deg, var(--accent), #fb923c)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent"
           }}>

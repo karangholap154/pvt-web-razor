@@ -26,7 +26,7 @@ export default function DisclaimerPage() {
           animation: floatIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .legal-section {
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           border: 1px solid var(--border);
           border-radius: var(--radius);
           padding: 2.25rem 2rem;
@@ -34,8 +34,8 @@ export default function DisclaimerPage() {
         }
         .legal-section:hover {
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.02);
-          box-shadow: 0 8px 24px -8px rgba(99, 102, 241, 0.12);
+          background: rgba(251, 191, 36, 0.02);
+          box-shadow: 0 8px 24px -8px rgba(251, 191, 36, 0.12);
         }
         .legal-section h2 {
           font-size: 1.3rem;

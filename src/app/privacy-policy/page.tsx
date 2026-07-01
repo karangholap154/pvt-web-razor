@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
           animation: floatIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .legal-section {
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           border: 1px solid var(--border);
           border-radius: var(--radius);
           padding: 2.25rem 2rem;
@@ -34,8 +34,8 @@ export default function PrivacyPolicyPage() {
         }
         .legal-section:hover {
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.02);
-          box-shadow: 0 8px 24px -8px rgba(99, 102, 241, 0.12);
+          background: rgba(251, 191, 36, 0.02);
+          box-shadow: 0 8px 24px -8px rgba(251, 191, 36, 0.12);
         }
         .legal-section h2 {
           font-size: 1.3rem;
@@ -91,7 +91,7 @@ export default function PrivacyPolicyPage() {
           transform: translateX(4px);
         }
         .callout-box {
-          background: rgba(99, 102, 241, 0.05);
+          background: rgba(251, 191, 36, 0.05);
           border-left: 4px solid var(--accent);
           border-radius: 0 var(--radius) var(--radius) 0;
           padding: 1.25rem 1.5rem;
@@ -134,13 +134,13 @@ export default function PrivacyPolicyPage() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
-          background: "rgba(99, 102, 241, 0.1)",
-          border: "1px solid rgba(99, 102, 241, 0.25)",
+          background: "rgba(251, 191, 36, 0.1)",
+          border: "1px solid rgba(251, 191, 36, 0.25)",
           borderRadius: "999px",
           padding: "0.4rem 1rem",
           fontSize: "0.78rem",
           fontWeight: 600,
-          color: "#818cf8",
+          color: "#facc15",
           marginBottom: "1rem",
           letterSpacing: "0.02em",
           textTransform: "uppercase"

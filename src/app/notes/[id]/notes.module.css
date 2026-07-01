@@ -54,7 +54,7 @@
   color: var(--accent);
   padding: 0.35rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.2);
 }
 
 .badgeSemester {
@@ -70,11 +70,11 @@
 .badgeUniversity {
   font-size: 0.8rem;
   font-weight: 600;
-  background-color: rgba(99, 102, 241, 0.05);
-  color: #a78bfa;
+  background-color: rgba(251, 191, 36, 0.05);
+  color: #fb923c;
   padding: 0.35rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid rgba(167, 139, 250, 0.2);
+  border: 1px solid rgba(251, 146, 60, 0.2);
 }
 
 .badgePriceFree {
@@ -145,7 +145,7 @@
 }
 
 .actionSection {
-  background: rgba(30, 41, 59, 0.3);
+  background: rgba(24, 24, 27, 0.3);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 2rem;
@@ -162,7 +162,7 @@
 
 .btnPrimary {
   background-color: var(--accent);
-  color: #ffffff;
+  color: #09090b;
   font-weight: 700;
   padding: 1rem 1.5rem;
   border-radius: var(--radius);
@@ -174,17 +174,17 @@
   justify-content: center;
   gap: 0.5rem;
   font-size: 1rem;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.3);
 }
 
 .btnPrimary:hover {
   background-color: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.45);
 }
 
 .btnPrimary:disabled {
-  background-color: rgba(99, 102, 241, 0.4);
+  background-color: rgba(251, 191, 36, 0.4);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;

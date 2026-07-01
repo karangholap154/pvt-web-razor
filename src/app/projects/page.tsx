@@ -47,17 +47,17 @@ export default async function ProjectsPage() {
         .stat-card {
           transition: all 0.3s ease;
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
         }
         .stat-card:hover {
           transform: translateY(-4px);
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.05);
-          box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.3);
+          background: rgba(251, 191, 36, 0.05);
+          box-shadow: 0 10px 20px -10px rgba(251, 191, 36, 0.3);
         }
         .info-card {
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           border-radius: var(--radius);
         }
         .focus-badge {
@@ -78,7 +78,7 @@ export default async function ProjectsPage() {
         }
         .step-card {
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           position: relative;
           transition: all 0.3s ease;
         }
@@ -94,13 +94,13 @@ export default async function ProjectsPage() {
           height: 28px;
           border-radius: 50%;
           background: var(--accent);
-          color: #fff;
+          color: #09090b;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 800;
           font-size: 0.85rem;
-          box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+          box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
         }
         .project-card {
           background-color: var(--card-bg);
@@ -117,12 +117,12 @@ export default async function ProjectsPage() {
         .project-card:hover {
           transform: translateY(-4px);
           border-color: var(--accent);
-          box-shadow: 0 12px 20px -10px rgba(99, 102, 241, 0.3);
+          box-shadow: 0 12px 20px -10px rgba(251, 191, 36, 0.3);
         }
         .project-tech-tag {
           font-size: 0.725rem;
           background-color: var(--accent-light);
-          border: 1px solid rgba(99, 102, 241, 0.2);
+          border: 1px solid rgba(251, 191, 36, 0.2);
           color: var(--accent);
           padding: 0.15rem 0.45rem;
           border-radius: 4px;
@@ -152,7 +152,7 @@ export default async function ProjectsPage() {
         }
         .contact-cta {
           border: 1px solid var(--border);
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+          background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 146, 60, 0.05) 100%);
           position: relative;
           overflow: hidden;
         }
@@ -163,7 +163,7 @@ export default async function ProjectsPage() {
           left: 0;
           right: 0;
           height: 2px;
-          background: linear-gradient(90deg, var(--accent), #a78bfa);
+          background: linear-gradient(90deg, var(--accent), #fb923c);
         }
         .contact-btn {
           display: inline-flex;
@@ -203,13 +203,13 @@ export default async function ProjectsPage() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
-          background: "rgba(99, 102, 241, 0.1)",
-          border: "1px solid rgba(99, 102, 241, 0.25)",
+          background: "rgba(251, 191, 36, 0.1)",
+          border: "1px solid rgba(251, 191, 36, 0.25)",
           borderRadius: "999px",
           padding: "0.4rem 1rem",
           fontSize: "0.78rem",
           fontWeight: 600,
-          color: "#818cf8",
+          color: "#facc15",
           marginBottom: "1.25rem",
           letterSpacing: "0.02em",
           textTransform: "uppercase"
@@ -219,7 +219,7 @@ export default async function ProjectsPage() {
         <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="projects-title">
           Micro &amp; Mini Projects —{" "}
           <span style={{
-            background: "linear-gradient(135deg, var(--accent), #a78bfa)",
+            background: "linear-gradient(135deg, var(--accent), #fb923c)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent"
           }}>

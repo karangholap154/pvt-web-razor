@@ -95,14 +95,14 @@ export default function CareersPage() {
         .job-card {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
         }
         .job-card:hover {
           transform: translateY(-4px);
-          border-color: rgba(99, 102, 241, 0.25);
-          background: rgba(30, 41, 59, 0.35);
+          border-color: rgba(251, 191, 36, 0.25);
+          background: rgba(24, 24, 27, 0.35);
           box-shadow: 0 16px 28px -10px rgba(0, 0, 0, 0.4);
         }
         .apply-btn {
@@ -110,13 +110,13 @@ export default function CareersPage() {
           align-items: center;
           gap: 0.5rem;
           background-color: var(--accent);
-          color: #fff;
+          color: #09090b;
           font-weight: 700;
           padding: 0.7rem 1.5rem;
           border-radius: var(--radius-sm);
           font-size: 0.875rem;
           transition: var(--transition);
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+          box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
           cursor: pointer;
         }
         .apply-btn:hover {
@@ -140,13 +140,13 @@ export default function CareersPage() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
-          background: "rgba(99, 102, 241, 0.1)",
-          border: "1px solid rgba(99, 102, 241, 0.25)",
+          background: "rgba(251, 191, 36, 0.1)",
+          border: "1px solid rgba(251, 191, 36, 0.25)",
           borderRadius: "999px",
           padding: "0.4rem 1rem",
           fontSize: "0.78rem",
           fontWeight: 600,
-          color: "#818cf8",
+          color: "#facc15",
           marginBottom: "1.25rem",
           letterSpacing: "0.02em",
           textTransform: "uppercase"
@@ -156,7 +156,7 @@ export default function CareersPage() {
         <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="careers-title">
           Join the{" "}
           <span style={{
-            background: "linear-gradient(135deg, var(--accent), #a78bfa)",
+            background: "linear-gradient(135deg, var(--accent), #fb923c)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent"
           }}>
@@ -169,7 +169,7 @@ export default function CareersPage() {
       </header>
 
       {/* Culture Section */}
-      <section className="animate-fade" style={{ padding: "2rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "rgba(30, 41, 59, 0.1)" }} id="careers-culture-section">
+      <section className="animate-fade" style={{ padding: "2rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "rgba(24, 24, 27, 0.1)" }} id="careers-culture-section">
         <h2 style={{ fontSize: "1.35rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)" }}>Why Contribute Here?</h2>
         <p style={{ color: "var(--text-secondary)", lineHeight: "1.7", fontSize: "0.95rem" }}>
           Private Academy is a growing community hub. By joining us as an intern or content creator, you directly influence the study routines of thousands of students. We offer flexible remote work, fair competitive stipends, and letter of recommendation credentials to all active coordinators.
@@ -203,8 +203,8 @@ export default function CareersPage() {
                       <span style={{
                         fontSize: "0.7rem",
                         fontWeight: 700,
-                        background: "linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%)",
-                        color: "#fff",
+                        background: "linear-gradient(135deg, var(--accent) 0%, #fb923c 100%)",
+                        color: "#09090b",
                         padding: "0.2rem 0.6rem",
                         borderRadius: "4px",
                         textTransform: "uppercase",

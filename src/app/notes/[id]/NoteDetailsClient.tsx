@@ -198,7 +198,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           }
         },
         modal: { ondismiss: function () { setCheckoutStatus("idle"); } },
-        theme: { color: "#6366f1" },
+        theme: { color: "#fbbf24" },
       };
 
       const rzpWindow = window as unknown as RazorpayWindow;

@@ -14,23 +14,23 @@ export default function AboutPage() {
         .stat-card {
           transition: all 0.3s ease;
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
         }
         .stat-card:hover {
           transform: translateY(-4px);
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.05);
-          box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.3);
+          background: rgba(251, 191, 36, 0.05);
+          box-shadow: 0 10px 20px -10px rgba(251, 191, 36, 0.3);
         }
         .value-card {
           transition: all 0.3s ease;
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
         }
         .value-card:hover {
           transform: translateY(-4px);
-          border-color: rgba(99, 102, 241, 0.2);
-          background: rgba(30, 41, 59, 0.4);
+          border-color: rgba(251, 191, 36, 0.2);
+          background: rgba(24, 24, 27, 0.4);
         }
         .branch-badge, .uni-badge {
           transition: all 0.2s ease;
@@ -45,7 +45,7 @@ export default function AboutPage() {
         }
         .founder-card {
           border: 1px solid var(--border);
-          background: linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%);
+          background: linear-gradient(135deg, rgba(24, 24, 27, 0.3) 0%, rgba(9, 9, 11, 0.3) 100%);
         }
         .founder-social-btn {
           display: inline-flex;
@@ -68,7 +68,7 @@ export default function AboutPage() {
         }
         .contact-cta {
           border: 1px solid var(--border);
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+          background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 146, 60, 0.05) 100%);
           position: relative;
           overflow: hidden;
         }
@@ -79,7 +79,7 @@ export default function AboutPage() {
           left: 0;
           right: 0;
           height: 2px;
-          background: linear-gradient(90deg, var(--accent), #a78bfa);
+          background: linear-gradient(90deg, var(--accent), #fb923c);
         }
         .contact-mail-btn {
           margin-top: 0.5rem;
@@ -87,12 +87,12 @@ export default function AboutPage() {
           align-items: center;
           gap: 0.5rem;
           background-color: var(--accent);
-          color: #fff;
+          color: #09090b;
           font-weight: 700;
           padding: 0.8rem 1.75rem;
           border-radius: var(--radius-sm);
           transition: var(--transition);
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+          box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
         }
         .contact-mail-btn:hover {
           background-color: var(--accent-hover);
@@ -105,13 +105,13 @@ export default function AboutPage() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
-          background: "rgba(99, 102, 241, 0.1)",
-          border: "1px solid rgba(99, 102, 241, 0.25)",
+          background: "rgba(251, 191, 36, 0.1)",
+          border: "1px solid rgba(251, 191, 36, 0.25)",
           borderRadius: "999px",
           padding: "0.4rem 1rem",
           fontSize: "0.78rem",
           fontWeight: 600,
-          color: "#818cf8",
+          color: "#facc15",
           marginBottom: "1.25rem",
           letterSpacing: "0.02em",
           textTransform: "uppercase"
@@ -121,7 +121,7 @@ export default function AboutPage() {
         <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="about-title">
           Private Academy{" "}
           <span style={{
-            background: "linear-gradient(135deg, var(--accent), #a78bfa)",
+            background: "linear-gradient(135deg, var(--accent), #fb923c)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent"
           }}>
@@ -251,7 +251,7 @@ export default function AboutPage() {
             "Organized by branch and semester for absolute ease of navigation",
             "Integrated learning — download high-quality PDFs and watch video walkthroughs on the same screen"
           ].map((feature, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "1rem", padding: "1.25rem 1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "rgba(30, 41, 59, 0.1)" }}>
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "1rem", padding: "1.25rem 1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "rgba(24, 24, 27, 0.1)" }}>
               <div style={{ color: "var(--accent)", marginTop: "0.15rem", flexShrink: 0 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
@@ -275,14 +275,14 @@ export default function AboutPage() {
             width: "90px",
             height: "90px",
             borderRadius: "50%",
-            background: "linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%)",
+            background: "linear-gradient(135deg, var(--accent) 0%, #fb923c 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: "2rem",
             fontWeight: 800,
-            color: "#fff",
-            boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)",
+            color: "#09090b",
+            boxShadow: "0 0 20px rgba(251, 191, 36, 0.4)",
             flexShrink: 0,
             margin: "0 auto"
           }}>

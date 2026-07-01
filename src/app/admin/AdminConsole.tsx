@@ -432,7 +432,7 @@ export default function AdminConsole({
                 <tr key={note.id}>
                   <td style={{ fontWeight: 600 }}>{note.title}</td>
                   <td>
-                    <span className={styles.badge} style={{ backgroundColor: "rgba(99,102,241,0.12)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.25)", fontSize: "0.72rem" }}>
+                    <span className={styles.badge} style={{ backgroundColor: "rgba(251,191,36,0.12)", color: "#fde047", border: "1px solid rgba(251,191,36,0.25)", fontSize: "0.72rem" }}>
                       {note.university ? note.university.replace("University", "Univ.").replace("Savitribai Phule Pune", "SPPU").replace("Dr. Babasaheb Ambedkar Technological", "DBATU").replace("Shivaji", "SUK") : "—"}
                     </span>
                   </td>

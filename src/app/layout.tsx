@@ -140,7 +140,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className="page-container">
+      <body className="page-container" suppressHydrationWarning>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         {/* Sticky Header / Navbar */}
         <header className={styles.header} id="main-header">

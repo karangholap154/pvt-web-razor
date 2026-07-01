@@ -80,7 +80,7 @@
 
 .btnCreate {
   background-color: var(--accent);
-  color: var(--text-primary);
+  color: #09090b;
   border: none;
   font-family: var(--font-sans);
   font-weight: 600;
@@ -148,7 +148,7 @@
   text-transform: uppercase;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border);
-  background-color: rgba(15, 23, 42, 0.3);
+  background-color: rgba(9, 9, 11, 0.3);
 }
 
 .table td {
@@ -177,7 +177,7 @@
 .tagBranch {
   background-color: var(--accent-light);
   color: var(--accent);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.2);
 }
 
 .tagSemester {
@@ -234,7 +234,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.85);
+  background-color: rgba(9, 9, 11, 0.85);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -318,7 +318,7 @@
 .select,
 .textarea {
   width: 100%;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(9, 9, 11, 0.6);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -333,7 +333,7 @@
 .select:focus,
 .textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
 }
 
 .textarea {
@@ -368,7 +368,7 @@
 
 .btnSave {
   background-color: var(--accent);
-  color: var(--text-primary);
+  color: #09090b;
   border: none;
   font-family: var(--font-sans);
   font-weight: 600;

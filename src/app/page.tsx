@@ -34,7 +34,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
         transform: "translateX(-50%)",
         width: "600px",
         height: "400px",
-        background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)",
+        background: "radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%)",
         pointerEvents: "none",
         zIndex: 0
       }} />
@@ -61,7 +61,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
         }
         .gate-feature-card:hover { 
           transform: translateY(-4px); 
-          box-shadow: 0 10px 24px -10px rgba(99, 102, 241, 0.3); 
+          box-shadow: 0 10px 24px -10px rgba(251, 191, 36, 0.3); 
           border-color: var(--accent); 
         }
         .gate-step {
@@ -69,19 +69,19 @@ function LoginGate({ articles }: { articles: Article[] }) {
           align-items: flex-start;
           gap: 1.25rem;
           padding: 1.5rem;
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
           border: 1px solid var(--border);
           border-radius: var(--radius);
           transition: var(--transition);
         }
         .gate-step:hover {
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.02);
+          background: rgba(251, 191, 36, 0.02);
         }
         .gate-step:hover .gate-step-num { 
           background: var(--accent) !important; 
-          color: #ffffff !important; 
-          box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+          color: #09090b !important; 
+          box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
         }
         .cta-primary {
           display: inline-flex;
@@ -89,18 +89,18 @@ function LoginGate({ articles }: { articles: Article[] }) {
           gap: 0.5rem;
           padding: 0.875rem 2.25rem;
           background: var(--accent);
-          color: #ffffff;
+          color: #09090b;
           border-radius: var(--radius);
           font-weight: 700;
           font-size: 1rem;
           text-decoration: none;
           transition: var(--transition);
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+          box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
         }
         .cta-primary:hover {
           background: var(--accent-hover);
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+          box-shadow: 0 6px 16px rgba(251, 191, 36, 0.35);
         }
         .cta-secondary {
           display: inline-flex;
@@ -122,7 +122,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
           border-color: var(--text-secondary);
         }
         .branch-card {
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           border: 1px solid var(--border);
           border-radius: var(--radius);
           padding: 1.5rem;
@@ -131,10 +131,10 @@ function LoginGate({ articles }: { articles: Article[] }) {
         .branch-card:hover {
           transform: translateY(-3px);
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.02);
+          background: rgba(251, 191, 36, 0.02);
         }
         .testimonial-card {
-          background: rgba(30, 41, 59, 0.15);
+          background: rgba(24, 24, 27, 0.15);
           border: 1px solid var(--border);
           border-radius: var(--radius);
           padding: 1.75rem;
@@ -146,8 +146,8 @@ function LoginGate({ articles }: { articles: Article[] }) {
         .testimonial-card:hover {
           transform: translateY(-3px);
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.02);
-          box-shadow: 0 8px 24px -12px rgba(99, 102, 241, 0.2);
+          background: rgba(251, 191, 36, 0.02);
+          box-shadow: 0 8px 24px -12px rgba(251, 191, 36, 0.2);
         }
         .faq-item {
           background: rgba(255, 255, 255, 0.01);
@@ -158,11 +158,11 @@ function LoginGate({ articles }: { articles: Article[] }) {
         }
         .faq-item:hover {
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.01);
+          background: rgba(251, 191, 36, 0.01);
         }
         .custom-widget-card {
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
           border-radius: var(--radius);
           padding: 1rem 1.25rem;
           transition: var(--transition);
@@ -173,7 +173,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
         }
         .custom-widget-card:hover {
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.04);
+          background: rgba(251, 191, 36, 0.04);
           transform: translateY(-2px);
         }
       `}</style>
@@ -203,13 +203,13 @@ function LoginGate({ articles }: { articles: Article[] }) {
             display: "inline-flex",
             alignItems: "center",
             gap: "0.6rem",
-            background: "rgba(99, 102, 241, 0.08)",
-            border: "1px solid rgba(99, 102, 241, 0.25)",
+            background: "rgba(251, 191, 36, 0.08)",
+            border: "1px solid rgba(251, 191, 36, 0.25)",
             borderRadius: "999px",
             padding: "0.45rem 1.2rem",
             fontSize: "0.8rem",
             fontWeight: 600,
-            color: "#818cf8",
+            color: "#facc15",
             letterSpacing: "0.01em",
           }}>
             <span style={{ 
@@ -232,7 +232,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
           }}>
             Ace Your Exams with{" "}
             <span style={{
-              background: "linear-gradient(135deg, var(--accent) 30%, #a78bfa 100%)",
+              background: "linear-gradient(135deg, var(--accent) 30%, #fb923c 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}>
@@ -457,7 +457,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
                 width: "44px",
                 height: "44px",
                 borderRadius: "var(--radius-sm)",
-                background: "rgba(99, 102, 241, 0.12)",
+                background: "rgba(251, 191, 36, 0.12)",
                 color: "var(--accent)",
                 display: "flex",
                 alignItems: "center",
@@ -499,7 +499,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
                 width: "40px",
                 height: "40px",
                 borderRadius: "50%",
-                background: "rgba(99, 102, 241, 0.12)",
+                background: "rgba(251, 191, 36, 0.12)",
                 color: "var(--accent)",
                 display: "flex",
                 alignItems: "center",
@@ -651,8 +651,8 @@ function LoginGate({ articles }: { articles: Article[] }) {
         textAlign: "center",
       }}>
         <div style={{
-          background: "linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(167, 139, 250, 0.04) 100%)",
-          border: "1px solid rgba(99, 102, 241, 0.2)",
+          background: "linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(251, 146, 60, 0.04) 100%)",
+          border: "1px solid rgba(251, 191, 36, 0.2)",
           borderRadius: "var(--radius-lg)",
           padding: "3rem 2.5rem",
           position: "relative",
@@ -664,7 +664,7 @@ function LoginGate({ articles }: { articles: Article[] }) {
             left: 0,
             right: 0,
             height: "2px",
-            background: "linear-gradient(90deg, var(--accent), #a78bfa)"
+            background: "linear-gradient(90deg, var(--accent), #fb923c)"
           }} />
           <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.75rem", color: "var(--text-primary)" }}>
             Ace your semesters with Private Academy
@@ -766,7 +766,7 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
         transform: "translateX(-50%)",
         width: "500px",
         height: "300px",
-        background: "radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)",
+        background: "radial-gradient(circle, rgba(251, 191, 36, 0.08) 0%, transparent 70%)",
         pointerEvents: "none"
       }} />
 
@@ -796,14 +796,14 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
             width: "68px",
             height: "68px",
             borderRadius: "50%",
-            background: "rgba(99, 102, 241, 0.12)",
-            border: "1px solid rgba(99, 102, 241, 0.25)",
+            background: "rgba(251, 191, 36, 0.12)",
+            border: "1px solid rgba(251, 191, 36, 0.25)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 1.25rem",
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#facc15" strokeWidth="2">
               <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
               <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
@@ -841,8 +841,8 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
         {/* Coming Soon Notice */}
         {comingSoonUniv && (
           <div style={{
-            background: "rgba(99, 102, 241, 0.06)",
-            border: "1px solid rgba(99, 102, 241, 0.2)",
+            background: "rgba(251, 191, 36, 0.06)",
+            border: "1px solid rgba(251, 191, 36, 0.2)",
             borderRadius: "var(--radius)",
             padding: "1.25rem 1.5rem",
             marginBottom: "1.5rem",
@@ -855,13 +855,13 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
               width: "40px",
               height: "40px",
               borderRadius: "50%",
-              background: "rgba(99, 102, 241, 0.12)",
+              background: "rgba(251, 191, 36, 0.12)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2.5">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" strokeWidth="2.5">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v6l4 2" />
               </svg>
@@ -1027,7 +1027,7 @@ function UniversityGate({ onSelect }: { onSelect: (u: string) => void }) {
             fontSize: "1rem",
             cursor: selected && selectedHasNotes ? "pointer" : "not-allowed",
             transition: "var(--transition)",
-            boxShadow: selected && selectedHasNotes ? "0 4px 12px rgba(99, 102, 241, 0.25)" : "none"
+            boxShadow: selected && selectedHasNotes ? "0 4px 12px rgba(251, 191, 36, 0.25)" : "none"
           }}
         >
           {saving ? "Saving Selection..." : selected ? `Unlock Library — ${selected}` : "Select University to Unlock Content"}
@@ -1339,7 +1339,7 @@ function HomeContent() {
           }
         },
         modal: { ondismiss: function () { setCheckoutStatus("idle"); } },
-        theme: { color: "#6366f1" },
+        theme: { color: "#fbbf24" },
       };
 
       const rzpWindow = window as unknown as RazorpayWindow;
@@ -1405,7 +1405,7 @@ function HomeContent() {
       <style>{`
         .custom-widget-card {
           border: 1px solid var(--border);
-          background: rgba(30, 41, 59, 0.2);
+          background: rgba(24, 24, 27, 0.2);
           border-radius: var(--radius);
           padding: 1rem 1.25rem;
           transition: var(--transition);
@@ -1416,7 +1416,7 @@ function HomeContent() {
         }
         .custom-widget-card:hover {
           border-color: var(--accent);
-          background: rgba(99, 102, 241, 0.04);
+          background: rgba(251, 191, 36, 0.04);
           transform: translateY(-2px);
         }
         .note-card-glow {
@@ -1425,7 +1425,7 @@ function HomeContent() {
         .note-card-glow:hover {
           transform: translateY(-4px);
           border-color: var(--accent);
-          box-shadow: 0 10px 24px -10px rgba(99, 102, 241, 0.25);
+          box-shadow: 0 10px 24px -10px rgba(251, 191, 36, 0.25);
         }
         .btn-note-action {
           padding: 0.65rem 0.5rem;
@@ -1454,11 +1454,11 @@ function HomeContent() {
         .btn-note-download {
           background-color: var(--accent-light);
           color: var(--accent);
-          border-color: rgba(99, 102, 241, 0.2);
+          border-color: rgba(251, 191, 36, 0.2);
         }
         .btn-note-download:hover {
           background-color: var(--accent);
-          color: #ffffff;
+          color: #09090b;
           border-color: var(--accent);
         }
         .btn-note-download-free {
@@ -1480,13 +1480,13 @@ function HomeContent() {
             display: "inline-flex",
             alignItems: "center",
             gap: "0.5rem",
-            background: "rgba(99, 102, 241, 0.08)",
-            border: "1px solid rgba(99, 102, 241, 0.25)",
+            background: "rgba(251, 191, 36, 0.08)",
+            border: "1px solid rgba(251, 191, 36, 0.25)",
             borderRadius: "999px",
             padding: "0.4rem 1rem",
             fontSize: "0.8rem",
             fontWeight: 600,
-            color: "#818cf8",
+            color: "#facc15",
             alignSelf: "flex-start"
           }}>
             {userUniversity} Syllabus notes
@@ -1494,7 +1494,7 @@ function HomeContent() {
           <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="hero-title">
             Study Smarter — <br />
             <span style={{
-              background: "linear-gradient(135deg, var(--accent) 30%, #a78bfa 100%)",
+              background: "linear-gradient(135deg, var(--accent) 30%, #fb923c 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent"
             }}>
@@ -1640,7 +1640,7 @@ function HomeContent() {
               borderRadius: "4px", 
               background: "var(--accent-light)", 
               color: "var(--accent)", 
-              border: "1px solid rgba(99,102,241,0.2)" 
+              border: "1px solid rgba(251,191,36,0.2)" 
             }}>
               Active Search Filters
             </span>
