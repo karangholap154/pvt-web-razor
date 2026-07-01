@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Note } from "../../../data/mockData";
 import { supabase } from "../../../utils/supabaseClient";
+import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./notes.module.css";
 
 interface NoteDetailsClientProps {
@@ -15,6 +16,7 @@ interface NoteDetailsClientProps {
 export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   // Consume global authentication state
   const { authState: contextAuthState, email: contextEmail } = useAuth();
+  const toast = useToast();
   
   const authState = (contextAuthState === "ready" || contextAuthState === "no-university")
     ? "authenticated"
@@ -144,7 +146,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
 
       const orderData = await res.json();
       if (orderData.error) {
-        alert(`Checkout order error: ${orderData.error}`);
+        toast.error(`Checkout order error: ${orderData.error}`);
         setCheckoutStatus("idle");
         return;
       }
@@ -186,16 +188,16 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             });
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              alert("Payment verified successfully! Access granted.");
+              toast.success("Payment verified successfully! Access granted.");
               setHasPurchased(true);
               setCheckoutStatus("success");
             } else {
-              alert(`Verification failed: ${verifyData.error}`);
+              toast.error(`Verification failed: ${verifyData.error}`);
               setCheckoutStatus("idle");
             }
           } catch (err) {
             console.error("Verification callback failed:", err);
-            alert("Verification check failed.");
+            toast.error("Verification check failed.");
             setCheckoutStatus("idle");
           }
         },
@@ -210,7 +212,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
       }
     } catch (err) {
       console.error("Checkout flow failed:", err);
-      alert("Error starting checkout process.");
+      toast.error("Error starting checkout process.");
       setCheckoutStatus("idle");
     }
   };
@@ -228,16 +230,16 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Payment sync successful! Access granted.");
+        toast.success("Payment sync successful! Access granted.");
         setHasPurchased(true);
         setCheckoutStatus("success");
       } else {
-        alert(data.message || "Payment sync failed. No successful transaction found yet.");
+        toast.warning(data.message || "Payment sync failed. No successful transaction found yet.");
         setCheckoutStatus("idle");
       }
     } catch (err) {
       console.error("Manual sync failed:", err);
-      alert("Error checking payment status.");
+      toast.error("Error checking payment status.");
       setCheckoutStatus("idle");
     }
   };

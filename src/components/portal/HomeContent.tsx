@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../../app/page.module.css";
 import { Note, Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
@@ -24,6 +25,7 @@ interface RazorpayWindow extends Window {
 export default function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const toast = useToast();
   const unlockNoteId = searchParams.get("unlock");
 
   // Consume global authentication state
@@ -238,7 +240,7 @@ export default function HomeContent() {
 
       const orderData = await res.json();
       if (orderData.error) {
-        alert(`Checkout order creation error: ${orderData.error}`);
+        toast.error(`Checkout order creation error: ${orderData.error}`);
         setCheckoutStatus("idle");
         return;
       }
@@ -247,7 +249,7 @@ export default function HomeContent() {
 
       const rpayWindow = window as RazorpayWindow;
       if (!rpayWindow.Razorpay) {
-        alert("Razorpay payment checkout script failed to load. Please refresh the page.");
+        toast.warning("Razorpay payment checkout script failed to load. Please refresh the page.");
         setCheckoutStatus("idle");
         return;
       }
@@ -280,13 +282,14 @@ export default function HomeContent() {
               setCheckoutStatus("success");
               setShowCheckoutPrompt(false);
               openModal(checkoutNote, "pdf");
+              toast.success("Payment verified successfully! Access granted.");
             } else {
-              alert(verifyData.error || "Payment verification failed.");
+              toast.error(verifyData.error || "Payment verification failed.");
               setCheckoutStatus("idle");
             }
           } catch (err) {
             console.error("Verification endpoint post failed:", err);
-            alert("Connection error during verification. Try syncing your payment.");
+            toast.error("Connection error during verification. Try syncing your payment.");
             setCheckoutStatus("idle");
           }
         },
@@ -300,7 +303,7 @@ export default function HomeContent() {
       paymentObject.open();
     } catch (err) {
       console.error("Checkout submission failed:", err);
-      alert("Error starting checkout process.");
+      toast.error("Error starting checkout process.");
       setCheckoutStatus("idle");
     }
   };
@@ -318,19 +321,19 @@ export default function HomeContent() {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Payment sync successful! Access granted.");
+        toast.success("Payment sync successful! Access granted.");
         setCheckoutStatus("success");
         setShowCheckoutPrompt(false);
         if (checkoutNote) {
           openModal(checkoutNote, "pdf");
         }
       } else {
-        alert(data.message || "Payment sync failed. No successful transaction found yet.");
+        toast.warning(data.message || "Payment sync failed. No successful transaction found yet.");
         setCheckoutStatus("idle");
       }
     } catch (err) {
       console.error("Manual sync failed:", err);
-      alert("Error checking payment status.");
+      toast.error("Error checking payment status.");
       setCheckoutStatus("idle");
     }
   };

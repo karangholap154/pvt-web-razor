@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "../utils/supabaseServer";
 import Navbar from "./Navbar";
 import FooterWrapper from "./FooterWrapper";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 import styles from "./layout.module.css";
 
@@ -145,7 +146,8 @@ export default async function RootLayout({
       <body className="page-container" suppressHydrationWarning>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <AuthProvider>
-          {/* Sticky Header / Navbar */}
+          <ToastProvider>
+            {/* Sticky Header / Navbar */}
           <header className={styles.header} id="main-header">
             <div className={styles.navContainer}>
               <Link href="/" className={styles.logo} id="nav-logo">
@@ -275,6 +277,7 @@ export default async function RootLayout({
               </div>
             </footer>
           </FooterWrapper>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

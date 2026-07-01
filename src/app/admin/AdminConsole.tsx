@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
 import { Note, Article } from "../../data/mockData";
 
@@ -24,6 +25,7 @@ export default function AdminConsole({
   initialArticles,
   initialProjects,
 }: AdminConsoleProps) {
+  const toast = useToast();
   // Active Tab
   const [activeTab, setActiveTab] = useState<"notes" | "articles" | "projects">("notes");
 
@@ -145,7 +147,7 @@ export default function AdminConsole({
     if (!file) return;
 
     if (!file.name.toLowerCase().endsWith(".pdf")) {
-      alert("Please select a PDF file.");
+      toast.warning("Please select a PDF file.");
       return;
     }
 
@@ -366,7 +368,7 @@ export default function AdminConsole({
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
-      alert(`Delete error: ${errorMessage}`);
+      toast.error(`Delete error: ${errorMessage}`);
     }
   };
 
