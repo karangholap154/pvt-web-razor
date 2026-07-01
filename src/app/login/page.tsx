@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./login.module.css";
 import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
+import { FcGoogle } from "react-icons/fc";
 
 function LoginForm() {
   const router = useRouter();
@@ -265,24 +266,7 @@ function LoginForm() {
           className={styles.googleBtn}
           disabled={loading}
         >
-          <svg className={styles.googleIcon} viewBox="0 0 24 24" width="18" height="18">
-            <path
-              fill="#EA4335"
-              d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115Z"
-            />
-            <path
-              fill="#34A853"
-              d="M16.04 15.345c-1.07.727-2.42 1.164-4.04 1.164-2.855 0-5.273-1.89-6.137-4.436L1.79 15.17C3.766 19.11 7.84 21.818 12 21.818c3.055 0 5.864-1.09 8.009-3L16.04 15.345Z"
-            />
-            <path
-              fill="#4285F4"
-              d="M23.82 12.273c0-.818-.082-1.61-.218-2.382H12v4.618h6.636a5.673 5.673 0 0 1-2.454 3.71l3.968 3.072c2.318-2.136 3.67-5.281 3.67-9.018Z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.864 12.073a6.877 6.877 0 0 1 0-2.309L1.838 6.65a11.956 11.956 0 0 0 0 10.8L5.864 12.073Z"
-            />
-          </svg>
+          <FcGoogle className={styles.googleIcon} size={18} />
           <span>Sign in with Google</span>
         </button>
 
