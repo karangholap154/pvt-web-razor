@@ -600,3 +600,83 @@
     grid-template-columns: 1fr;
   }
 }
+
+.customWidgetCard {
+  border: 1px solid var(--border);
+  background: rgba(24, 24, 27, 0.2);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+}
+
+.customWidgetCard:hover {
+  border-color: var(--accent);
+  background: rgba(251, 191, 36, 0.04);
+  transform: translateY(-2px);
+}
+
+.noteCardGlow {
+  transition: var(--transition);
+}
+
+.noteCardGlow:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px -10px rgba(251, 191, 36, 0.25);
+}
+
+.btnNoteAction {
+  padding: 0.65rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 1px solid var(--border);
+  text-decoration: none;
+}
+
+.btnNoteWatch {
+  background-color: rgba(239, 68, 68, 0.06);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btnNoteWatch:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.btnNoteDownload {
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+.btnNoteDownload:hover {
+  background-color: var(--accent);
+  color: #09090b;
+  border-color: var(--accent);
+}
+
+.btnNoteDownloadFree {
+  background-color: rgba(34, 197, 94, 0.06);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.btnNoteDownloadFree:hover {
+  background-color: #22c55e;
+  color: #ffffff;
+  border-color: #22c55e;
+}
+
