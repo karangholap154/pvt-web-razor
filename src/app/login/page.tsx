@@ -6,10 +6,12 @@ import styles from "./login.module.css";
 import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
 import { FcGoogle } from "react-icons/fc";
+import { useAuth } from "../../components/providers/AuthProvider";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshAuth } = useAuth();
 
   // Safe local redirect fallback to /dashboard
   const redirectParam = searchParams.get("redirect");
@@ -117,6 +119,7 @@ function LoginForm() {
 
       if (activeTab === "login") {
         setSuccessMsg("Logged in successfully! Redirecting...");
+        await refreshAuth();
         setTimeout(() => {
           router.push(redirectUrl);
           router.refresh();
