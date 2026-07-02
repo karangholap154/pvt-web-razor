@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { isAdmin } from "../../utils/auth";
 import { createSupabaseServerClient } from "../../utils/supabaseServer";
+import { supabaseAdmin } from "../../utils/supabaseAdmin";
 import AdminConsole from "./AdminConsole";
 import styles from "./admin.module.css";
 import { Note, Article } from "../../data/mockData";
@@ -50,6 +51,8 @@ export default async function AdminPage() {
   let notes: Note[] = [];
   let articles: Article[] = [];
   let projects: ProjectDb[] = [];
+  let purchases: any[] = [];
+  let users: any[] = [];
 
   try {
     // Fetch notes
@@ -117,6 +120,24 @@ export default async function AdminPage() {
         github_url: item.github_url || "",
       }));
     }
+
+    // Fetch purchases for analytics
+    const { data: dbPurchases } = await supabaseAdmin
+      .from("purchases")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (dbPurchases) {
+      purchases = dbPurchases;
+    }
+
+    // Fetch users for analytics
+    const { data: dbUsers } = await supabaseAdmin
+      .from("users")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (dbUsers) {
+      users = dbUsers;
+    }
   } catch (err) {
     console.error("Admin fetch tables failed:", err);
   }
@@ -126,6 +147,8 @@ export default async function AdminPage() {
       initialNotes={notes}
       initialArticles={articles}
       initialProjects={projects}
+      initialPurchases={purchases}
+      initialUsers={users}
     />
   );
 }
