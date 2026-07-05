@@ -172,7 +172,7 @@ export default async function RootLayout({
                 
                 {/* Social Links Badge Grid */}
                 <div className={styles.socialSection}>
-                  <h3 className={styles.socialSectionTitle}>Connect with Our Community</h3>
+                  <h3 className={`${styles.socialSectionTitle} ${styles.footerHideOnMobile}`}>Connect with Our Community</h3>
                   <div className={styles.socialCardGrid}>
                     {socialLinks.map((social) => {
                       const Icon = social.icon;
@@ -205,25 +205,25 @@ export default async function RootLayout({
                   </div>
                 </div>
 
-                <div className={styles.footerGrid}>
+                <div className={`${styles.footerGrid} ${styles.footerHideOnMobile}`}>
                   
                   {/* Brand Col */}
                   <div className={styles.footerBrand}>
                     <Link href="/" className={styles.logo} style={{ fontSize: "1.4rem", marginBottom: "0.25rem" }}>
                       Private<span className={styles.logoAccent}>Academy</span>
                     </Link>
-                    <div className={styles.footerTagline}>Engineering Excellence Hub</div>
+                    <div className={`${styles.footerTagline} ${styles.footerHideOnMobile}`}>Engineering Excellence Hub</div>
                     <p className={styles.footerDesc}>
                       Empowering engineering students with comprehensive study materials, important questions, and video tutorials. Quality education accessible to all.
                     </p>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
+                    <div className={styles.footerHideOnMobile} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
                       <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
                       <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 500 }}>All Systems Operational</span>
                     </div>
                   </div>
 
                   {/* Quick Links Col */}
-                  <div>
+                  <div className={styles.footerHideOnMobile}>
                     <h3 className={styles.footerTitle}>Quick Links</h3>
                     <ul className={styles.footerLinks}>
                       <li><Link href="/" className={styles.footerLink}>Home</Link></li>
@@ -236,7 +236,7 @@ export default async function RootLayout({
                   </div>
 
                   {/* Legal Col */}
-                  <div>
+                  <div className={styles.footerHideOnMobile}>
                     <h3 className={styles.footerTitle}>Legal</h3>
                     <ul className={styles.footerLinks}>
                       <li><Link href="/privacy-policy" className={styles.footerLink}>Privacy Policy</Link></li>
@@ -247,7 +247,7 @@ export default async function RootLayout({
 
                   {/* Support Col */}
                   <div>
-                    <h3 className={styles.footerTitle}>Support</h3>
+                    <h3 className={`${styles.footerTitle} ${styles.footerHideOnMobile}`}>Support</h3>
                     <div className={styles.footerContact}>
                       <div className={styles.contactItem}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -258,7 +258,7 @@ export default async function RootLayout({
                           privateacademy.in@gmail.com
                         </a>
                       </div>
-                      <div className={styles.contactItem}>
+                      <div className={`${styles.contactItem} ${styles.footerHideOnMobile}`}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                           <circle cx="12" cy="10" r="3"></circle>
@@ -268,6 +268,13 @@ export default async function RootLayout({
                     </div>
                   </div>
 
+                </div>
+
+                {/* Mobile-only: just email */}
+                <div className={styles.footerMobileContact}>
+                  <a href="mailto:privateacademy.in@gmail.com" className={styles.contactLink}>
+                    privateacademy.in@gmail.com
+                  </a>
                 </div>
 
                 <div className={styles.footerBottom}>
