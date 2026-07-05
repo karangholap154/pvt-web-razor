@@ -660,7 +660,7 @@ export default function AdminConsole({
               <select
                 id="analytics-date-range-select"
                 value={analyticsDateRange}
-                onChange={(e) => setAnalyticsDateRange(e.target.value as any)}
+                onChange={(e) => setAnalyticsDateRange(e.target.value as "7days" | "30days" | "alltime")}
                 className={styles.select}
               >
                 <option value="7days">Last 7 Days</option>

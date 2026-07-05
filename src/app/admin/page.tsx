@@ -6,6 +6,7 @@ import { supabaseAdmin } from "../../utils/supabaseAdmin";
 import AdminConsole from "./AdminConsole";
 import styles from "./admin.module.css";
 import { Note, Article } from "../../data/mockData";
+import { Tables } from "../../types/supabase";
 
 interface ProjectDb {
   id: string;
@@ -51,8 +52,8 @@ export default async function AdminPage() {
   let notes: Note[] = [];
   let articles: Article[] = [];
   let projects: ProjectDb[] = [];
-  let purchases: any[] = [];
-  let users: any[] = [];
+  let purchases: Tables<"purchases">[] = [];
+  let users: Tables<"users">[] = [];
 
   try {
     // Fetch notes

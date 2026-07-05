@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { supabase } from "../../../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 import { isAdmin } from "../../../../utils/auth";
 
 // Helper to slugify title
@@ -40,6 +40,8 @@ export async function POST(request: Request) {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
+
+    const supabase = await createSupabaseServerClient();
 
     const { title, category, content } = await request.json();
 
@@ -88,6 +90,8 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
+    const supabase = await createSupabaseServerClient();
+
     const { id, title, category, content } = await request.json();
 
     if (!id || !title || !category || !content) {
@@ -134,6 +138,8 @@ export async function DELETE(request: Request) {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
+
+    const supabase = await createSupabaseServerClient();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

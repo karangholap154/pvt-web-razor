@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { supabase } from "../../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 
 // Initialize Razorpay client on the server side
 const razorpay = new Razorpay({
@@ -18,6 +18,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const supabase = await createSupabaseServerClient();
 
     // 1. Fetch note price and details from Supabase
     const { data: note, error } = await supabase

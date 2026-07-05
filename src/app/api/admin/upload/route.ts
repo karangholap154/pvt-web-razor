@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { supabase } from "../../../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 import { isAdmin } from "../../../../utils/auth";
 
 // Helper to slugify a name
@@ -21,6 +21,8 @@ export async function POST(request: Request) {
     if (!authorized) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
+
+    const supabase = await createSupabaseServerClient();
 
     // 2. Parse form data
     const formData = await request.formData();

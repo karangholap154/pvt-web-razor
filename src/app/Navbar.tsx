@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import Image from "next/image";
 import styles from "./layout.module.css";
 
 interface NavbarProps {
@@ -98,7 +99,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
               aria-expanded={dropdownOpen}
             >
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className={styles.avatarImg} referrerPolicy="no-referrer" />
+                <Image src={avatarUrl} alt="Avatar" className={styles.avatarImg} referrerPolicy="no-referrer" width={38} height={38} unoptimized />
               ) : (
                 <div className={styles.avatarFallback}>
                   {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
@@ -246,7 +247,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
           <div className={styles.mobileDrawerFooter}>
             <div className={styles.mobileUserContainer}>
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className={styles.mobileAvatarImg} referrerPolicy="no-referrer" />
+                <Image src={avatarUrl} alt="Avatar" className={styles.mobileAvatarImg} referrerPolicy="no-referrer" width={42} height={42} unoptimized />
               ) : (
                 <div className={styles.mobileAvatarFallback}>
                   {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
