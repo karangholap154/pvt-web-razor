@@ -50,7 +50,29 @@ export default function AdminConsole({
 }: AdminConsoleProps) {
   const toast = useToast();
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"analytics" | "notes" | "articles" | "projects">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "notes" | "articles" | "projects" | "users">("analytics");
+
+  // User search filtering state
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+
+  // Filtered users for user management tab
+  const filteredUsersList = useMemo(() => {
+    if (!userSearchQuery.trim()) return initialUsers;
+    const query = userSearchQuery.toLowerCase();
+    return initialUsers.filter(
+      (u) =>
+        (u.email && u.email.toLowerCase().includes(query)) ||
+        (u.full_name && u.full_name.toLowerCase().includes(query)) ||
+        (u.university && u.university.toLowerCase().includes(query))
+    );
+  }, [initialUsers, userSearchQuery]);
+
+  // Password reset modal states
+  const [resetPasswordUser, setResetPasswordUser] = useState<{ id: string; email: string } | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   // Dynamic state for resources
   const [notes, setNotes] = useState<Note[]>(initialNotes);
@@ -295,6 +317,54 @@ export default function AdminConsole({
   const [projectTechStack, setProjectTechStack] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [projectGithub, setProjectGithub] = useState("");
+
+  // Open modal helper for password reset
+  const openResetPasswordModal = (userId: string, email: string) => {
+    setResetPasswordUser({ id: userId, email });
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setResetError(null);
+  };
+
+  // Submit handler for password reset
+  const handlePasswordResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetPasswordUser) return;
+    setResetError(null);
+
+    if (newPassword.length < 6) {
+      setResetError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setResetError("Passwords do not match.");
+      return;
+    }
+
+    setResetLoading(true);
+
+    try {
+      const res = await fetch("/api/admin/users/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: resetPasswordUser.id, password: newPassword }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Reset password failed");
+
+      toast.success(`Password for ${resetPasswordUser.email} has been updated successfully!`);
+      setResetPasswordUser(null);
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Reset failed.";
+      setResetError(errorMessage);
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   // Reset form states
   const resetForms = () => {
@@ -634,19 +704,45 @@ export default function AdminConsole({
         >
           Projects ({projects.length})
         </button>
+        <button
+          className={`${styles.tabBtn} ${activeTab === "users" ? styles.activeTabBtn : ""}`}
+          onClick={() => setActiveTab("users")}
+        >
+          Users ({initialUsers.length})
+        </button>
       </div>
 
-      {/* Actions header (Only show for notes, articles, projects) */}
+      {/* Actions header (Only show for notes, articles, projects, users) */}
       {activeTab !== "analytics" && (
         <div className={styles.actionHeader}>
           <h2 className={styles.sectionTitle}>
             {activeTab === "notes" && "Library Notes"}
             {activeTab === "articles" && "Editorial Articles"}
             {activeTab === "projects" && "Capstone Projects"}
+            {activeTab === "users" && "User Access Management"}
           </h2>
-          <button className={styles.btnCreate} onClick={openCreateModal}>
-            + Create {activeTab === "notes" ? "Note" : activeTab === "articles" ? "Article" : "Project"}
-          </button>
+          {activeTab === "users" ? (
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={userSearchQuery}
+              onChange={(e) => setUserSearchQuery(e.target.value)}
+              className={styles.select}
+              style={{
+                maxWidth: "240px",
+                background: "rgba(9, 9, 11, 0.4)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)",
+                padding: "0.55rem 0.75rem",
+                fontSize: "0.9rem"
+              }}
+            />
+          ) : (
+            <button className={styles.btnCreate} onClick={openCreateModal}>
+              + Create {activeTab === "notes" ? "Note" : activeTab === "articles" ? "Article" : "Project"}
+            </button>
+          )}
         </div>
       )}
 
@@ -1160,7 +1256,142 @@ export default function AdminConsole({
             </tbody>
           </table>
         )}
+        {activeTab === "users" && (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Email Address</th>
+                <th>Full Name</th>
+                <th>University</th>
+                <th>Joined Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsersList.length > 0 ? (
+                filteredUsersList.map((user) => (
+                  <tr key={user.id}>
+                    <td style={{ fontWeight: 600 }}>{user.email}</td>
+                    <td>{user.full_name || "—"}</td>
+                    <td>
+                      <span className={styles.badge} style={{ backgroundColor: "rgba(251,191,36,0.12)", color: "#fde047", border: "1px solid rgba(251,191,36,0.25)", fontSize: "0.72rem" }}>
+                        {user.university || "—"}
+                      </span>
+                    </td>
+                    <td>
+                      {user.created_at ? new Date(user.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+                    </td>
+                    <td>
+                      <div className={styles.actionsCell}>
+                        <button
+                          className={`${styles.btnAction} ${styles.btnEdit}`}
+                          onClick={() => openResetPasswordModal(user.id, user.email)}
+                          title="Change Password"
+                          style={{ backgroundColor: "rgba(251, 191, 36, 0.15)", color: "var(--accent)", border: "1px solid rgba(251, 191, 36, 0.2)" }}
+                        >
+                          Change Password
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
+                    No matching users found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
+      )}
+
+      {/* PASSWORD RESET MODAL */}
+      {resetPasswordUser && (
+        <div className={styles.modalBackdrop} onClick={() => {
+          setResetPasswordUser(null);
+          setNewPassword("");
+          setConfirmNewPassword("");
+          setResetError(null);
+        }}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px" }}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Change Password</h3>
+              <button className={styles.modalCloseBtn} onClick={() => {
+                setResetPasswordUser(null);
+                setNewPassword("");
+                setConfirmNewPassword("");
+                setResetError(null);
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordResetSubmit} className={styles.form}>
+              <div className={styles.modalBody}>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: "1.4" }}>
+                  Set a new password for <strong style={{ color: "var(--text-primary)" }}>{resetPasswordUser.email}</strong>.
+                </p>
+
+                {resetError && <div className={styles.errorAlert} style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", padding: "0.75rem 1rem", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "1rem" }}>{resetError}</div>}
+
+                <div className={styles.inputGroup} style={{ marginBottom: "1rem" }}>
+                  <label className={styles.label}>New Password</label>
+                  <input
+                    type="password"
+                    className={styles.input}
+                    placeholder="••••••••"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={resetLoading}
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label className={styles.label}>Confirm New Password</label>
+                  <input
+                    type="password"
+                    className={styles.input}
+                    placeholder="••••••••"
+                    required
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    disabled={resetLoading}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetPasswordUser(null);
+                    setNewPassword("");
+                    setConfirmNewPassword("");
+                    setResetError(null);
+                  }}
+                  className={styles.btnCancel}
+                  disabled={resetLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.btnSave}
+                  disabled={resetLoading}
+                >
+                  {resetLoading ? "Updating..." : "Update Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* POPUP MODAL OVERLAY */}
