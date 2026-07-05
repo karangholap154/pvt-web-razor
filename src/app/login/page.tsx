@@ -221,8 +221,22 @@ function LoginForm() {
                 </button>
 
                 <p className={styles.recoveryText}>
-                  Since we perform manual access verification to protect your purchases, our support team will restore your access directly. Please have your transaction details ready.
+                  Please contact support with your purchase transaction details to restore your account access.
                 </p>
+
+                <div style={{
+                  padding: "0.85rem",
+                  backgroundColor: "rgba(251, 191, 36, 0.08)",
+                  border: "1px dashed rgba(251, 191, 36, 0.35)",
+                  borderRadius: "var(--radius-sm)",
+                  fontSize: "0.825rem",
+                  color: "var(--text-secondary)",
+                  lineHeight: "1.5",
+                  textAlign: "left",
+                  marginBottom: "0.5rem"
+                }}>
+                  <strong style={{ color: "var(--accent)" }}>💡 Pro-Tip:</strong> If your account email is a Gmail address, you can simply go back and choose <strong>Sign in with Google</strong> using that same Gmail to access your account instantly without needing a password.
+                </div>
 
                 <a
                   href="https://wa.me/919423940547?text=Hello%20Private%20Academy%20Support,%20I%20need%20help%20recovering%20access%20to%20my%20account."
