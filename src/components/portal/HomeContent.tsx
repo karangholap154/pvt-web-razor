@@ -98,9 +98,7 @@ export default function HomeContent() {
   // ── Filtered Notes memo ─────────────────────────────────────────────────
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
-      const matchesSearch =
-        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesBranch =
         selectedBranch === "All branches" || note.branch === selectedBranch;
       const matchesSemester =

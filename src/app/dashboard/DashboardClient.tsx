@@ -18,6 +18,8 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [modalType, setModalType] = useState<"video" | "pdf" | null>(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
 
   const openModal = (note: Note, type: "video" | "pdf") => {
@@ -29,6 +31,12 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
     setSelectedNote(null);
     setModalType(null);
   };
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredNotes = notes.filter((note) => {
+    if (!normalizedQuery) return true;
+    return note.title.toLowerCase().includes(normalizedQuery);
+  });
 
   // Handle PDF file download (fetches as blob to bypass cross-origin browser view modes)
   const handleDownload = async (noteId: string, title: string) => {
@@ -78,11 +86,63 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
       </div>
 
       {/* Main Library */}
-      <h2 className={styles.sectionHeading}>Your Unlocked Library</h2>
+      <div className={styles.sectionHeaderRow}>
+        <h2 className={styles.sectionHeading}>Your Unlocked Library</h2>
+        <button
+          type="button"
+          className={styles.mobileSearchToggle}
+          aria-label={isSearchExpanded ? "Collapse search" : "Expand search"}
+          aria-expanded={isSearchExpanded}
+          onClick={() => setIsSearchExpanded((prev) => !prev)}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <div className={styles.searchDesktopWrap} role="search">
+          <div className={styles.searchInputGroup}>
+            <span className={styles.searchInputIcon}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchExpanded(true)}
+              placeholder="Search notes"
+              className={styles.searchInput}
+              aria-label="Search unlocked notes"
+            />
+          </div>
+        </div>
+      </div>
+      <div className={`${styles.mobileSearchBar} ${isSearchExpanded ? styles.mobileSearchBarExpanded : ""}`} role="search">
+        <div className={styles.searchInputGroup}>
+          <span className={styles.searchInputIcon}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchExpanded(true)}
+            placeholder="Search notes"
+            className={styles.searchInput}
+            aria-label="Search unlocked notes"
+          />
+        </div>
+      </div>
 
-      {notes.length > 0 ? (
+      {filteredNotes.length > 0 ? (
         <div className={styles.grid}>
-          {notes.map((note) => (
+          {filteredNotes.map((note) => (
             <article 
               className={styles.noteCard} 
               key={note.id} 
@@ -135,6 +195,11 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
               </div>
             </article>
           ))}
+        </div>
+      ) : notes.length > 0 ? (
+        <div className={styles.emptyState} id="dashboard-empty-state-no-results">
+          <h3 className={styles.emptyTitle}>No matching notes found</h3>
+          <p className={styles.emptyText}>Try a different title, branch, or semester keyword.</p>
         </div>
       ) : (
         <div className={styles.emptyState} id="dashboard-empty-state">
