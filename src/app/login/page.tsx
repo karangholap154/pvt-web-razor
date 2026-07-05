@@ -7,6 +7,7 @@ import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
 import { FcGoogle } from "react-icons/fc";
 import { FiMail, FiArrowLeft } from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../components/providers/AuthProvider";
 
 function LoginForm() {
@@ -23,6 +24,7 @@ function LoginForm() {
   const callbackError = searchParams.get("error");
 
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showRecoveryInfo, setShowRecoveryInfo] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -158,7 +160,9 @@ function LoginForm() {
             Private<span className="gradient-text">Academy</span>
           </h2>
           <p className={styles.subtitle}>
-            {!showEmailForm
+            {showRecoveryInfo
+              ? "Recover access to your account manually"
+              : !showEmailForm
               ? "Sign in or register to access your dashboard and notes"
               : activeTab === "login"
               ? "Sign in to access your dashboard and notes"
@@ -199,144 +203,172 @@ function LoginForm() {
           </div>
         ) : (
           <div className={`${styles.optionsContainer} ${styles.fadeInUp}`}>
-            <button
-              type="button"
-              onClick={() => {
-                setShowEmailForm(false);
-                setError(null);
-                setSuccessMsg(null);
-                setInfoMsg(null);
-              }}
-              className={styles.backBtn}
-              disabled={loading}
-            >
-              <FiArrowLeft size={16} />
-              <span>Back to options</span>
-            </button>
-
-            <div className={styles.tabs} style={{ width: "100%" }}>
-              <button
-                type="button"
-                className={`${styles.tabBtn} ${activeTab === "login" ? styles.activeTabBtn : ""}`}
-                onClick={() => {
-                  setActiveTab("login");
-                  setError(null);
-                  setSuccessMsg(null);
-                  setInfoMsg(null);
-                }}
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                className={`${styles.tabBtn} ${activeTab === "signup" ? styles.activeTabBtn : ""}`}
-                onClick={() => {
-                  setActiveTab("signup");
-                  setError(null);
-                  setSuccessMsg(null);
-                  setInfoMsg(null);
-                }}
-              >
-                Sign Up
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles.form} style={{ width: "100%" }}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="email" className={styles.label}>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className={styles.input}
-                  placeholder="student@gmail.com"
-                  required={showEmailForm}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+            {showRecoveryInfo ? (
+              <div className={styles.recoveryContainer}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRecoveryInfo(false);
+                    setError(null);
+                    setSuccessMsg(null);
+                    setInfoMsg(null);
+                  }}
+                  className={styles.backBtn}
                   disabled={loading}
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="password" className={styles.label}>
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  className={styles.input}
-                  placeholder="••••••••"
-                  required={showEmailForm}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              {activeTab === "signup" && (
-                <div className={styles.inputGroup}>
-                  <label htmlFor="confirmPassword" className={styles.label}>
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    className={styles.input}
-                    placeholder="••••••••"
-                    required={showEmailForm && activeTab === "signup"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className={styles.submitBtn}
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className={styles.loadingSpinner}></div>
-                ) : activeTab === "login" ? (
-                  "Sign In"
-                ) : (
-                  "Register"
-                )}
-              </button>
-            </form>
-
-            <div style={{
-              marginTop: "1.5rem",
-              paddingTop: "1.25rem",
-              borderTop: "1px solid var(--border)",
-              fontSize: "0.825rem",
-              color: "var(--text-secondary)",
-              lineHeight: "1.5",
-              textAlign: "center",
-              width: "100%"
-            }}>
-              <p style={{ marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
-                🔑 Forgot your account email or password?
-              </p>
-              <p>
-                If you purchased notes before and cannot access your account, please email us at{" "}
-                <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>
-                  privateacademy.in@gmail.com
-                </a>{" "}
-                or message us on WhatsApp at{" "}
-                <a 
-                  href="https://wa.me/919423940547" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style={{ color: "#22c55e", fontWeight: 600 }}
                 >
-                  +91 9423940547
-                </a>{" "}
-                with your transaction details. We will restore your access manually.
-              </p>
-            </div>
+                  <FiArrowLeft size={16} />
+                  <span>Back to Login</span>
+                </button>
+
+                <p className={styles.recoveryText}>
+                  Since we perform manual access verification to protect your purchases, our support team will restore your access directly. Please have your transaction details ready.
+                </p>
+
+                <a
+                  href="https://wa.me/919423940547?text=Hello%20Private%20Academy%20Support,%20I%20need%20help%20recovering%20access%20to%20my%20account."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.whatsappBtn}
+                  style={{ textDecoration: "none" }}
+                >
+                  <FaWhatsapp size={20} />
+                  <span>Recover via WhatsApp</span>
+                </a>
+
+                <a
+                  href="mailto:privateacademy.in@gmail.com?subject=Account%20Recovery%20Request&body=Hello%20Private%20Academy%20Support,%0A%0AI%20need%20help%20recovering%20access%20to%20my%20account.%20Here%20are%20my%20details:%0A-%20Email:%20%0A-%20Purchase%20Details/Transaction%20ID:%20"
+                  className={styles.emailBtn}
+                  style={{ textDecoration: "none" }}
+                >
+                  <FiMail size={18} className={styles.emailIcon} />
+                  <span>Email Support</span>
+                </a>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEmailForm(false);
+                    setShowRecoveryInfo(false);
+                    setError(null);
+                    setSuccessMsg(null);
+                    setInfoMsg(null);
+                  }}
+                  className={styles.backBtn}
+                  disabled={loading}
+                >
+                  <FiArrowLeft size={16} />
+                  <span>Back to options</span>
+                </button>
+
+                <div className={styles.tabs} style={{ width: "100%" }}>
+                  <button
+                    type="button"
+                    className={`${styles.tabBtn} ${activeTab === "login" ? styles.activeTabBtn : ""}`}
+                    onClick={() => {
+                      setActiveTab("login");
+                      setError(null);
+                      setSuccessMsg(null);
+                      setInfoMsg(null);
+                    }}
+                  >
+                    Login
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.tabBtn} ${activeTab === "signup" ? styles.activeTabBtn : ""}`}
+                    onClick={() => {
+                      setActiveTab("signup");
+                      setError(null);
+                      setSuccessMsg(null);
+                      setInfoMsg(null);
+                    }}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className={styles.form} style={{ width: "100%" }}>
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="email" className={styles.label}>
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      className={styles.input}
+                      placeholder="student@gmail.com"
+                      required={showEmailForm && !showRecoveryInfo}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="password" className={styles.label}>
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      className={styles.input}
+                      placeholder="••••••••"
+                      required={showEmailForm && !showRecoveryInfo}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  {activeTab === "signup" && (
+                    <div className={styles.inputGroup}>
+                      <label htmlFor="confirmPassword" className={styles.label}>
+                        Confirm Password
+                      </label>
+                      <input
+                        type="password"
+                        id="confirmPassword"
+                        className={styles.input}
+                        placeholder="••••••••"
+                        required={showEmailForm && activeTab === "signup" && !showRecoveryInfo}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        disabled={loading}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className={styles.submitBtn}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className={styles.loadingSpinner}></div>
+                    ) : activeTab === "login" ? (
+                      "Sign In"
+                    ) : (
+                      "Register"
+                    )}
+                  </button>
+                </form>
+
+                <button
+                  type="button"
+                  className={styles.forgotLink}
+                  onClick={() => {
+                    setShowRecoveryInfo(true);
+                    setError(null);
+                    setSuccessMsg(null);
+                    setInfoMsg(null);
+                  }}
+                >
+                  Forgot password or email? Get help
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
