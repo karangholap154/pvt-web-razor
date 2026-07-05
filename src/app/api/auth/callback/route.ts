@@ -5,7 +5,7 @@ import { ALLOWED_DOMAINS } from "../../../../utils/constants";
 /**
  * Supabase Auth email confirmation & OAuth callback.
  * Exchanges the callback `code` for a session, verifies that the user's
- * email domain is allowed, then redirects to the dashboard.
+ * email domain is allowed, then redirects to the home page.
  */
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
           );
         }
       }
-      // Confirmation successful — send to dashboard
-      return NextResponse.redirect(`${origin}/dashboard`);
+      // Confirmation successful — send to home page
+      return NextResponse.redirect(`${origin}/`);
     }
   }
 

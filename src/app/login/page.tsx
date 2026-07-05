@@ -15,10 +15,10 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { refreshAuth } = useAuth();
 
-  // Safe local redirect fallback to /dashboard
+  // Safe local redirect fallback to the home page
   const redirectParam = searchParams.get("redirect");
   const redirectUrl =
-    redirectParam && redirectParam.startsWith("/") ? redirectParam : "/dashboard";
+    redirectParam && redirectParam.startsWith("/") ? redirectParam : "/";
 
   // Check for confirmation_failed or domain_restricted error from the callback route
   const callbackError = searchParams.get("error");
