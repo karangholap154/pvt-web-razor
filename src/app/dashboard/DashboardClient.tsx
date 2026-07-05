@@ -31,11 +31,14 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
   };
 
   // Handle PDF file download (fetches as blob to bypass cross-origin browser view modes)
-  const handleDownload = async (url: string, title: string) => {
-    if (!url) return;
+  const handleDownload = async (noteId: string, title: string) => {
+    if (!noteId) return;
     setDownloadingPdf(true);
     try {
-      const response = await fetch(url);
+      const response = await fetch(`/api/proxy-pdf?id=${noteId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to download PDF: ${response.statusText}`);
+      }
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -47,7 +50,7 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("PDF download fetch failed, fallback opening in tab:", err);
-      window.open(url, "_blank");
+      window.open(`/api/proxy-pdf?id=${noteId}`, "_blank");
     } finally {
       setDownloadingPdf(false);
       closeModal();
@@ -201,7 +204,7 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
                   <h5>{selectedNote.title}.pdf</h5>
                   <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File Size: ~4.2 MB</p>
                   <button
-                    onClick={() => handleDownload(selectedNote.downloadUrl, selectedNote.title)}
+                    onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
                     className={pageStyles.btnPrimary}
                     style={{ marginTop: "1.5rem", width: "100%", justifyContent: "center" }}
                     disabled={downloadingPdf}
