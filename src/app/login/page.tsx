@@ -239,7 +239,7 @@ function LoginForm() {
                 </div>
 
                 <a
-                  href="https://wa.me/919423940547?text=Hello%20Private%20Academy%20Support,%20I%20need%20help%20recovering%20access%20to%20my%20account."
+                  href="https://wa.me/919423930547?text=Hello%20Private%20Academy%20Support,%20I%20need%20help%20recovering%20access%20to%20my%20account."
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.whatsappBtn}
