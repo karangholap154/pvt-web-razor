@@ -619,28 +619,32 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           <div className={styles.recommendedState}>Loading related notes...</div>
         ) : recommendedNotes.length > 0 ? (
           <div className={styles.recommendedGrid}>
-            {recommendedNotes.map((recommendedNote) => (
-              <Link
-                key={recommendedNote.id}
-                href={`/notes/${recommendedNote.id}`}
-                className={styles.recommendedCard}
-              >
-                <div className={styles.recommendedCardTop}>
-                  <div className={styles.recommendedBadges}>
-                    <span className={styles.recommendedBranch}>{recommendedNote.branch}</span>
-                    <span className={styles.recommendedSemester}>{recommendedNote.semester}</span>
-                  </div>
-                  <span className={recommendedNote.price > 0 ? styles.recommendedPaid : styles.recommendedFree}>
-                    {recommendedNote.price > 0 ? `₹${recommendedNote.price}` : "Free"}
-                  </span>
-                </div>
+            {recommendedNotes.map((recommendedNote) => {
+              const recommendedPrice = recommendedNote.price ?? 0;
 
-                <h3 className={styles.recommendedCardTitle}>{recommendedNote.title}</h3>
+              return (
+                <Link
+                  key={recommendedNote.id}
+                  href={`/notes/${recommendedNote.id}`}
+                  className={styles.recommendedCard}
+                >
+                  <div className={styles.recommendedCardTop}>
+                    <div className={styles.recommendedBadges}>
+                      <span className={styles.recommendedBranch}>{recommendedNote.branch}</span>
+                      <span className={styles.recommendedSemester}>{recommendedNote.semester}</span>
+                    </div>
+                    <span className={recommendedPrice > 0 ? styles.recommendedPaid : styles.recommendedFree}>
+                      {recommendedPrice > 0 ? `₹${recommendedPrice}` : "Free"}
+                    </span>
+                  </div>
+
+                  <h3 className={styles.recommendedCardTitle}>{recommendedNote.title}</h3>
                   <p className={styles.recommendedCardDesc}>
-                  {recommendedNote.description}
-                </p>
-              </Link>
-            ))}
+                    {recommendedNote.description}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className={styles.recommendedState}>
