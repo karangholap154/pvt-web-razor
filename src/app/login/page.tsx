@@ -6,6 +6,7 @@ import styles from "./login.module.css";
 import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
 import { FcGoogle } from "react-icons/fc";
+import { FiMail, FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "../../components/providers/AuthProvider";
 
 function LoginForm() {
@@ -21,6 +22,7 @@ function LoginForm() {
   // Check for confirmation_failed or domain_restricted error from the callback route
   const callbackError = searchParams.get("error");
 
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -156,152 +158,187 @@ function LoginForm() {
             Private<span className="gradient-text">Academy</span>
           </h2>
           <p className={styles.subtitle}>
-            {activeTab === "login"
+            {!showEmailForm
+              ? "Sign in or register to access your dashboard and notes"
+              : activeTab === "login"
               ? "Sign in to access your dashboard and notes"
               : "Register to unlock and view your notes"}
           </p>
-        </div>
-
-        <div className={styles.tabs}>
-          <button
-            type="button"
-            className={`${styles.tabBtn} ${activeTab === "login" ? styles.activeTabBtn : ""}`}
-            onClick={() => {
-              setActiveTab("login");
-              setError(null);
-              setSuccessMsg(null);
-              setInfoMsg(null);
-            }}
-          >
-            Login
-          </button>
-          <button
-            type="button"
-            className={`${styles.tabBtn} ${activeTab === "signup" ? styles.activeTabBtn : ""}`}
-            onClick={() => {
-              setActiveTab("signup");
-              setError(null);
-              setSuccessMsg(null);
-              setInfoMsg(null);
-            }}
-          >
-            Sign Up
-          </button>
         </div>
 
         {error && <div className={styles.errorAlert}>{error}</div>}
         {successMsg && <div className={styles.successAlert}>{successMsg}</div>}
         {infoMsg && <div className={styles.infoAlert}>{infoMsg}</div>}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="email" className={styles.label}>
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              className={styles.input}
-              placeholder="student@gmail.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+        {!showEmailForm ? (
+          <div className={`${styles.optionsContainer} ${styles.fadeInUp}`}>
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className={styles.googleBtn}
               disabled={loading}
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="password" className={styles.label}>
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className={styles.input}
-              placeholder="••••••••"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          {activeTab === "signup" && (
-            <div className={styles.inputGroup}>
-              <label htmlFor="confirmPassword" className={styles.label}>
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                className={styles.input}
-                placeholder="••••••••"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className={styles.submitBtn}
-            disabled={loading}
-          >
-            {loading ? (
-              <div className={styles.loadingSpinner}></div>
-            ) : activeTab === "login" ? (
-              "Sign In"
-            ) : (
-              "Register"
-            )}
-          </button>
-        </form>
-
-        <div className={styles.divider}>
-          <span className={styles.dividerText}>or continue with</span>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className={styles.googleBtn}
-          disabled={loading}
-        >
-          <FcGoogle className={styles.googleIcon} size={18} />
-          <span>Sign in with Google</span>
-        </button>
-
-        <div style={{
-          marginTop: "1.5rem",
-          paddingTop: "1.25rem",
-          borderTop: "1px solid var(--border)",
-          fontSize: "0.825rem",
-          color: "var(--text-secondary)",
-          lineHeight: "1.5",
-          textAlign: "center"
-        }}>
-          <p style={{ marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
-            🔑 Forgot your account email or password?
-          </p>
-          <p>
-            If you purchased notes before and cannot access your account, please email us at{" "}
-            <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>
-              privateacademy.in@gmail.com
-            </a>{" "}
-            or message us on WhatsApp at{" "}
-            <a 
-              href="https://wa.me/919423940547" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{ color: "#22c55e", fontWeight: 600 }}
             >
-              +91 9423940547
-            </a>{" "}
-            with your transaction details. We will restore your access manually.
-          </p>
-        </div>
+              <FcGoogle className={styles.googleIcon} size={18} />
+              <span>Sign in with Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowEmailForm(true);
+                setError(null);
+                setSuccessMsg(null);
+                setInfoMsg(null);
+              }}
+              className={styles.emailBtn}
+              disabled={loading}
+            >
+              <FiMail className={styles.emailIcon} size={18} />
+              <span>Continue with Email</span>
+            </button>
+          </div>
+        ) : (
+          <div className={`${styles.optionsContainer} ${styles.fadeInUp}`}>
+            <button
+              type="button"
+              onClick={() => {
+                setShowEmailForm(false);
+                setError(null);
+                setSuccessMsg(null);
+                setInfoMsg(null);
+              }}
+              className={styles.backBtn}
+              disabled={loading}
+            >
+              <FiArrowLeft size={16} />
+              <span>Back to options</span>
+            </button>
+
+            <div className={styles.tabs} style={{ width: "100%" }}>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${activeTab === "login" ? styles.activeTabBtn : ""}`}
+                onClick={() => {
+                  setActiveTab("login");
+                  setError(null);
+                  setSuccessMsg(null);
+                  setInfoMsg(null);
+                }}
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                className={`${styles.tabBtn} ${activeTab === "signup" ? styles.activeTabBtn : ""}`}
+                onClick={() => {
+                  setActiveTab("signup");
+                  setError(null);
+                  setSuccessMsg(null);
+                  setInfoMsg(null);
+                }}
+              >
+                Sign Up
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className={styles.form} style={{ width: "100%" }}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="email" className={styles.label}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  className={styles.input}
+                  placeholder="student@gmail.com"
+                  required={showEmailForm}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="password" className={styles.label}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  className={styles.input}
+                  placeholder="••••••••"
+                  required={showEmailForm}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              {activeTab === "signup" && (
+                <div className={styles.inputGroup}>
+                  <label htmlFor="confirmPassword" className={styles.label}>
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    className={styles.input}
+                    placeholder="••••••••"
+                    required={showEmailForm && activeTab === "signup"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className={styles.loadingSpinner}></div>
+                ) : activeTab === "login" ? (
+                  "Sign In"
+                ) : (
+                  "Register"
+                )}
+              </button>
+            </form>
+
+            <div style={{
+              marginTop: "1.5rem",
+              paddingTop: "1.25rem",
+              borderTop: "1px solid var(--border)",
+              fontSize: "0.825rem",
+              color: "var(--text-secondary)",
+              lineHeight: "1.5",
+              textAlign: "center",
+              width: "100%"
+            }}>
+              <p style={{ marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
+                🔑 Forgot your account email or password?
+              </p>
+              <p>
+                If you purchased notes before and cannot access your account, please email us at{" "}
+                <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>
+                  privateacademy.in@gmail.com
+                </a>{" "}
+                or message us on WhatsApp at{" "}
+                <a 
+                  href="https://wa.me/919423940547" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{ color: "#22c55e", fontWeight: 600 }}
+                >
+                  +91 9423940547
+                </a>{" "}
+                with your transaction details. We will restore your access manually.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
