@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../../app/page.module.css";
-import { Note, Article } from "../../data/mockData";
+import { Note } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
@@ -34,13 +34,13 @@ export default function HomeContent() {
 
   // Live database states
   const [notes, setNotes] = useState<Note[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Search & Filter state
+  // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("All branches");
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Modal state
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -53,33 +53,6 @@ export default function HomeContent() {
   const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "verifying" | "paying" | "success" | "error">("idle");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
-
-  // ── Fetch articles on mount ───────────────────────────────────────────
-  useEffect(() => {
-    async function loadArticles() {
-      try {
-        const { data: dbArticles, error: articlesError } = await supabase
-          .from("articles")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (!articlesError && dbArticles) {
-          const finalArticles = dbArticles.map((item) => ({
-            id: item.id,
-            title: item.title,
-            readTime: `${Math.max(1, Math.ceil((item.content || "").trim().split(/\s+/).filter(Boolean).length / 200))} min read`,
-            category: item.category as Article["category"],
-            summary: item.summary || "",
-            content: item.content || "",
-          }));
-          setArticles(finalArticles);
-        }
-      } catch (err) {
-        console.error("Error loading articles:", err);
-      }
-    }
-    loadArticles();
-  }, []);
 
   // ── Fetch notes filtered by university ─────────────────────────────────
   useEffect(() => {
@@ -209,8 +182,6 @@ export default function HomeContent() {
 
   const handleClearFilters = () => {
     setSearchQuery("");
-    setSelectedBranch("All branches");
-    setSelectedSemester("All semesters");
   };
 
   const openModal = useCallback((note: Note, type: "video" | "pdf") => {
@@ -221,12 +192,6 @@ export default function HomeContent() {
   const closeModal = () => {
     setSelectedNote(null);
     setModalType(null);
-  };
-
-  const applyQuickFilter = (search: string, branch: string, semester: string) => {
-    setSearchQuery(search);
-    setSelectedBranch(branch);
-    setSelectedSemester(semester);
   };
 
   const handleDownload = async (noteId: string, title: string) => {
@@ -426,7 +391,7 @@ export default function HomeContent() {
     );
   }
 
-  if (authState === "unauthenticated") return <LoginGate articles={articles} />;
+  if (authState === "unauthenticated") return <LoginGate />;
 
   if (authState === "no-university") {
     return <UniversityGate onSelect={async () => { await refreshAuth(); }} />;
@@ -434,189 +399,116 @@ export default function HomeContent() {
 
   return (
     <main className={styles.main}>
-      {/* Hero Section */}
-      <section className={styles.heroSection} id="hero-section">
-        <div className={styles.heroLeft}>
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            background: "rgba(251, 191, 36, 0.08)",
-            border: "1px solid rgba(251, 191, 36, 0.25)",
-            borderRadius: "999px",
-            padding: "0.4rem 1rem",
-            fontSize: "0.8rem",
-            fontWeight: 600,
-            color: "#facc15",
-            alignSelf: "flex-start"
-          }}>
-            {userUniversity} Syllabus notes
+      {/* Personalized Welcome Banner */}
+      <section className={styles.welcomeBanner} id="dashboard-welcome-banner">
+        <div className={styles.welcomeLeft}>
+          <div className={styles.welcomeUnivBadge}>
+            🎓 {userUniversity} Library
           </div>
-          <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="hero-title">
-            Study Smarter — <br />
+          <h1 className={styles.welcomeTitle} id="welcome-title">
+            Welcome back,{" "}
             <span style={{
               background: "linear-gradient(135deg, var(--accent) 30%, #fb923c 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent"
             }}>
-              Personalized Notes Library
-            </span>
+              {userEmail ? userEmail.split("@")[0] : "Student"}
+            </span>{" "}👋
           </h1>
-          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", lineHeight: 1.6, maxWidth: "580px" }} id="hero-subtext">
-            Access branch-wise folders, check semester filters, download exam materials, or watch tutorial walkthroughs — personalized for your university.
-          </p>
-          
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.5rem" }} id="hero-actions">
-            <a href="#search-section" className={styles.btnPrimary} style={{ padding: "0.8rem 1.5rem", fontWeight: 700, borderRadius: "var(--radius)" }} id="btn-explore-notes">
-              Search Notes
-            </a>
-            <Link href="/projects" className={styles.btnSecondary} style={{ padding: "0.8rem 1.5rem", fontWeight: 600, borderRadius: "var(--radius)" }} id="btn-see-projects">
-              Explore Projects
-            </Link>
-            <Link href="/careers" className={styles.btnSecondary} style={{ padding: "0.8rem 1.5rem", fontWeight: 600, borderRadius: "var(--radius)" }} id="btn-see-careers">
-              We&apos;re Hiring
-            </Link>
-          </div>
-
-          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", marginTop: "1rem", fontSize: "0.85rem", color: "var(--text-secondary)" }} id="hero-chips">
-            <div className={styles.chip} onClick={() => applyQuickFilter("Structures", "All branches", "All semesters")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <span style={{ color: "var(--accent)" }}>✓</span> Search instantly
-            </div>
-            <div className={styles.chip} onClick={() => applyQuickFilter("", "Computer", "Sem 3")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <span style={{ color: "var(--accent)" }}>✓</span> Branch filters
-            </div>
-            <div className={styles.chip} onClick={() => applyQuickFilter("", "All branches", "Sem 5")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <span style={{ color: "var(--accent)" }}>✓</span> Offline PDF access
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Right Widget - Recent Feeds */}
-        <aside style={{
-          background: "var(--card-bg)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius-lg)",
-          padding: "2rem 1.5rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1.25rem",
-          boxShadow: "var(--shadow-lg)"
-        }} id="recent-articles-widget">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>
-            <span style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--text-primary)" }}>Recent Feeds</span>
-            <Link href="/articles" style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent)" }}>
-              View All →
-            </Link>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
-            {isLoading ? (
-              <div style={{ color: "var(--text-secondary)", fontSize: "0.85rem", padding: "1.5rem 0", textAlign: "center" }}>Loading feeds...</div>
-            ) : (
-              articles.slice(0, 3).map((art) => (
-                <Link href={`/articles/${art.id}`} key={art.id} className={styles.customWidgetCard}>
-                  <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{art.category}</span>
-                  <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3 }}>{art.title}</span>
-                  <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
-                    <span>{art.readTime}</span>
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </aside>
-      </section>
-
-      {/* Search & Filter Panel */}
-      <section className={styles.searchSection} style={{ padding: "2.5rem 2rem", borderRadius: "var(--radius-lg)" }} id="search-section">
-        <div className={styles.sectionHeader} style={{ marginBottom: "1.5rem" }}>
-          <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)" }}>Search the library</h2>
-          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-            Narrow your syllabus search quickly by choosing branch, semester, and key topics.
+          <p className={styles.welcomeSubtitle}>
+            Your branch folders, semester filters, and exam materials are ready below.
           </p>
         </div>
-
-        <div className={styles.filterForm}>
-          <div className={styles.inputGroup}>
-            <svg className={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input
-              type="text"
-              placeholder="Search notes by title or keyword..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-              id="search-notes-input"
-            />
-          </div>
-
-          <select
-            value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
-            className={styles.selectInput}
-            id="filter-branch-select"
-            aria-label="Filter by Branch"
+        <div className={styles.welcomeActions}>
+          <Link
+            href="/dashboard"
+            className={styles.btnSecondary}
+            style={{ padding: "0.6rem 1.25rem", fontSize: "0.875rem" }}
+            id="btn-go-to-dashboard"
           >
-            <option value="All branches">All branches</option>
-            <option value="Computer">Computer</option>
-            <option value="IT">IT</option>
-            <option value="AIML">AIML</option>
-            <option value="Mechanical">Mechanical</option>
-            <option value="Chemical">Chemical</option>
-          </select>
-
-          <select
-            value={selectedSemester}
-            onChange={(e) => setSelectedSemester(e.target.value)}
-            className={styles.selectInput}
-            id="filter-semester-select"
-            aria-label="Filter by Semester"
-          >
-            <option value="All semesters">All semesters</option>
-            <option value="Sem 1">Sem 1</option>
-            <option value="Sem 2">Sem 2</option>
-            <option value="Sem 3">Sem 3</option>
-            <option value="Sem 4">Sem 4</option>
-            <option value="Sem 5">Sem 5</option>
-            <option value="Sem 6">Sem 6</option>
-            <option value="Sem 7">Sem 7</option>
-            <option value="Sem 8">Sem 8</option>
-          </select>
-
-          <button onClick={handleClearFilters} className={styles.btnClear} id="btn-clear-filters">
-            Clear Filters
-          </button>
-        </div>
-
-        <div className={styles.resultsMeta}>
-          <span id="results-count" style={{ fontWeight: 600 }}>
-            {isLoading ? "Syncing..." : `Found ${filteredNotes.length} matching study ${filteredNotes.length === 1 ? "sheet" : "sheets"}`}
-          </span>
-          {(searchQuery || selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
-            <span style={{ 
-              fontSize: "0.75rem", 
-              fontWeight: 700, 
-              padding: "0.2rem 0.5rem", 
-              borderRadius: "4px", 
-              background: "var(--accent-light)", 
-              color: "var(--accent)", 
-              border: "1px solid rgba(251,191,36,0.2)" 
-            }}>
-              Active Search Filters
-            </span>
-          )}
+            Go to Dashboard
+          </Link>
         </div>
       </section>
 
       {/* Featured Notes Section */}
       <section className={styles.notesSection} id="featured-notes-section">
-        <div className={styles.sectionHeader} style={{ borderBottom: "1px solid var(--border)", paddingBottom: "1rem" }}>
-          <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)" }}>Study notes catalog</h2>
-          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-            Select folders to download offline copy PDFs or review visual explanations.
-          </p>
+        <div className={styles.catalogHeader}>
+          <div>
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+
+          </div>
+
+          {/* Desktop: inline search */}
+          <div className={styles.catalogSearchDesktop}>
+            <div className={styles.inputGroup} style={{ minWidth: "260px" }}>
+              <svg className={styles.inputIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+                id="search-notes-input"
+                style={{ fontSize: "0.875rem", padding: "0.65rem 1rem 0.65rem 2.5rem" }}
+              />
+            </div>
+            {searchQuery && (
+              <button onClick={handleClearFilters} className={styles.btnClearMinimal} aria-label="Clear search">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Mobile: icon toggle */}
+          <div className={styles.catalogSearchMobile}>
+            <button
+              className={styles.searchIconBtn}
+              onClick={() => { setSearchOpen(v => !v); if (searchOpen) setSearchQuery(""); }}
+              aria-label={searchOpen ? "Close search" : "Open search"}
+              id="btn-toggle-search"
+            >
+              {searchOpen ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile expanded search input */}
+        {searchOpen && (
+          <div className={styles.mobileSearchExpanded} id="mobile-search-expanded">
+            <div className={styles.inputGroup}>
+              <svg className={styles.inputIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+                id="search-notes-input-mobile"
+                autoFocus
+              />
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "5rem 2rem", color: "var(--text-secondary)" }}>

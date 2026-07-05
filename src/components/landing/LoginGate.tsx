@@ -1,14 +1,38 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Article } from "../../data/mockData";
+import { supabase } from "../../utils/supabaseClient";
 import styles from "./LoginGate.module.css";
 
-interface LoginGateProps {
-  articles: Article[];
-}
+export default function LoginGate() {
+  const [articles, setArticles] = useState<Article[]>([]);
 
-export default function LoginGate({ articles }: LoginGateProps) {
+  useEffect(() => {
+    async function loadArticles() {
+      try {
+        const { data: dbArticles, error } = await supabase
+          .from("articles")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(3);
+        if (!error && dbArticles) {
+          setArticles(dbArticles.map((item) => ({
+            id: item.id,
+            title: item.title,
+            readTime: `${Math.max(1, Math.ceil((item.content || "").trim().split(/\s+/).filter(Boolean).length / 200))} min read`,
+            category: item.category as Article["category"],
+            summary: item.summary || "",
+            content: item.content || "",
+          })));
+        }
+      } catch (err) {
+        console.error("LoginGate: failed to load articles:", err);
+      }
+    }
+    loadArticles();
+  }, []);
   return (
     <main style={{ 
       background: "var(--background)", 
