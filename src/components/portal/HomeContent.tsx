@@ -10,6 +10,7 @@ import { Note, Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
+import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
 interface RazorpayResponse {
@@ -134,6 +135,77 @@ export default function HomeContent() {
       return matchesSearch && matchesBranch && matchesSemester;
     });
   }, [notes, searchQuery, selectedBranch, selectedSemester]);
+
+  // ── Folder grouping computed states ──────────────────────────────────────
+  const activeBranches = useMemo(() => {
+    const branches = new Set<string>();
+    notes.forEach((note) => {
+      if (note.branch) branches.add(note.branch);
+    });
+    return Array.from(branches).sort();
+  }, [notes]);
+
+  const branchSemestersMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    notes.forEach((note) => {
+      if (!note.branch || !note.semester) return;
+      if (!map[note.branch]) {
+        map[note.branch] = [];
+      }
+      if (!map[note.branch].includes(note.semester)) {
+        map[note.branch].push(note.semester);
+      }
+    });
+    Object.keys(map).forEach((br) => {
+      map[br].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    });
+    return map;
+  }, [notes]);
+
+  const branchNotesCount = useMemo(() => {
+    const count: Record<string, number> = {};
+    notes.forEach((note) => {
+      if (!note.branch) return;
+      count[note.branch] = (count[note.branch] || 0) + 1;
+    });
+    return count;
+  }, [notes]);
+
+  const semesterNotesCount = useMemo(() => {
+    const count: Record<string, number> = {};
+    notes.forEach((note) => {
+      if (!note.branch || !note.semester) return;
+      const key = `${note.branch}-${note.semester}`;
+      count[key] = (count[key] || 0) + 1;
+    });
+    return count;
+  }, [notes]);
+
+  const folderPreviewsMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    notes.forEach((note) => {
+      if (!note.branch || !note.semester) return;
+      const key = `${note.branch}-${note.semester}`;
+      if (!map[key]) {
+        map[key] = [];
+      }
+      if (map[key].length < 3) {
+        map[key].push(note.title);
+      }
+    });
+    return map;
+  }, [notes]);
+
+  const getBranchFolderClass = useCallback((branch: string) => {
+    switch (branch) {
+      case "Computer": return styles.folderComputer;
+      case "IT": return styles.folderIT;
+      case "AIML": return styles.folderAIML;
+      case "Mechanical": return styles.folderMechanical;
+      case "Chemical": return styles.folderChemical;
+      default: return styles.folderDefault;
+    }
+  }, []);
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -551,105 +623,358 @@ export default function HomeContent() {
             <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.06)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1.25rem" }} />
             <h3>Syncing notes with database...</h3>
           </div>
-        ) : filteredNotes.length > 0 ? (
-          <div className={styles.grid}>
-            {filteredNotes.map((note) => {
-              const hasVideo = !!note.videoUrl;
-              return (
-                <article 
-                  key={note.id} 
-                  className={`${styles.noteCard} ${styles.noteCardGlow}`} 
-                  id={note.id}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => router.push(`/notes/${note.id}`)}
-                >
-                  <div className={styles.noteCardHeader}>
-                    <h3 className={styles.noteCardTitle}>
-                      <Link 
-                        href={`/notes/${note.id}`} 
-                        style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-                      >
-                        {note.title}
-                      </Link>
-                    </h3>
-                  </div>
-                  <div className={styles.badgeRow}>
-                    <span className={styles.tagBranch}>{note.branch}</span>
-                    <span className={styles.badgeSemester}>{note.semester}</span>
-                    {note.price && note.price > 0 ? (
-                      <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
-                        ₹{note.price}
-                      </span>
-                    ) : (
-                      <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-                        Free
-                      </span>
-                    )}
-                  </div>
-                  <p className={styles.noteCardDesc}>{note.description}</p>
-
-                  <div className={styles.noteCardActions} style={{ 
-                    display: "grid", 
-                    gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr",
-                    gap: "0.5rem" 
-                  }}>
-                    {hasVideo && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openModal(note, "video");
-                        }}
-                        className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}
-                        id={`btn-watch-video-${note.id}`}
-                      >
-                        Watch Video
-                      </button>
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownloadClick(note);
-                      }}
-                      className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
-                      id={`btn-download-${note.id}`}
-                      style={{ gridColumn: hasVideo ? "auto" : "span 2" }}
+        ) : searchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
+          /* Flat list mode for Search or Semester-only filtering */
+          <div>
+            {searchQuery !== "" && (
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
+                Search Results for &quot;{searchQuery}&quot;
+              </h3>
+            )}
+            {selectedBranch === "All branches" && selectedSemester !== "All semesters" && (
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
+                Showing all {selectedSemester} notes
+              </h3>
+            )}
+            {filteredNotes.length > 0 ? (
+              <div className={styles.grid}>
+                {filteredNotes.map((note) => {
+                  const hasVideo = !!note.videoUrl;
+                  return (
+                    <article 
+                      key={note.id} 
+                      className={`${styles.noteCard} ${styles.noteCardGlow}`} 
+                      id={note.id}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => router.push(`/notes/${note.id}`)}
                     >
-                      {note.price && note.price > 0 ? (
-                        <>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                          </svg>
-                          Unlock PDF
-                        </>
-                      ) : (
-                        <>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                          </svg>
-                          Download PDF
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
+                      <div className={styles.noteCardHeader}>
+                        <h3 className={styles.noteCardTitle}>
+                          <Link 
+                            href={`/notes/${note.id}`} 
+                            style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+                          >
+                            {note.title}
+                          </Link>
+                        </h3>
+                      </div>
+                      <div className={styles.badgeRow}>
+                        <span className={styles.tagBranch}>{note.branch}</span>
+                        <span className={styles.badgeSemester}>{note.semester}</span>
+                        {note.price && note.price > 0 ? (
+                          <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                            ₹{note.price}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
+                            Free
+                          </span>
+                        )}
+                      </div>
+                      <p className={styles.noteCardDesc}>{note.description}</p>
+
+                      <div className={styles.noteCardActions} style={{ 
+                        display: "grid", 
+                        gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr",
+                        gap: "0.5rem" 
+                      }}>
+                        {hasVideo && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openModal(note, "video");
+                            }}
+                            className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}
+                            id={`btn-watch-video-${note.id}`}
+                          >
+                            Watch Video
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadClick(note);
+                          }}
+                          className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
+                          id={`btn-download-${note.id}`}
+                          style={{ gridColumn: hasVideo ? "auto" : "span 2" }}
+                        >
+                          {note.price && note.price > 0 ? (
+                            <>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                              </svg>
+                              Unlock PDF
+                            </>
+                          ) : (
+                            <>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                              Download PDF
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className={styles.noResults} id="no-results-alert">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: "1rem" }}>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <h3>No study notes found for {userUniversity}</h3>
+                <p style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}>Our contributors have not uploaded notes for this specific branch filter yet. Try adjusting or clearing search parameters.</p>
+              </div>
+            )}
           </div>
         ) : (
-          <div className={styles.noResults} id="no-results-alert">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: "1rem" }}>
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <h3>No study notes found for {userUniversity}</h3>
-            <p style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}>Our contributors have not uploaded notes for this specific branch filter yet. Try adjusting or clearing search parameters.</p>
+          /* Folder navigation mode */
+          <div>
+            <div className={styles.breadcrumbsContainer}>
+              <div className={styles.breadcrumbs}>
+                <span 
+                  className={styles.breadcrumbLink} 
+                  onClick={() => {
+                    setSelectedBranch("All branches");
+                    setSelectedSemester("All semesters");
+                  }}
+                >
+                  <FaGraduationCap style={{ fontSize: "1.1rem" }} /> Library
+                </span>
+                
+                {selectedBranch !== "All branches" && (
+                  <>
+                    <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                    <span 
+                      className={selectedSemester === "All semesters" ? styles.breadcrumbActive : styles.breadcrumbLink}
+                      onClick={() => {
+                        if (selectedSemester !== "All semesters") {
+                          setSelectedSemester("All semesters");
+                        }
+                      }}
+                    >
+                      {selectedBranch} Engineering
+                    </span>
+                  </>
+                )}
+                
+                {selectedSemester !== "All semesters" && (
+                  <>
+                    <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                    <span className={styles.breadcrumbActive}>
+                      {selectedSemester}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {(selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
+                <button 
+                  className={styles.btnBreadcrumbBack}
+                  onClick={() => {
+                    if (selectedSemester !== "All semesters") {
+                      setSelectedSemester("All semesters");
+                    } else {
+                      setSelectedBranch("All branches");
+                    }
+                  }}
+                >
+                  <FaArrowLeft /> Back
+                </button>
+              )}
+            </div>
+
+            {notes.length === 0 ? (
+              <div className={styles.noResults} id="no-results-alert">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: "1rem" }}>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <h3>No study notes found for {userUniversity}</h3>
+                <p style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}>Our contributors have not uploaded notes for this specific branch filter yet. Try adjusting or clearing search parameters.</p>
+              </div>
+            ) : selectedBranch === "All branches" ? (
+              /* Level 1: Branch Folders */
+              activeBranches.length > 0 ? (
+                <div className={styles.folderGrid}>
+                  {activeBranches.map((branch) => {
+                    const semesters = branchSemestersMap[branch] || [];
+                    const count = branchNotesCount[branch] || 0;
+                    return (
+                      <div 
+                        key={branch} 
+                        className={`${styles.folderCard} ${getBranchFolderClass(branch)}`}
+                        onClick={() => setSelectedBranch(branch)}
+                      >
+                        <div className={styles.folderIconContainer}>
+                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaFolderOpen className={styles.folderOpenedIcon} />
+                        </div>
+                        <div className={styles.folderHeaderInfo}>
+                          <h3 className={styles.folderTitle}>{branch} Engineering</h3>
+                          <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} available</span>
+                        </div>
+                        <div className={styles.folderBadges}>
+                          {semesters.map((sem) => (
+                            <span key={sem} className={styles.folderMiniBadge}>{sem}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.noResults}>
+                  <p>No active folders found for {userUniversity}.</p>
+                </div>
+              )
+            ) : selectedSemester === "All semesters" ? (
+              /* Level 2: Semester Folders */
+              (branchSemestersMap[selectedBranch] || []).length > 0 ? (
+                <div className={styles.folderGrid}>
+                  {(branchSemestersMap[selectedBranch] || []).map((sem) => {
+                    const key = `${selectedBranch}-${sem}`;
+                    const count = semesterNotesCount[key] || 0;
+                    const previews = folderPreviewsMap[key] || [];
+                    return (
+                      <div 
+                        key={sem} 
+                        className={`${styles.folderCard} ${getBranchFolderClass(selectedBranch)}`}
+                        onClick={() => setSelectedSemester(sem)}
+                      >
+                        <div className={styles.folderIconContainer}>
+                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaFolderOpen className={styles.folderOpenedIcon} />
+                        </div>
+                        <div className={styles.folderHeaderInfo}>
+                          <h3 className={styles.folderTitle}>{sem} Folder</h3>
+                          <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} inside</span>
+                        </div>
+                        {previews.length > 0 && (
+                          <ul className={styles.folderPreviewList}>
+                            {previews.map((title, idx) => (
+                              <li key={idx}>{title}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.noResults}>
+                  <p>No semesters active under {selectedBranch} Engineering.</p>
+                </div>
+              )
+            ) : (
+              /* Level 3: Notes Grid for selected branch & semester */
+              filteredNotes.length > 0 ? (
+                <div className={styles.grid}>
+                  {filteredNotes.map((note) => {
+                    const hasVideo = !!note.videoUrl;
+                    return (
+                      <article 
+                        key={note.id} 
+                        className={`${styles.noteCard} ${styles.noteCardGlow}`} 
+                        id={note.id}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => router.push(`/notes/${note.id}`)}
+                      >
+                        <div className={styles.noteCardHeader}>
+                          <h3 className={styles.noteCardTitle}>
+                            <Link 
+                              href={`/notes/${note.id}`} 
+                              style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                              onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+                            >
+                              {note.title}
+                            </Link>
+                          </h3>
+                        </div>
+                        <div className={styles.badgeRow}>
+                          <span className={styles.tagBranch}>{note.branch}</span>
+                          <span className={styles.badgeSemester}>{note.semester}</span>
+                          {note.price && note.price > 0 ? (
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                              ₹{note.price}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
+                              Free
+                            </span>
+                          )}
+                        </div>
+                        <p className={styles.noteCardDesc}>{note.description}</p>
+
+                        <div className={styles.noteCardActions} style={{ 
+                          display: "grid", 
+                          gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr",
+                          gap: "0.5rem" 
+                        }}>
+                          {hasVideo && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openModal(note, "video");
+                              }}
+                              className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}
+                              id={`btn-watch-video-${note.id}`}
+                            >
+                              Watch Video
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadClick(note);
+                            }}
+                            className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
+                            id={`btn-download-${note.id}`}
+                            style={{ gridColumn: hasVideo ? "auto" : "span 2" }}
+                          >
+                            {note.price && note.price > 0 ? (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                Unlock PDF
+                              </>
+                            ) : (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                  <polyline points="7 10 12 15 17 10"></polyline>
+                                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Download PDF
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.noResults}>
+                  <p>No study sheets found inside {selectedBranch} Engineering {selectedSemester}.</p>
+                </div>
+              )
+            )}
           </div>
         )}
+
       </section>
 
       {/* Checkout Modal */}

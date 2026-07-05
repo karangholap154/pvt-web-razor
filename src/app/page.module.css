@@ -680,3 +680,259 @@
   border-color: #22c55e;
 }
 
+/* ==========================================
+   Folder Layout & Design System
+   ========================================== */
+
+.folderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.folderCard {
+  position: relative;
+  background-color: var(--folder-bg, var(--card-bg));
+  border: 1px solid var(--folder-border, var(--border));
+  border-radius: 0 var(--radius) var(--radius) var(--radius);
+  padding: 2rem 1.75rem 1.75rem 1.75rem;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: 180px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.folderCard::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -1px;
+  width: 90px;
+  height: 12px;
+  background-color: var(--folder-bg, var(--card-bg));
+  border-top: 1px solid var(--folder-border, var(--border));
+  border-left: 1px solid var(--folder-border, var(--border));
+  border-right: 1px solid var(--folder-border, var(--border));
+  border-radius: 6px 6px 0 0;
+  transition: var(--transition);
+}
+
+.folderCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--folder-color, var(--accent));
+  box-shadow: 0 10px 24px -10px var(--folder-glow, rgba(251, 191, 36, 0.25));
+}
+
+.folderCard:hover::before {
+  border-top-color: var(--folder-color, var(--accent));
+  border-left-color: var(--folder-color, var(--accent));
+  border-right-color: var(--folder-color, var(--accent));
+}
+
+/* Branch specific color tokens */
+.folderComputer {
+  --folder-color: #06b6d4;
+  --folder-bg: rgba(6, 182, 212, 0.03);
+  --folder-border: rgba(6, 182, 212, 0.15);
+  --folder-glow: rgba(6, 182, 212, 0.2);
+}
+
+.folderIT {
+  --folder-color: #a855f7;
+  --folder-bg: rgba(168, 85, 247, 0.03);
+  --folder-border: rgba(168, 85, 247, 0.15);
+  --folder-glow: rgba(168, 85, 247, 0.2);
+}
+
+.folderAIML {
+  --folder-color: #f59e0b;
+  --folder-bg: rgba(245, 158, 11, 0.03);
+  --folder-border: rgba(245, 158, 11, 0.15);
+  --folder-glow: rgba(245, 158, 11, 0.2);
+}
+
+.folderMechanical {
+  --folder-color: #10b981;
+  --folder-bg: rgba(16, 185, 129, 0.03);
+  --folder-border: rgba(16, 185, 129, 0.15);
+  --folder-glow: rgba(16, 185, 129, 0.2);
+}
+
+.folderChemical {
+  --folder-color: #f43f5e;
+  --folder-bg: rgba(244, 63, 94, 0.03);
+  --folder-border: rgba(244, 63, 94, 0.15);
+  --folder-glow: rgba(244, 63, 94, 0.2);
+}
+
+.folderDefault {
+  --folder-color: #fbbf24;
+  --folder-bg: rgba(251, 191, 36, 0.03);
+  --folder-border: rgba(251, 191, 36, 0.15);
+  --folder-glow: rgba(251, 191, 36, 0.2);
+}
+
+/* Icons toggling */
+.folderIconContainer {
+  font-size: 2.25rem;
+  color: var(--folder-color, var(--accent));
+  display: inline-flex;
+  align-items: center;
+  transition: var(--transition);
+}
+
+.folderOpenedIcon {
+  display: none;
+}
+
+.folderCard:hover .folderClosedIcon {
+  display: none;
+}
+
+.folderCard:hover .folderOpenedIcon {
+  display: inline-block;
+}
+
+/* Folder details inside card */
+.folderHeaderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.folderTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.folderStats {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Mini badges representing active sub-sections */
+.folderBadges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.folderMiniBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background-color: var(--folder-border, var(--border));
+  color: var(--folder-color, var(--text-secondary));
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Folder Content Preview Lists */
+.folderPreviewList {
+  margin-top: auto;
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border-top: 1px solid var(--folder-border, var(--border));
+  padding-top: 0.75rem;
+}
+
+.folderPreviewList li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.folderPreviewList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--folder-color, var(--accent));
+  font-weight: bold;
+}
+
+/* Breadcrumbs Section */
+.breadcrumbsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.breadcrumbLink {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.breadcrumbLink:hover {
+  color: var(--accent);
+}
+
+.breadcrumbSeparator {
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+.breadcrumbActive {
+  color: var(--text-primary);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btnBreadcrumbBack {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btnBreadcrumbBack:hover {
+  background-color: var(--border);
+  color: var(--text-primary);
+  transform: translateX(-2px);
+}
+
