@@ -34,6 +34,8 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+  const [recommendedNotes, setRecommendedNotes] = useState<Note[]>([]);
+  const [loadingRecommendedNotes, setLoadingRecommendedNotes] = useState(true);
 
   const isPremium = note.price && note.price > 0;
 
@@ -89,6 +91,69 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
       }
     }
   }, [contextAuthState, contextEmail, note.id, isPremium]);
+
+  // Load notes from the same branch and semester for the recommendation section
+  useEffect(() => {
+    let isActive = true;
+
+    const loadRecommendedNotes = async () => {
+      setLoadingRecommendedNotes(true);
+
+      if (!note.branch || !note.semester) {
+        if (isActive) {
+          setRecommendedNotes([]);
+          setLoadingRecommendedNotes(false);
+        }
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("notes")
+          .select("*")
+          .eq("branch", note.branch)
+          .eq("semester", note.semester)
+          .neq("id", note.id)
+          .order("title", { ascending: true })
+          .limit(3);
+
+        if (error) {
+          throw error;
+        }
+
+        const items = (data || []).map((item) => ({
+          id: item.id,
+          title: item.title,
+          branch: item.branch as Note["branch"],
+          semester: item.semester,
+          description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
+          downloadUrl: item.download_url || "",
+          videoUrl: item.video_url || "",
+          price: item.price ? Number(item.price) : 0,
+          university: item.university || undefined,
+        }));
+
+        if (isActive) {
+          setRecommendedNotes(items);
+        }
+      } catch (err) {
+        console.error("Error loading recommended notes:", err);
+        if (isActive) {
+          setRecommendedNotes([]);
+        }
+      } finally {
+        if (isActive) {
+          setLoadingRecommendedNotes(false);
+        }
+      }
+    };
+
+    loadRecommendedNotes();
+
+    return () => {
+      isActive = false;
+    };
+  }, [note.branch, note.semester, note.id]);
 
   // Download PDF file
   const handleDownload = async () => {
@@ -538,6 +603,51 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           </div>
         </aside>
       </div>
+
+      <section className={styles.recommendedSection} aria-labelledby="recommended-notes-title">
+        <div className={styles.recommendedHeader}>
+          <div>
+            <p className={styles.recommendedEyebrow}>Better picks for you</p>
+            <h2 className={styles.recommendedTitle} id="recommended-notes-title">Recommended Notes</h2>
+          </div>
+          <p className={styles.recommendedSubtitle}>
+              More notes from the same branch and semester, picked for you.
+          </p>
+        </div>
+
+        {loadingRecommendedNotes ? (
+          <div className={styles.recommendedState}>Loading related notes...</div>
+        ) : recommendedNotes.length > 0 ? (
+          <div className={styles.recommendedGrid}>
+            {recommendedNotes.map((recommendedNote) => (
+              <Link
+                key={recommendedNote.id}
+                href={`/notes/${recommendedNote.id}`}
+                className={styles.recommendedCard}
+              >
+                <div className={styles.recommendedCardTop}>
+                  <div className={styles.recommendedBadges}>
+                    <span className={styles.recommendedBranch}>{recommendedNote.branch}</span>
+                    <span className={styles.recommendedSemester}>{recommendedNote.semester}</span>
+                  </div>
+                  <span className={recommendedNote.price > 0 ? styles.recommendedPaid : styles.recommendedFree}>
+                    {recommendedNote.price > 0 ? `₹${recommendedNote.price}` : "Free"}
+                  </span>
+                </div>
+
+                <h3 className={styles.recommendedCardTitle}>{recommendedNote.title}</h3>
+                  <p className={styles.recommendedCardDesc}>
+                  {recommendedNote.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.recommendedState}>
+            No other notes match this branch and semester yet.
+          </div>
+        )}
+      </section>
     </div>
   );
 }

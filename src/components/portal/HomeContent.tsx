@@ -426,7 +426,7 @@ export default function HomeContent() {
             style={{ padding: "0.6rem 1.25rem", fontSize: "0.875rem" }}
             id="btn-go-to-dashboard"
           >
-            Go to Dashboard
+            Open My Library 
           </Link>
         </div>
       </section>
