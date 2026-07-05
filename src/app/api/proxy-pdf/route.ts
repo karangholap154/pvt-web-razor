@@ -1,0 +1,90 @@
+import { NextResponse } from "next/server";
+import { createSupabaseServerClient } from "../../../utils/supabaseServer";
+import { supabaseAdmin } from "../../../utils/supabaseAdmin";
+import { isAdmin } from "../../../utils/auth";
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const noteId = searchParams.get("id");
+
+    if (!noteId) {
+      return NextResponse.json({ error: "Missing note ID parameter" }, { status: 400 });
+    }
+
+    // 1. Fetch note details using admin client
+    const { data: note, error: noteError } = await supabaseAdmin
+      .from("notes")
+      .select("download_url, price, title")
+      .eq("id", noteId)
+      .single();
+
+    if (noteError || !note) {
+      console.error(`Error querying note ${noteId}:`, noteError);
+      return NextResponse.json({ error: "Study note not found" }, { status: 404 });
+    }
+
+    const downloadUrl = note.download_url;
+    if (!downloadUrl) {
+      return NextResponse.json({ error: "No download URL available for this note" }, { status: 404 });
+    }
+
+    const price = note.price ? Number(note.price) : 0;
+
+    // 2. Check permissions for premium notes
+    if (price > 0) {
+      const supabaseServer = await createSupabaseServerClient();
+      const { data: { user } } = await supabaseServer.auth.getUser();
+
+      if (!user || !user.email) {
+        return NextResponse.json({ error: "Authentication required to access premium resources" }, { status: 401 });
+      }
+
+      const email = user.email.trim().toLowerCase();
+
+      // Check if user is admin (admin bypass)
+      const userIsAdmin = await isAdmin();
+      if (!userIsAdmin) {
+        // Query purchases table for this user and note
+        const { data: purchase, error: purchaseError } = await supabaseAdmin
+          .from("purchases")
+          .select("id")
+          .eq("email", email)
+          .eq("note_id", noteId)
+          .eq("status", "success")
+          .maybeSingle();
+
+        if (purchaseError || !purchase) {
+          console.warn(`Unauthorized download attempt by ${email} for note ${noteId}`);
+          return NextResponse.json({ error: "Access denied. Premium resource must be purchased first." }, { status: 403 });
+        }
+      }
+    }
+
+    // 3. Fetch the PDF resource from the storage bucket / CDN URL
+    const fileResponse = await fetch(downloadUrl);
+    if (!fileResponse.ok) {
+      console.error(`Failed to fetch PDF from storage URL: ${fileResponse.statusText}`);
+      return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+    }
+
+    const fileBuffer = await fileResponse.arrayBuffer();
+
+    // Clean title for content-disposition header
+    const cleanTitle = note.title.replace(/[^a-zA-Z0-9_\-]/g, "_").toLowerCase();
+    const filename = `${cleanTitle}.pdf`;
+
+    // 4. Return binary stream response
+    return new NextResponse(fileBuffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
+
+  } catch (error) {
+    console.error("Proxy PDF download endpoint error:", error);
+    return NextResponse.json({ error: "Internal server error during file retrieval" }, { status: 500 });
+  }
+}

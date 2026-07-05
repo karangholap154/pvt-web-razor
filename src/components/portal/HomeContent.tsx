@@ -157,11 +157,14 @@ export default function HomeContent() {
     setSelectedSemester(semester);
   };
 
-  const handleDownload = async (url: string, title: string) => {
-    if (!url) return;
+  const handleDownload = async (noteId: string, title: string) => {
+    if (!noteId) return;
     setDownloadingPdf(true);
     try {
-      const response = await fetch(url);
+      const response = await fetch(`/api/proxy-pdf?id=${noteId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to download PDF: ${response.statusText}`);
+      }
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -173,7 +176,7 @@ export default function HomeContent() {
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("PDF download fetch failed, fallback opening in tab:", err);
-      window.open(url, "_blank");
+      window.open(`/api/proxy-pdf?id=${noteId}`, "_blank");
     } finally {
       setDownloadingPdf(false);
       closeModal();
@@ -797,7 +800,7 @@ export default function HomeContent() {
                   <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>{selectedNote.title}.pdf</h5>
                   <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
                   <button
-                    onClick={() => handleDownload(selectedNote.downloadUrl, selectedNote.title)}
+                    onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
                     className={styles.btnPrimary}
                     style={{ marginTop: "1.5rem", width: "100%", justifyContent: "center" }}
                     disabled={downloadingPdf}

@@ -95,7 +95,10 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
     if (!note.downloadUrl) return;
     setDownloadingPdf(true);
     try {
-      const response = await fetch(note.downloadUrl);
+      const response = await fetch(`/api/proxy-pdf?id=${note.id}`);
+      if (!response.ok) {
+        throw new Error(`Failed to download PDF: ${response.statusText}`);
+      }
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -107,7 +110,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("PDF download fetch failed, opening in new tab fallback:", err);
-      window.open(note.downloadUrl, "_blank");
+      window.open(`/api/proxy-pdf?id=${note.id}`, "_blank");
     } finally {
       setDownloadingPdf(false);
     }
