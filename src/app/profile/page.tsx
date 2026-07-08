@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
+import { isAdmin } from "@/utils/auth";
 import ProfileClient from "./ProfileClient";
 
 export const metadata = {
@@ -20,9 +21,11 @@ export default async function ProfilePage() {
   // Fetch the user's profile from the public.users table
   const { data: profile } = await supabase
     .from("users")
-    .select("full_name, university, default_branch, default_semester")
+    .select("full_name, university, default_branch, default_semester, created_at, avatar_url")
     .eq("id", user.id)
     .single();
+
+  const isUserAdmin = await isAdmin();
 
   // Fetch purchases
   const { data: dbPurchases } = await supabase
@@ -58,6 +61,9 @@ export default async function ProfilePage() {
       initialSemester={profile?.default_semester || ""}
       email={user.email}
       purchases={purchases}
+      createdAt={profile?.created_at || null}
+      avatarUrl={profile?.avatar_url || null}
+      isAdmin={isUserAdmin}
     />
   );
 }
