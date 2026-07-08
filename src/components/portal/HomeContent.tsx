@@ -40,18 +40,13 @@ export default function HomeContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("All branches");
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
-  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
-
-  // Set default filters when auth state is ready
+  // Set default filters when auth state is ready or preferences change
   useEffect(() => {
-    if (authState === "ready" && !preferencesLoaded) {
-      setTimeout(() => {
-        if (defaultBranch) setSelectedBranch(defaultBranch);
-        if (defaultSemester) setSelectedSemester(defaultSemester);
-        setPreferencesLoaded(true);
-      }, 0);
+    if (authState === "ready") {
+      if (defaultBranch) setSelectedBranch(defaultBranch);
+      if (defaultSemester) setSelectedSemester(defaultSemester);
     }
-  }, [authState, defaultBranch, defaultSemester, preferencesLoaded]);
+  }, [authState, defaultBranch, defaultSemester]);
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Modal state

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import { BRANCHES, SEMESTERS } from "../../data/mockData";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 interface Purchase {
   id: string;
@@ -34,6 +35,7 @@ export default function ProfileClient({
   purchases,
 }: ProfileClientProps) {
   const router = useRouter();
+  const { refreshAuth } = useAuth();
   const [activeTab, setActiveTab] = useState<TabState>("account");
 
   const [fullName, setFullName] = useState(initialFullName);
@@ -67,6 +69,7 @@ export default function ProfileClient({
         throw new Error("Failed to update profile");
       }
 
+      await refreshAuth();
       setMessage({ type: "success", text: "Settings saved successfully!" });
       router.refresh();
       
