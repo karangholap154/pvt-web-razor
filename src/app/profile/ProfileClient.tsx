@@ -14,7 +14,8 @@ import {
   FaCalendarDays, 
   FaBook, 
   FaCircleCheck,
-  FaCircleExclamation
+  FaCircleExclamation,
+  FaFilePdf
 } from "react-icons/fa6";
 
 interface Purchase {
@@ -106,6 +107,10 @@ export default function ProfileClient({
       month: "short",
       day: "numeric",
     });
+  };
+
+  const handleDownloadInvoice = (purchaseId: string) => {
+    window.open(`/api/purchases/${purchaseId}/invoice`, "_blank");
   };
 
   const getInitials = (name: string, emailStr: string) => {
@@ -353,6 +358,7 @@ export default function ProfileClient({
                           <th>Order ID</th>
                           <th>Amount</th>
                           <th>Status</th>
+                          <th>Invoice</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -366,6 +372,21 @@ export default function ProfileClient({
                               <span className={`${styles.badge} ${p.status === "success" ? styles.badgeSuccess : styles.badgeFailed}`}>
                                 {p.status === "success" ? "Paid" : p.status}
                               </span>
+                            </td>
+                            <td>
+                              {p.status === "success" ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadInvoice(p.id)}
+                                  className={styles.btnDownload}
+                                  title="Download Invoice PDF"
+                                >
+                                  <FaFilePdf className={styles.downloadIcon} />
+                                  <span>PDF</span>
+                                </button>
+                              ) : (
+                                <span className={styles.textMuted}>—</span>
+                              )}
                             </td>
                           </tr>
                         ))}

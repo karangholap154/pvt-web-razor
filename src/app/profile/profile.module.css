@@ -633,6 +633,39 @@
   }
 }
 
+/* Download Button styling */
+.btnDownload {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  color: var(--accent);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btnDownload:hover {
+  background-color: var(--accent);
+  color: #09090b;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+}
+
+.btnDownload:active {
+  transform: translateY(0);
+}
+
+.downloadIcon {
+  font-size: 0.95rem;
+}
+
 /* Responsiveness Media Queries */
 @media (max-width: 991px) {
   .profileBanner {
