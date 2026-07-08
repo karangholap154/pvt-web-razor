@@ -10,6 +10,8 @@ interface AuthContextType {
   authState: AuthState;
   email: string | null;
   university: string | null;
+  defaultBranch: string | null;
+  defaultSemester: string | null;
   isAdmin: boolean;
   refreshAuth: () => Promise<void>;
 }
@@ -20,6 +22,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>("loading");
   const [email, setEmail] = useState<string | null>(null);
   const [university, setUniversity] = useState<string | null>(null);
+  const [defaultBranch, setDefaultBranch] = useState<string | null>(null);
+  const [defaultSemester, setDefaultSemester] = useState<string | null>(null);
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
 
   const fetchSession = useCallback(async () => {
@@ -29,6 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthState("unauthenticated");
         setEmail(null);
         setUniversity(null);
+        setDefaultBranch(null);
+        setDefaultSemester(null);
         setIsAdminUser(false);
         return;
       }
@@ -38,10 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthState("unauthenticated");
         setEmail(null);
         setUniversity(null);
+        setDefaultBranch(null);
+        setDefaultSemester(null);
         setIsAdminUser(false);
       } else {
         setEmail(data.email);
         setIsAdminUser(!!data.isAdmin);
+        setDefaultBranch(data.default_branch ?? null);
+        setDefaultSemester(data.default_semester ?? null);
         if (!data.university) {
           setAuthState("no-university");
           setUniversity(null);
@@ -55,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthState("unauthenticated");
       setEmail(null);
       setUniversity(null);
+      setDefaultBranch(null);
+      setDefaultSemester(null);
       setIsAdminUser(false);
     }
   }, []);
@@ -83,6 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authState,
         email,
         university,
+        defaultBranch,
+        defaultSemester,
         isAdmin: isAdminUser,
         refreshAuth: fetchSession,
       }}

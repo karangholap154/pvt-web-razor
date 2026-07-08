@@ -117,6 +117,9 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
                 <Link href="/dashboard" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
                   Dashboard
                 </Link>
+                <Link href="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
+                  Profile & Settings
+                </Link>
                 {isUserAdmin && (
                   <Link href="/admin" className={styles.dropdownItem} style={{ color: "var(--accent)" }} onClick={() => setDropdownOpen(false)}>
                     Admin Panel
@@ -222,6 +225,13 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
                 onClick={() => setMenuOpen(false)}
               >
                 Dashboard
+              </Link>
+              <Link
+                href="/profile"
+                className={`${styles.mobileNavLink} ${isActive("/profile") ? styles.mobileNavLinkActive : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Profile & Settings
               </Link>
               <a
                 href="/api/auth/logout"

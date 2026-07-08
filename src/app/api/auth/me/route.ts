@@ -15,7 +15,7 @@ export async function GET() {
 
     const { data: userData } = await supabase
       .from("users")
-      .select("university")
+      .select("university, default_branch, default_semester")
       .eq("email", user.email)
       .maybeSingle();
 
@@ -25,6 +25,8 @@ export async function GET() {
       authenticated: true,
       email: user.email,
       university: userData?.university ?? null,
+      default_branch: userData?.default_branch ?? null,
+      default_semester: userData?.default_semester ?? null,
       isAdmin: isUserAdmin,
     });
   } catch (error) {

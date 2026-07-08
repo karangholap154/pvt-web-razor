@@ -9,8 +9,8 @@ interface FooterWrapperProps {
 export default function FooterWrapper({ children }: FooterWrapperProps) {
   const pathname = usePathname();
   
-  // Hide footer on login, admin, and dashboard pages
-  const hideFooterPaths = ["/login", "/admin", "/dashboard"];
+  // Hide footer on login, admin, dashboard, and profile pages
+  const hideFooterPaths = ["/login", "/admin", "/dashboard", "/profile"];
   const shouldHide = hideFooterPaths.some(
     (path) => pathname === path || pathname.startsWith(path + "/")
   );

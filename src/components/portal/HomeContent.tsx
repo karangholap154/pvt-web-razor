@@ -30,16 +30,28 @@ export default function HomeContent() {
   const unlockNoteId = searchParams.get("unlock");
 
   // Consume global authentication state
-  const { authState, email: userEmail, university: userUniversity, refreshAuth } = useAuth();
+  const { authState, email: userEmail, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
 
   // Live database states
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Search state
+  // Search state (initialized in useEffect based on preferences)
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("All branches");
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+
+  // Set default filters when auth state is ready
+  useEffect(() => {
+    if (authState === "ready" && !preferencesLoaded) {
+      setTimeout(() => {
+        if (defaultBranch) setSelectedBranch(defaultBranch);
+        if (defaultSemester) setSelectedSemester(defaultSemester);
+        setPreferencesLoaded(true);
+      }, 0);
+    }
+  }, [authState, defaultBranch, defaultSemester, preferencesLoaded]);
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Modal state
