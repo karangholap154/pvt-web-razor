@@ -24,7 +24,7 @@ export default async function ProjectsPage() {
       projects = data.map((item) => ({
         id: item.id,
         title: item.title,
-        branch: item.branch || "IT",
+        branch: item.branch || "Information Technology",
         techStack: item.tech_stack || [],
         description: item.description || "",
         githubUrl: item.github_url || ""

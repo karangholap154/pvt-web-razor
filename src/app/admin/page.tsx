@@ -68,7 +68,7 @@ export default async function AdminPage() {
         title: item.title,
         university: item.university || undefined,
         branch: item.branch as Note["branch"],
-        semester: item.semester,
+        semester: item.semester as Note["semester"],
         description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
         downloadUrl: item.download_url || "",
         videoUrl: item.video_url || "",

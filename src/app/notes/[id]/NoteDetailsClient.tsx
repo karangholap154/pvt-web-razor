@@ -125,7 +125,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           id: item.id,
           title: item.title,
           branch: item.branch as Note["branch"],
-          semester: item.semester,
+          semester: item.semester as Note["semester"],
           description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
           downloadUrl: item.download_url || "",
           videoUrl: item.video_url || "",

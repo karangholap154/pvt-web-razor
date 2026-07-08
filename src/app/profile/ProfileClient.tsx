@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
+import { BRANCHES, SEMESTERS } from "../../data/mockData";
 
 interface Purchase {
   id: string;
@@ -192,10 +193,9 @@ export default function ProfileClient({
                     style={{ appearance: "auto" }}
                   >
                     <option value="">Select your branch</option>
-                    <option value="Computer">Computer Engineering</option>
-                    <option value="IT">IT Engineering</option>
-                    <option value="AI_DS">AI & DS</option>
-                    <option value="EXTC">EXTC</option>
+                    {BRANCHES.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -209,10 +209,9 @@ export default function ProfileClient({
                     style={{ appearance: "auto" }}
                   >
                     <option value="">Select your semester</option>
-                    <option value="Sem 3">Semester 3</option>
-                    <option value="Sem 4">Semester 4</option>
-                    <option value="Sem 5">Semester 5</option>
-                    <option value="Sem 6">Semester 6</option>
+                    {SEMESTERS.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
                 </div>
 

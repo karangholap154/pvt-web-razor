@@ -411,17 +411,17 @@ export default function LoginGate() {
           {[
             {
               name: "Rahul Mehta",
-              branch: "Computer Engineering, Semester 6",
+              branch: "Computer Engineering, 6",
               quote: "Private Academy saved my semesters. The reference sheets and code explanations for Cryptography are super detailed and formatted cleanly. Highly recommended!"
             },
             {
               name: "Priya Patil",
-              branch: "Information Technology, Semester 5",
+              branch: "Information Technology, 5",
               quote: "I love the university customization. Selecting my specific university filtered out all the other syllabus variations. Watching the short video tutorials next to the PDF files helped clear doubts fast."
             },
             {
               name: "Aditya Shinde",
-              branch: "Computer Engineering, Semester 7",
+              branch: "Computer Engineering, 7",
               quote: "Compiler design and machine learning math were a struggle until I opened the solved papers on here. The step-by-step algorithms are verified and very clear."
             }
           ].map((t, idx) => (

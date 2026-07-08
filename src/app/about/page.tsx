@@ -1,4 +1,4 @@
-
+import { BRANCHES } from "../../data/mockData";
 
 export default function AboutPage() {
   return (
@@ -154,7 +154,7 @@ export default function AboutPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <h2 style={{ fontSize: "1.35rem", fontWeight: 800, letterSpacing: "-0.02em", textAlign: "center" }}>Supported Branches</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}>
-            {["Computer Engineering", "Information Technology", "AIML", "Mechanical", "Chemical"].map((branch, i) => (
+            {BRANCHES.map((branch, i) => (
               <div key={i} className="branch-badge" style={{ padding: "0.5rem 1.15rem", borderRadius: "999px", fontSize: "0.875rem", fontWeight: 600, color: "var(--text-secondary)" }}>
                 {branch}
               </div>

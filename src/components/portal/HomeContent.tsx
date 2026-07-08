@@ -86,7 +86,7 @@ export default function HomeContent() {
             id: item.id,
             title: item.title,
             branch: item.branch as Note["branch"],
-            semester: item.semester,
+            semester: item.semester as Note["semester"],
             description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
             downloadUrl: item.download_url || "",
             videoUrl: item.video_url || "",
@@ -181,8 +181,8 @@ export default function HomeContent() {
 
   const getBranchFolderClass = useCallback((branch: string) => {
     switch (branch) {
-      case "Computer": return styles.folderComputer;
-      case "IT": return styles.folderIT;
+      case "Computer Engineering": return styles.folderComputer;
+      case "Information Technology": return styles.folderIT;
       case "AIML": return styles.folderAIML;
       case "Mechanical": return styles.folderMechanical;
       case "Chemical": return styles.folderChemical;
@@ -664,7 +664,7 @@ export default function HomeContent() {
                         }
                       }}
                     >
-                      {selectedBranch} Engineering
+                      {selectedBranch}
                     </span>
                   </>
                 )}
@@ -722,7 +722,7 @@ export default function HomeContent() {
                           <FaFolderOpen className={styles.folderOpenedIcon} />
                         </div>
                         <div className={styles.folderHeaderInfo}>
-                          <h3 className={styles.folderTitle}>{branch} Engineering</h3>
+                          <h3 className={styles.folderTitle}>{branch}</h3>
                           <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} available</span>
                         </div>
                         <div className={styles.folderBadges}>

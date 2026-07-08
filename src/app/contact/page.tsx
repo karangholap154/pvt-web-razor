@@ -1,5 +1,5 @@
 import React from "react";
-
+import { BRANCHES } from "../../data/mockData";
 export const metadata = {
   title: "Contact Us | Private Academy Engineering",
   description: "Get in touch with Private Academy Engineering. Request specific study notes, report issues, suggest improvements, or join our community groups.",
@@ -462,7 +462,7 @@ export default function ContactPage() {
             Supported Branches
           </h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-            {["Computer Engineering", "Information Technology", "AIML", "Mechanical", "Chemical"].map((branch, idx) => (
+            {BRANCHES.map((branch, idx) => (
               <span key={idx} className="branch-tag">
                 {branch}
               </span>

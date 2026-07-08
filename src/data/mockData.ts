@@ -1,8 +1,21 @@
+export const BRANCHES = [
+  "Computer Engineering",
+  "Information Technology",
+  "AIML",
+  "Mechanical",
+  "Chemical"
+] as const;
+
+export const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"] as const;
+
+export type Branch = typeof BRANCHES[number];
+export type Semester = typeof SEMESTERS[number];
+
 export interface Note {
   id: string;
   title: string;
-  branch: "Computer" | "IT" | "AIML" | "Mechanical" | "Chemical";
-  semester: string;
+  branch: Branch;
+  semester: Semester;
   description: string;
   downloadUrl: string;
   videoUrl: string;

@@ -49,7 +49,7 @@ export default async function DashboardPage() {
             id: noteData.id,
             title: noteData.title,
             branch: noteData.branch,
-            semester: noteData.semester,
+            semester: noteData.semester as Note["semester"],
             description: `${noteData.title} - ${noteData.branch} Engineering, ${noteData.semester} | ${noteData.university || ""}`,
             downloadUrl: noteData.download_url || "",
             videoUrl: noteData.video_url || "",

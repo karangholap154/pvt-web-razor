@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
-import { Note, Article } from "../../data/mockData";
+import { Note, Article, BRANCHES, SEMESTERS } from "../../data/mockData";
 
 interface Project {
   id: string;
@@ -293,8 +293,8 @@ export default function AdminConsole({
   // Note form states
   const [noteId, setNoteId] = useState("");
   const [noteTitle, setNoteTitle] = useState("");
-  const [noteBranch, setNoteBranch] = useState("Computer");
-  const [noteSemester, setNoteSemester] = useState("Sem 1");
+  const [noteBranch, setNoteBranch] = useState("Computer Engineering");
+  const [noteSemester, setNoteSemester] = useState("1");
   const [noteUniversity, setNoteUniversity] = useState("Mumbai University");
 
   const [noteDownload, setNoteDownload] = useState("");
@@ -313,7 +313,7 @@ export default function AdminConsole({
   // Project form states
   const [projectId, setProjectId] = useState("");
   const [projectTitle, setProjectTitle] = useState("");
-  const [projectBranch, setProjectBranch] = useState("Computer");
+  const [projectBranch, setProjectBranch] = useState("Computer Engineering");
   const [projectTechStack, setProjectTechStack] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [projectGithub, setProjectGithub] = useState("");
@@ -374,8 +374,8 @@ export default function AdminConsole({
     // Reset Note
     setNoteId("");
     setNoteTitle("");
-    setNoteBranch("Computer");
-    setNoteSemester("Sem 1");
+    setNoteBranch("Computer Engineering");
+    setNoteSemester("1");
     setNoteUniversity("Mumbai University");
     setNoteDownload("");
     setNoteVideo("");
@@ -388,7 +388,7 @@ export default function AdminConsole({
     // Reset Project
     setProjectId("");
     setProjectTitle("");
-    setProjectBranch("Computer");
+    setProjectBranch("Computer Engineering");
     setProjectTechStack("");
     setProjectDesc("");
     setProjectGithub("");
@@ -774,11 +774,7 @@ export default function AdminConsole({
                 className={styles.select}
               >
                 <option value="All branches">All branches</option>
-                <option value="Computer">Computer</option>
-                <option value="IT">IT</option>
-                <option value="AIML">AIML</option>
-                <option value="Mechanical">Mechanical</option>
-                <option value="Chemical">Chemical</option>
+                {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
               </select>
             </div>
           </div>
@@ -1438,25 +1434,14 @@ export default function AdminConsole({
                       <div className={styles.inputGroup}>
                         <label className={styles.label}>Branch</label>
                         <select className={styles.select} value={noteBranch} onChange={(e) => setNoteBranch(e.target.value)}>
-                          <option value="Computer">Computer</option>
-                          <option value="IT">IT</option>
-                          <option value="AIML">AIML</option>
-                          <option value="Mechanical">Mechanical</option>
-                          <option value="Chemical">Chemical</option>
+                          {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
                         </select>
                       </div>
 
                       <div className={styles.inputGroup}>
                         <label className={styles.label}>Semester</label>
                         <select className={styles.select} value={noteSemester} onChange={(e) => setNoteSemester(e.target.value)}>
-                          <option value="Sem 1">Sem 1</option>
-                          <option value="Sem 2">Sem 2</option>
-                          <option value="Sem 3">Sem 3</option>
-                          <option value="Sem 4">Sem 4</option>
-                          <option value="Sem 5">Sem 5</option>
-                          <option value="Sem 6">Sem 6</option>
-                          <option value="Sem 7">Sem 7</option>
-                          <option value="Sem 8">Sem 8</option>
+                          {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </div>
                     </div>
@@ -1561,11 +1546,7 @@ export default function AdminConsole({
                       <div className={styles.inputGroup}>
                         <label className={styles.label}>Branch</label>
                         <select className={styles.select} value={projectBranch} onChange={(e) => setProjectBranch(e.target.value)}>
-                          <option value="Computer">Computer</option>
-                          <option value="IT">IT</option>
-                          <option value="AIML">AIML</option>
-                          <option value="Mechanical">Mechanical</option>
-                          <option value="Chemical">Chemical</option>
+                          {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
                         </select>
                       </div>
 
