@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.14"],
-  serverExternalPackages: ["pdfkit"],
+  serverExternalPackages: ["pdfkit", "pdfjs-dist", "canvas"],
 };
 
 export default nextConfig;

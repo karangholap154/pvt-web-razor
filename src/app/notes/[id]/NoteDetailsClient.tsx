@@ -8,6 +8,7 @@ import { Note } from "../../../data/mockData";
 import { supabase } from "../../../utils/supabaseClient";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./notes.module.css";
+import NoteViewerDynamic from "@/components/NoteViewerDynamic";
 
 interface NoteDetailsClientProps {
   note: Note;
@@ -36,6 +37,22 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [recommendedNotes, setRecommendedNotes] = useState<Note[]>([]);
   const [loadingRecommendedNotes, setLoadingRecommendedNotes] = useState(true);
+  const [isInlineFullscreen, setIsInlineFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (isInlineFullscreen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isInlineFullscreen]);
+
+  const toggleFullScreen = () => {
+    setIsInlineFullscreen((prev) => !prev);
+  };
 
   const isPremium = note.price && note.price > 0;
 
@@ -358,18 +375,46 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           {!checkingPurchase && (
             (!isPremium || hasPurchased) ? (
               <div className={styles.previewCard} id="note-pdf-viewer-card">
-                <h2 className={styles.sectionTitle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                  </svg>
-                  Study Note Reader
+                <h2 className={styles.sectionTitle} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                    Study Note Reader
+                  </span>
+                  <button
+                    onClick={toggleFullScreen}
+                    className={styles.btnFullScreen}
+                    title={isInlineFullscreen ? "Exit Full Screen" : "Read Full Screen"}
+                    id="btn-toggle-fullscreen"
+                  >
+                    {isInlineFullscreen ? (
+                      <>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                        </svg>
+                        <span>Minimize</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+                        </svg>
+                        <span>Full Screen</span>
+                      </>
+                    )}
+                  </button>
                 </h2>
-                <div className={styles.previewContainer}>
-                  <iframe
-                    src={`/api/proxy-pdf?id=${note.id}&inline=true`}
-                    className={styles.previewIframe}
-                    title={`${note.title} study note reader`}
+                <div
+                  className={`${styles.previewContainer} ${isInlineFullscreen ? styles.previewContainerFullscreen : ""}`}
+                  id="note-pdf-container"
+                  style={{ minHeight: 560, height: isInlineFullscreen ? "100vh" : undefined }}
+                >
+                  <NoteViewerDynamic
+                    url={`/api/proxy-pdf?id=${note.id}&inline=true`}
+                    isFullscreen={isInlineFullscreen}
+                    onToggleFullscreen={toggleFullScreen}
                   />
                 </div>
               </div>
@@ -382,12 +427,8 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                   </svg>
                   Study Note Preview (First 3 Pages)
                 </h2>
-                <div className={styles.previewContainer}>
-                  <iframe
-                    src={`/api/proxy-pdf?id=${note.id}&preview=true#toolbar=0&navpanes=0`}
-                    className={styles.previewIframe}
-                    title={`${note.title} study note preview`}
-                  />
+                <div className={styles.previewContainer} style={{ minHeight: 560 }}>
+                  <NoteViewerDynamic url={`/api/proxy-pdf?id=${note.id}&preview=true`} previewMode={true} />
                   <div className={styles.previewOverlay}>
                     <div className={styles.previewOverlayContent}>
                       <h3>Want to read the rest?</h3>

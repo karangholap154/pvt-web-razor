@@ -536,17 +536,19 @@
 .previewContainer {
   position: relative;
   width: 100%;
-  height: 600px;
+  min-height: 560px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: #18181b;
+  background: #0f0f11;
   overflow: hidden;
 }
 
+/* Keep preview iframes at a fixed height */
 .previewIframe {
   width: 100%;
-  height: 100%;
+  height: 600px;
   border: none;
+  display: block;
 }
 
 .previewOverlay {
@@ -555,7 +557,7 @@
   left: 0;
   width: 100%;
   height: 220px;
-  background: linear-gradient(180deg, rgba(24, 24, 27, 0) 0%, rgba(24, 24, 27, 0.95) 60%, #18181b 100%);
+  background: linear-gradient(180deg, rgba(15, 15, 17, 0) 0%, rgba(15, 15, 17, 0.95) 60%, #0f0f11 100%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -718,4 +720,68 @@
   }
 }
 
+/* Fullscreen Custom Rules */
+.btnFullScreen {
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+}
 
+.btnFullScreen:hover {
+  background-color: var(--accent);
+  color: #09090b;
+  transform: translateY(-1px);
+}
+
+.previewContainerFullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: #09090b !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.previewContainerFullscreen .previewIframe {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.btnFullScreenFloating {
+  position: absolute !important;
+  bottom: 2rem !important;
+  right: 2.5rem !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 10000 !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  background-color: var(--accent) !important;
+  color: #09090b !important;
+  border: 1px solid var(--accent) !important;
+}
+
+.btnFullScreenFloating:hover {
+  background-color: var(--accent-hover) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
