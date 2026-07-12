@@ -151,7 +151,7 @@ export default function TermsAndConditionPage() {
           Terms &amp; Conditions
         </h1>
         <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
-          Last Updated: May 25, 2026
+          Last Updated: July 12, 2026
         </p>
       </header>
 
@@ -203,7 +203,7 @@ export default function TermsAndConditionPage() {
             All study materials, engineering guides, and compiled PDFs hosted on our platforms are protected by intellectual property rules.
           </p>
           <p>
-            We grant you a **limited, personal, non-exclusive, non-transferable, and revocable license** to view and download study files for individual, non-commercial academic preparation. You may **NOT**:
+            We grant you a <strong>limited, personal, non-exclusive, non-transferable, and revocable license</strong> to view and download study files for individual, non-commercial academic preparation. You may <strong>NOT</strong>:
           </p>
           <ul>
             <li>Resell, repackage, lease, or commercially distribute our notes or PDF documents.</li>
@@ -266,7 +266,7 @@ export default function TermsAndConditionPage() {
             <span style={{ color: "var(--accent)" }}>06.</span> Limitations &amp; Site Warranties
           </h2>
           <p>
-            The platform is provided on an **&quot;as is&quot;** and **&quot;as available&quot;** basis. Private Academy Engineering makes no warranties that:
+            The platform is provided on an <strong>&quot;as is&quot;</strong> and <strong>&quot;as available&quot;</strong> basis. Private Academy Engineering makes no warranties that:
           </p>
           <ul>
             <li>The platform will remain completely free of errors, typos, or database service interruptions.</li>

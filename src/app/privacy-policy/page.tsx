@@ -151,7 +151,7 @@ export default function PrivacyPolicyPage() {
           Privacy Policy
         </h1>
         <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
-          Last Updated: May 25, 2026
+          Last Updated: July 12, 2026
         </p>
       </header>
 
@@ -190,7 +190,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <ul>
             <li><strong>Account Profiles</strong>: Your Email Address and Full Name provided during credentials registration or login.</li>
-            <li><strong>Academic Selection</strong>: Your chosen engineering branch (e.g. Computer, IT, AIML) and active university selection. This preference is stored in your profile settings.</li>
+            <li><strong>Academic Selection</strong>: Your chosen engineering branch (e.g. Computer Engineering, Information Technology, AIML, Mechanical, Chemical) and active university selection. This preference is stored in your profile settings.</li>
             <li><strong>Direct Communications</strong>: Correspondence, note requests, or feedback emails submitted directly to our support channels.</li>
           </ul>
         </section>
@@ -246,11 +246,11 @@ export default function PrivacyPolicyPage() {
             <span style={{ color: "var(--accent)" }}>05.</span> Session Cookies & Local Variables
           </h2>
           <p>
-            We do not deploy marketing trackers or track you across the web. We only use functional session cookies and local storage tokens to keep you logged in:
+            We do not deploy marketing trackers or track you across the web. We only use functional session cookies to keep you logged in and database preferences to persist your settings:
           </p>
           <ul>
-            <li><strong>Session Authentication Cookie</strong>: A cookie (`session_email`) stores the active logged-in user identifier. This cookie is read exclusively by our server endpoints to verify active sessions.</li>
-            <li><strong>Local Settings</strong>: Selected semesters, branches, or themes are stored locally in the browser to maintain persistent display preferences.</li>
+            <li><strong>Session Authentication Cookie</strong>: Secure session cookies (prefixed with <code>sb-</code>) are created by Supabase Auth to maintain and verify your active logged-in session. These cookies are read exclusively by our server endpoints to authorize access.</li>
+            <li><strong>Database Preferences</strong>: Selected default semesters, branches, and university selections are saved securely in your user profile database table in Supabase rather than utilizing local browser cookies or third-party storage.</li>
           </ul>
         </section>
 

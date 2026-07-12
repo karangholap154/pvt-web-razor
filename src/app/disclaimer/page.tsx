@@ -151,7 +151,7 @@ export default function DisclaimerPage() {
           Disclaimer
         </h1>
         <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
-          Last Updated: May 25, 2026
+          Last Updated: July 12, 2026
         </p>
       </header>
 
@@ -168,7 +168,7 @@ export default function DisclaimerPage() {
         <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>Table of Contents</h3>
         <nav className="toc-grid">
           <a href="#affiliation" className="toc-link">1. Strict Non-Affiliation Policy</a>
-          <a href="#academic" className="toc-link">2. Supplementary Notes &amp; Curricula</a>
+          <a href="#academic" className="toc-link">2. Supplementary Notes &amp; Curriculum</a>
           <a href="#performance" className="toc-link">3. Exam Grades &amp; Performance</a>
           <a href="#links" className="toc-link">4. External Media &amp; Tutorial Links</a>
           <a href="#errors" className="toc-link">5. Typographic Errors &amp; Corrections</a>
@@ -204,7 +204,7 @@ export default function DisclaimerPage() {
         {/* Section 2 */}
         <section id="academic" className="legal-section">
           <h2>
-            <span style={{ color: "#ef4444" }}>02.</span> Supplementary Notes &amp; Curriculam
+            <span style={{ color: "#ef4444" }}>02.</span> Supplementary Notes &amp; Curriculum
           </h2>
           <p>
             Our study guides, question papers, and code summaries represent supplementary materials designed to support self-guided study.
