@@ -32,7 +32,7 @@ export default function HomeContent() {
   const unlockNoteId = searchParams.get("unlock");
 
   // Consume global authentication state
-  const { authState, email: userEmail, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
+  const { authState, email: userEmail, username: userUsername, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
 
   // Live database states
   const [notes, setNotes] = useState<Note[]>([]);
@@ -423,7 +423,7 @@ export default function HomeContent() {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent"
             }}>
-              {userEmail ? userEmail.split("@")[0] : "Student"}
+              {userUsername ?? "Student"}
             </span>{" "}👋
           </h1>
           <p className={styles.welcomeSubtitle}>

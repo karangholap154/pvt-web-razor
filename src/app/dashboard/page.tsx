@@ -29,6 +29,15 @@ export default async function DashboardPage() {
 
   const sessionEmail = user.email;
 
+  // Fetch username from users table
+  const { data: userData } = await supabase
+    .from("users")
+    .select("username")
+    .eq("email", sessionEmail)
+    .maybeSingle();
+
+  const username = userData?.username ?? sessionEmail.split("@")[0];
+
   // 2. Fetch purchases from Supabase database
   let purchasedNotes: Note[] = [];
   try {
@@ -61,5 +70,5 @@ export default async function DashboardPage() {
     console.error("Failed to query purchases:", err);
   }
 
-  return <DashboardClient email={sessionEmail} notes={purchasedNotes} />;
+  return <DashboardClient username={username} notes={purchasedNotes} />;
 }

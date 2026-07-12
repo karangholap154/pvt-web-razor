@@ -8,11 +8,11 @@ import pageStyles from "../page.module.css"; // Reuse modal and backdrop styling
 import { Note } from "../../data/mockData";
 
 interface DashboardClientProps {
-  email: string;
+  username: string;
   notes: Note[];
 }
 
-export default function DashboardClient({ email, notes }: DashboardClientProps) {
+export default function DashboardClient({ username, notes }: DashboardClientProps) {
   const router = useRouter();
   // Modal states
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -72,7 +72,7 @@ export default function DashboardClient({ email, notes }: DashboardClientProps) 
       <div className={styles.headerArea}>
         <div>
           <h1 className={styles.welcomeTitle}>
-            Welcome back, <span className={styles.userEmail}>{email}</span>
+            Welcome back, <span className={styles.username}>{username}</span>
           </h1>
           <p className={styles.welcomeSubtitle}>
             Access all your premium unlocked notes and guides from one place.
