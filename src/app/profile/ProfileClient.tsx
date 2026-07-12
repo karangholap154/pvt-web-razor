@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import { BRANCHES, SEMESTERS } from "../../data/mockData";
@@ -15,8 +15,14 @@ import {
   FaBook, 
   FaCircleCheck,
   FaCircleExclamation,
-  FaFilePdf
+  FaFilePdf,
+  FaKey,
+  FaLaptop,
+  FaMobileScreenButton,
+  FaTabletScreenButton
 } from "react-icons/fa6";
+import { parseUserAgent } from "@/utils/userAgent";
+import { supabase } from "@/utils/supabaseClient";
 
 interface Purchase {
   id: string;
@@ -25,6 +31,17 @@ interface Purchase {
   orderId: string;
   status: string;
   noteTitle: string;
+}
+
+interface Session {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  user_agent: string;
+  ip: string;
+  browser?: string;
+  os?: string;
+  device?: string;
 }
 
 interface ProfileClientProps {
@@ -39,7 +56,20 @@ interface ProfileClientProps {
   isAdmin: boolean;
 }
 
-type TabState = "account" | "preferences" | "purchases";
+type TabState = "account" | "preferences" | "purchases" | "sessions";
+
+const formatIpAddress = (ip: string | undefined | null): string => {
+  if (!ip) return "N/A";
+  const trimmed = ip.trim();
+  if (trimmed === "::1" || trimmed === "127.0.0.1" || trimmed.toLowerCase() === "localhost") {
+    return "Localhost";
+  }
+  const firstIp = trimmed.split(",")[0].trim();
+  if (firstIp.startsWith("::ffff:")) {
+    return firstIp.substring(7);
+  }
+  return firstIp;
+};
 
 export default function ProfileClient({
   initialFullName,
@@ -63,6 +93,136 @@ export default function ProfileClient({
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsError, setSessionsError] = useState<string | null>(null);
+
+  const getCurrentSessionId = async (): Promise<string | null> => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        const parts = session.access_token.split(".");
+        if (parts.length === 3) {
+          const base64Url = parts[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const pad = (4 - (base64.length % 4)) % 4;
+          const padded = base64 + "=".repeat(pad);
+          const payload = JSON.parse(atob(padded));
+          return payload.session_id || payload.sid || null;
+        }
+      }
+    } catch (err) {
+      console.error("Error getting client session ID:", err);
+    }
+    return null;
+  };
+
+  const fetchSessions = useCallback(async () => {
+    setSessionsLoading(true);
+    setSessionsError(null);
+    try {
+      const clientSessionId = await getCurrentSessionId();
+      const res = await fetch("/api/auth/sessions", {
+        headers: clientSessionId ? { "x-current-session-id": clientSessionId } : {},
+      });
+      if (!res.ok) {
+        throw new Error("Failed to load sessions");
+      }
+      const data = await res.json();
+      const parsedSessions = (data.sessions || []).map((s: Session) => {
+        const parsed = parseUserAgent(s.user_agent);
+        return {
+          ...s,
+          browser: parsed.browser,
+          os: parsed.os,
+          device: parsed.device,
+        };
+      });
+      setSessions(parsedSessions);
+      setCurrentSessionId(data.currentSessionId || clientSessionId);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Failed to load active sessions.";
+      setSessionsError(errMsg);
+    } finally {
+      setSessionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "sessions") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchSessions();
+    }
+  }, [activeTab, fetchSessions]);
+
+  const handleRevokeSession = async (sessionId: string) => {
+    const isCurrent = sessionId === currentSessionId;
+    if (isCurrent && !confirm("Are you sure you want to log out of your current device?")) {
+      return;
+    }
+
+    try {
+      const clientSessionId = await getCurrentSessionId();
+      const headers: Record<string, string> = {};
+      if (clientSessionId) {
+        headers["x-current-session-id"] = clientSessionId;
+      }
+
+      const res = await fetch(`/api/auth/sessions?id=${sessionId}`, {
+        method: "DELETE",
+        headers,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to revoke session");
+      }
+
+      if (isCurrent) {
+        router.push("/login");
+      } else {
+        setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+        setMessage({ type: "success", text: "Device logged out successfully." });
+        setTimeout(() => setMessage(null), 3000);
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Failed to revoke session.";
+      setMessage({ type: "error", text: errMsg });
+    }
+  };
+
+  const handleRevokeOthers = async () => {
+    if (!confirm("Are you sure you want to log out from all other devices?")) {
+      return;
+    }
+
+    try {
+      const clientSessionId = await getCurrentSessionId();
+      const headers: Record<string, string> = {};
+      if (clientSessionId) {
+        headers["x-current-session-id"] = clientSessionId;
+      }
+
+      const res = await fetch("/api/auth/sessions?others=true", {
+        method: "DELETE",
+        headers,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to log out other devices");
+      }
+
+      setSessions((prev) => prev.filter((s) => s.id === currentSessionId));
+      setMessage({ type: "success", text: "Logged out from all other devices." });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Failed to revoke other sessions.";
+      setMessage({ type: "error", text: errMsg });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,6 +367,13 @@ export default function ProfileClient({
           >
             <FaClock className={styles.tabIcon} />
             <span>Purchase History</span>
+          </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === "sessions" ? styles.tabBtnActive : ""}`}
+            onClick={() => { setActiveTab("sessions"); setMessage(null); }}
+          >
+            <FaKey className={styles.tabIcon} />
+            <span>Active Sessions</span>
           </button>
         </div>
 
@@ -392,6 +559,94 @@ export default function ProfileClient({
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "sessions" && (
+              <div>
+                <div className={styles.sessionHeaderContainer}>
+                  <div className={styles.cardHeader} style={{ marginBottom: 0, borderBottom: "none", paddingBottom: 0 }}>
+                    <h2 className={styles.cardTitle}>Active Sessions</h2>
+                    <p className={styles.cardSub}>Review and manage devices where you are currently signed in.</p>
+                  </div>
+                  {sessions.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handleRevokeOthers}
+                      className={styles.btnRevokeAll}
+                    >
+                      Log Out Other Devices
+                    </button>
+                  )}
+                </div>
+                
+                {sessionsLoading ? (
+                  <div className={styles.sessionLoadingContainer}>
+                    <svg className={styles.spinner} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className={styles.spinnerCircle} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className={styles.spinnerPath} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Loading active sessions...</span>
+                  </div>
+                ) : sessionsError ? (
+                  <div className={styles.sessionErrorContainer}>
+                    <p>{sessionsError}</p>
+                    <button type="button" onClick={fetchSessions} className={styles.btnRetry}>
+                      Try Again
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.sessionList}>
+                    {sessions.map((s) => {
+                      const isCurrent = s.id === currentSessionId;
+                      return (
+                        <div key={s.id} className={styles.sessionItem}>
+                          <div className={styles.sessionDetails}>
+                            <div className={styles.deviceIconContainer}>
+                              {s.device === "Mobile" ? (
+                                <FaMobileScreenButton className={styles.deviceIcon} />
+                              ) : s.device === "Tablet" ? (
+                                <FaTabletScreenButton className={styles.deviceIcon} />
+                              ) : (
+                                <FaLaptop className={styles.deviceIcon} />
+                              )}
+                            </div>
+                            <div className={styles.deviceText}>
+                              <div className={styles.deviceTitleRow}>
+                                <span className={styles.deviceTitle}>
+                                  {s.os || "Unknown OS"} • {s.browser || "Unknown Browser"}
+                                </span>
+                                {isCurrent && (
+                                  <span className={styles.badgeCurrent}>This Device</span>
+                                )}
+                              </div>
+                              <div className={styles.deviceMeta}>
+                                <span>IP: {formatIpAddress(s.ip)}</span>
+                                <span className={styles.metaDivider}>•</span>
+                                <span>Started: {new Date(s.created_at).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {!isCurrent && (
+                            <button
+                              type="button"
+                              onClick={() => handleRevokeSession(s.id)}
+                              className={styles.btnRevoke}
+                            >
+                              Revoke
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
