@@ -354,60 +354,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
         {/* Left / Main Column */}
         <main className={styles.mainCol}>
           
-          {/* Overview & Info Card */}
-          <div className={styles.infoCard}>
-            <h2 className={styles.sectionTitle}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-              Overview Details
-            </h2>
-            <div className={styles.detailsList}>
-              <div className={styles.detailsItem}>
-                <span className={styles.detailsLabel}>Course/Subject Name</span>
-                <span className={styles.detailsValue}>{note.title}</span>
-              </div>
-              <div className={styles.detailsItem}>
-                <span className={styles.detailsLabel}>Target University</span>
-                <span className={styles.detailsValue}>{note.university || "General Curriculum"}</span>
-              </div>
-              <div className={styles.detailsItem}>
-                <span className={styles.detailsLabel}>Branch Specialty</span>
-                <span className={styles.detailsValue}>{note.branch} Engineering</span>
-              </div>
-              <div className={styles.detailsItem}>
-                <span className={styles.detailsLabel}>Recommended Semester</span>
-                <span className={styles.detailsValue}>{note.semester}</span>
-              </div>
-              <div className={styles.detailsItem}>
-                <span className={styles.detailsLabel}>Cost Options</span>
-                <span className={styles.detailsValue} style={{ color: isPremium ? "#f59e0b" : "#22c55e" }}>
-                  {isPremium ? `₹${note.price} INR` : "Free Access"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Description Section */}
-          <div className={styles.infoCard}>
-            <h2 className={styles.sectionTitle}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-              Syllabus Description
-            </h2>
-            <p className={styles.descriptionText} id="note-details-description">
-              {note.description || `${note.title} study notes formatted specifically for ${note.university || "leading engineering universities"}. This guide compiles important algorithms, detailed explanations, and syllabus-aligned questions.`}
-            </p>
-          </div>
-
-          {/* PDF Viewer/Preview Section */}
+          {/* PDF Viewer/Preview Section (Focal Point) */}
           {!checkingPurchase && (
             (!isPremium || hasPurchased) ? (
               <div className={styles.previewCard} id="note-pdf-viewer-card">
@@ -451,6 +398,82 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               </div>
             )
           )}
+
+          {/* Redesigned Overview Grid */}
+          <div className={styles.overviewGrid}>
+            {/* University Tile */}
+            <div className={styles.overviewTile}>
+              <div className={styles.overviewTileHeader}>
+                <span className={styles.overviewIcon}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                  </svg>
+                </span>
+                Target University
+              </div>
+              <div className={styles.overviewTileValue}>
+                {note.university || "General Curriculum"}
+              </div>
+            </div>
+
+            {/* Branch Tile */}
+            <div className={styles.overviewTile}>
+              <div className={styles.overviewTileHeader}>
+                <span className={styles.overviewIcon}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                </span>
+                Branch Specialty
+              </div>
+              <div className={styles.overviewTileValue}>
+                {note.branch}
+              </div>
+            </div>
+
+            {/* Semester Tile */}
+            <div className={styles.overviewTile}>
+              <div className={styles.overviewTileHeader}>
+                <span className={styles.overviewIcon}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                  </svg>
+                </span>
+                Semester Focus
+              </div>
+              <div className={styles.overviewTileValue}>
+                Semester {note.semester}
+              </div>
+            </div>
+
+            {/* Access/Cost Tile */}
+            <div className={styles.overviewTile}>
+              <div className={styles.overviewTileHeader}>
+                <span className={styles.overviewIcon}>
+                  {isPremium ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                    </svg>
+                  )}
+                </span>
+                Resource Cost
+              </div>
+              <div className={styles.overviewTileValue} style={{ color: isPremium ? "#f59e0b" : "#22c55e" }}>
+                {isPremium ? `₹${note.price} INR` : "Free Access"}
+              </div>
+            </div>
+          </div>
+
 
           {/* Video Lecture Section (If exists) */}
           {note.videoUrl && (
