@@ -28,9 +28,13 @@ interface Purchase {
 interface User {
   id: string;
   email: string;
+  username: string | null;
   full_name: string | null;
   university: string | null;
+  default_branch: string | null;
+  default_semester: string | null;
   created_at: string | null;
+  avatar_url: string | null;
 }
 
 interface AdminConsoleProps {
@@ -62,6 +66,7 @@ export default function AdminConsole({
     return initialUsers.filter(
       (u) =>
         (u.email && u.email.toLowerCase().includes(query)) ||
+        (u.username && u.username.toLowerCase().includes(query)) ||
         (u.full_name && u.full_name.toLowerCase().includes(query)) ||
         (u.university && u.university.toLowerCase().includes(query))
     );
@@ -1256,9 +1261,11 @@ export default function AdminConsole({
           <table className={styles.table}>
             <thead>
               <tr>
+                <th>User Profile</th>
+                <th>Username</th>
                 <th>Email Address</th>
-                <th>Full Name</th>
                 <th>University</th>
+                <th>Academic Focus</th>
                 <th>Joined Date</th>
                 <th>Actions</th>
               </tr>
@@ -1267,15 +1274,106 @@ export default function AdminConsole({
               {filteredUsersList.length > 0 ? (
                 filteredUsersList.map((user) => (
                   <tr key={user.id}>
-                    <td style={{ fontWeight: 600 }}>{user.email}</td>
-                    <td>{user.full_name || "—"}</td>
                     <td>
-                      <span className={styles.badge} style={{ backgroundColor: "rgba(251,191,36,0.12)", color: "#fde047", border: "1px solid rgba(251,191,36,0.25)", fontSize: "0.72rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        {user.avatar_url ? (
+                          <img
+                            src={user.avatar_url}
+                            alt={user.full_name || "User Avatar"}
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "1px solid var(--border)",
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "50%",
+                              backgroundColor: "var(--accent-light)",
+                              color: "var(--accent)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: "bold",
+                              fontSize: "0.85rem",
+                              border: "1px solid rgba(251, 191, 36, 0.2)",
+                            }}
+                          >
+                            {(user.full_name || user.username || user.email || "?").charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <span style={{ fontWeight: 600 }}>{user.full_name || "—"}</span>
+                      </div>
+                    </td>
+                    <td style={{ color: "var(--accent)", fontWeight: 600 }}>
+                      {user.username ? `@${user.username}` : "—"}
+                    </td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span
+                        className={styles.badge}
+                        style={{
+                          backgroundColor: "rgba(251, 191, 36, 0.12)",
+                          color: "#fde047",
+                          border: "1px solid rgba(251, 191, 36, 0.25)",
+                          fontSize: "0.72rem",
+                        }}
+                      >
                         {user.university || "—"}
                       </span>
                     </td>
                     <td>
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+                      {user.default_branch || user.default_semester ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                          {user.default_branch && (
+                            <span
+                              className={styles.badge}
+                              style={{
+                                backgroundColor: "rgba(56, 189, 248, 0.12)",
+                                color: "#38bdf8",
+                                border: "1px solid rgba(56, 189, 248, 0.2)",
+                                fontSize: "0.7rem",
+                                display: "inline-block",
+                                width: "fit-content",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {user.default_branch}
+                            </span>
+                          )}
+                          {user.default_semester && (
+                            <span
+                              className={styles.badge}
+                              style={{
+                                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                                color: "var(--text-secondary)",
+                                border: "1px solid var(--border)",
+                                fontSize: "0.7rem",
+                                display: "inline-block",
+                                width: "fit-content",
+                              }}
+                            >
+                              Semester {user.default_semester}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td>
+                      {user.created_at
+                        ? new Date(user.created_at).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "—"}
                     </td>
                     <td>
                       <div className={styles.actionsCell}>
@@ -1283,7 +1381,11 @@ export default function AdminConsole({
                           className={`${styles.btnAction} ${styles.btnEdit}`}
                           onClick={() => openResetPasswordModal(user.id, user.email)}
                           title="Change Password"
-                          style={{ backgroundColor: "rgba(251, 191, 36, 0.15)", color: "var(--accent)", border: "1px solid rgba(251, 191, 36, 0.2)" }}
+                          style={{
+                            backgroundColor: "rgba(251, 191, 36, 0.15)",
+                            color: "var(--accent)",
+                            border: "1px solid rgba(251, 191, 36, 0.2)",
+                          }}
                         >
                           Change Password
                         </button>
@@ -1293,7 +1395,7 @@ export default function AdminConsole({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
+                  <td colSpan={7} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
                     No matching users found.
                   </td>
                 </tr>
