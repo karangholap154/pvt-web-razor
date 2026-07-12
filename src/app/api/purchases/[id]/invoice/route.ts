@@ -124,9 +124,7 @@ export async function GET(
       // ── Light Theme Colors ──
       const white = "#ffffff";
       const offWhite = "#f9fafb";          // Very subtle grey for alternating sections
-      const warmBg = "#fffbeb";            // Warm amber tint for highlight areas
       const accent = "#d97706";            // Amber-700 — rich amber for headings/accents
-      const accentLight = "#f59e0b";       // Amber-500 — for lighter accent touches
       const accentSubtle = "#fef3c7";      // Amber-100 — for tinted backgrounds
       const textPrimary = "#111827";       // Grey-900 — near black for main text
       const textSecondary = "#4b5563";     // Grey-600 — for secondary info
@@ -163,7 +161,7 @@ export async function GET(
 
       // Sub-label
       doc.font("Roboto").fontSize(8).fillColor(textMuted)
-        .text("Tax Invoice / Receipt", pageWidth - mx - 170, 55, { width: 170, align: "right" });
+        .text("Receipt", pageWidth - mx - 170, 55, { width: 170, align: "right" });
 
       // Separator line
       doc.lineWidth(1).strokeColor(border)
@@ -254,8 +252,7 @@ export async function GET(
         .moveTo(mx, tableY + tableHeaderH).lineTo(mx + contentWidth, tableY + tableHeaderH).stroke();
 
       doc.font("Roboto-Bold").fontSize(7.5).fillColor(accent);
-      doc.text("DESCRIPTION", mx + 12, tableY + 9);
-      doc.text("SAC", mx + 300, tableY + 9, { width: 50, align: "center" });
+      doc.text("DESCRIPTION", mx + 12, tableY + 9, { width: 330 });
       doc.text("QTY", mx + 355, tableY + 9, { width: 35, align: "center" });
       doc.text("UNIT PRICE", mx + 395, tableY + 9, { width: 55, align: "right" });
       doc.text("TOTAL", mx + 455, tableY + 9, { width: contentWidth - 467, align: "right" });
@@ -274,12 +271,11 @@ export async function GET(
 
       // Item details
       doc.font("Roboto-Bold").fontSize(9.5).fillColor(textPrimary)
-        .text(noteTitle, mx + 14, rowY + 8, { width: 270 });
+        .text(noteTitle, mx + 14, rowY + 8, { width: 330 });
       doc.font("Roboto").fontSize(7.5).fillColor(textSecondary)
         .text(`${noteBranch}  ·  Semester ${noteSemester}`, mx + 14, rowY + 24);
 
       doc.font("Roboto").fontSize(8.5).fillColor(textPrimary);
-      doc.text("999249", mx + 300, rowY + 15, { width: 50, align: "center" });
       doc.text("1", mx + 355, rowY + 15, { width: 35, align: "center" });
       doc.text(`₹${purchase.amount.toFixed(2)}`, mx + 395, rowY + 15, { width: 55, align: "right" });
       doc.font("Roboto-Bold")
@@ -297,15 +293,12 @@ export async function GET(
       doc.text("Subtotal:", labelX, totalsY, { width: 95, align: "right" });
       doc.fillColor(textPrimary).text(`₹${purchase.amount.toFixed(2)}`, valueX, totalsY, { width: valueW, align: "right" });
 
-      doc.fillColor(textSecondary).text("Tax (Inclusive):", labelX, totalsY + 18, { width: 95, align: "right" });
-      doc.fillColor(textPrimary).text("₹0.00", valueX, totalsY + 18, { width: valueW, align: "right" });
-
       // Separator
       doc.lineWidth(0.5).strokeColor(border)
-        .moveTo(labelX, totalsY + 37).lineTo(mx + contentWidth, totalsY + 37).stroke();
+        .moveTo(labelX, totalsY + 19).lineTo(mx + contentWidth, totalsY + 19).stroke();
 
       // Grand Total — amber tinted row
-      const gtY = totalsY + 44;
+      const gtY = totalsY + 26;
       doc.rect(labelX - 12, gtY - 5, contentWidth - (labelX - mx) + 12, 28).fill(accentSubtle);
       doc.lineWidth(0.5).strokeColor(borderAccent)
         .rect(labelX - 12, gtY - 5, contentWidth - (labelX - mx) + 12, 28).stroke();
@@ -390,12 +383,12 @@ export async function GET(
     });
   } catch (error) {
     console.error("API Invoice generation error:", error);
-    const err = error as any;
+    const err = error instanceof Error ? error : new Error(String(error));
     return NextResponse.json(
       {
         error: "Internal server error during invoice generation",
-        message: err?.message || String(error),
-        stack: err?.stack,
+        message: err.message,
+        stack: err.stack,
       },
       { status: 500 }
     );

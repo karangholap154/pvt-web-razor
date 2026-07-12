@@ -1,4 +1,6 @@
-import { supabase } from "../../utils/supabaseClient";
+import { createSupabaseServerClient } from "../../utils/supabaseServer";
+
+export const dynamic = "force-dynamic";
 
 interface Project {
   id: string;
@@ -13,6 +15,7 @@ export default async function ProjectsPage() {
   let projects: Project[] = [];
   
   try {
+    const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("projects")
       .select("*")
