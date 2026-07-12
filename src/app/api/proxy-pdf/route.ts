@@ -62,13 +62,33 @@ export async function GET(request: Request) {
     }
 
     // 3. Fetch the PDF resource from the storage bucket / CDN URL
-    const fileResponse = await fetch(downloadUrl);
-    if (!fileResponse.ok) {
-      console.error(`Failed to fetch PDF from storage URL: ${fileResponse.statusText}`);
-      return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-    }
+    let fileBuffer: ArrayBuffer;
+    const bucketName = "notes-bucket";
+    const pathIndex = downloadUrl.indexOf(`/${bucketName}/`);
 
-    const fileBuffer = await fileResponse.arrayBuffer();
+    if (pathIndex !== -1) {
+      const filePath = downloadUrl.substring(pathIndex + `/${bucketName}/`.length);
+      const { data: fileData, error: downloadError } = await supabaseAdmin
+        .storage
+        .from(bucketName)
+        .download(filePath);
+
+      if (downloadError || !fileData) {
+        console.error(`Failed to download PDF from private storage bucket:`, downloadError);
+        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+      }
+
+      fileBuffer = await fileData.arrayBuffer();
+    } else {
+      // Fallback: If URL doesn't contain /notes-bucket/ path structure, try standard fetch
+      console.warn(`Dynamic bucket path not matched for: ${downloadUrl}. Falling back to fetch.`);
+      const fileResponse = await fetch(downloadUrl);
+      if (!fileResponse.ok) {
+        console.error(`Failed to fetch PDF from storage URL fallback: ${fileResponse.statusText}`);
+        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+      }
+      fileBuffer = await fileResponse.arrayBuffer();
+    }
 
     // Clean title for content-disposition header
     const cleanTitle = note.title.replace(/[^a-zA-Z0-9_\-]/g, "_").toLowerCase();
