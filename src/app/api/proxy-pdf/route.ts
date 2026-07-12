@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
 import { isAdmin } from "../../../utils/auth";
+import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const noteId = searchParams.get("id");
+    const isPreview = searchParams.get("preview") === "true";
+    const isInline = isPreview || searchParams.get("inline") === "true";
 
     if (!noteId) {
       return NextResponse.json({ error: "Missing note ID parameter" }, { status: 400 });
@@ -31,8 +34,8 @@ export async function GET(request: Request) {
 
     const price = note.price ? Number(note.price) : 0;
 
-    // 2. Check permissions for premium notes
-    if (price > 0) {
+    // 2. Check permissions for premium notes (skip if preview)
+    if (price > 0 && !isPreview) {
       const supabaseServer = await createSupabaseServerClient();
       const { data: { user } } = await supabaseServer.auth.getUser();
 
@@ -62,7 +65,7 @@ export async function GET(request: Request) {
     }
 
     // 3. Fetch the PDF resource from the storage bucket / CDN URL
-    let fileBuffer: ArrayBuffer;
+    let responseBuffer: ArrayBuffer | Uint8Array;
     const bucketName = "notes-bucket";
     const pathIndex = downloadUrl.indexOf(`/${bucketName}/`);
 
@@ -78,7 +81,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
       }
 
-      fileBuffer = await fileData.arrayBuffer();
+      responseBuffer = await fileData.arrayBuffer();
     } else {
       // Fallback: If URL doesn't contain /notes-bucket/ path structure, try standard fetch
       console.warn(`Dynamic bucket path not matched for: ${downloadUrl}. Falling back to fetch.`);
@@ -87,19 +90,59 @@ export async function GET(request: Request) {
         console.error(`Failed to fetch PDF from storage URL fallback: ${fileResponse.statusText}`);
         return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
       }
-      fileBuffer = await fileResponse.arrayBuffer();
+      responseBuffer = await fileResponse.arrayBuffer();
+    }
+
+    // 3.5. Process preview extraction on the server
+    if (isPreview) {
+      try {
+        const srcDoc = await PDFDocument.load(responseBuffer);
+        const previewDoc = await PDFDocument.create();
+        const helveticaFont = await previewDoc.embedFont(StandardFonts.HelveticaBold);
+
+        const pageCount = srcDoc.getPageCount();
+        const maxPages = Math.min(3, pageCount);
+        const pageIndices = Array.from({ length: maxPages }, (_, i) => i);
+
+        const copiedPages = await previewDoc.copyPages(srcDoc, pageIndices);
+
+        for (const page of copiedPages) {
+          previewDoc.addPage(page);
+          const { width, height } = page.getSize();
+
+          // Draw watermark text diagonally
+          page.drawText("PRIVATE ACADEMY PREVIEW", {
+            x: width / 6,
+            y: height / 3.5,
+            size: 32,
+            font: helveticaFont,
+            color: rgb(0.6, 0.6, 0.6),
+            opacity: 0.15,
+            rotate: degrees(45),
+          });
+        }
+
+        responseBuffer = await previewDoc.save();
+      } catch (pdfError) {
+        console.error("Error processing PDF preview:", pdfError);
+        return NextResponse.json({ error: "Failed to generate PDF preview" }, { status: 500 });
+      }
     }
 
     // Clean title for content-disposition header
     const cleanTitle = note.title.replace(/[^a-zA-Z0-9_\-]/g, "_").toLowerCase();
     const filename = `${cleanTitle}.pdf`;
+    
+    const contentDisposition = isInline 
+      ? "inline" 
+      : `attachment; filename="${filename}"`;
 
     // 4. Return binary stream response
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Blob([responseBuffer as unknown as BlobPart], { type: "application/pdf" }), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
-        "Cache-Control": "no-store, max-age=0",
+        "Content-Disposition": contentDisposition,
+        "Cache-Control": isPreview ? "public, max-age=60" : "no-store, max-age=0",
       },
     });
 

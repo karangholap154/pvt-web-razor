@@ -407,6 +407,51 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             </p>
           </div>
 
+          {/* PDF Viewer/Preview Section */}
+          {!checkingPurchase && (
+            (!isPremium || hasPurchased) ? (
+              <div className={styles.previewCard} id="note-pdf-viewer-card">
+                <h2 className={styles.sectionTitle}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
+                  Study Note Reader
+                </h2>
+                <div className={styles.previewContainer}>
+                  <iframe
+                    src={`/api/proxy-pdf?id=${note.id}&inline=true`}
+                    className={styles.previewIframe}
+                    title={`${note.title} study note reader`}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className={styles.previewCard} id="note-pdf-preview-card">
+                <h2 className={styles.sectionTitle}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
+                  Study Note Preview (First 3 Pages)
+                </h2>
+                <div className={styles.previewContainer}>
+                  <iframe
+                    src={`/api/proxy-pdf?id=${note.id}&preview=true#toolbar=0&navpanes=0`}
+                    className={styles.previewIframe}
+                    title={`${note.title} study note preview`}
+                  />
+                  <div className={styles.previewOverlay}>
+                    <div className={styles.previewOverlayContent}>
+                      <h3>Want to read the rest?</h3>
+                      <p>Unlock all pages of this premium study guide by completing the payment in the sidebar.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
+
           {/* Video Lecture Section (If exists) */}
           {note.videoUrl && (
             <div className={styles.videoSection} id="note-video-section">
