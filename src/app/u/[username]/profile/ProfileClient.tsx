@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
-import { BRANCHES, SEMESTERS } from "../../data/mockData";
+import { BRANCHES, SEMESTERS } from "@/data/mockData";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { 
   FaUser, 
@@ -49,6 +49,7 @@ interface ProfileClientProps {
   initialUniversity: string;
   initialBranch: string;
   initialSemester: string;
+  initialUsername: string;
   email: string;
   purchases: Purchase[];
   createdAt: string | null;
@@ -76,6 +77,7 @@ export default function ProfileClient({
   initialUniversity,
   initialBranch,
   initialSemester,
+  initialUsername,
   email,
   purchases,
   createdAt,
@@ -90,9 +92,43 @@ export default function ProfileClient({
   const [university] = useState(initialUniversity);
   const [branch, setBranch] = useState(initialBranch);
   const [semester, setSemester] = useState(initialSemester);
+  const [username, setUsername] = useState(initialUsername);
+
+  type UsernameCheckState = "idle" | "checking" | "available" | "taken" | "invalid" | "unchanged";
+  const [usernameCheckState, setUsernameCheckState] = useState<UsernameCheckState>(initialUsername ? "unchanged" : "idle");
+  const usernameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Dot allowed in middle only — not first/last char, no consecutive dots
+  const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Username availability check
+  useEffect(() => {
+    if (usernameDebounceRef.current) clearTimeout(usernameDebounceRef.current);
+    const normalized = username.trim().toLowerCase();
+    if (!normalized || normalized === initialUsername) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUsernameCheckState(normalized === initialUsername ? "unchanged" : "idle");
+      return;
+    }
+    if (!USERNAME_REGEX.test(normalized)) {
+      setUsernameCheckState("invalid");
+      return;
+    }
+    setUsernameCheckState("checking");
+    usernameDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/profile/check-username?username=${encodeURIComponent(normalized)}`);
+        const data = await res.json();
+        setUsernameCheckState(data.available ? "available" : "taken");
+      } catch {
+        setUsernameCheckState("idle");
+      }
+    }, 500);
+    return () => { if (usernameDebounceRef.current) clearTimeout(usernameDebounceRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username]);
 
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -229,6 +265,18 @@ export default function ProfileClient({
     setLoading(true);
     setMessage(null);
 
+    // Block save if username is taken or invalid
+    if (usernameCheckState === "taken") {
+      setMessage({ type: "error", text: "Username is already taken. Please choose a different one." });
+      setLoading(false);
+      return;
+    }
+    if (usernameCheckState === "invalid") {
+      setMessage({ type: "error", text: "Username format is invalid. Use 3–15 lowercase letters, numbers, or underscores." });
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/profile", {
         method: "PUT",
@@ -239,12 +287,14 @@ export default function ProfileClient({
           full_name: fullName, 
           university,
           default_branch: branch,
-          default_semester: semester
+          default_semester: semester,
+          username: username.trim().toLowerCase() || null,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update profile");
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update profile");
       }
 
       await refreshAuth();
@@ -253,8 +303,9 @@ export default function ProfileClient({
       
       // Auto-hide message after 3 seconds
       setTimeout(() => setMessage(null), 3000);
-    } catch {
-      setMessage({ type: "error", text: "An error occurred while saving." });
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "An error occurred while saving.";
+      setMessage({ type: "error", text: errMsg });
     } finally {
       setLoading(false);
     }
@@ -310,6 +361,11 @@ export default function ProfileClient({
                 <span className={styles.roleBadgeStudent}>Student</span>
               )}
             </div>
+            {username && (
+              <p style={{ color: "var(--accent)", fontWeight: 700, fontSize: "0.9rem", margin: "0 0 0.15rem" }}>
+                @{username}
+              </p>
+            )}
             <p className={styles.userEmailText}>
               <FaEnvelope className={styles.infoIcon} /> {email}
             </p>
@@ -414,6 +470,34 @@ export default function ProfileClient({
                       required
                     />
                     <span className={styles.inputHelp}>Enter your first and last name. This is displayed on certificates and dashboards.</span>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label} htmlFor="username">Username</label>
+                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                      <span style={{ position: "absolute", left: "0.85rem", fontWeight: 700, color: "var(--accent)", fontSize: "1rem", pointerEvents: "none" }}>@</span>
+                      <input
+                        type="text"
+                        id="username"
+                        className={`${styles.input} ${usernameCheckState === "available" ? styles.inputSuccess : usernameCheckState === "taken" || usernameCheckState === "invalid" ? styles.inputDanger : ""}`}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
+                        placeholder="your_handle"
+                        maxLength={15}
+                        autoComplete="off"
+                        spellCheck={false}
+                        style={{ paddingLeft: "2.1rem" }}
+                      />
+                      {usernameCheckState === "checking" && (
+                        <span style={{ position: "absolute", right: "0.8rem", width: "14px", height: "14px", border: "2px solid var(--border)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                      )}
+                      {usernameCheckState === "available" && <span style={{ position: "absolute", right: "0.85rem", color: "#22c55e", fontWeight: 700 }}>✓</span>}
+                      {(usernameCheckState === "taken" || usernameCheckState === "invalid") && <span style={{ position: "absolute", right: "0.85rem", color: "#ef4444", fontWeight: 700 }}>✗</span>}
+                    </div>
+                    {usernameCheckState === "available" && <span style={{ fontSize: "0.78rem", color: "#22c55e", fontWeight: 600 }}>@{username} is available!</span>}
+                    {usernameCheckState === "taken" && <span style={{ fontSize: "0.78rem", color: "#ef4444", fontWeight: 600 }}>Username already taken.</span>}
+                    {usernameCheckState === "invalid" && <span style={{ fontSize: "0.78rem", color: "#ef4444", fontWeight: 600 }}>3–15 chars: start/end with letter/number/_, dots allowed in middle only.</span>}
+                    <span className={styles.inputHelp}>Your unique public handle (e.g. @{email.split("@")[0]}). Visible to others on contributions and reviews.</span>
                   </div>
 
                   <div className={styles.formGroup}>

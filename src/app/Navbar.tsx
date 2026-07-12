@@ -15,11 +15,12 @@ interface NavbarProps {
 }
 
 export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initialIsAdmin, avatarUrl, userName }: NavbarProps) {
-  const { email: contextEmail, isAdmin: contextIsAdmin, authState } = useAuth();
+  const { email: contextEmail, username: contextUsername, isAdmin: contextIsAdmin, authState } = useAuth();
   
   const isLoaded = authState !== "loading";
   const sessionEmail = isLoaded ? contextEmail ?? undefined : initialEmail;
   const isUserAdmin = isLoaded ? contextIsAdmin : initialIsAdmin;
+  const displayUsername = isLoaded ? contextUsername : null;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -111,13 +112,24 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
               <div className={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.dropdownHeader}>
                   {userName && <div className={styles.dropdownName}>{userName}</div>}
+                  {displayUsername && (
+                    <Link
+                      href={`/u/${displayUsername}`}
+                      style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent)", marginBottom: "0.2rem", textDecoration: "none", display: "block" }}
+                      onClick={() => setDropdownOpen(false)}
+                    >@{displayUsername}</Link>
+                  )}
                   <div className={styles.dropdownEmail}>{sessionEmail}</div>
                 </div>
                 <div className={styles.dropdownDivider} />
                 <Link href="/dashboard" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
                   Dashboard
                 </Link>
-                <Link href="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
+                <Link 
+                  href={displayUsername ? `/u/${displayUsername}/profile` : "/profile"} 
+                  className={styles.dropdownItem} 
+                  onClick={() => setDropdownOpen(false)}
+                >
                   Profile & Settings
                 </Link>
                 {isUserAdmin && (
@@ -227,8 +239,10 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
                 Dashboard
               </Link>
               <Link
-                href="/profile"
-                className={`${styles.mobileNavLink} ${isActive("/profile") ? styles.mobileNavLinkActive : ""}`}
+                href={displayUsername ? `/u/${displayUsername}/profile` : "/profile"}
+                className={`${styles.mobileNavLink} ${
+                  pathname.endsWith("/profile") ? styles.mobileNavLinkActive : ""
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
                 Profile & Settings
@@ -265,6 +279,9 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
               )}
               <div className={styles.mobileUserInfo}>
                 {userName && <span className={styles.mobileUserName}>{userName}</span>}
+                {displayUsername && (
+                  <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--accent)" }}>@{displayUsername}</span>
+                )}
                 <span className={styles.mobileUserEmail}>{sessionEmail}</span>
               </div>
             </div>

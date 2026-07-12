@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 
+// Dot allowed in middle only — not first/last char, no consecutive dots
+// Pattern: first=[a-z0-9_], middle=[a-z0-9_.]{1,13}, last=[a-z0-9_] = 3-15 chars total
+const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
+
 export async function PUT(request: Request) {
   try {
     const supabase = await createSupabaseServerClient();
@@ -13,16 +17,50 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { full_name, university, default_branch, default_semester } = body;
+    const { full_name, university, default_branch, default_semester, username } = body;
+
+    // Validate and normalize username if provided
+    let normalizedUsername: string | null = null;
+    if (username !== undefined && username !== null && username !== "") {
+      normalizedUsername = username.trim().toLowerCase();
+      const testable: string = normalizedUsername ?? "";
+      if (!USERNAME_REGEX.test(testable)) {
+        return NextResponse.json(
+          { error: "Username must be 3–15 characters and contain only lowercase letters, numbers, or underscores." },
+          { status: 400 }
+        );
+      }
+      // Check uniqueness — exclude current user
+      const { data: existing } = await supabase
+        .from("users")
+        .select("id")
+        .eq("username", normalizedUsername as string)
+        .neq("id", user.id)
+        .maybeSingle();
+      if (existing) {
+        return NextResponse.json({ error: "Username is already taken." }, { status: 409 });
+      }
+    }
+
+    const updatePayload: {
+      full_name?: string | null;
+      university?: string | null;
+      default_branch?: string | null;
+      default_semester?: string | null;
+      username?: string | null;
+    } = {
+      full_name: full_name || null,
+      university: university || null,
+      default_branch: default_branch || null,
+      default_semester: default_semester || null,
+    };
+    if (username !== undefined) {
+      updatePayload.username = normalizedUsername;
+    }
 
     const { error } = await supabase
       .from("users")
-      .update({
-        full_name: full_name || null,
-        university: university || null,
-        default_branch: default_branch || null,
-        default_semester: default_semester || null,
-      })
+      .update(updatePayload)
       .eq("id", user.id);
 
     if (error) {
@@ -48,3 +86,4 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

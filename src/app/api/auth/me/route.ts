@@ -15,7 +15,7 @@ export async function GET() {
 
     const { data: userData } = await supabase
       .from("users")
-      .select("university, default_branch, default_semester")
+      .select("university, default_branch, default_semester, username")
       .eq("email", user.email)
       .maybeSingle();
 
@@ -27,6 +27,7 @@ export async function GET() {
       university: userData?.university ?? null,
       default_branch: userData?.default_branch ?? null,
       default_semester: userData?.default_semester ?? null,
+      username: userData?.username ?? null,
       isAdmin: isUserAdmin,
     });
   } catch (error) {
@@ -34,3 +35,4 @@ export async function GET() {
     return NextResponse.json({ authenticated: false }, { status: 500 });
   }
 }
+

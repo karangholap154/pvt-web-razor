@@ -11,6 +11,7 @@ import { Note } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
+import UsernameGate from "../landing/UsernameGate";
 import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
@@ -398,6 +399,10 @@ export default function HomeContent() {
   }
 
   if (authState === "unauthenticated") return <LoginGate />;
+
+  if (authState === "no-username") {
+    return <UsernameGate email={userEmail} onComplete={async () => { await refreshAuth(); }} />;
+  }
 
   if (authState === "no-university") {
     return <UniversityGate onSelect={async () => { await refreshAuth(); }} />;

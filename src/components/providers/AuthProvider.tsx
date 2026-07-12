@@ -4,11 +4,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { supabase } from "@/utils/supabaseClient";
 
-export type AuthState = "loading" | "unauthenticated" | "no-university" | "ready";
+export type AuthState = "loading" | "unauthenticated" | "no-username" | "no-university" | "ready";
 
 interface AuthContextType {
   authState: AuthState;
   email: string | null;
+  username: string | null;
   university: string | null;
   defaultBranch: string | null;
   defaultSemester: string | null;
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>("loading");
   const [email, setEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [university, setUniversity] = useState<string | null>(null);
   const [defaultBranch, setDefaultBranch] = useState<string | null>(null);
   const [defaultSemester, setDefaultSemester] = useState<string | null>(null);
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         setAuthState("unauthenticated");
         setEmail(null);
+        setUsername(null);
         setUniversity(null);
         setDefaultBranch(null);
         setDefaultSemester(null);
@@ -43,16 +46,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!data.authenticated) {
         setAuthState("unauthenticated");
         setEmail(null);
+        setUsername(null);
         setUniversity(null);
         setDefaultBranch(null);
         setDefaultSemester(null);
         setIsAdminUser(false);
       } else {
         setEmail(data.email);
+        setUsername(data.username ?? null);
         setIsAdminUser(!!data.isAdmin);
         setDefaultBranch(data.default_branch ?? null);
         setDefaultSemester(data.default_semester ?? null);
-        if (!data.university) {
+        if (!data.username) {
+          setAuthState("no-username");
+          setUniversity(data.university ?? null);
+        } else if (!data.university) {
           setAuthState("no-university");
           setUniversity(null);
         } else {
@@ -64,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Auth fetch failed in provider:", error);
       setAuthState("unauthenticated");
       setEmail(null);
+      setUsername(null);
       setUniversity(null);
       setDefaultBranch(null);
       setDefaultSemester(null);
@@ -94,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         authState,
         email,
+        username,
         university,
         defaultBranch,
         defaultSemester,

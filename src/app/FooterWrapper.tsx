@@ -13,7 +13,7 @@ export default function FooterWrapper({ children }: FooterWrapperProps) {
   const hideFooterPaths = ["/login", "/admin", "/dashboard", "/profile"];
   const shouldHide = hideFooterPaths.some(
     (path) => pathname === path || pathname.startsWith(path + "/")
-  );
+  ) || pathname.startsWith("/u/");
   
   if (shouldHide) {
     return null;
