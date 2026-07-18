@@ -5,7 +5,7 @@
   --card-bg: #18181b;
   --border: #27272a;
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-secondary: #cbd5e1;
   --accent: #fbbf24;
   --accent-hover: #d97706;
   --accent-light: rgba(251, 191, 36, 0.15);
@@ -97,4 +97,16 @@ a {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* Accessibility Focus States */
+[role="button"]:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.btnPrimary:focus-visible,
+.btnSecondary:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 4px;
 }

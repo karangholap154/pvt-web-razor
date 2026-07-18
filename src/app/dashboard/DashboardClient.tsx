@@ -32,6 +32,13 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
     setModalType(null);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      action();
+    }
+  };
+
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredNotes = notes.filter((note) => {
     if (!normalizedQuery) return true;
@@ -149,6 +156,9 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
               id={`purchased-${note.id}`}
               style={{ cursor: "pointer" }}
               onClick={() => router.push(`/notes/${note.id}`)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
             >
               <div className={styles.noteCardHeader}>
                 <h3 className={styles.noteCardTitle}>

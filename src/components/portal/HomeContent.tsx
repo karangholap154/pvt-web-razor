@@ -41,6 +41,15 @@ export default function HomeContent() {
 
   // Search state (initialized in useEffect based on preferences)
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 180);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const [selectedBranch, setSelectedBranch] = useState("All branches");
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
   // Set default filters when auth state is ready or preferences change
@@ -108,14 +117,14 @@ export default function HomeContent() {
   // ── Filtered Notes memo ─────────────────────────────────────────────────
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
-      const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = note.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
       const matchesBranch =
         selectedBranch === "All branches" || note.branch === selectedBranch;
       const matchesSemester =
         selectedSemester === "All semesters" || note.semester === selectedSemester;
       return matchesSearch && matchesBranch && matchesSemester;
     });
-  }, [notes, searchQuery, selectedBranch, selectedSemester]);
+  }, [notes, debouncedSearchQuery, selectedBranch, selectedSemester]);
 
   // ── Folder grouping computed states ──────────────────────────────────────
   const activeBranches = useMemo(() => {
@@ -190,6 +199,14 @@ export default function HomeContent() {
 
   const handleClearFilters = () => {
     setSearchQuery("");
+    setDebouncedSearchQuery("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      action();
+    }
   };
 
   const openModal = useCallback((note: Note, type: "video" | "pdf") => {
@@ -535,15 +552,81 @@ export default function HomeContent() {
             <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.06)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1.25rem" }} />
             <h3>Syncing notes with database...</h3>
           </div>
-        ) : searchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
+        ) : debouncedSearchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
           /* Flat list mode for Search or Semester-only filtering */
           <div>
-            {searchQuery !== "" && (
+            {/* Context-aware Breadcrumbs Navigation for search or semester filtering */}
+            <div className={styles.breadcrumbsContainer}>
+              <div className={styles.breadcrumbs}>
+                <span 
+                  className={styles.breadcrumbLink} 
+                  onClick={() => {
+                    setSelectedBranch("All branches");
+                    setSelectedSemester("All semesters");
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => handleKeyDown(e, () => {
+                    setSelectedBranch("All branches");
+                    setSelectedSemester("All semesters");
+                  })}
+                >
+                  <FaGraduationCap style={{ fontSize: "1.1rem" }} /> Library
+                </span>
+                
+                {selectedBranch !== "All branches" && (
+                  <>
+                    <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                    <span 
+                      className={selectedSemester === "All semesters" ? styles.breadcrumbActive : styles.breadcrumbLink}
+                      onClick={() => {
+                        if (selectedSemester !== "All semesters") {
+                          setSelectedSemester("All semesters");
+                        }
+                      }}
+                      role={selectedSemester !== "All semesters" ? "button" : undefined}
+                      tabIndex={selectedSemester !== "All semesters" ? 0 : undefined}
+                      onKeyDown={selectedSemester !== "All semesters" ? (e) => handleKeyDown(e, () => setSelectedSemester("All semesters")) : undefined}
+                    >
+                      {selectedBranch}
+                    </span>
+                  </>
+                )}
+                
+                {selectedSemester !== "All semesters" && (
+                  <>
+                    <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                    <span className={styles.breadcrumbActive}>
+                      {selectedSemester}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {(selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
+                <button 
+                  className={styles.btnBreadcrumbBack}
+                  onClick={() => {
+                    if (selectedSemester !== "All semesters") {
+                      setSelectedSemester("All semesters");
+                    } else {
+                      setSelectedBranch("All branches");
+                    }
+                  }}
+                >
+                  <FaArrowLeft /> Back
+                </button>
+              )}
+            </div>
+
+            {debouncedSearchQuery !== "" && (
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
-                Search Results for &quot;{searchQuery}&quot;
+                Search Results for &quot;{debouncedSearchQuery}&quot;
+                {selectedBranch !== "All branches" && ` in ${selectedBranch}`}
+                {selectedSemester !== "All semesters" && ` (Semester ${selectedSemester})`}
               </h3>
             )}
-            {selectedBranch === "All branches" && selectedSemester !== "All semesters" && (
+            {selectedBranch === "All branches" && selectedSemester !== "All semesters" && debouncedSearchQuery === "" && (
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
                 Showing all {selectedSemester} notes
               </h3>
@@ -559,6 +642,9 @@ export default function HomeContent() {
                       id={note.id}
                       style={{ cursor: "pointer" }}
                       onClick={() => router.push(`/notes/${note.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
                     >
                       <div className={styles.noteCardHeader}>
                         <h3 className={styles.noteCardTitle}>
@@ -726,6 +812,9 @@ export default function HomeContent() {
                         key={branch} 
                         className={`${styles.folderCard} ${getBranchFolderClass(branch)}`}
                         onClick={() => setSelectedBranch(branch)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => handleKeyDown(e, () => setSelectedBranch(branch))}
                       >
                         <div className={styles.folderIconContainer}>
                           <FaFolder className={styles.folderClosedIcon} />
@@ -762,6 +851,9 @@ export default function HomeContent() {
                         key={sem} 
                         className={`${styles.folderCard} ${getBranchFolderClass(selectedBranch)}`}
                         onClick={() => setSelectedSemester(sem)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => handleKeyDown(e, () => setSelectedSemester(sem))}
                       >
                         <div className={styles.folderIconContainer}>
                           <FaFolder className={styles.folderClosedIcon} />
@@ -800,6 +892,9 @@ export default function HomeContent() {
                         id={note.id}
                         style={{ cursor: "pointer" }}
                         onClick={() => router.push(`/notes/${note.id}`)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
                       >
                         <div className={styles.noteCardHeader}>
                           <h3 className={styles.noteCardTitle}>
