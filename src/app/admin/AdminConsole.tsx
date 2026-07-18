@@ -1277,6 +1277,7 @@ export default function AdminConsole({
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                         {user.avatar_url ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={user.avatar_url}
                             alt={user.full_name || "User Avatar"}

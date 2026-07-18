@@ -11,7 +11,7 @@ export function loadRazorpayScript(): Promise<boolean> {
     }
 
     // If Razorpay is already available, resolve immediately
-    if ((window as any).Razorpay) {
+    if ((window as Window & { Razorpay?: unknown }).Razorpay) {
       resolve(true);
       return;
     }
