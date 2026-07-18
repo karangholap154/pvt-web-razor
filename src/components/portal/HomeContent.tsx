@@ -9,6 +9,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../../app/page.module.css";
 import { Note } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
+import { loadRazorpayScript } from "../../utils/razorpay";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
@@ -293,6 +294,14 @@ export default function HomeContent() {
       }
 
       setActiveOrderId(orderData.orderId);
+
+      // Load Razorpay script dynamically
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error("Failed to load Razorpay payment gateway. Please check your internet connection.");
+        setCheckoutStatus("idle");
+        return;
+      }
 
       const rpayWindow = window as RazorpayWindow;
       if (!rpayWindow.Razorpay) {

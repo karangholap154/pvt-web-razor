@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import { isAdmin } from "../utils/auth";
 import { createSupabaseServerClient } from "../utils/supabaseServer";
 import Navbar from "./Navbar";
@@ -144,7 +143,6 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="page-container" suppressHydrationWarning>
-        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <AuthProvider>
           <ToastProvider>
             {/* Sticky Header / Navbar */}

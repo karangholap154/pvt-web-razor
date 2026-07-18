@@ -7,6 +7,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { Note } from "../../../data/mockData";
 import { supabase } from "../../../utils/supabaseClient";
 import { useToast } from "@/components/providers/ToastProvider";
+import { loadRazorpayScript } from "@/utils/razorpay";
 import styles from "./notes.module.css";
 import NoteViewerDynamic from "@/components/NoteViewerDynamic";
 
@@ -237,6 +238,14 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
       }
 
       setActiveOrderId(orderData.orderId);
+
+      // Load Razorpay script dynamically
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error("Failed to load Razorpay payment gateway. Please check your internet connection.");
+        setCheckoutStatus("idle");
+        return;
+      }
 
       interface RazorpayResponse {
         razorpay_order_id: string;
