@@ -137,6 +137,8 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Account for iOS home-bar at the bottom */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .mobileDrawerOpen {

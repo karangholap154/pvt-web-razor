@@ -448,7 +448,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1rem; /* reduced from 2rem so modal can use more width on phones */
 }
 
 .modalContent {
@@ -563,7 +563,7 @@
 @media (max-width: 900px) {
   .heroSection {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2rem;
   }
   
   .filterForm {
@@ -581,7 +581,7 @@
 
 @media (max-width: 600px) {
   .searchSection {
-    padding: 1.5rem 1.25rem;
+    padding: 1.25rem 1rem;
   }
 
   .filterForm {
@@ -598,6 +598,41 @@
   
   .noteCardActions {
     grid-template-columns: 1fr;
+  }
+
+  /* Hero on small phones */
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Modal should be near full-screen */
+  .modalContent {
+    max-height: 95vh;
+    border-radius: var(--radius);
+  }
+
+  .modalHeader {
+    padding: 1rem;
+  }
+
+  .modalBody {
+    padding: 1rem;
+  }
+
+  .modalFooter {
+    padding: 0.875rem 1rem;
+    flex-wrap: wrap;
+  }
+
+  .modalFooter > * {
+    flex: 1;
+    justify-content: center;
   }
 }
 

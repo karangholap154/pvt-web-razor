@@ -2,7 +2,7 @@ import { BRANCHES } from "../../data/mockData";
 
 export default function AboutPage() {
   return (
-    <div style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4.5rem" }}>
+    <div className="about-page-root" style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4.5rem" }}>
       <style>{`
         @keyframes floatIn {
           from { opacity: 0; transform: translateY(20px); }
@@ -96,6 +96,32 @@ export default function AboutPage() {
         }
         .contact-mail-btn:hover {
           background-color: var(--accent-hover);
+        }
+        /* ─── Mobile ─── */
+        @media (max-width: 768px) {
+          .about-page-root {
+            padding: 2.5rem 1.25rem !important;
+            gap: 3rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .about-page-root {
+            padding: 1.5rem 1rem !important;
+            gap: 2rem !important;
+          }
+          .founder-card {
+            padding: 1.5rem !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+          }
+          .founder-card > div:first-child {
+            margin: 0 auto !important;
+          }
+          .contact-mail-btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
       `}</style>
 

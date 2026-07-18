@@ -137,12 +137,22 @@ export async function GET(request: Request) {
       ? "inline" 
       : `attachment; filename="${filename}"`;
 
+    // Determine cache headers dynamically:
+    // - Previews: Publicly cached forever (immutable) since they contain watermarked content
+    // - Free Notes: Publicly cached for 24 hours
+    // - Premium Purchased Notes: Browser cached privately for 1 hour (no shared CDN caching to keep it secure)
+    const cacheControl = isPreview
+      ? "public, max-age=31536000, immutable"
+      : price === 0
+      ? "public, max-age=86400"
+      : "private, max-age=3600";
+
     // 4. Return binary stream response
     return new NextResponse(new Blob([responseBuffer as unknown as BlobPart], { type: "application/pdf" }), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": contentDisposition,
-        "Cache-Control": isPreview ? "public, max-age=60" : "no-store, max-age=0",
+        "Cache-Control": cacheControl,
       },
     });
 

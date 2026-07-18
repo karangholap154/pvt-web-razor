@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -29,6 +29,104 @@ interface NoteViewerProps {
 
 const PREVIEW_MAX_PAGES = 3;
 
+interface VirtualPageProps {
+  pageNumber: number;
+  scale: number;
+  savedAspectRatio?: number;
+  onPageMeasure?: (pageNumber: number, aspectRatio: number) => void;
+}
+
+function VirtualPage({
+  pageNumber,
+  scale,
+  savedAspectRatio,
+  onPageMeasure,
+}: VirtualPageProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [measuredAspectRatio, setMeasuredAspectRatio] = useState<number | null>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        rootMargin: "650px 0px", // Preload pages 650px before entering viewport
+        threshold: 0.01,
+      }
+    );
+
+    const el = containerRef.current;
+    if (el) {
+      observer.observe(el);
+    }
+
+    return () => {
+      if (el) {
+        observer.unobserve(el);
+      }
+      observer.disconnect();
+    };
+  }, []);
+
+  // Standard A4 aspect ratio (width / height = 0.707)
+  const currentAspectRatio = savedAspectRatio || measuredAspectRatio || 0.707;
+
+  const handlePageLoadSuccess = useCallback((page: { width: number; height: number }) => {
+    const ratio = page.width / page.height;
+    setMeasuredAspectRatio(ratio);
+    if (onPageMeasure) {
+      onPageMeasure(pageNumber, ratio);
+    }
+  }, [pageNumber, onPageMeasure]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="nv-page-wrapper"
+      style={{
+        width: "100%",
+        maxWidth: "800px",
+        aspectRatio: `${currentAspectRatio}`,
+        height: "auto",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        position: "relative",
+      }}
+    >
+      {isVisible ? (
+        <>
+          <Page
+            pageNumber={pageNumber}
+            scale={scale}
+            renderAnnotationLayer={false}
+            renderTextLayer={false}
+            loading={null}
+            onLoadSuccess={handlePageLoadSuccess}
+          />
+          <span className="nv-page-number-label">Page {pageNumber}</span>
+        </>
+      ) : (
+        <div
+          className="nv-page-placeholder"
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            inset: 0,
+          }}
+        >
+          <div className="nv-spinner" style={{ width: "20px", height: "20px", borderWidth: "2px" }} />
+          <span>Loading Page {pageNumber}…</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function NoteViewer({
   url,
   previewMode = false,
@@ -38,8 +136,28 @@ export default function NoteViewer({
   const [numPages, setNumPages] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [pageAspectRatios, setPageAspectRatios] = useState<Record<number, number>>({});
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
 
-  const scale = 1.15; // Set constant scale to guarantee high-resolution rendering
+  // Compute scale from container width so PDF always fits without horizontal scroll
+  // A standard PDF page is 595 pts wide at scale=1.0
+  const PDF_NATURAL_WIDTH = 595;
+  const scale = containerWidth > 0
+    ? Math.min(containerWidth / PDF_NATURAL_WIDTH, isFullscreen ? 1.8 : 1.3)
+    : 1.15;
+
+  useEffect(() => {
+    const el = canvasAreaRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width;
+      // subtract padding (1rem each side = ~32px)
+      setContainerWidth(Math.max(w - 32, 100));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isFullscreen]);
 
   // In preview mode, render at most PREVIEW_MAX_PAGES
   const maxPage = previewMode ? Math.min(numPages, PREVIEW_MAX_PAGES) : numPages;
@@ -54,6 +172,13 @@ export default function NoteViewer({
     setError("Failed to load the PDF. Please try again.");
     setLoading(false);
     console.error("react-pdf error:", err);
+  }, []);
+
+  const handlePageMeasure = useCallback((pageNo: number, aspectRatio: number) => {
+    setPageAspectRatios((prev) => {
+      if (prev[pageNo] === aspectRatio) return prev;
+      return { ...prev, [pageNo]: aspectRatio };
+    });
   }, []);
 
   return (
@@ -105,7 +230,7 @@ export default function NoteViewer({
       </div>
 
       {/* ─── Canvas area (Vertically Scrollable) ─── */}
-      <div className="nv-canvas-area">
+      <div ref={canvasAreaRef} className="nv-canvas-area">
         {loading && (
           <div className="nv-loading">
             <div className="nv-spinner" />
@@ -130,17 +255,18 @@ export default function NoteViewer({
           error={null}
         >
           <div className="nv-pages-container">
-            {Array.from({ length: maxPage }, (_, index) => (
-              <div key={index + 1} className="nv-page-wrapper">
-                <Page
-                  pageNumber={index + 1}
+            {Array.from({ length: maxPage }, (_, index) => {
+              const pageNumber = index + 1;
+              return (
+                <VirtualPage
+                  key={pageNumber}
+                  pageNumber={pageNumber}
                   scale={scale}
-                  renderAnnotationLayer={false}
-                  renderTextLayer={false}
-                  loading={null}
+                  savedAspectRatio={pageAspectRatios[pageNumber]}
+                  onPageMeasure={handlePageMeasure}
                 />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Document>
       </div>
@@ -284,6 +410,22 @@ export default function NoteViewer({
           width: 100%;
         }
 
+        .nv-page-placeholder {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          background: #18181b;
+          border: 1px solid rgba(255, 255, 255, 0.03);
+          border-radius: 6px;
+          box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+          color: #71717a;
+          font-size: 0.85rem;
+          font-weight: 500;
+          user-select: none;
+        }
+
         .nv-page-number-label {
           font-size: 0.75rem;
           color: #71717a;
@@ -352,7 +494,11 @@ export default function NoteViewer({
             gap: 0.4rem;
           }
           .nv-canvas-area {
-            padding: 1rem 0.5rem;
+            padding: 0.5rem 0; /* Zero side padding to maximize reading space on narrow viewports */
+          }
+          .nv-doc-info, .nv-preview-badge {
+            font-size: 0.72rem;
+            padding: 0.25rem 0.5rem;
           }
         }
       `}</style>

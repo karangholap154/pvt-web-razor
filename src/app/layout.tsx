@@ -127,6 +127,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1, // Prevent user-zoom on form inputs (common mobile annoyance)
+  userScalable: false,
+  viewportFit: "cover", // Enable safe-area-inset env() support on notched iPhones
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{

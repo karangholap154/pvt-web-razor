@@ -35,6 +35,10 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Remove 300ms tap delay on mobile */
+  touch-action: manipulation;
+  /* Remove blue tap flash on Android */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -79,6 +83,9 @@ a {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
+  /* Respect notch / safe-area insets on iOS */
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
 }
 
 /* Utilities */

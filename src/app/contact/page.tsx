@@ -126,7 +126,7 @@ const SOCIAL_PLATFORMS = [
 
 export default function ContactPage() {
   return (
-    <div style={{ 
+    <div className="contact-page-root" style={{ 
       width: "100%", 
       maxWidth: "1000px", 
       margin: "0 auto", 
@@ -255,6 +255,26 @@ export default function ContactPage() {
         @media (max-width: 600px) {
           .social-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .contact-page-root {
+            padding: 2rem 1rem !important;
+            gap: 2.5rem !important;
+          }
+          .info-grid,
+          .action-grid,
+          .social-grid,
+          .fallback-contact-box {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          .info-card {
+            padding: 1rem !important;
+          }
+          .action-card,
+          .social-card {
+            padding: 1rem !important;
           }
         }
       `}</style>

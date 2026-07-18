@@ -536,7 +536,7 @@
 .previewContainer {
   position: relative;
   width: 100%;
-  min-height: 560px;
+  min-height: min(560px, 65vh); /* Scales down on short/narrow mobile screens */
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: #0f0f11;
@@ -655,7 +655,7 @@
 
 @media (max-width: 640px) {
   .container {
-    padding: 1.5rem 1rem 3rem 1rem;
+    padding: 1rem 0.75rem 3rem 0.75rem; /* tighter side padding on small phones */
     gap: 1.5rem;
   }
   .headerSection {
@@ -663,26 +663,34 @@
     gap: 0.75rem;
   }
   .title {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
   }
   .actionSection {
-    padding: 1.25rem;
+    padding: 1.25rem 1rem;
   }
   .checkoutForm {
     padding: 1rem;
   }
   .previewCard {
-    padding: 1.25rem;
+    padding: 1rem 0.75rem; /* near-edge padding so PDF canvas fills width */
   }
   .previewContainer {
-    height: 450px;
+    min-height: min(420px, 60vh); /* reduced for small phones */
+    border-radius: var(--radius-sm);
   }
   .previewOverlay {
-    height: 180px;
-    padding: 1rem;
+    height: 160px;
+    padding: 0.75rem;
   }
   .previewOverlayContent {
-    padding: 1rem 1.25rem;
+    padding: 0.875rem 1rem;
+    max-width: 100%;
+  }
+  .previewOverlayContent h3 {
+    font-size: 1rem;
+  }
+  .previewOverlayContent p {
+    font-size: 0.82rem;
   }
   .overviewGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -698,6 +706,16 @@
   }
   .overviewTileValue {
     font-size: 0.95rem;
+  }
+  .detailsItem {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .detailsValue {
+    font-size: 0.9rem;
+  }
+  .badgeRow {
+    gap: 0.5rem;
   }
   .recommendedSection {
     gap: 1rem;
@@ -717,6 +735,21 @@
   }
   .recommendedCardTitle {
     font-size: 1rem;
+  }
+  /* Ensure action buttons are full width on mobile */
+  .btnPrimary,
+  .btnSecondary,
+  .btnDanger {
+    width: 100%;
+  }
+  .infoCard {
+    padding: 1.25rem 1rem;
+  }
+  .sectionTitle {
+    font-size: 1.1rem;
+  }
+  .descriptionText {
+    font-size: 0.95rem;
   }
 }
 
