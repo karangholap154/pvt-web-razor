@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const { data: profile } = await supabase
     .from("users")
-    .select("full_name, university")
+    .select("full_name, university, default_branch, avatar_url")
     .eq("username", username.toLowerCase())
     .maybeSingle();
 
@@ -23,9 +23,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const title = `@${username} — ${profile.full_name || "Student"} | Private Academy`;
+  const description = `Explore @${username}'s engineering study resources on Private Academy.${profile.university ? ` Studying ${profile.default_branch || ""} at ${profile.university}.` : ""}`;
+
   return {
-    title: `@${username} — ${profile.full_name || "Student"} | Private Academy`,
-    description: `View ${profile.full_name || username}'s profile on Private Academy. ${profile.university ? `Studying at ${profile.university}.` : ""}`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      username: username,
+      images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      images: profile.avatar_url ? [profile.avatar_url] : [],
+    },
   };
 }
 
