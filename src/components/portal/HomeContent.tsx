@@ -36,6 +36,7 @@ export default function HomeContent() {
   const { authState, email: userEmail, username: userUsername, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
 
   // Live database states
+  const [metaNotes, setMetaNotes] = useState<{ id: string; title: string; branch: string; semester: string }[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,13 +53,6 @@ export default function HomeContent() {
 
   const [selectedBranch, setSelectedBranch] = useState("All branches");
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
-  // Set default filters when auth state is ready or preferences change
-  useEffect(() => {
-    if (authState === "ready") {
-      if (defaultBranch) setSelectedBranch(defaultBranch);
-      if (defaultSemester) setSelectedSemester(defaultSemester);
-    }
-  }, [authState, defaultBranch, defaultSemester]);
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Modal state
@@ -73,38 +67,82 @@ export default function HomeContent() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
 
-  // ── Fetch notes filtered by university ─────────────────────────────────
+  // Sync URL search params into filter state on load if present
+  useEffect(() => {
+    const b = searchParams.get("branch");
+    const s = searchParams.get("semester");
+    const q = searchParams.get("q");
+    if (b) setSelectedBranch(b);
+    if (s) setSelectedSemester(s);
+    if (q) {
+      setSearchQuery(q);
+      setDebouncedSearchQuery(q);
+    }
+  }, [searchParams]);
+
+  // Set default filters when auth state is ready or preferences change (if not overridden by URL params)
+  useEffect(() => {
+    if (authState === "ready") {
+      if (defaultBranch && !searchParams.get("branch")) setSelectedBranch(defaultBranch);
+      if (defaultSemester && !searchParams.get("semester")) setSelectedSemester(defaultSemester);
+    }
+  }, [authState, defaultBranch, defaultSemester, searchParams]);
+
+  // ── Fetch server-side filtered notes via /api/notes ─────────────────────
   useEffect(() => {
     if (authState !== "ready" || !userUniversity) return;
 
     async function loadData() {
       setIsLoading(true);
       try {
-        const { data: dbNotes, error: notesError } = await supabase
-          .from("notes")
-          .select("*")
-          .eq("university", userUniversity!)
-          .order("title", { ascending: true });
+        const queryParams = new URLSearchParams({
+          university: userUniversity!,
+        });
 
-        let finalNotes: Note[] = [];
-
-        if (!notesError && dbNotes) {
-          finalNotes = dbNotes.map((item) => ({
-            id: item.id,
-            title: item.title,
-            branch: item.branch as Note["branch"],
-            semester: item.semester as Note["semester"],
-            description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-            downloadUrl: item.download_url || "",
-            videoUrl: item.video_url || "",
-            price: item.price ? Number(item.price) : 0,
-            university: item.university || undefined,
-          }));
+        if (selectedBranch && selectedBranch !== "All branches") {
+          queryParams.set("branch", selectedBranch);
+        }
+        if (selectedSemester && selectedSemester !== "All semesters") {
+          queryParams.set("semester", selectedSemester);
+        }
+        if (debouncedSearchQuery && debouncedSearchQuery.trim() !== "") {
+          queryParams.set("q", debouncedSearchQuery.trim());
         }
 
-        setNotes(finalNotes);
+        const res = await fetch(`/api/notes?${queryParams.toString()}`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch notes: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+
+        const formattedNotes: Note[] = (data.notes || []).map((item: {
+          id: string;
+          title: string;
+          branch: string;
+          semester: string;
+          download_url?: string;
+          video_url?: string;
+          price?: number | string;
+          university?: string;
+        }) => ({
+          id: item.id,
+          title: item.title,
+          branch: item.branch as Note["branch"],
+          semester: item.semester as Note["semester"],
+          description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
+          downloadUrl: item.download_url || "",
+          videoUrl: item.video_url || "",
+          price: item.price ? Number(item.price) : 0,
+          university: item.university || undefined,
+        }));
+
+        setNotes(formattedNotes);
+        if (data.meta) {
+          setMetaNotes(data.meta);
+        }
       } catch (err) {
-        console.error("Error loading data:", err);
+        console.error("Error loading notes from API:", err);
         setNotes([]);
       } finally {
         setIsLoading(false);
@@ -112,32 +150,23 @@ export default function HomeContent() {
     }
 
     loadData();
-  }, [authState, userUniversity]);
+  }, [authState, userUniversity, selectedBranch, selectedSemester, debouncedSearchQuery]);
 
-  // ── Filtered Notes memo ─────────────────────────────────────────────────
-  const filteredNotes = useMemo(() => {
-    return notes.filter((note) => {
-      const matchesSearch = note.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-      const matchesBranch =
-        selectedBranch === "All branches" || note.branch === selectedBranch;
-      const matchesSemester =
-        selectedSemester === "All semesters" || note.semester === selectedSemester;
-      return matchesSearch && matchesBranch && matchesSemester;
-    });
-  }, [notes, debouncedSearchQuery, selectedBranch, selectedSemester]);
+  // Server pre-filters notes, so filteredNotes simply references state notes
+  const filteredNotes = notes;
 
-  // ── Folder grouping computed states ──────────────────────────────────────
+  // ── Folder grouping computed states (computed from metaNotes) ─────────────
   const activeBranches = useMemo(() => {
     const branches = new Set<string>();
-    notes.forEach((note) => {
+    metaNotes.forEach((note) => {
       if (note.branch) branches.add(note.branch);
     });
     return Array.from(branches).sort();
-  }, [notes]);
+  }, [metaNotes]);
 
   const branchSemestersMap = useMemo(() => {
     const map: Record<string, string[]> = {};
-    notes.forEach((note) => {
+    metaNotes.forEach((note) => {
       if (!note.branch || !note.semester) return;
       if (!map[note.branch]) {
         map[note.branch] = [];
@@ -150,30 +179,30 @@ export default function HomeContent() {
       map[br].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     });
     return map;
-  }, [notes]);
+  }, [metaNotes]);
 
   const branchNotesCount = useMemo(() => {
     const count: Record<string, number> = {};
-    notes.forEach((note) => {
+    metaNotes.forEach((note) => {
       if (!note.branch) return;
       count[note.branch] = (count[note.branch] || 0) + 1;
     });
     return count;
-  }, [notes]);
+  }, [metaNotes]);
 
   const semesterNotesCount = useMemo(() => {
     const count: Record<string, number> = {};
-    notes.forEach((note) => {
+    metaNotes.forEach((note) => {
       if (!note.branch || !note.semester) return;
       const key = `${note.branch}-${note.semester}`;
       count[key] = (count[key] || 0) + 1;
     });
     return count;
-  }, [notes]);
+  }, [metaNotes]);
 
   const folderPreviewsMap = useMemo(() => {
     const map: Record<string, string[]> = {};
-    notes.forEach((note) => {
+    metaNotes.forEach((note) => {
       if (!note.branch || !note.semester) return;
       const key = `${note.branch}-${note.semester}`;
       if (!map[key]) {
@@ -184,7 +213,7 @@ export default function HomeContent() {
       }
     });
     return map;
-  }, [notes]);
+  }, [metaNotes]);
 
   const getBranchFolderClass = useCallback((branch: string) => {
     switch (branch) {
