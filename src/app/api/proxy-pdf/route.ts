@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
-import { isAdmin } from "../../../utils/auth";
+import { checkIsAdmin } from "../../../utils/auth";
 import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 
 export async function GET(request: Request) {
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       const email = user.email.trim().toLowerCase();
 
       // Check if user is admin (admin bypass)
-      const userIsAdmin = await isAdmin();
+      const userIsAdmin = checkIsAdmin(email);
       if (!userIsAdmin) {
         // Query purchases table for this user and note
         const { data: purchase, error: purchaseError } = await supabaseAdmin
@@ -64,39 +64,48 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. Fetch the PDF resource from the storage bucket / CDN URL
-    let responseBuffer: ArrayBuffer | Uint8Array;
+    // Clean title for content-disposition header
+    const cleanTitle = note.title.replace(/[^a-zA-Z0-9_\-]/g, "_").toLowerCase();
+    const filename = `${cleanTitle}.pdf`;
+    
+    const contentDisposition = isInline 
+      ? "inline" 
+      : `attachment; filename="${filename}"`;
+
+    const cacheControl = isPreview
+      ? "public, max-age=31536000, immutable"
+      : price === 0
+      ? "public, max-age=86400"
+      : "private, max-age=3600";
+
     const bucketName = "notes-bucket";
     const pathIndex = downloadUrl.indexOf(`/${bucketName}/`);
 
-    if (pathIndex !== -1) {
-      const filePath = downloadUrl.substring(pathIndex + `/${bucketName}/`.length);
-      const { data: fileData, error: downloadError } = await supabaseAdmin
-        .storage
-        .from(bucketName)
-        .download(filePath);
-
-      if (downloadError || !fileData) {
-        console.error(`Failed to download PDF from private storage bucket:`, downloadError);
-        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-      }
-
-      responseBuffer = await fileData.arrayBuffer();
-    } else {
-      // Fallback: If URL doesn't contain /notes-bucket/ path structure, try standard fetch
-      console.warn(`Dynamic bucket path not matched for: ${downloadUrl}. Falling back to fetch.`);
-      const fileResponse = await fetch(downloadUrl);
-      if (!fileResponse.ok) {
-        console.error(`Failed to fetch PDF from storage URL fallback: ${fileResponse.statusText}`);
-        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-      }
-      responseBuffer = await fileResponse.arrayBuffer();
-    }
-
-    // 3.5. Process preview extraction on the server
+    // 3. If preview mode, process and extract first 3 pages with watermark
     if (isPreview) {
+      let rawBuffer: ArrayBuffer;
+      if (pathIndex !== -1) {
+        const filePath = downloadUrl.substring(pathIndex + `/${bucketName}/`.length);
+        const { data: fileData, error: downloadError } = await supabaseAdmin
+          .storage
+          .from(bucketName)
+          .download(filePath);
+
+        if (downloadError || !fileData) {
+          console.error(`Failed to download PDF from private storage bucket:`, downloadError);
+          return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+        }
+        rawBuffer = await fileData.arrayBuffer();
+      } else {
+        const fileResponse = await fetch(downloadUrl);
+        if (!fileResponse.ok) {
+          return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+        }
+        rawBuffer = await fileResponse.arrayBuffer();
+      }
+
       try {
-        const srcDoc = await PDFDocument.load(responseBuffer);
+        const srcDoc = await PDFDocument.load(rawBuffer);
         const previewDoc = await PDFDocument.create();
         const helveticaFont = await previewDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -110,7 +119,6 @@ export async function GET(request: Request) {
           previewDoc.addPage(page);
           const { width, height } = page.getSize();
 
-          // Draw watermark text diagonally
           page.drawText("PRIVATE ACADEMY PREVIEW", {
             x: width / 6,
             y: height / 3.5,
@@ -122,42 +130,57 @@ export async function GET(request: Request) {
           });
         }
 
-        responseBuffer = await previewDoc.save();
+        const previewBuffer = await previewDoc.save();
+        return new NextResponse(new Blob([previewBuffer as unknown as BlobPart], { type: "application/pdf" }), {
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": contentDisposition,
+            "Cache-Control": cacheControl,
+          },
+        });
       } catch (pdfError) {
         console.error("Error processing PDF preview:", pdfError);
         return NextResponse.json({ error: "Failed to generate PDF preview" }, { status: 500 });
       }
     }
 
-    // Clean title for content-disposition header
-    const cleanTitle = note.title.replace(/[^a-zA-Z0-9_\-]/g, "_").toLowerCase();
-    const filename = `${cleanTitle}.pdf`;
-    
-    const contentDisposition = isInline 
-      ? "inline" 
-      : `attachment; filename="${filename}"`;
+    // 4. Non-preview mode: Stream PDF directly to client without buffering in memory
+    if (pathIndex !== -1) {
+      const filePath = downloadUrl.substring(pathIndex + `/${bucketName}/`.length);
+      const { data: fileData, error: downloadError } = await supabaseAdmin
+        .storage
+        .from(bucketName)
+        .download(filePath);
 
-    // Determine cache headers dynamically:
-    // - Previews: Publicly cached forever (immutable) since they contain watermarked content
-    // - Free Notes: Publicly cached for 24 hours
-    // - Premium Purchased Notes: Browser cached privately for 1 hour (no shared CDN caching to keep it secure)
-    const cacheControl = isPreview
-      ? "public, max-age=31536000, immutable"
-      : price === 0
-      ? "public, max-age=86400"
-      : "private, max-age=3600";
+      if (downloadError || !fileData) {
+        console.error(`Failed to download PDF from private storage bucket:`, downloadError);
+        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+      }
 
-    // 4. Return binary stream response
-    return new NextResponse(new Blob([responseBuffer as unknown as BlobPart], { type: "application/pdf" }), {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": contentDisposition,
-        "Cache-Control": cacheControl,
-      },
-    });
+      return new NextResponse(fileData.stream(), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": contentDisposition,
+          "Cache-Control": cacheControl,
+        },
+      });
+    } else {
+      const fileResponse = await fetch(downloadUrl);
+      if (!fileResponse.ok || !fileResponse.body) {
+        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+      }
 
+      return new NextResponse(fileResponse.body as ReadableStream, {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": contentDisposition,
+          "Cache-Control": cacheControl,
+        },
+      });
+    }
   } catch (error) {
     console.error("Proxy PDF download endpoint error:", error);
     return NextResponse.json({ error: "Internal server error during file retrieval" }, { status: 500 });
   }
 }
+

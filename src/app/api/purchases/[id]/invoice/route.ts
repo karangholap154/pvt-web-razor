@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
-import { isAdmin } from "../../../../../utils/auth";
+import { checkIsAdmin } from "../../../../../utils/auth";
 import PDFDocument from "pdfkit";
 import path from "path";
 
@@ -58,7 +58,7 @@ export async function GET(
     }
 
     // 3. Authorization check: must be owner or admin
-    const userIsAdmin = await isAdmin();
+    const userIsAdmin = checkIsAdmin(requesterEmail);
     const isOwner = purchase.email.trim().toLowerCase() === requesterEmail;
 
     if (!isOwner && !userIsAdmin) {
@@ -71,35 +71,30 @@ export async function GET(
       );
     }
 
-    // 4. Fetch additional info: note details and user profile details
-    let noteTitle = "Unknown Study Material";
-    let noteBranch = "N/A";
-    let noteSemester = "N/A";
-    if (purchase.note_id) {
-      const { data: note } = await supabaseAdmin
-        .from("notes")
-        .select("title, branch, semester")
-        .eq("id", purchase.note_id)
-        .single();
-      if (note) {
-        noteTitle = note.title;
-        noteBranch = note.branch;
-        noteSemester = note.semester;
-      }
-    }
+    // 4. Fetch note details and user profile concurrently
+    const [noteRes, buyerProfileRes] = await Promise.all([
+      purchase.note_id
+        ? supabaseAdmin
+            .from("notes")
+            .select("title, branch, semester")
+            .eq("id", purchase.note_id)
+            .single()
+        : Promise.resolve({ data: null }),
+      supabaseAdmin
+        .from("users")
+        .select("full_name, university")
+        .eq("email", purchase.email)
+        .maybeSingle(),
+    ]);
 
-    let buyerFullName = "Student";
-    let buyerUniversity = "N/A";
-    const { data: buyerProfile } = await supabaseAdmin
-      .from("users")
-      .select("full_name, university")
-      .eq("email", purchase.email)
-      .maybeSingle();
+    const note = noteRes.data;
+    const noteTitle = note?.title || "Unknown Study Material";
+    const noteBranch = note?.branch || "N/A";
+    const noteSemester = note?.semester || "N/A";
 
-    if (buyerProfile) {
-      buyerFullName = buyerProfile.full_name || "Student";
-      buyerUniversity = buyerProfile.university || "N/A";
-    }
+    const buyerProfile = buyerProfileRes.data;
+    const buyerFullName = buyerProfile?.full_name || "Student";
+    const buyerUniversity = buyerProfile?.university || "N/A";
 
     // 5. Generate PDF in Memory
     const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {

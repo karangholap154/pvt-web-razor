@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import { supabase } from "@/utils/supabaseClient";
 
 export type AuthState = "loading" | "unauthenticated" | "no-username" | "no-university" | "ready";
@@ -27,8 +27,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [defaultBranch, setDefaultBranch] = useState<string | null>(null);
   const [defaultSemester, setDefaultSemester] = useState<string | null>(null);
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
+  const isFetchingRef = useRef(false);
 
   const fetchSession = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
       const res = await fetch("/api/auth/me");
       if (!res.ok) {
@@ -77,6 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setDefaultBranch(null);
       setDefaultSemester(null);
       setIsAdminUser(false);
+    } finally {
+      isFetchingRef.current = false;
     }
   }, []);
 

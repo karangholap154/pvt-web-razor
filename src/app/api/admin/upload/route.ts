@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { checkIsAdmin } from "../../../../utils/auth";
 
 // Helper to slugify a name
 function slugify(text: string): string {
@@ -16,13 +16,12 @@ function slugify(text: string): string {
 
 export async function POST(request: Request) {
   try {
-    // 1. Authorization check
-    const authorized = await isAdmin();
-    if (!authorized) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     // 2. Parse form data
     const formData = await request.formData();

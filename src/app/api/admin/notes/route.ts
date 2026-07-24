@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { checkIsAdmin } from "../../../../utils/auth";
 
 // Helper to slugify title
 function slugify(text: string): string {
@@ -17,11 +17,12 @@ function slugify(text: string): string {
 // 1. Create Note (POST)
 export async function POST(request: Request) {
   try {
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     const { title, branch, semester, downloadUrl, videoUrl, price, university } =
       await request.json();
@@ -67,11 +68,12 @@ export async function POST(request: Request) {
 // 2. Update Note (PUT)
 export async function PUT(request: Request) {
   try {
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     const { id, title, branch, semester, downloadUrl, videoUrl, price, university } =
       await request.json();
@@ -113,11 +115,12 @@ export async function PUT(request: Request) {
 // 3. Delete Note (DELETE)
 export async function DELETE(request: Request) {
   try {
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -139,3 +142,4 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Internal processing error" }, { status: 500 });
   }
 }
+

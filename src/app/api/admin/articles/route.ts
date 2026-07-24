@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { checkIsAdmin } from "../../../../utils/auth";
 
 // Helper to slugify title
 function slugify(text: string): string {
@@ -13,8 +13,6 @@ function slugify(text: string): string {
     .replace(/[^\w\-]+/g, "")
     .replace(/\-\-+/g, "-");
 }
-
-
 
 // Helper to calculate read time
 function calculateReadTime(content: string): string {
@@ -37,11 +35,12 @@ function generateSummary(content: string): string {
 // 1. Create Article (POST)
 export async function POST(request: Request) {
   try {
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     const { title, category, content } = await request.json();
 
@@ -86,11 +85,12 @@ export async function POST(request: Request) {
 // 2. Update Article (PUT)
 export async function PUT(request: Request) {
   try {
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     const { id, title, category, content } = await request.json();
 
@@ -135,11 +135,12 @@ export async function PUT(request: Request) {
 // 3. Delete Article (DELETE)
 export async function DELETE(request: Request) {
   try {
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-
-    const supabase = await createSupabaseServerClient();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -164,3 +165,4 @@ export async function DELETE(request: Request) {
     );
   }
 }
+

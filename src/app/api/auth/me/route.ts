@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { checkIsAdmin } from "../../../../utils/auth";
 
 export async function GET() {
   try {
@@ -19,17 +19,24 @@ export async function GET() {
       .eq("email", user.email)
       .maybeSingle();
 
-    const isUserAdmin = await isAdmin();
+    const isUserAdmin = checkIsAdmin(user.email);
 
-    return NextResponse.json({
-      authenticated: true,
-      email: user.email,
-      university: userData?.university ?? null,
-      default_branch: userData?.default_branch ?? null,
-      default_semester: userData?.default_semester ?? null,
-      username: userData?.username ?? null,
-      isAdmin: isUserAdmin,
-    });
+    return NextResponse.json(
+      {
+        authenticated: true,
+        email: user.email,
+        university: userData?.university ?? null,
+        default_branch: userData?.default_branch ?? null,
+        default_semester: userData?.default_semester ?? null,
+        username: userData?.username ?? null,
+        isAdmin: isUserAdmin,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, max-age=15, stale-while-revalidate=30",
+        },
+      }
+    );
   } catch (error) {
     console.error("Session fetch error:", error);
     return NextResponse.json({ authenticated: false }, { status: 500 });

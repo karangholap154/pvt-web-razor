@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { isAdmin } from "../utils/auth";
+import { checkIsAdmin } from "../utils/auth";
 import { createSupabaseServerClient } from "../utils/supabaseServer";
 import Navbar from "./Navbar";
 import FooterWrapper from "./FooterWrapper";
@@ -143,7 +143,7 @@ export default async function RootLayout({
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? undefined;
-  const isUserAdmin = await isAdmin();
+  const isUserAdmin = checkIsAdmin(sessionEmail);
 
   const avatarUrl = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? undefined;
   const userName = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? undefined;

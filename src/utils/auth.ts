@@ -1,25 +1,35 @@
 import { createSupabaseServerClient } from "./supabaseServer";
 
 /**
- * Checks if the currently logged-in user (via Supabase Auth session) is an admin.
+ * Synchronously checks if a given email belongs to an admin.
  * Admin emails are defined in the ADMIN_EMAILS environment variable (comma-separated).
  */
-export async function isAdmin(): Promise<boolean> {
+export function checkIsAdmin(email?: string | null): boolean {
+  if (!email) return false;
+  const adminEmailsStr = process.env.ADMIN_EMAILS || "";
+  const adminEmails = adminEmailsStr
+    .split(",")
+    .map((e) => e.trim().toLowerCase());
+
+  return adminEmails.includes(email.trim().toLowerCase());
+}
+
+/**
+ * Checks if the currently logged-in user (via Supabase Auth session or provided email) is an admin.
+ */
+export async function isAdmin(userEmail?: string | null): Promise<boolean> {
+  if (userEmail !== undefined) {
+    return checkIsAdmin(userEmail);
+  }
   try {
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user?.email) return false;
-
-    const adminEmailsStr = process.env.ADMIN_EMAILS || "";
-    const adminEmails = adminEmailsStr
-      .split(",")
-      .map((e) => e.trim().toLowerCase());
-
-    return adminEmails.includes(user.email.trim().toLowerCase());
+    return checkIsAdmin(user?.email);
   } catch {
     return false;
   }
 }
+

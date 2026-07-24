@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
-import { isAdmin } from "../../../../../utils/auth";
+import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
+import { checkIsAdmin } from "../../../../../utils/auth";
 
 export async function POST(request: Request) {
   try {
     // 1. Verify admin privilege
-    if (!(await isAdmin())) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user?.email || !checkIsAdmin(user.email)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
