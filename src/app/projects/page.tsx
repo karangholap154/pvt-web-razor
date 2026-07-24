@@ -1,6 +1,6 @@
-import { createSupabaseServerClient } from "../../utils/supabaseServer";
+import { supabaseAdmin } from "../../utils/supabaseAdmin";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Cache static page for 1 hour with ISR revalidation
 
 interface Project {
   id: string;
@@ -15,8 +15,7 @@ export default async function ProjectsPage() {
   let projects: Project[] = [];
   
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("projects")
       .select("*")
       .order("title", { ascending: true });

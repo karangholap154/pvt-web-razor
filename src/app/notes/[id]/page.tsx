@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: NotePageProps) {
   try {
     const { data: item } = await supabase
       .from("notes")
-      .select("*")
+      .select("title, branch, semester, university")
       .eq("id", id)
       .single();
 

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ArticlePageProps) {
   try {
     const { data: item } = await supabase
       .from("articles")
-      .select("*")
+      .select("title, summary")
       .eq("id", id)
       .single();
 

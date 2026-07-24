@@ -39,7 +39,7 @@ export default function ArticlesPage() {
       try {
         const { data, error } = await supabase
           .from("articles")
-          .select("*")
+          .select("id, title, category, summary, read_time, created_at")
           .order("created_at", { ascending: false });
 
         if (error || !data) {
@@ -47,17 +47,14 @@ export default function ArticlesPage() {
           setArticles([]);
         } else {
           setArticles(
-            data.map((item) => {
-              const content = item.content || "";
-              return {
-                id: item.id,
-                title: item.title,
-                readTime: calculateReadTime(content),
-                category: item.category as Article["category"],
-                summary: generateSummary(content),
-                content: content
-              };
-            })
+            data.map((item) => ({
+              id: item.id,
+              title: item.title,
+              readTime: item.read_time || calculateReadTime(""),
+              category: item.category as Article["category"],
+              summary: item.summary || "",
+              content: "" // Content not needed for list view
+            }))
           );
         }
       } catch (err) {
