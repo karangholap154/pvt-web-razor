@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import Razorpay from "razorpay";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
-
-// Initialize Razorpay client on the server side
-const razorpay = new Razorpay({
-  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
-});
+import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
 
 export async function POST(request: Request) {
   try {
@@ -31,6 +25,17 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Missing required verification properties" },
         { status: 400 }
+      );
+    }
+
+    let razorpay;
+    try {
+      razorpay = getRazorpayServerInstance();
+    } catch (err) {
+      console.error("Razorpay initialization error:", err);
+      return NextResponse.json(
+        { error: "Payment verification service unavailable. Missing credentials." },
+        { status: 503 }
       );
     }
 

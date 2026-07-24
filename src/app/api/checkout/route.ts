@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
-import Razorpay from "razorpay";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
-
-// Initialize Razorpay client on the server side
-const razorpay = new Razorpay({
-  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
-});
+import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +10,17 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "noteId and email are required" },
         { status: 400 }
+      );
+    }
+
+    let razorpay;
+    try {
+      razorpay = getRazorpayServerInstance();
+    } catch (err) {
+      console.error("Razorpay initialization error:", err);
+      return NextResponse.json(
+        { error: "Payment service is currently unavailable. Missing credentials." },
+        { status: 503 }
       );
     }
 
