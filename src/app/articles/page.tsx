@@ -13,16 +13,6 @@ function calculateReadTime(content: string): string {
   return `${minutes} min read`;
 }
 
-function generateSummary(content: string): string {
-  if (!content) return "";
-  const cleanText = content
-    .replace(/[#*`_]/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .trim();
-  if (cleanText.length <= 150) return cleanText;
-  return cleanText.slice(0, 147) + "...";
-}
-
 export default function ArticlesPage() {
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
