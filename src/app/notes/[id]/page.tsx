@@ -54,6 +54,22 @@ export default async function NotePage({ params }: NotePageProps) {
     notFound();
   }
 
+  let contributorUsername: string | null = null;
+  let contributorName: string | null = null;
+
+  if (item.contributor_id) {
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("username, full_name")
+      .eq("id", item.contributor_id)
+      .maybeSingle();
+
+    if (userProfile) {
+      contributorUsername = userProfile.username;
+      contributorName = userProfile.full_name;
+    }
+  }
+
   // Format to client Note structure
   const note: Note = {
     id: item.id,
@@ -65,6 +81,10 @@ export default async function NotePage({ params }: NotePageProps) {
     videoUrl: item.video_url || "",
     price: item.price ? Number(item.price) : 0,
     university: item.university || undefined,
+    is_community_contributed: item.is_community_contributed,
+    contributor_id: item.contributor_id,
+    contributor_username: contributorUsername,
+    contributor_name: contributorName,
   };
 
   return <NoteDetailsClient note={note} />;

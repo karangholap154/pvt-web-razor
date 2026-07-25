@@ -1,6 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
 import { Note, Article, BRANCHES, SEMESTERS } from "../../data/mockData";
@@ -37,6 +38,33 @@ interface User {
   avatar_url: string | null;
 }
 
+interface AdminSubmission {
+  id: string;
+  user_id: string;
+  title: string;
+  university: string;
+  branch: string;
+  semester: string;
+  suggested_price: number;
+  file_url: string;
+  status: "pending" | "approved" | "rejected";
+  admin_feedback?: string | null;
+  created_at: string;
+  user_profile?: { username?: string | null; email?: string | null; full_name?: string | null };
+}
+
+interface AdminPayoutRequest {
+  id: string;
+  user_id: string;
+  amount: number;
+  upi_id: string;
+  status: "pending" | "processing" | "completed" | "rejected";
+  utr_reference?: string | null;
+  admin_notes?: string | null;
+  created_at: string;
+  user_profile?: { username?: string | null; email?: string | null; full_name?: string | null };
+}
+
 interface AdminConsoleProps {
   initialNotes: Note[];
   initialArticles: Article[];
@@ -54,7 +82,142 @@ export default function AdminConsole({
 }: AdminConsoleProps) {
   const toast = useToast();
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"analytics" | "notes" | "articles" | "projects" | "users">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "notes" | "articles" | "projects" | "users" | "submissions" | "payouts">("analytics");
+
+  // Admin Submissions State
+  const [adminSubmissions, setAdminSubmissions] = useState<AdminSubmission[]>([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [reviewModal, setReviewModal] = useState<{ open: boolean; sub: AdminSubmission | null; approvedPrice: number; feedback: string }>({
+    open: false,
+    sub: null,
+    approvedPrice: 0,
+    feedback: "",
+  });
+
+  // Admin Payouts State
+  const [adminPayouts, setAdminPayouts] = useState<AdminPayoutRequest[]>([]);
+  const [loadingPayouts, setLoadingPayouts] = useState(false);
+  const [payoutModal, setPayoutModal] = useState<{ open: boolean; payout: AdminPayoutRequest | null; utr: string; notes: string }>({
+    open: false,
+    payout: null,
+    utr: "",
+    notes: "",
+  });
+
+  // Fetch Submissions
+  const fetchAdminSubmissions = async () => {
+    setLoadingSubmissions(true);
+    try {
+      const res = await fetch("/api/admin/submissions");
+      if (res.ok) {
+        const data = await res.json();
+        setAdminSubmissions(data.submissions || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch admin submissions:", err);
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  };
+
+  // Fetch Payout Requests
+  const fetchAdminPayouts = async () => {
+    setLoadingPayouts(true);
+    try {
+      const res = await fetch("/api/admin/payouts");
+      if (res.ok) {
+        const data = await res.json();
+        setAdminPayouts(data.payoutRequests || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch admin payouts:", err);
+    } finally {
+      setLoadingPayouts(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "submissions") {
+      fetchAdminSubmissions();
+    } else if (activeTab === "payouts") {
+      fetchAdminPayouts();
+    }
+  }, [activeTab]);
+
+  const [subActionLoading, setSubActionLoading] = useState<boolean>(false);
+
+  const handleApproveSubmissionSubmit = async (submissionId: string, finalPrice: number, adminFeedback: string) => {
+    if (subActionLoading) return;
+    setSubActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId, action: "approve", finalPrice, adminFeedback }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Approval failed");
+
+      toast.success("Note approved and published to live catalog!");
+      setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" });
+      fetchAdminSubmissions();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Approval failed";
+      toast.error(msg);
+    } finally {
+      setSubActionLoading(false);
+    }
+  };
+
+  const handleRejectSubmissionSubmit = async (submissionId: string, adminFeedback: string) => {
+    if (subActionLoading) return;
+    setSubActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId, action: "reject", adminFeedback }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Rejection failed");
+
+      toast.success("Submission marked as rejected.");
+      setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" });
+      fetchAdminSubmissions();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Rejection failed";
+      toast.error(msg);
+    } finally {
+      setSubActionLoading(false);
+    }
+  };
+
+  const handleCompletePayoutSubmit = async (requestId: string, utrReference: string, adminNotes: string) => {
+    if (!utrReference.trim()) {
+      toast.error("UTR Transaction reference is required to mark payout as completed.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/payouts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId, action: "complete", utrReference: utrReference.trim(), adminNotes }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to complete payout");
+
+      toast.success("Payout marked as completed!");
+      setPayoutModal({ open: false, payout: null, utr: "", notes: "" });
+      fetchAdminPayouts();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update payout";
+      toast.error(msg);
+    }
+  };
 
   // User search filtering state
   const [userSearchQuery, setUserSearchQuery] = useState("");
@@ -675,6 +838,34 @@ export default function AdminConsole({
     }
   };
 
+  const handleDeleteSubmission = async (submissionId: string, title: string) => {
+    if (subActionLoading) return;
+    if (!confirm(`Are you sure you want to permanently delete "${title}"?\n\nThis will remove the submission record, published note, and PDF file from storage.`)) {
+      return;
+    }
+
+    setSubActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId, action: "delete" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Deletion failed");
+
+      toast.success("Submission and associated files deleted permanently!");
+      setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" });
+      fetchAdminSubmissions();
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Delete failed";
+      toast.error(errorMessage);
+    } finally {
+      setSubActionLoading(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.headerArea}>
@@ -698,6 +889,18 @@ export default function AdminConsole({
           Notes ({notes.length})
         </button>
         <button
+          className={`${styles.tabBtn} ${activeTab === "submissions" ? styles.activeTabBtn : ""}`}
+          onClick={() => setActiveTab("submissions")}
+        >
+          Submissions Queue
+        </button>
+        <button
+          className={`${styles.tabBtn} ${activeTab === "payouts" ? styles.activeTabBtn : ""}`}
+          onClick={() => setActiveTab("payouts")}
+        >
+          Payouts Manager
+        </button>
+        <button
           className={`${styles.tabBtn} ${activeTab === "articles" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("articles")}
         >
@@ -718,7 +921,7 @@ export default function AdminConsole({
       </div>
 
       {/* Actions header (Only show for notes, articles, projects, users) */}
-      {activeTab !== "analytics" && (
+      {activeTab !== "analytics" && activeTab !== "submissions" && activeTab !== "payouts" && (
         <div className={styles.actionHeader}>
           <h2 className={styles.sectionTitle}>
             {activeTab === "notes" && "Library Notes"}
@@ -1405,6 +1608,298 @@ export default function AdminConsole({
           </table>
         )}
       </div>
+      )}
+
+      {/* SUBMISSIONS QUEUE TAB */}
+      {activeTab === "submissions" && (
+        <div className={styles.tableContainer}>
+          {loadingSubmissions ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
+              Loading student submissions queue...
+            </div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.th}>Title</th>
+                  <th className={styles.th}>Contributor</th>
+                  <th className={styles.th}>Univ / Branch / Sem</th>
+                  <th className={styles.th}>Price</th>
+                  <th className={styles.th}>Status</th>
+                  <th className={styles.th} style={{ textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adminSubmissions.length > 0 ? (
+                  adminSubmissions.map((sub) => (
+                    <tr key={sub.id} className={styles.tr}>
+                      <td className={styles.td} style={{ fontWeight: 600 }}>{sub.title}</td>
+                      <td className={styles.td}>
+                        @{sub.user_profile?.username || "student"}
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{sub.user_profile?.email}</div>
+                      </td>
+                      <td className={styles.td}>
+                        {sub.university}
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{sub.branch} • {sub.semester}</div>
+                      </td>
+                      <td className={styles.td}>₹{sub.suggested_price}</td>
+                      <td className={styles.td}>
+                        <span style={{
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          padding: "0.25rem 0.55rem",
+                          borderRadius: "4px",
+                          backgroundColor: sub.status === "approved" ? "rgba(34, 197, 94, 0.15)" : sub.status === "rejected" ? "rgba(239, 68, 68, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                          color: sub.status === "approved" ? "#22c55e" : sub.status === "rejected" ? "#ef4444" : "#f59e0b",
+                        }}>
+                          {sub.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className={styles.td} style={{ textAlign: "right" }}>
+                        <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                          <button
+                            onClick={() => window.open(sub.file_url, "_blank")}
+                            className={styles.btnSecondary}
+                            style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem" }}
+                          >
+                            View PDF
+                          </button>
+                          {sub.status === "pending" && (
+                            <button
+                              onClick={() => setReviewModal({ open: true, sub, approvedPrice: sub.suggested_price, feedback: "" })}
+                              className={styles.btnCreate}
+                              style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem" }}
+                            >
+                              Review & Action
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteSubmission(sub.id, sub.title)}
+                            className={styles.btnSecondary}
+                            style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem", color: "#ef4444", borderColor: "rgba(239, 68, 68, 0.4)" }}
+                            title="Permanently delete submission and purge PDF file"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
+                      No student submissions found in queue.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* PAYOUTS MANAGER TAB */}
+      {activeTab === "payouts" && (
+        <div className={styles.tableContainer}>
+          {loadingPayouts ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
+              Loading payout requests...
+            </div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.th}>Contributor</th>
+                  <th className={styles.th}>UPI ID</th>
+                  <th className={styles.th}>Amount</th>
+                  <th className={styles.th}>Date</th>
+                  <th className={styles.th}>Status</th>
+                  <th className={styles.th}>UTR Reference</th>
+                  <th className={styles.th} style={{ textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adminPayouts.length > 0 ? (
+                  adminPayouts.map((p) => (
+                    <tr key={p.id} className={styles.tr}>
+                      <td className={styles.td} style={{ fontWeight: 600 }}>
+                        @{p.user_profile?.username || "student"}
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{p.user_profile?.email}</div>
+                      </td>
+                      <td className={styles.td} style={{ fontWeight: 600, color: "var(--accent)" }}>{p.upi_id}</td>
+                      <td className={styles.td} style={{ fontWeight: 700, color: "#22c55e" }}>₹{p.amount}</td>
+                      <td className={styles.td}>
+                        {new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      </td>
+                      <td className={styles.td}>
+                        <span style={{
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          padding: "0.25rem 0.55rem",
+                          borderRadius: "4px",
+                          backgroundColor: p.status === "completed" ? "rgba(34, 197, 94, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                          color: p.status === "completed" ? "#22c55e" : "#f59e0b",
+                        }}>
+                          {p.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className={styles.td} style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
+                        {p.utr_reference || "N/A"}
+                      </td>
+                      <td className={styles.td} style={{ textAlign: "right" }}>
+                        {p.status === "pending" && (
+                          <button
+                            onClick={() => setPayoutModal({ open: true, payout: p, utr: "", notes: "" })}
+                            className={styles.btnCreate}
+                            style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem" }}
+                          >
+                            Mark Paid
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
+                      No payout requests found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* SUBMISSION REVIEW MODAL */}
+      {reviewModal.open && reviewModal.sub && (
+        <div className={styles.modalBackdrop} onClick={() => setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" })}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "520px" }}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Review Student Note</h3>
+              <button className={styles.modalCloseBtn} onClick={() => setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" })}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <h4 style={{ margin: "0 0 0.25rem", color: "var(--text-primary)" }}>{reviewModal.sub.title}</h4>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: "0 0 1rem" }}>
+                {reviewModal.sub.university} • {reviewModal.sub.branch} • {reviewModal.sub.semester}
+              </p>
+
+              <div className={styles.inputGroup} style={{ marginBottom: "1rem" }}>
+                <label className={styles.label}>Approved Price (₹0 - Max ₹99)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="99"
+                  className={styles.input}
+                  value={reviewModal.approvedPrice}
+                  onChange={(e) => setReviewModal({ ...reviewModal, approvedPrice: Math.min(99, Math.max(0, Number(e.target.value) || 0)) })}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Admin Feedback / Rejection Reason</label>
+                <textarea
+                  className={styles.textarea}
+                  placeholder="Optional notes or feedback for student..."
+                  value={reviewModal.feedback}
+                  onChange={(e) => setReviewModal({ ...reviewModal, feedback: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className={styles.modalFooter} style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={() => handleDeleteSubmission(reviewModal.sub!.id, reviewModal.sub!.title)}
+                className={styles.btnSecondary}
+                style={{ padding: "0.55rem 1rem", fontSize: "0.85rem", color: "#ef4444", borderColor: "rgba(239, 68, 68, 0.4)" }}
+              >
+                Delete Permanently
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRejectSubmissionSubmit(reviewModal.sub!.id, reviewModal.feedback)}
+                className={styles.btnDelete}
+                style={{ padding: "0.55rem 1rem", fontSize: "0.85rem" }}
+              >
+                Reject Note
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApproveSubmissionSubmit(reviewModal.sub!.id, reviewModal.approvedPrice, reviewModal.feedback)}
+                className={styles.btnSave}
+                style={{ padding: "0.55rem 1.25rem", fontSize: "0.85rem" }}
+              >
+                Approve & Publish Live
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PAYOUT MARK PAID MODAL */}
+      {payoutModal.open && payoutModal.payout && (
+        <div className={styles.modalBackdrop} onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "480px" }}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Complete UPI Payout</h3>
+              <button className={styles.modalCloseBtn} onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <p style={{ fontSize: "0.9rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+                Transfer <strong>₹{payoutModal.payout.amount}</strong> to UPI ID: <strong style={{ color: "var(--accent)" }}>{payoutModal.payout.upi_id}</strong>
+              </p>
+
+              <div className={styles.inputGroup} style={{ marginTop: "1rem" }}>
+                <label className={styles.label}>Bank UTR Reference Number <span style={{ color: "#ef4444" }}>*</span></label>
+                <input
+                  type="text"
+                  placeholder="e.g. UTR1234567890"
+                  className={styles.input}
+                  required
+                  value={payoutModal.utr}
+                  onChange={(e) => setPayoutModal({ ...payoutModal, utr: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.inputGroup} style={{ marginTop: "1rem" }}>
+                <label className={styles.label}>Admin Notes (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="Payment notes..."
+                  className={styles.input}
+                  value={payoutModal.notes}
+                  onChange={(e) => setPayoutModal({ ...payoutModal, notes: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className={styles.modalFooter} style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}
+                className={styles.btnCancel}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCompletePayoutSubmit(payoutModal.payout!.id, payoutModal.utr, payoutModal.notes)}
+                className={styles.btnSave}
+              >
+                Confirm Payout Complete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* PASSWORD RESET MODAL */}

@@ -21,6 +21,10 @@ export interface Note {
   videoUrl: string;
   price?: number;
   university?: string;
+  is_community_contributed?: boolean | null;
+  contributor_id?: string | null;
+  contributor_username?: string | null;
+  contributor_name?: string | null;
 }
 
 export interface Article {

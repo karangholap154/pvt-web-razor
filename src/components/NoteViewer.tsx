@@ -247,28 +247,30 @@ export default function NoteViewer({
           </div>
         )}
         
-        <Document
-          file={url}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={null}
-          error={null}
-        >
-          <div className="nv-pages-container">
-            {Array.from({ length: maxPage }, (_, index) => {
-              const pageNumber = index + 1;
-              return (
-                <VirtualPage
-                  key={pageNumber}
-                  pageNumber={pageNumber}
-                  scale={scale}
-                  savedAspectRatio={pageAspectRatios[pageNumber]}
-                  onPageMeasure={handlePageMeasure}
-                />
-              );
-            })}
-          </div>
-        </Document>
+        {!error && (
+          <Document
+            file={url}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={null}
+            error={null}
+          >
+            <div className="nv-pages-container">
+              {Array.from({ length: maxPage }, (_, index) => {
+                const pageNumber = index + 1;
+                return (
+                  <VirtualPage
+                    key={pageNumber}
+                    pageNumber={pageNumber}
+                    scale={scale}
+                    savedAspectRatio={pageAspectRatios[pageNumber]}
+                    onPageMeasure={handlePageMeasure}
+                  />
+                );
+              })}
+            </div>
+          </Document>
+        )}
       </div>
 
       {/* ─── Scoped styles ─── */}

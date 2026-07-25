@@ -64,7 +64,7 @@ export default async function UserProfilePage({ params }: PageProps) {
   // Fetch the public profile by username
   const { data: profile } = await supabase
     .from("users")
-    .select("id, full_name, university, default_branch, avatar_url, created_at, username, email")
+    .select("id, full_name, university, default_branch, avatar_url, created_at, username, email, badge_tier")
     .eq("username", username.toLowerCase())
     .maybeSingle();
 
@@ -83,27 +83,33 @@ export default async function UserProfilePage({ params }: PageProps) {
     .map((e) => e.trim().toLowerCase());
   const profileIsAdmin = profile.email ? adminEmails.includes(profile.email.trim().toLowerCase()) : false;
 
-  // Fetch notes uploaded by the admin
+  // Fetch notes uploaded by the admin or student contributor
   let notes: Note[] = [];
-  if (profileIsAdmin) {
-    const { data: dbNotes } = await supabase
-      .from("notes")
-      .select("id, title, branch, semester, price, university, video_url, download_url")
-      .order("created_at", { ascending: false });
+  let notesQuery = supabase
+    .from("notes")
+    .select("id, title, branch, semester, price, university, video_url, download_url, is_community_contributed, contributor_id")
+    .order("created_at", { ascending: false });
 
-    if (dbNotes) {
-      notes = dbNotes.map((item) => ({
-        id: item.id,
-        title: item.title,
-        branch: item.branch,
-        semester: item.semester,
-        description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-        price: item.price ? Number(item.price) : 0,
-        videoUrl: item.video_url || "",
-        downloadUrl: item.download_url || "",
-        university: item.university || "",
-      }));
-    }
+  if (!profileIsAdmin) {
+    notesQuery = notesQuery.eq("contributor_id", profile.id);
+  }
+
+  const { data: dbNotes } = await notesQuery;
+
+  if (dbNotes) {
+    notes = dbNotes.map((item) => ({
+      id: item.id,
+      title: item.title,
+      branch: item.branch,
+      semester: item.semester,
+      description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
+      price: item.price ? Number(item.price) : 0,
+      videoUrl: item.video_url || "",
+      downloadUrl: item.download_url || "",
+      university: item.university || "",
+      is_community_contributed: item.is_community_contributed,
+      contributor_id: item.contributor_id,
+    }));
   }
 
   return (
@@ -116,6 +122,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       createdAt={profile.created_at ?? null}
       isOwn={isOwn}
       isAdmin={profileIsAdmin}
+      badgeTier={profile.badge_tier ?? null}
       notes={notes}
     />
   );

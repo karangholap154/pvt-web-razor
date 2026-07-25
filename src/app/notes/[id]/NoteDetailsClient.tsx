@@ -149,6 +149,8 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           videoUrl: item.video_url || "",
           price: item.price ? Number(item.price) : 0,
           university: item.university || undefined,
+          is_community_contributed: item.is_community_contributed,
+          contributor_id: item.contributor_id,
         }));
 
         if (isActive) {
@@ -346,6 +348,8 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
+
   return (
     <div className={styles.container}>
       {/* Back Button */}
@@ -360,13 +364,75 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
       {/* Header Title Section */}
       <section className={styles.headerSection}>
         <div className={styles.badgeRow}>
-          <span className={styles.tagBranch}>{note.branch}</span>
+          {isStudentNote ? (
+            note.contributor_username ? (
+              <Link href={`/u/${note.contributor_username}`} style={{ textDecoration: "none" }}>
+                <span style={{ 
+                  fontSize: "0.75rem", 
+                  fontWeight: 700, 
+                  background: "linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.3))", 
+                  color: "#c084fc", 
+                  padding: "0.25rem 0.65rem", 
+                  borderRadius: "6px", 
+                  border: "1px solid rgba(168, 85, 247, 0.4)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  cursor: "pointer"
+                }}>
+                  🎓 Contributed by @{note.contributor_username}
+                </span>
+              </Link>
+            ) : (
+              <span style={{ 
+                fontSize: "0.75rem", 
+                fontWeight: 700, 
+                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.3))", 
+                color: "#c084fc", 
+                padding: "0.25rem 0.65rem", 
+                borderRadius: "6px", 
+                border: "1px solid rgba(168, 85, 247, 0.4)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem"
+              }}>
+                🎓 Student Contribution
+              </span>
+            )
+          ) : (
+            <span style={{ 
+              fontSize: "0.75rem", 
+              fontWeight: 700, 
+              background: "linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3))", 
+              color: "#fbbf24", 
+              padding: "0.25rem 0.65rem", 
+              borderRadius: "6px", 
+              border: "1px solid rgba(245, 158, 11, 0.4)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem"
+            }}>
+              🏛️ Official Platform Note
+            </span>
+          )}
+          {isStudentNote ? (
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.25rem 0.6rem", borderRadius: "6px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
+              {note.branch}
+            </span>
+          ) : (
+            <span className={styles.tagBranch}>{note.branch}</span>
+          )}
           <span className={styles.badgeSemester}>{note.semester}</span>
           {note.university && (
             <span className={styles.badgeUniversity}>{note.university}</span>
           )}
           {isPremium ? (
-            <span className={styles.badgePricePaid}>₹{note.price} (Premium)</span>
+            <span 
+              className={isStudentNote ? undefined : styles.badgePricePaid} 
+              style={isStudentNote ? { fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.25rem 0.6rem", borderRadius: "6px", border: "1px solid rgba(168, 85, 247, 0.3)" } : undefined}
+            >
+              ₹{note.price} (Premium)
+            </span>
           ) : (
             <span className={styles.badgePriceFree}>Free</span>
           )}
@@ -386,7 +452,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               <div className={styles.previewCard} id="note-pdf-viewer-card">
                 <h2 className={styles.sectionTitle} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: "0.5rem" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "var(--accent)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                     </svg>
@@ -430,7 +496,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             ) : (
               <div className={styles.previewCard} id="note-pdf-preview-card">
                 <h2 className={styles.sectionTitle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "var(--accent)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                   </svg>
@@ -505,7 +571,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               <div className={styles.overviewTileHeader}>
                 <span className={styles.overviewIcon}>
                   {isPremium ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "#f59e0b"} strokeWidth="2.5">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
@@ -518,8 +584,34 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                 </span>
                 Resource Cost
               </div>
-              <div className={styles.overviewTileValue} style={{ color: isPremium ? "#f59e0b" : "#22c55e" }}>
+              <div className={styles.overviewTileValue} style={{ color: isStudentNote ? "#c084fc" : isPremium ? "#f59e0b" : "#22c55e" }}>
                 {isPremium ? `₹${note.price} INR` : "Free Access"}
+              </div>
+            </div>
+
+            {/* Note Author & Origin Tile */}
+            <div className={styles.overviewTile}>
+              <div className={styles.overviewTileHeader}>
+                <span className={styles.overviewIcon}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "var(--accent)"} strokeWidth="2.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </span>
+                Note Author & Origin
+              </div>
+              <div className={styles.overviewTileValue} style={{ fontSize: "0.875rem", fontWeight: 700, color: isStudentNote ? "#c084fc" : "#fbbf24" }}>
+                {isStudentNote ? (
+                  note.contributor_username ? (
+                    <Link href={`/u/${note.contributor_username}`} style={{ color: "inherit", textDecoration: "underline" }}>
+                      🎓 @{note.contributor_username}
+                    </Link>
+                  ) : (
+                    "🎓 Student Contribution"
+                  )
+                ) : (
+                  "🏛️ Official Platform Note"
+                )}
               </div>
             </div>
           </div>
@@ -601,7 +693,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             ) : (
               // Locked Premium Note: Prompt Checkout
               <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#f59e0b", fontWeight: 700, fontSize: "0.95rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: isStudentNote ? "#c084fc" : "#f59e0b", fontWeight: 700, fontSize: "0.95rem" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -647,6 +739,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                       className={styles.btnPrimary}
                       disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
                       id="btn-details-trigger-payment"
+                      style={isStudentNote ? { background: "linear-gradient(135deg, #a855f7, #9333ea)", borderColor: "#a855f7", boxShadow: "0 4px 14px rgba(168, 85, 247, 0.3)" } : undefined}
                     >
                       {checkoutStatus === "verifying" && (
                         <>
@@ -669,7 +762,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                           onClick={handleSyncPayment}
                           disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
                           className={styles.btnSecondary}
-                          style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
+                          style={{ width: "100%", border: isStudentNote ? "1px dashed #c084fc" : "1px dashed var(--accent)", color: isStudentNote ? "#c084fc" : undefined, justifyContent: "center" }}
                           id="btn-details-sync-payment"
                         >
                           {checkoutStatus === "verifying" ? (
@@ -748,6 +841,15 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                 >
                   <div className={styles.recommendedCardTop}>
                     <div className={styles.recommendedBadges}>
+                      {recommendedNote.is_community_contributed || recommendedNote.contributor_id ? (
+                        <span style={{ fontSize: "0.675rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.15rem 0.4rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
+                          🎓 Student
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: "0.675rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", padding: "0.15rem 0.4rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
+                          🏛️ Official
+                        </span>
+                      )}
                       <span className={styles.recommendedBranch}>{recommendedNote.branch}</span>
                       <span className={styles.recommendedSemester}>{recommendedNote.semester}</span>
                     </div>

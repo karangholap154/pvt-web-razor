@@ -55,6 +55,9 @@ export type Database = {
           title: string
           university: string | null
           video_url: string | null
+          contributor_id?: string | null
+          is_community_contributed?: boolean | null
+          platform_commission_rate?: number | null
         }
         Insert: {
           branch: string
@@ -66,6 +69,9 @@ export type Database = {
           title: string
           university?: string | null
           video_url?: string | null
+          contributor_id?: string | null
+          is_community_contributed?: boolean | null
+          platform_commission_rate?: number | null
         }
         Update: {
           branch?: string
@@ -77,6 +83,90 @@ export type Database = {
           title?: string
           university?: string | null
           video_url?: string | null
+          contributor_id?: string | null
+          is_community_contributed?: boolean | null
+          platform_commission_rate?: number | null
+        }
+        Relationships: []
+      }
+      note_submissions: {
+        Row: {
+          admin_feedback: string | null
+          branch: string
+          created_at: string | null
+          file_url: string
+          id: string
+          semester: string
+          status: string
+          suggested_price: number
+          title: string
+          university: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_feedback?: string | null
+          branch: string
+          created_at?: string | null
+          file_url: string
+          id?: string
+          semester: string
+          status?: string
+          suggested_price?: number
+          title: string
+          university: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_feedback?: string | null
+          branch?: string
+          created_at?: string | null
+          file_url?: string
+          id?: string
+          semester?: string
+          status?: string
+          suggested_price?: number
+          title?: string
+          university?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payout_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string | null
+          id: string
+          processed_at: string | null
+          status: string
+          upi_id: string
+          user_id: string
+          utr_reference: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          status?: string
+          upi_id: string
+          user_id: string
+          utr_reference?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          status?: string
+          upi_id?: string
+          user_id?: string
+          utr_reference?: string | null
         }
         Relationships: []
       }
@@ -113,30 +203,39 @@ export type Database = {
       purchases: {
         Row: {
           amount: number
+          contributor_earnings: number | null
+          contributor_id: string | null
           created_at: string | null
           email: string
           id: string
           note_id: string | null
+          platform_commission: number | null
           razorpay_order_id: string
           razorpay_payment_id: string
           status: string
         }
         Insert: {
           amount: number
+          contributor_earnings?: number | null
+          contributor_id?: string | null
           created_at?: string | null
           email: string
           id?: string
           note_id?: string | null
+          platform_commission?: number | null
           razorpay_order_id: string
           razorpay_payment_id: string
           status: string
         }
         Update: {
           amount?: number
+          contributor_earnings?: number | null
+          contributor_id?: string | null
           created_at?: string | null
           email?: string
           id?: string
           note_id?: string | null
+          platform_commission?: number | null
           razorpay_order_id?: string
           razorpay_payment_id?: string
           status?: string
@@ -162,6 +261,11 @@ export type Database = {
           id: string
           university: string | null
           username: string | null
+          upi_id?: string | null
+          payout_name?: string | null
+          badge_tier?: string | null
+          approved_notes_count?: number | null
+          total_downloads_count?: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -173,6 +277,11 @@ export type Database = {
           id?: string
           university?: string | null
           username?: string | null
+          upi_id?: string | null
+          payout_name?: string | null
+          badge_tier?: string | null
+          approved_notes_count?: number | null
+          total_downloads_count?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -184,6 +293,11 @@ export type Database = {
           id?: string
           university?: string | null
           username?: string | null
+          upi_id?: string | null
+          payout_name?: string | null
+          badge_tier?: string | null
+          approved_notes_count?: number | null
+          total_downloads_count?: number | null
         }
         Relationships: []
       }

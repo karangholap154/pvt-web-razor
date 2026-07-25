@@ -78,30 +78,57 @@ export async function GET(request: Request) {
       ? "public, max-age=86400"
       : "private, max-age=3600";
 
-    const bucketName = "notes-bucket";
-    const pathIndex = downloadUrl.indexOf(`/${bucketName}/`);
+    // Parse bucket and relative file path dynamically from storage URL
+    let targetBucket = "notes-bucket";
+    let targetPath = "";
+
+    const storageMatch = downloadUrl.match(/\/storage\/v1\/object\/public\/([^\/]+)\/(.+)$/);
+    if (storageMatch) {
+      targetBucket = storageMatch[1];
+      targetPath = storageMatch[2];
+    } else {
+      const idx = downloadUrl.indexOf("/notes-bucket/");
+      if (idx !== -1) {
+        targetPath = downloadUrl.substring(idx + "/notes-bucket/".length);
+      }
+    }
+
+    // Helper to fetch file buffer safely (tries direct HTTP fetch first, then SDK)
+    const fetchFileBuffer = async (): Promise<ArrayBuffer | null> => {
+      if (downloadUrl.startsWith("http")) {
+        try {
+          const res = await fetch(downloadUrl);
+          if (res.ok) {
+            return await res.arrayBuffer();
+          }
+        } catch (err) {
+          console.warn("Direct HTTP fetch failed, trying storage SDK:", err);
+        }
+      }
+
+      if (targetPath) {
+        try {
+          const { data: fileData, error: downloadError } = await supabaseAdmin
+            .storage
+            .from(targetBucket)
+            .download(targetPath);
+
+          if (!downloadError && fileData) {
+            return await fileData.arrayBuffer();
+          }
+        } catch (err) {
+          console.error("Storage SDK download failed:", err);
+        }
+      }
+
+      return null;
+    };
 
     // 3. If preview mode, process and extract first 3 pages with watermark
     if (isPreview) {
-      let rawBuffer: ArrayBuffer;
-      if (pathIndex !== -1) {
-        const filePath = downloadUrl.substring(pathIndex + `/${bucketName}/`.length);
-        const { data: fileData, error: downloadError } = await supabaseAdmin
-          .storage
-          .from(bucketName)
-          .download(filePath);
-
-        if (downloadError || !fileData) {
-          console.error(`Failed to download PDF from private storage bucket:`, downloadError);
-          return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-        }
-        rawBuffer = await fileData.arrayBuffer();
-      } else {
-        const fileResponse = await fetch(downloadUrl);
-        if (!fileResponse.ok) {
-          return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-        }
-        rawBuffer = await fileResponse.arrayBuffer();
+      const rawBuffer = await fetchFileBuffer();
+      if (!rawBuffer) {
+        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
       }
 
       try {
@@ -144,40 +171,19 @@ export async function GET(request: Request) {
       }
     }
 
-    // 4. Non-preview mode: Stream PDF directly to client without buffering in memory
-    if (pathIndex !== -1) {
-      const filePath = downloadUrl.substring(pathIndex + `/${bucketName}/`.length);
-      const { data: fileData, error: downloadError } = await supabaseAdmin
-        .storage
-        .from(bucketName)
-        .download(filePath);
-
-      if (downloadError || !fileData) {
-        console.error(`Failed to download PDF from private storage bucket:`, downloadError);
-        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-      }
-
-      return new NextResponse(fileData.stream(), {
-        headers: {
-          "Content-Type": "application/pdf",
-          "Content-Disposition": contentDisposition,
-          "Cache-Control": cacheControl,
-        },
-      });
-    } else {
-      const fileResponse = await fetch(downloadUrl);
-      if (!fileResponse.ok || !fileResponse.body) {
-        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
-      }
-
-      return new NextResponse(fileResponse.body as ReadableStream, {
-        headers: {
-          "Content-Type": "application/pdf",
-          "Content-Disposition": contentDisposition,
-          "Cache-Control": cacheControl,
-        },
-      });
+    // 4. Non-preview mode: Serve PDF
+    const rawBuffer = await fetchFileBuffer();
+    if (!rawBuffer) {
+      return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
     }
+
+    return new NextResponse(new Blob([rawBuffer as unknown as BlobPart], { type: "application/pdf" }), {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": contentDisposition,
+        "Cache-Control": cacheControl,
+      },
+    });
   } catch (error) {
     console.error("Proxy PDF download endpoint error:", error);
     return NextResponse.json({ error: "Internal server error during file retrieval" }, { status: 500 });

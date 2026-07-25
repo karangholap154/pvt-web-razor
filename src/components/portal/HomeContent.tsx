@@ -125,6 +125,10 @@ export default function HomeContent() {
           video_url?: string;
           price?: number | string;
           university?: string;
+          is_community_contributed?: boolean;
+          contributor_id?: string;
+          contributor_username?: string;
+          contributor_name?: string;
         }) => ({
           id: item.id,
           title: item.title,
@@ -135,6 +139,10 @@ export default function HomeContent() {
           videoUrl: item.video_url || "",
           price: item.price ? Number(item.price) : 0,
           university: item.university || undefined,
+          is_community_contributed: item.is_community_contributed,
+          contributor_id: item.contributor_id,
+          contributor_username: item.contributor_username,
+          contributor_name: item.contributor_name,
         }));
 
         setNotes(formattedNotes);
@@ -664,23 +672,39 @@ export default function HomeContent() {
               <div className={styles.grid}>
                 {filteredNotes.map((note) => {
                   const hasVideo = !!note.videoUrl;
+                  const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
                   return (
                     <article 
                       key={note.id} 
                       className={`${styles.noteCard} ${styles.noteCardGlow}`} 
                       id={note.id}
-                      style={{ cursor: "pointer" }}
+                      style={{ 
+                        cursor: "pointer",
+                        borderColor: isStudentNote ? "rgba(168, 85, 247, 0.3)" : undefined
+                      }}
                       onClick={() => router.push(`/notes/${note.id}`)}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
+                      onMouseEnter={(e) => {
+                        if (isStudentNote) {
+                          e.currentTarget.style.borderColor = "#c084fc";
+                          e.currentTarget.style.boxShadow = "0 10px 24px -10px rgba(168, 85, 247, 0.35)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isStudentNote) {
+                          e.currentTarget.style.borderColor = "rgba(168, 85, 247, 0.3)";
+                          e.currentTarget.style.boxShadow = "none";
+                        }
+                      }}
                     >
                       <div className={styles.noteCardHeader}>
                         <h3 className={styles.noteCardTitle}>
                           <Link 
                             href={`/notes/${note.id}`} 
                             style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = isStudentNote ? "#c084fc" : "var(--accent)")}
                             onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
                           >
                             {note.title}
@@ -688,10 +712,16 @@ export default function HomeContent() {
                         </h3>
                       </div>
                       <div className={styles.badgeRow}>
-                        <span className={styles.tagBranch}>{note.branch}</span>
+                        {isStudentNote ? (
+                          <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.12)", color: "#c084fc", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
+                            {note.branch}
+                          </span>
+                        ) : (
+                          <span className={styles.tagBranch}>{note.branch}</span>
+                        )}
                         <span className={styles.badgeSemester}>{note.semester}</span>
                         {note.price && note.price > 0 ? (
-                          <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                          <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: isStudentNote ? "rgba(168, 85, 247, 0.15)" : "rgba(245, 158, 11, 0.12)", color: isStudentNote ? "#c084fc" : "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: isStudentNote ? "1px solid rgba(168, 85, 247, 0.3)" : "1px solid rgba(245, 158, 11, 0.2)" }}>
                             ₹{note.price}
                           </span>
                         ) : (
@@ -726,7 +756,12 @@ export default function HomeContent() {
                           }}
                           className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
                           id={`btn-download-${note.id}`}
-                          style={{ gridColumn: hasVideo ? "auto" : "span 2" }}
+                          style={{ 
+                            gridColumn: hasVideo ? "auto" : "span 2",
+                            background: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.15)" : undefined,
+                            color: isStudentNote && note.price && note.price > 0 ? "#c084fc" : undefined,
+                            borderColor: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.3)" : undefined,
+                          }}
                         >
                           {note.price && note.price > 0 ? (
                             <>
@@ -747,6 +782,64 @@ export default function HomeContent() {
                             </>
                           )}
                         </button>
+                      </div>
+
+                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.15rem" }}>
+                        {note.is_community_contributed || note.contributor_id ? (
+                          note.contributor_username ? (
+                            <Link
+                              href={`/u/${note.contributor_username}`}
+                              onClick={(e) => e.stopPropagation()}
+                              style={{ textDecoration: "none" }}
+                            >
+                              <span style={{ 
+                                fontSize: "0.68rem", 
+                                fontWeight: 700, 
+                                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
+                                color: "#c084fc", 
+                                padding: "0.15rem 0.5rem", 
+                                borderRadius: "4px", 
+                                border: "1px solid rgba(168, 85, 247, 0.4)",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
+                                cursor: "pointer"
+                              }}>
+                                🎓 By @{note.contributor_username}
+                              </span>
+                            </Link>
+                          ) : (
+                            <span style={{ 
+                              fontSize: "0.68rem", 
+                              fontWeight: 700, 
+                              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
+                              color: "#c084fc", 
+                              padding: "0.15rem 0.5rem", 
+                              borderRadius: "4px", 
+                              border: "1px solid rgba(168, 85, 247, 0.4)",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.25rem"
+                            }}>
+                              🎓 Student Contribution
+                            </span>
+                          )
+                        ) : (
+                          <span style={{ 
+                            fontSize: "0.68rem", 
+                            fontWeight: 700, 
+                            background: "linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.28))", 
+                            color: "#fbbf24", 
+                            padding: "0.15rem 0.5rem", 
+                            borderRadius: "4px", 
+                            border: "1px solid rgba(245, 158, 11, 0.4)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.25rem"
+                          }}>
+                            🏛️ Official Platform Note
+                          </span>
+                        )}
                       </div>
                     </article>
                   );
@@ -914,23 +1007,39 @@ export default function HomeContent() {
                 <div className={styles.grid}>
                   {filteredNotes.map((note) => {
                     const hasVideo = !!note.videoUrl;
+                    const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
                     return (
                       <article 
                         key={note.id} 
                         className={`${styles.noteCard} ${styles.noteCardGlow}`} 
                         id={note.id}
-                        style={{ cursor: "pointer" }}
+                        style={{ 
+                          cursor: "pointer",
+                          borderColor: isStudentNote ? "rgba(168, 85, 247, 0.3)" : undefined
+                        }}
                         onClick={() => router.push(`/notes/${note.id}`)}
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
+                        onMouseEnter={(e) => {
+                          if (isStudentNote) {
+                            e.currentTarget.style.borderColor = "#c084fc";
+                            e.currentTarget.style.boxShadow = "0 10px 24px -10px rgba(168, 85, 247, 0.35)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (isStudentNote) {
+                            e.currentTarget.style.borderColor = "rgba(168, 85, 247, 0.3)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }
+                        }}
                       >
                         <div className={styles.noteCardHeader}>
                           <h3 className={styles.noteCardTitle}>
                             <Link 
                               href={`/notes/${note.id}`} 
                               style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                              onMouseEnter={(e) => (e.currentTarget.style.color = isStudentNote ? "#c084fc" : "var(--accent)")}
                               onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
                             >
                               {note.title}
@@ -938,10 +1047,16 @@ export default function HomeContent() {
                           </h3>
                         </div>
                         <div className={styles.badgeRow}>
-                          <span className={styles.tagBranch}>{note.branch}</span>
+                          {isStudentNote ? (
+                            <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.12)", color: "#c084fc", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
+                              {note.branch}
+                            </span>
+                          ) : (
+                            <span className={styles.tagBranch}>{note.branch}</span>
+                          )}
                           <span className={styles.badgeSemester}>{note.semester}</span>
                           {note.price && note.price > 0 ? (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.2)" }}>
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: isStudentNote ? "rgba(168, 85, 247, 0.15)" : "rgba(245, 158, 11, 0.12)", color: isStudentNote ? "#c084fc" : "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: isStudentNote ? "1px solid rgba(168, 85, 247, 0.3)" : "1px solid rgba(245, 158, 11, 0.2)" }}>
                               ₹{note.price}
                             </span>
                           ) : (
@@ -976,7 +1091,12 @@ export default function HomeContent() {
                             }}
                             className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
                             id={`btn-download-${note.id}`}
-                            style={{ gridColumn: hasVideo ? "auto" : "span 2" }}
+                            style={{ 
+                              gridColumn: hasVideo ? "auto" : "span 2",
+                              background: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.15)" : undefined,
+                              color: isStudentNote && note.price && note.price > 0 ? "#c084fc" : undefined,
+                              borderColor: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.3)" : undefined,
+                            }}
                           >
                             {note.price && note.price > 0 ? (
                               <>
@@ -997,6 +1117,64 @@ export default function HomeContent() {
                               </>
                             )}
                           </button>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.15rem" }}>
+                          {note.is_community_contributed || note.contributor_id ? (
+                            note.contributor_username ? (
+                              <Link
+                                href={`/u/${note.contributor_username}`}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{ textDecoration: "none" }}
+                              >
+                                <span style={{ 
+                                  fontSize: "0.68rem", 
+                                  fontWeight: 700, 
+                                  background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
+                                  color: "#c084fc", 
+                                  padding: "0.15rem 0.5rem", 
+                                  borderRadius: "4px", 
+                                  border: "1px solid rgba(168, 85, 247, 0.4)",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.25rem",
+                                  cursor: "pointer"
+                                }}>
+                                  🎓 By @{note.contributor_username}
+                                </span>
+                              </Link>
+                            ) : (
+                              <span style={{ 
+                                fontSize: "0.68rem", 
+                                fontWeight: 700, 
+                                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
+                                color: "#c084fc", 
+                                padding: "0.15rem 0.5rem", 
+                                borderRadius: "4px", 
+                                border: "1px solid rgba(168, 85, 247, 0.4)",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem"
+                              }}>
+                                🎓 Student Contribution
+                              </span>
+                            )
+                          ) : (
+                            <span style={{ 
+                              fontSize: "0.68rem", 
+                              fontWeight: 700, 
+                              background: "linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.28))", 
+                              color: "#fbbf24", 
+                              padding: "0.15rem 0.5rem", 
+                              borderRadius: "4px", 
+                              border: "1px solid rgba(245, 158, 11, 0.4)",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.25rem"
+                            }}>
+                              🏛️ Official Platform Note
+                            </span>
+                          )}
                         </div>
                       </article>
                     );

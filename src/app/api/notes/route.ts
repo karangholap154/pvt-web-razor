@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     // 2. Build filtered notes query
     let query = supabase
       .from("notes")
-      .select("id, title, branch, semester, download_url, video_url, price, university", { count: "exact" })
+      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed", { count: "exact" })
       .eq("university", university);
 
     if (branch && branch !== "All branches") {
@@ -56,9 +56,35 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Enrich contributor usernames
+    const rawNotes = notes || [];
+    const contributorIds = Array.from(
+      new Set(rawNotes.map((n) => n.contributor_id).filter((id): id is string => Boolean(id)))
+    );
+    const userMap: Record<string, { username?: string | null; full_name?: string | null }> = {};
+
+    if (contributorIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("users")
+        .select("id, username, full_name")
+        .in("id", contributorIds);
+
+      if (profiles) {
+        profiles.forEach((p) => {
+          userMap[p.id] = { username: p.username, full_name: p.full_name };
+        });
+      }
+    }
+
+    const enrichedNotes = rawNotes.map((item) => ({
+      ...item,
+      contributor_username: item.contributor_id ? userMap[item.contributor_id]?.username : null,
+      contributor_name: item.contributor_id ? userMap[item.contributor_id]?.full_name : null,
+    }));
+
     return NextResponse.json(
       {
-        notes: notes || [],
+        notes: enrichedNotes,
         total: count || 0,
         page,
         totalPages: count ? Math.ceil(count / limit) : 0,

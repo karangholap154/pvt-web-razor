@@ -15,6 +15,8 @@ interface Note {
   videoUrl: string;
   downloadUrl: string;
   university: string;
+  is_community_contributed?: boolean | null;
+  contributor_id?: string | null;
 }
 
 interface UserProfileClientProps {
@@ -26,6 +28,7 @@ interface UserProfileClientProps {
   createdAt: string | null;
   isOwn: boolean;
   isAdmin: boolean;
+  badgeTier?: string | null;
   notes: Note[];
 }
 
@@ -50,6 +53,7 @@ export default function UserProfileClient({
   createdAt,
   isOwn,
   isAdmin,
+  badgeTier,
   notes = [],
 }: UserProfileClientProps) {
   const [copied, setCopied] = useState(false);
@@ -117,6 +121,26 @@ export default function UserProfileClient({
                 )}
                 {isAdmin && (
                   <span className={styles.adminBadge}>Admin</span>
+                )}
+                {badgeTier === "legend" && (
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(236, 72, 153, 0.2)", color: "#ec4899", border: "1px solid rgba(236, 72, 153, 0.4)" }}>
+                    👑 Legend
+                  </span>
+                )}
+                {badgeTier === "top_author" && (
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(245, 158, 11, 0.2)", color: "#f59e0b", border: "1px solid rgba(245, 158, 11, 0.4)" }}>
+                    🌟 Top Author
+                  </span>
+                )}
+                {badgeTier === "rising" && (
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(59, 130, 246, 0.2)", color: "#3b82f6", border: "1px solid rgba(59, 130, 246, 0.4)" }}>
+                    ⚡ Rising Scholar
+                  </span>
+                )}
+                {(badgeTier === "contributor" || (!badgeTier && notes.length > 0)) && (
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(34, 197, 94, 0.2)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.4)" }}>
+                    🎓 Verified Contributor
+                  </span>
                 )}
               </div>
 
@@ -197,6 +221,36 @@ export default function UserProfileClient({
           </div>
         </div>
 
+        {/* ── Gamified Contributor Badges Showcase ── */}
+        <div style={{
+          backgroundColor: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
+          borderRadius: "14px",
+          padding: "1.25rem 1.5rem",
+          marginBottom: "1.5rem",
+        }}>
+          <h3 style={{ fontSize: "1rem", fontWeight: 700, margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            🏆 Academic Badges & Achievements
+          </h3>
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              🎓 Verified Contributor
+            </span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(59, 130, 246, 0.15)", color: "#3b82f6", border: "1px solid rgba(59, 130, 246, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              ⚡ Rising Scholar
+            </span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", border: "1px solid rgba(245, 158, 11, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              🌟 Top Author (85% Share)
+            </span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#a855f7", border: "1px solid rgba(168, 85, 247, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              💎 Subject Expert
+            </span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(236, 72, 153, 0.15)", color: "#ec4899", border: "1px solid rgba(236, 72, 153, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              👑 Legend (90% Share)
+            </span>
+          </div>
+        </div>
+
         {/* ── Stats row ── */}
         <div className={styles.statsRow}>
           <div className={styles.statCard}>
@@ -207,8 +261,8 @@ export default function UserProfileClient({
               </svg>
             </div>
             <div>
-              <div className={styles.statValue}>{isAdmin ? notes.length : "—"}</div>
-              <div className={styles.statLabel}>{isAdmin ? "Notes Published" : "Notes Contributed"}</div>
+              <div className={styles.statValue}>{notes.length}</div>
+              <div className={styles.statLabel}>Notes Contributed</div>
             </div>
           </div>
           <div className={styles.statCard}>
@@ -218,8 +272,8 @@ export default function UserProfileClient({
               </svg>
             </div>
             <div>
-              <div className={styles.statValue}>—</div>
-              <div className={styles.statLabel}>Reviews Given</div>
+              <div className={styles.statValue}>80%</div>
+              <div className={styles.statLabel}>Revenue Share</div>
             </div>
           </div>
           <div className={styles.statCard}>
@@ -238,8 +292,8 @@ export default function UserProfileClient({
           </div>
         </div>
 
-        {/* ── Admin Uploaded Notes Section or Public Contributions Coming Soon ── */}
-        {isAdmin && notes.length > 0 ? (
+        {/* ── Published Notes & Study Guides Section ── */}
+        {notes.length > 0 ? (
           <div className={styles.notesSection}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Uploaded Notes & Study Guides</h2>
@@ -258,6 +312,15 @@ export default function UserProfileClient({
                   </div>
                   
                   <div className={styles.badgeRowItem}>
+                    {note.is_community_contributed || note.contributor_id ? (
+                      <span style={{ fontSize: "0.675rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.15rem 0.45rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
+                        🎓 By @{username}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: "0.675rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", padding: "0.15rem 0.45rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
+                        🏛️ Official Platform Note
+                      </span>
+                    )}
                     <span className={styles.tagBranchItem}>{note.branch}</span>
                     <span className={styles.badgeSemesterItem}>{note.semester}</span>
                     {note.price && note.price > 0 ? (

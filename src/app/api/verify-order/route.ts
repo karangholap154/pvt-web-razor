@@ -98,14 +98,36 @@ export async function POST(request: Request) {
       successfulPaymentId = `sync_${orderId.slice(-10)}_${Date.now()}`;
     }
 
-    // 5. Register/Upsert purchase in Supabase using admin client
+    // 5. Fetch note info to check if community contributed and calculate earnings split
+    const grossAmount = Number(razorpayOrder.amount) / 100;
+    let contributorId: string | null = null;
+    let contributorEarnings = 0;
+    let platformCommission = grossAmount;
+
+    const { data: noteItem } = await supabaseAdmin
+      .from("notes")
+      .select("is_community_contributed, contributor_id, platform_commission_rate")
+      .eq("id", noteId)
+      .maybeSingle();
+
+    if (noteItem?.is_community_contributed && noteItem.contributor_id) {
+      contributorId = noteItem.contributor_id;
+      const commissionRate = Number(noteItem.platform_commission_rate) || 0.20;
+      platformCommission = Number((grossAmount * commissionRate).toFixed(2));
+      contributorEarnings = Number((grossAmount - platformCommission).toFixed(2));
+    }
+
+    // Register/Upsert purchase in Supabase using admin client
     const { error: upsertError } = await supabaseAdmin.from("purchases").upsert(
       {
         email: userEmail,
         note_id: noteId,
         razorpay_order_id: orderId,
         razorpay_payment_id: successfulPaymentId,
-        amount: Number(razorpayOrder.amount) / 100, // Stored in Rupee unit
+        amount: grossAmount,
+        contributor_id: contributorId,
+        contributor_earnings: contributorEarnings,
+        platform_commission: platformCommission,
         status: "success",
       },
       { onConflict: "razorpay_order_id" }
