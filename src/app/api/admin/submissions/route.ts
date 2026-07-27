@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { checkIsAdmin } from "@/utils/auth";
+import { calculateBadgeTier, getPlatformCommissionRate } from "@/utils/badgeUtils";
 
 export async function GET(request: Request) {
   try {
@@ -250,6 +251,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
     }
 
+    // Update student's approved_notes_count & recalculate badge_tier using AND criteria
+    const { data: userProfile } = await supabaseAdmin
+      .from("users")
+      .select("approved_notes_count, total_downloads_count, badge_tier")
+      .eq("id", submission.user_id)
+      .maybeSingle();
+
+    const currentApprovedCount = (userProfile?.approved_notes_count || 0) + 1;
+
+    // Fetch total successful purchases count for this contributor's notes
+    const { data: contributorNotes } = await supabaseAdmin
+      .from("notes")
+      .select("id")
+      .eq("contributor_id", submission.user_id);
+
+    const contributorNoteIds = (contributorNotes || []).map((n) => n.id);
+    let purchasesCount = userProfile?.total_downloads_count || 0;
+
+    if (contributorNoteIds.length > 0) {
+      const { count: dbPurchasesCount } = await supabaseAdmin
+        .from("purchases")
+        .select("id", { count: "exact", head: true })
+        .in("note_id", contributorNoteIds)
+        .eq("status", "success");
+
+      if (dbPurchasesCount !== null && dbPurchasesCount > 0) {
+        purchasesCount = Math.max(purchasesCount, dbPurchasesCount);
+      }
+    }
+
+    const newBadgeTier = calculateBadgeTier(currentApprovedCount, purchasesCount);
+    const commissionRate = getPlatformCommissionRate(newBadgeTier);
+
+    await supabaseAdmin
+      .from("users")
+      .update({
+        approved_notes_count: currentApprovedCount,
+        badge_tier: newBadgeTier,
+      })
+      .eq("id", submission.user_id);
+
     // Insert live note record into notes table with clean human-readable slug ID
     const titleSlug = slugify(submission.title) || "study-note";
     const randSuffix = Math.random().toString(36).substring(2, 6);
@@ -266,7 +308,7 @@ export async function POST(request: Request) {
         price: approvedPrice,
         contributor_id: submission.user_id,
         is_community_contributed: true,
-        platform_commission_rate: 0.20,
+        platform_commission_rate: commissionRate,
       })
       .select()
       .single();
@@ -275,35 +317,6 @@ export async function POST(request: Request) {
       console.error("Failed to insert live note record:", noteInsertError);
       return NextResponse.json({ error: "Failed to publish note to live catalog" }, { status: 500 });
     }
-
-    // Update student's approved_notes_count & recalculate badge_tier
-    const { data: userProfile } = await supabaseAdmin
-      .from("users")
-      .select("approved_notes_count, total_downloads_count, badge_tier")
-      .eq("id", submission.user_id)
-      .maybeSingle();
-
-    const currentApprovedCount = (userProfile?.approved_notes_count || 0) + 1;
-    const currentDownloadsCount = userProfile?.total_downloads_count || 0;
-
-    let newBadgeTier = "contributor";
-    if (currentApprovedCount >= 10 || currentDownloadsCount >= 100) {
-      newBadgeTier = "legend";
-    } else if (currentApprovedCount >= 5 && currentDownloadsCount >= 50) {
-      newBadgeTier = "top_author";
-    } else if (currentApprovedCount >= 3 || currentDownloadsCount >= 25) {
-      newBadgeTier = "rising";
-    } else {
-      newBadgeTier = "contributor";
-    }
-
-    await supabaseAdmin
-      .from("users")
-      .update({
-        approved_notes_count: currentApprovedCount,
-        badge_tier: newBadgeTier,
-      })
-      .eq("id", submission.user_id);
 
     return NextResponse.json({
       success: true,

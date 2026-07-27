@@ -124,22 +124,22 @@ export default function UserProfileClient({
                 )}
                 {badgeTier === "legend" && (
                   <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(236, 72, 153, 0.2)", color: "#ec4899", border: "1px solid rgba(236, 72, 153, 0.4)" }}>
-                    👑 Legend
+                    👑 Legend (90% Share)
                   </span>
                 )}
                 {badgeTier === "top_author" && (
                   <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(245, 158, 11, 0.2)", color: "#f59e0b", border: "1px solid rgba(245, 158, 11, 0.4)" }}>
-                    🌟 Top Author
+                    🌟 Top Author (82% Share)
                   </span>
                 )}
                 {badgeTier === "rising" && (
                   <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(59, 130, 246, 0.2)", color: "#3b82f6", border: "1px solid rgba(59, 130, 246, 0.4)" }}>
-                    ⚡ Rising Scholar
+                    ⚡ Rising Scholar (75% Share)
                   </span>
                 )}
-                {(badgeTier === "contributor" || (!badgeTier && notes.length > 0)) && (
+                {badgeTier === "contributor" && (
                   <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "12px", backgroundColor: "rgba(34, 197, 94, 0.2)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.4)" }}>
-                    🎓 Verified Contributor
+                    🎓 Verified Contributor (70% Share)
                   </span>
                 )}
               </div>
@@ -234,16 +234,13 @@ export default function UserProfileClient({
           </h3>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-              🎓 Verified Contributor
+              🎓 Verified Contributor (70% Share)
             </span>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(59, 130, 246, 0.15)", color: "#3b82f6", border: "1px solid rgba(59, 130, 246, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-              ⚡ Rising Scholar
+              ⚡ Rising Scholar (75% Share)
             </span>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", border: "1px solid rgba(245, 158, 11, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-              🌟 Top Author (85% Share)
-            </span>
-            <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#a855f7", border: "1px solid rgba(168, 85, 247, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-              💎 Subject Expert
+              🌟 Top Author (82% Share)
             </span>
             <span style={{ fontSize: "0.8rem", fontWeight: 700, padding: "0.35rem 0.75rem", borderRadius: "20px", backgroundColor: "rgba(236, 72, 153, 0.15)", color: "#ec4899", border: "1px solid rgba(236, 72, 153, 0.3)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
               👑 Legend (90% Share)

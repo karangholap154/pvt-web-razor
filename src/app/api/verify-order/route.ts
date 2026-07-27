@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
 import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
+import { syncContributorBadgeTier } from "@/utils/badgeUtils";
 
 export async function POST(request: Request) {
   try {
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
 
     if (noteItem?.is_community_contributed && noteItem.contributor_id) {
       contributorId = noteItem.contributor_id;
-      const commissionRate = Number(noteItem.platform_commission_rate) || 0.20;
+      const { commissionRate } = await syncContributorBadgeTier(supabaseAdmin, contributorId);
       platformCommission = Number((grossAmount * commissionRate).toFixed(2));
       contributorEarnings = Number((grossAmount - platformCommission).toFixed(2));
     }

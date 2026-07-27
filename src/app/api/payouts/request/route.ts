@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
+import { getContributorShareRate } from "@/utils/badgeUtils";
 
 export async function GET() {
   try {
@@ -41,9 +42,8 @@ export async function GET() {
       if (purchases) {
         totalSalesCount = purchases.length;
         grossSales = purchases.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-        // Standard net share: 80% (0.80) to student, 20% to platform
-        const commissionRate = userProfile?.badge_tier === "legend" ? 0.90 : userProfile?.badge_tier === "top_author" ? 0.85 : 0.80;
-        netEarnings = grossSales * commissionRate;
+        const shareRate = getContributorShareRate(userProfile?.badge_tier);
+        netEarnings = grossSales * shareRate;
       }
     }
 
@@ -137,8 +137,8 @@ export async function POST(request: Request) {
 
       if (purchases) {
         const grossSales = purchases.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-        const commissionRate = userProfile?.badge_tier === "legend" ? 0.90 : userProfile?.badge_tier === "top_author" ? 0.85 : 0.80;
-        netEarnings = grossSales * commissionRate;
+        const shareRate = getContributorShareRate(userProfile?.badge_tier);
+        netEarnings = grossSales * shareRate;
       }
     }
 
