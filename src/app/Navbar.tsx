@@ -69,6 +69,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
 
   const navLinks = [
     { href: "/", label: "Home" },
+    { href: "/contribute", label: "Contribute 💰" },
     { href: "/articles", label: "Articles" },
     { href: "/about", label: "About" },
     { href: "/projects", label: "Projects" },

@@ -811,6 +811,48 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                 )}
               </button>
             </div>
+
+            {/* Contributor Spotlight & Invite Banner */}
+            <div style={{
+              marginTop: "1.25rem",
+              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(245, 158, 11, 0.12) 100%)",
+              border: "1px solid rgba(168, 85, 247, 0.25)",
+              borderRadius: "12px",
+              padding: "1.1rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.6rem"
+            }}>
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#c084fc", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <span>💰 Earn Up To 90% Revenue</span>
+              </div>
+              <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)" }}>
+                Have study notes for your course?
+              </div>
+              <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
+                Publish your PDF revision guides & earn direct payouts to your UPI ID on every unlock.
+              </div>
+              <Link
+                href="/contribute"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.4rem",
+                  backgroundColor: "rgba(168, 85, 247, 0.2)",
+                  border: "1px solid rgba(168, 85, 247, 0.4)",
+                  color: "#c084fc",
+                  fontWeight: 700,
+                  fontSize: "0.8rem",
+                  padding: "0.5rem",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  marginTop: "0.25rem"
+                }}
+              >
+                Learn How Contribution Works ➔
+              </Link>
+            </div>
           </div>
         </aside>
       </div>

@@ -13,7 +13,7 @@ import { loadRazorpayScript } from "../../utils/razorpay";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
-import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
+import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft, FaCloudArrowUp, FaCoins } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
 interface RazorpayResponse {
@@ -501,6 +501,72 @@ export default function HomeContent() {
             id="btn-go-to-dashboard"
           >
             Open My Library 
+          </Link>
+        </div>
+      </section>
+
+      {/* Contribution Service CTA Banner */}
+      <section style={{
+        background: "linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%)",
+        border: "1px solid rgba(245, 158, 11, 0.25)",
+        borderRadius: "16px",
+        padding: "1.5rem 1.75rem",
+        marginBottom: "2rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "1.5rem",
+        flexWrap: "wrap",
+        boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)",
+      }}>
+        <div style={{ flex: "1 1 400px" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", backgroundColor: "rgba(245, 158, 11, 0.15)", color: "var(--accent, #f59e0b)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "20px", padding: "0.2rem 0.65rem", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.6rem" }}>
+            <FaCoins /> Contribution Service
+          </div>
+          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.4rem" }}>
+            Turn Your Study Notes Into Earnings 💰
+          </h2>
+          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
+            Share high-quality PDF notes & earn <strong>70% to 90% revenue share</strong> with direct UPI payouts. Help your peers excel while building your verified academic profile!
+          </p>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
+          <Link
+            href="/contribute"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              backgroundColor: "var(--accent, #f59e0b)",
+              color: "#000",
+              fontWeight: 800,
+              fontSize: "0.875rem",
+              padding: "0.65rem 1.25rem",
+              borderRadius: "10px",
+              textDecoration: "none",
+              transition: "transform 0.15s ease",
+            }}
+          >
+            How It Works <FaChevronRight style={{ fontSize: "0.75rem" }} />
+          </Link>
+          <Link
+            href="/dashboard?tab=submissions"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              backgroundColor: "rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              color: "var(--text-primary)",
+              fontWeight: 700,
+              fontSize: "0.875rem",
+              padding: "0.65rem 1.25rem",
+              borderRadius: "10px",
+              textDecoration: "none",
+            }}
+          >
+            <FaCloudArrowUp style={{ fontSize: "1.05rem" }} /> Submit Note
           </Link>
         </div>
       </section>
