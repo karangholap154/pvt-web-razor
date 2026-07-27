@@ -1,9 +1,23 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Terms & Conditions | Private Academy Engineering",
   description: "Read the Terms & Conditions of Private Academy Engineering to understand user account registration, PDF licensing, payments, and digital refund rules.",
+  alternates: {
+    canonical: "/terms-and-condition",
+  },
+  openGraph: {
+    title: "Terms & Conditions | Private Academy Engineering",
+    description: "Read the Terms & Conditions of Private Academy Engineering.",
+    url: "/terms-and-condition",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms & Conditions | Private Academy Engineering",
+    description: "Read the Terms & Conditions of Private Academy Engineering.",
+  },
 };
 
 export default function TermsAndConditionPage() {

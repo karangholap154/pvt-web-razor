@@ -22,14 +22,32 @@ export async function generateMetadata({ params }: NotePageProps) {
       return {
         title: "Study Note Not Found | Private Academy",
         description: "The requested engineering study resource could not be found.",
+        robots: { index: false },
       };
     }
 
-    const descText = `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`;
+    const title = `${item.title} | Private Academy Notes`;
+    const descText = `${item.title} - ${item.branch} Engineering, ${item.semester} study note ${item.university ? `for ${item.university}` : ""}. Download PDF & watch video explanations.`;
+    const url = `/notes/${id}`;
 
     return {
-      title: `${item.title} | Private Academy`,
+      title,
       description: descText,
+      alternates: {
+        canonical: url,
+      },
+      openGraph: {
+        title,
+        description: descText,
+        url,
+        type: "website",
+        siteName: "Private Academy",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description: descText,
+      },
     };
   } catch (err) {
     console.error("Error generating metadata for note page:", err);
@@ -87,5 +105,28 @@ export default async function NotePage({ params }: NotePageProps) {
     contributor_name: contributorName,
   };
 
-  return <NoteDetailsClient note={note} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": item.title,
+    "description": `${item.title} - ${item.branch} Engineering, ${item.semester}`,
+    "educationalLevel": "Higher Education / Engineering",
+    "learningResourceType": "Study Note & Lecture Guide",
+    "provider": {
+      "@type": "Organization",
+      "name": "Private Academy Engineering",
+      "logo": "https://www.privateacademy.in/pvtimg.png"
+    },
+    "url": `https://www.privateacademy.in/notes/${id}`
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <NoteDetailsClient note={note} />
+    </>
+  );
 }

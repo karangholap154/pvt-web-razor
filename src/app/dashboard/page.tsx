@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "../../utils/supabaseServer";
+
+export const metadata: Metadata = {
+  title: "Student Dashboard | Private Academy",
+  robots: {
+    index: false,
+    follow: false,
+    noimageindex: true,
+  },
+};
 import DashboardClient from "./DashboardClient";
 import { Note } from "../../data/mockData";
 

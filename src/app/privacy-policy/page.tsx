@@ -1,9 +1,23 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Privacy Policy | Private Academy Engineering",
   description: "Read the Privacy Policy for Private Academy Engineering to understand how we collect, store, and process your academic settings and transaction data.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
+  openGraph: {
+    title: "Privacy Policy | Private Academy Engineering",
+    description: "Read the Privacy Policy for Private Academy Engineering.",
+    url: "/privacy-policy",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy | Private Academy Engineering",
+    description: "Read the Privacy Policy for Private Academy Engineering.",
+  },
 };
 
 export default function PrivacyPolicyPage() {

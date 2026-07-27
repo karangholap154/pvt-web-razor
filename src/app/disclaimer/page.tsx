@@ -1,9 +1,23 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Disclaimer | Private Academy Engineering",
   description: "Read the Disclaimer of Private Academy Engineering outlining our university non-affiliation, academic warranties, and error reporting procedures.",
+  alternates: {
+    canonical: "/disclaimer",
+  },
+  openGraph: {
+    title: "Disclaimer | Private Academy Engineering",
+    description: "Read the Disclaimer of Private Academy Engineering.",
+    url: "/disclaimer",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Disclaimer | Private Academy Engineering",
+    description: "Read the Disclaimer of Private Academy Engineering.",
+  },
 };
 
 export default function DisclaimerPage() {
