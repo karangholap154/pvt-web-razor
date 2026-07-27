@@ -4,6 +4,13 @@ import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user || !user.email) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { noteId, email } = await request.json();
 
     if (!noteId || !email) {
@@ -23,8 +30,6 @@ export async function POST(request: Request) {
         { status: 503 }
       );
     }
-
-    const supabase = await createSupabaseServerClient();
 
     // 1. Fetch note price and details from Supabase
     const { data: note, error } = await supabase

@@ -123,12 +123,15 @@ export async function POST(request: Request) {
       // 2. Check if a live note was created from this submission and delete it + its storage file
       const { data: publishedNotes } = await supabaseAdmin
         .from("notes")
-        .select("id, download_url")
-        .eq("contributor_id", submission.user_id)
-        .eq("title", submission.title);
+        .select("id, download_url, title")
+        .eq("contributor_id", submission.user_id);
 
       if (publishedNotes && publishedNotes.length > 0) {
-        for (const note of publishedNotes) {
+        const matchingNotes = publishedNotes.filter(
+          (n) => n.title === submission.title || (submission.file_url && n.download_url === submission.file_url)
+        );
+
+        for (const note of matchingNotes) {
           if (note.download_url && note.download_url !== submission.file_url) {
             await deleteStorageFileByUrl(note.download_url);
           }

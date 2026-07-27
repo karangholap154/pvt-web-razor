@@ -99,10 +99,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Fetch the note's actual price from Supabase to prevent price tampering
+    // 4. Fetch the note's actual price and contributor info from Supabase to prevent price tampering
     const { data: note, error: noteError } = await supabaseAdmin
       .from("notes")
-      .select("price")
+      .select("price, is_community_contributed, contributor_id, platform_commission_rate")
       .eq("id", noteId)
       .single();
 
@@ -125,6 +125,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Calculate contributor earnings split if community-contributed
+    const grossAmount = Number(expectedAmountPaise) / 100;
+    let contributorId: string | null = null;
+    let contributorEarnings = 0;
+    let platformCommission = grossAmount;
+
+    if (note.is_community_contributed && note.contributor_id) {
+      contributorId = note.contributor_id;
+      const commissionRate = Number(note.platform_commission_rate) || 0.20;
+      platformCommission = Number((grossAmount * commissionRate).toFixed(2));
+      contributorEarnings = Number((grossAmount - platformCommission).toFixed(2));
+    }
+
     // 5. Register/Upsert transaction in Supabase Purchases ledger using supabaseAdmin
     const { error: insertError } = await supabaseAdmin.from("purchases").upsert(
       {
@@ -132,7 +145,10 @@ export async function POST(request: Request) {
         note_id: noteId,
         razorpay_order_id,
         razorpay_payment_id,
-        amount: Number(expectedAmountPaise) / 100, // Log in Rupee units
+        amount: grossAmount, // Log in Rupee units
+        contributor_id: contributorId,
+        contributor_earnings: contributorEarnings,
+        platform_commission: platformCommission,
         status: "success",
       },
       { onConflict: "razorpay_order_id" }

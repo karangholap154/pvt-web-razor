@@ -104,7 +104,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Minimum payout threshold is ₹100" }, { status: 400 });
     }
 
-    // Save/update user UPI ID in profile
+    // Save/update user UPI ID in profile and fetch badge tier for payout calculation
+    const { data: userProfile } = await supabaseAdmin
+      .from("users")
+      .select("badge_tier")
+      .eq("id", user.id)
+      .maybeSingle();
+
     await supabaseAdmin
       .from("users")
       .update({
@@ -131,7 +137,8 @@ export async function POST(request: Request) {
 
       if (purchases) {
         const grossSales = purchases.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-        netEarnings = grossSales * 0.80; // 80% share
+        const commissionRate = userProfile?.badge_tier === "legend" ? 0.90 : userProfile?.badge_tier === "top_author" ? 0.85 : 0.80;
+        netEarnings = grossSales * commissionRate;
       }
     }
 
