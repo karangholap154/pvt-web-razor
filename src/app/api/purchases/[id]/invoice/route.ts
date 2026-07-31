@@ -105,15 +105,16 @@ export async function GET(
       doc.on("end", () => resolve(Buffer.concat(chunks)));
       doc.on("error", (err) => reject(err));
 
-      // Register custom fonts
+      // Register custom fonts (fallback gracefully to Helvetica if custom TTF unavailable)
       try {
         const regularFontPath = path.join(process.cwd(), "src/assets/fonts/Roboto-Regular.ttf");
         const boldFontPath = path.join(process.cwd(), "src/assets/fonts/Roboto-Bold.ttf");
         doc.registerFont("Roboto", regularFontPath);
         doc.registerFont("Roboto-Bold", boldFontPath);
       } catch (err) {
-        reject(err);
-        return;
+        console.warn("Custom TTF font registration failed, using standard Helvetica fallback:", err);
+        doc.registerFont("Roboto", "Helvetica");
+        doc.registerFont("Roboto-Bold", "Helvetica-Bold");
       }
 
       // ── Light Theme Colors ──

@@ -68,16 +68,19 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
     }
 
-    // Also update auth user metadata so it reflects in the layout / navbar
-    const { error: authError } = await supabase.auth.updateUser({
-      data: {
-        full_name: full_name || null,
-      }
-    });
+    // Best-effort update of auth user metadata so changes reflect in session claims
+    try {
+      const { error: authError } = await supabase.auth.updateUser({
+        data: {
+          full_name: full_name || null,
+        },
+      });
 
-    if (authError) {
-      console.error("Supabase auth metadata update error:", authError);
-      return NextResponse.json({ error: "Failed to update auth metadata" }, { status: 500 });
+      if (authError) {
+        console.warn("Supabase auth metadata update warning:", authError.message);
+      }
+    } catch (authErr) {
+      console.warn("Non-fatal auth metadata update exception:", authErr);
     }
 
     return NextResponse.json({ success: true, message: "Profile updated successfully" });

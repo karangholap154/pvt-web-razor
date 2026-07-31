@@ -40,6 +40,20 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Validate PDF magic bytes (%PDF- => 0x25 0x50 0x44 0x46)
+    if (
+      buffer.length < 4 ||
+      buffer[0] !== 0x25 ||
+      buffer[1] !== 0x50 ||
+      buffer[2] !== 0x44 ||
+      buffer[3] !== 0x46
+    ) {
+      return NextResponse.json(
+        { error: "Invalid PDF file header. Uploaded file is not a valid PDF document." },
+        { status: 400 }
+      );
+    }
+
     // Generate unique slugified filename
     const originalName = file.name.substring(0, file.name.lastIndexOf("."));
     const fileExt = "pdf";
