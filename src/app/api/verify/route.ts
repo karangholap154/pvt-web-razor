@@ -42,16 +42,26 @@ export async function POST(request: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      console.error("RAZORPAY_KEY_SECRET is missing from server environment!");
+      return NextResponse.json(
+        { error: "Payment verification service configuration error" },
+        { status: 500 }
+      );
+    }
+
     // 1. Recreate the signature hash using HMAC-SHA256 (standard security check)
     const text = `${razorpay_order_id}|${razorpay_payment_id}`;
     const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
+      .createHmac("sha256", keySecret)
       .update(text)
       .digest("hex");
 
-    const isSignatureVerified = generatedSignature === razorpay_signature;
+    const expectedBuf = Buffer.from(generatedSignature, "utf-8");
+    const sigBuf = Buffer.from(razorpay_signature, "utf-8");
 
-    if (!isSignatureVerified) {
+    if (expectedBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
       return NextResponse.json(
         { error: "Payment verification signature mismatch" },
         { status: 400 }

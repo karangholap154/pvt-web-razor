@@ -22,13 +22,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Validate Webhook Signature
+    // 1. Validate Webhook Signature using timing-safe comparison
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
       .update(rawBody)
       .digest("hex");
 
-    if (expectedSignature !== signature) {
+    const expectedBuf = Buffer.from(expectedSignature, "utf-8");
+    const sigBuf = Buffer.from(signature, "utf-8");
+
+    if (expectedBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
       console.error("Webhook verification failed: Signature mismatch");
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }

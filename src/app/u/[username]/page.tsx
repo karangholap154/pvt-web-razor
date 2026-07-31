@@ -97,6 +97,8 @@ export default async function UserProfilePage({ params }: PageProps) {
 
   if (!profileIsAdmin) {
     notesQuery = notesQuery.eq("contributor_id", profile.id);
+  } else {
+    notesQuery = notesQuery.or(`contributor_id.eq.${profile.id},is_community_contributed.is.null,is_community_contributed.eq.false`);
   }
 
   const { data: dbNotes } = await notesQuery;
