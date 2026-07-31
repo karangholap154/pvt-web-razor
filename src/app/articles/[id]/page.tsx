@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ArticlePageProps) {
   try {
     const { data: item } = await supabase
       .from("articles")
-      .select("title, summary")
+      .select("title, summary, category")
       .eq("id", id)
       .single();
 
@@ -28,12 +28,32 @@ export async function generateMetadata({ params }: ArticlePageProps) {
       return {
         title: "Article Not Found | Private Academy",
         description: "The requested academic article could not be found.",
+        robots: { index: false },
       };
     }
 
+    const title = `${item.title} | Private Academy`;
+    const description = item.summary || "Read this syllabus explanation or study guide from our experts.";
+    const url = `/articles/${id}`;
+
     return {
-      title: `${item.title} | Private Academy`,
-      description: item.summary || "Read this syllabus explanation or study guide from our experts.",
+      title,
+      description,
+      alternates: {
+        canonical: url,
+      },
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "article",
+        siteName: "Private Academy",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
     };
   } catch (err) {
     console.error("Error generating metadata for article page:", err);
@@ -68,5 +88,28 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     content: item.content || "",
   };
 
-  return <ArticleDetailsClient article={article} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": item.title,
+    "description": item.summary || "",
+    "articleBody": item.content || "",
+    "category": item.category || "Education",
+    "url": `https://www.privateacademy.in/articles/${id}`,
+    "publisher": {
+      "@type": "Organization",
+      "name": "Private Academy Engineering",
+      "logo": "https://www.privateacademy.in/pvtimg.png"
+    }
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ArticleDetailsClient article={article} />
+    </>
+  );
 }

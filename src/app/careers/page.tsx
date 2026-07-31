@@ -1,4 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Careers & Internships | Private Academy",
+  description: "Join the Private Academy Engineering team! Explore remote internships for Content Creators, Educational Specialists, and Marketing Interns.",
+  alternates: {
+    canonical: "/careers",
+  },
+  openGraph: {
+    title: "Careers & Internships | Private Academy",
+    description: "Join the Private Academy Engineering team! Remote internships with competitive stipends.",
+    url: "/careers",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Careers & Internships | Private Academy",
+    description: "Join the Private Academy Engineering team! Remote internships with competitive stipends.",
+  },
+};
 
 interface JobRole {
   id: number;
@@ -82,8 +101,46 @@ const jobOpenings: JobRole[] = [
 ];
 
 export default function CareersPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Active Careers & Internships at Private Academy",
+    "itemListElement": jobOpenings.map((job, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "item": {
+        "@type": "JobPosting",
+        "title": job.title,
+        "description": job.description,
+        "employmentType": "INTERN",
+        "hiringOrganization": {
+          "@type": "Organization",
+          "name": "Private Academy Engineering",
+          "logo": "https://www.privateacademy.in/pvtimg.png"
+        },
+        "jobLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressRegion": "Maharashtra",
+            "addressCountry": "IN"
+          }
+        },
+        "applicantLocationRequirements": {
+          "@type": "Country",
+          "name": "India"
+        },
+        "jobLocationType": "TELECOMMUTE"
+      }
+    }))
+  };
+
   return (
     <div style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <style>{`
         @keyframes floatIn {
           from { opacity: 0; transform: translateY(20px); }

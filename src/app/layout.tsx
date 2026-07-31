@@ -119,11 +119,75 @@ const socialLinks = [
 ];
 
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+
 export const metadata: Metadata = {
-  title: "Private Academy | Engineering Study Hub",
-  description: "Study smarter — faster access to notes and guides. A unified library for branch-wise engineering notes, semester filters, and tutorials.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Private Academy | Engineering Study Hub & Notes Library",
+    template: "%s | Private Academy",
+  },
+  description: "Syllabus-aligned engineering study notes, semester question guides, project source code, and video tutorials for Mumbai University, SPPU, DBATU, and leading universities.",
+  keywords: [
+    "engineering notes",
+    "mumbai university notes",
+    "sppu notes",
+    "dbatu notes",
+    "computer engineering notes",
+    "IT engineering notes",
+    "engineering study materials",
+    "private academy",
+    "engineering projects",
+    "exam guides",
+    "video tutorials",
+  ],
+  authors: [{ name: "Karan Gholap", url: "https://www.karangholap.com/" }],
+  creator: "Private Academy Engineering",
+  publisher: "Private Academy Engineering",
+  alternates: {
+    canonical: "./",
+  },
   icons: {
     icon: "/pvtimg.png",
+    shortcut: "/pvtimg.png",
+    apple: "/pvtimg.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    title: "Private Academy | Engineering Study Hub & Notes Library",
+    description: "Syllabus-aligned engineering study notes, semester question guides, project source code, and video tutorials.",
+    siteName: "Private Academy",
+    images: [
+      {
+        url: "/pvtimg.png",
+        width: 1200,
+        height: 630,
+        alt: "Private Academy Engineering Study Hub",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Private Academy | Engineering Study Hub & Notes Library",
+    description: "Syllabus-aligned engineering study notes, semester question guides, project source code, and video tutorials.",
+    creator: "@PVTAcademyEdu",
+    images: ["/pvtimg.png"],
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -148,8 +212,50 @@ export default async function RootLayout({
   const avatarUrl = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? undefined;
   const userName = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? undefined;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "EducationalOrganization",
+        "@id": `${siteUrl}/#organization`,
+        "name": "Private Academy Engineering",
+        "url": siteUrl,
+        "logo": `${siteUrl}/pvtimg.png`,
+        "description": "Comprehensive study resource platform built for engineering students across leading universities.",
+        "sameAs": [
+          "https://t.me/mumcomputer",
+          "https://www.youtube.com/@pvtacademy",
+          "https://www.instagram.com/privateacademy.in",
+          "https://www.linkedin.com/company/privateacademy/",
+          "https://x.com/PVTAcademyEdu",
+          "https://peerlist.io/company/privateacademy"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "url": siteUrl,
+        "name": "Private Academy",
+        "publisher": {
+          "@id": `${siteUrl}/#organization`
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${siteUrl}/?search={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  };
+
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="page-container" suppressHydrationWarning>
         <AuthProvider>
           <ToastProvider>

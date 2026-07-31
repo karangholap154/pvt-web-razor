@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Admin Console | Private Academy",
+  robots: {
+    index: false,
+    follow: false,
+    noimageindex: true,
+  },
+};
 import { isAdmin } from "../../utils/auth";
 import { createSupabaseServerClient } from "../../utils/supabaseServer";
 import { supabaseAdmin } from "../../utils/supabaseAdmin";

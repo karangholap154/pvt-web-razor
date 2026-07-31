@@ -25,13 +25,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = `@${username} — ${profile.full_name || "Student"} | Private Academy`;
   const description = `Explore @${username}'s engineering study resources on Private Academy.${profile.university ? ` Studying ${profile.default_branch || ""} at ${profile.university}.` : ""}`;
+  const url = `/u/${username}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
       description,
+      url,
       type: "profile",
       username: username,
       images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
@@ -112,18 +117,41 @@ export default async function UserProfilePage({ params }: PageProps) {
     }));
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "name": `@${profile.username ?? username} - ${profile.full_name || "Student Contributor"}`,
+    "description": `Explore @${profile.username ?? username}'s engineering study resources on Private Academy.`,
+    "url": `https://www.privateacademy.in/u/${profile.username ?? username}`,
+    "mainEntity": {
+      "@type": "Person",
+      "name": profile.full_name || profile.username || username,
+      "image": profile.avatar_url || undefined,
+      "worksFor": profile.university ? {
+        "@type": "EducationalOrganization",
+        "name": profile.university
+      } : undefined
+    }
+  };
+
   return (
-    <UserProfileClient
-      username={profile.username ?? username}
-      fullName={profile.full_name ?? null}
-      university={profile.university ?? null}
-      branch={profile.default_branch ?? null}
-      avatarUrl={profile.avatar_url ?? null}
-      createdAt={profile.created_at ?? null}
-      isOwn={isOwn}
-      isAdmin={profileIsAdmin}
-      badgeTier={profile.badge_tier ?? null}
-      notes={notes}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <UserProfileClient
+        username={profile.username ?? username}
+        fullName={profile.full_name ?? null}
+        university={profile.university ?? null}
+        branch={profile.default_branch ?? null}
+        avatarUrl={profile.avatar_url ?? null}
+        createdAt={profile.created_at ?? null}
+        isOwn={isOwn}
+        isAdmin={profileIsAdmin}
+        badgeTier={profile.badge_tier ?? null}
+        notes={notes}
+      />
+    </>
   );
 }

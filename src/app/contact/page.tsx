@@ -1,8 +1,23 @@
 import React from "react";
+import type { Metadata } from "next";
 import { BRANCHES } from "../../data/mockData";
-export const metadata = {
+
+export const metadata: Metadata = {
   title: "Contact Us | Private Academy Engineering",
   description: "Get in touch with Private Academy Engineering. Request specific study notes, report issues, suggest improvements, or join our community groups.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact Us | Private Academy Engineering",
+    description: "Get in touch with Private Academy Engineering. Request specific study notes, report issues, suggest improvements, or join our community groups.",
+    url: "/contact",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact Us | Private Academy Engineering",
+    description: "Get in touch with Private Academy Engineering.",
+  },
 };
 
 // Custom SVG Icons
@@ -125,6 +140,23 @@ const SOCIAL_PLATFORMS = [
 ];
 
 export default function ContactPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact Private Academy Engineering",
+    "description": "Support for engineering students across all academic queries and study material needs.",
+    "url": "https://www.privateacademy.in/contact",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "Private Academy Engineering",
+      "email": "privateacademy.in@gmail.com",
+      "location": {
+        "@type": "Place",
+        "name": "Maharashtra, India"
+      }
+    }
+  };
+
   return (
     <div className="contact-page-root" style={{ 
       width: "100%", 
@@ -135,6 +167,10 @@ export default function ContactPage() {
       flexDirection: "column", 
       gap: "4rem" 
     }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <style>{`
         @keyframes floatIn {
           from { opacity: 0; transform: translateY(15px); }

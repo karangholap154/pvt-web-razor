@@ -1,6 +1,25 @@
+import type { Metadata } from "next";
 import { supabaseAdmin } from "../../utils/supabaseAdmin";
 
 export const revalidate = 3600; // Cache static page for 1 hour with ISR revalidation
+
+export const metadata: Metadata = {
+  title: "Engineering Micro & Mini Projects with Source Code | Private Academy",
+  description: "Explore IT engineering micro and mini projects for every semester with full source code, live demos, and documentation.",
+  alternates: {
+    canonical: "/projects",
+  },
+  openGraph: {
+    title: "Engineering Micro & Mini Projects with Source Code | Private Academy",
+    description: "Explore IT engineering micro and mini projects for every semester with full source code, live demos, and documentation.",
+    url: "/projects",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Engineering Micro & Mini Projects with Source Code | Private Academy",
+    description: "Explore IT engineering micro and mini projects for every semester with full source code, live demos, and documentation.",
+  },
+};
 
 interface Project {
   id: string;
@@ -36,8 +55,31 @@ export default async function ProjectsPage() {
     console.error("General error loading projects from Supabase.", err);
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Engineering Micro & Mini Projects Showcase",
+    "description": "IT engineering micro and mini projects with source code and documentation.",
+    "url": "https://www.privateacademy.in/projects",
+    "itemListElement": projects.map((proj, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "item": {
+        "@type": "SoftwareSourceCode",
+        "name": proj.title,
+        "description": proj.description,
+        "programmingLanguage": proj.techStack.join(", "),
+        "codeRepository": proj.githubUrl
+      }
+    }))
+  };
+
   return (
     <div style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <style>{`
         @keyframes floatIn {
           from { opacity: 0; transform: translateY(20px); }

@@ -1,11 +1,17 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { isAdmin } from "@/utils/auth";
 import ProfileClient from "./ProfileClient";
 
-export const metadata = {
-  title: "Profile & Settings | PrivateAcademy",
+export const metadata: Metadata = {
+  title: "Profile & Settings | Private Academy",
   description: "Manage your profile, preferences, and view purchase history.",
+  robots: {
+    index: false,
+    follow: false,
+    noimageindex: true,
+  },
 };
 
 interface PageProps {
