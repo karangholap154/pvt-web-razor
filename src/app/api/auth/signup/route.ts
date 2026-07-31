@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 import { ALLOWED_DOMAINS } from "../../../../utils/constants";
+import { checkRateLimit } from "../../../../utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+    const { allowed, retryAfterSeconds } = checkRateLimit(`signup_${clientIp}`, 5, 15 * 60 * 1000);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "RATE_LIMIT", retryAfterSeconds },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {

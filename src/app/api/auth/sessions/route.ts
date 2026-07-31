@@ -64,8 +64,7 @@ const getSessionIdFromCookies = async (): Promise<string | null> => {
 
 export async function GET(request: Request) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = (await createSupabaseServerClient()) as any;
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -75,7 +74,8 @@ export async function GET(request: Request) {
     }
 
     // Call the database function to fetch active sessions for this user
-    const { data: sessions, error } = await supabase.rpc("get_user_sessions");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: sessions, error } = await (supabase.rpc as any)("get_user_sessions");
 
     if (error) {
       console.error("Error fetching sessions via RPC:", error);
@@ -111,8 +111,7 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = (await createSupabaseServerClient()) as any;
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -151,7 +150,8 @@ export async function DELETE(request: Request) {
       }
 
       // Call the RPC to revoke all other sessions
-      const { error } = await supabase.rpc("revoke_other_user_sessions", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.rpc as any)("revoke_other_user_sessions", {
         current_session_id: currentSessionId,
       });
 
@@ -170,7 +170,8 @@ export async function DELETE(request: Request) {
       }
 
       // Call the RPC to revoke the specific session
-      const { error } = await supabase.rpc("revoke_user_session", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.rpc as any)("revoke_user_session", {
         session_id: sessionId,
       });
 

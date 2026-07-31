@@ -35,7 +35,12 @@ export async function POST(request: Request) {
 
     const { title, branch, techStack, description, githubUrl } = await request.json();
 
-    if (!title || !branch) {
+    const cleanTitle = (title || "").trim();
+    const cleanBranch = (branch || "").trim();
+    const cleanDescription = (description || "").trim();
+    const cleanGithubUrl = (githubUrl || "").trim();
+
+    if (!cleanTitle || !cleanBranch) {
       return NextResponse.json(
         { error: "Title and branch are required" },
         { status: 400 }
@@ -44,15 +49,15 @@ export async function POST(request: Request) {
 
     // Generate unique text id
     const rand = crypto.randomBytes(3).toString("hex");
-    const id = `proj-${slugify(title)}-${rand}`;
+    const id = `proj-${slugify(cleanTitle)}-${rand}`;
 
     const { data, error } = await supabase.from("projects").insert({
       id,
-      title,
-      branch,
+      title: cleanTitle,
+      branch: cleanBranch,
       tech_stack: parseTechStack(techStack),
-      description: description || "",
-      github_url: githubUrl || "",
+      description: cleanDescription,
+      github_url: cleanGithubUrl,
     }).select().single();
 
     if (error) {

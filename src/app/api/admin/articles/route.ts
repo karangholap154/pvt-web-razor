@@ -44,7 +44,11 @@ export async function POST(request: Request) {
 
     const { title, category, content } = await request.json();
 
-    if (!title || !category || !content) {
+    const cleanTitle = (title || "").trim();
+    const cleanCategory = (category || "").trim();
+    const cleanContent = (content || "").trim();
+
+    if (!cleanTitle || !cleanCategory || !cleanContent) {
       return NextResponse.json(
         { error: "Title, category, and content are required" },
         { status: 400 }
@@ -53,18 +57,18 @@ export async function POST(request: Request) {
 
     // Generate unique text id
     const rand = crypto.randomBytes(3).toString("hex");
-    const id = `art-${slugify(title)}-${rand}`;
+    const id = `art-${slugify(cleanTitle)}-${rand}`;
 
-    const computedReadTime = calculateReadTime(content);
-    const computedSummary = generateSummary(content);
+    const computedReadTime = calculateReadTime(cleanContent);
+    const computedSummary = generateSummary(cleanContent);
 
     const { data, error } = await supabase.from("articles").insert({
       id,
-      title,
+      title: cleanTitle,
       read_time: computedReadTime,
-      category,
+      category: cleanCategory,
       summary: computedSummary,
-      content,
+      content: cleanContent,
     }).select().single();
 
     if (error) {
