@@ -364,8 +364,15 @@ export default function HomeContent() {
         return;
       }
 
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        toast.error("Payment Service is currently unavailable. Please try again later or contact support.");
+        setCheckoutStatus("idle");
+        return;
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+        key: razorpayKey,
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Private Academy",
