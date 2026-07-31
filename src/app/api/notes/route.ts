@@ -41,7 +41,8 @@ export async function GET(request: Request) {
     }
 
     if (search && search.trim() !== "") {
-      query = query.ilike("title", `%${search.trim()}%`);
+      const sanitizedSearch = search.trim().replace(/[%_]/g, "\\$&");
+      query = query.ilike("title", `%${sanitizedSearch}%`);
     }
 
     const from = (page - 1) * limit;

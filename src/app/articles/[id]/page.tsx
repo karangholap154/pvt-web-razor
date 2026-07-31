@@ -34,7 +34,8 @@ export async function generateMetadata({ params }: ArticlePageProps) {
 
     const title = `${item.title} | Private Academy`;
     const description = item.summary || "Read this syllabus explanation or study guide from our experts.";
-    const url = `/articles/${id}`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+    const url = `${baseUrl}/articles/${id}`;
 
     return {
       title,
@@ -48,11 +49,13 @@ export async function generateMetadata({ params }: ArticlePageProps) {
         url,
         type: "article",
         siteName: "Private Academy",
+        images: [{ url: `${baseUrl}/pvtimg.png` }],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description,
+        images: [`${baseUrl}/pvtimg.png`],
       },
     };
   } catch (err) {

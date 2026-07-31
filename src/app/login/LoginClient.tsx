@@ -111,8 +111,8 @@ function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Special branded rate-limit message
-        if (data.error === "RATE_LIMIT" || response.status === 429) {
+        // Special branded rate-limit message for signup email provider limits
+        if (data.error === "RATE_LIMIT") {
           setInfoMsg(
             "🚀 Private Academy Engineering is growing fast! Our email service has reached its limit for now. Please try signing up again in a little while."
           );

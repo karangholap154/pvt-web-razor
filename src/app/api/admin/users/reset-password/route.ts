@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
 import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
 import { checkIsAdmin } from "../../../../../utils/auth";
+import { checkRateLimit } from "../../../../../utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+    const { allowed, retryAfterSeconds } = checkRateLimit(`reset_pwd_${clientIp}`, 5, 15 * 60 * 1000);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: `Too many password reset requests. Please try again in ${retryAfterSeconds} seconds.` },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+      );
+    }
     // 1. Verify admin privilege
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();

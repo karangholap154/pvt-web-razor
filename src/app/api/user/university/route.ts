@@ -46,10 +46,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Upsert the row — creates it if the user doesn't exist in the custom table yet
+    // 3. Upsert the row — ensures id is linked to Supabase auth user ID
     const { error: upsertError } = await supabase
       .from("users")
-      .upsert({ email: sessionEmail, university }, { onConflict: "email" });
+      .upsert({ id: user.id, email: sessionEmail, university }, { onConflict: "email" });
 
     if (upsertError) {
       console.error("University upsert error:", upsertError);

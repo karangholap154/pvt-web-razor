@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: NotePageProps) {
 
     const title = `${item.title} | Private Academy Notes`;
     const descText = `${item.title} - ${item.branch} Engineering, ${item.semester} study note ${item.university ? `for ${item.university}` : ""}. Download PDF & watch video explanations.`;
-    const url = `/notes/${id}`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+    const url = `${baseUrl}/notes/${id}`;
 
     return {
       title,
@@ -42,11 +43,13 @@ export async function generateMetadata({ params }: NotePageProps) {
         url,
         type: "website",
         siteName: "Private Academy",
+        images: [{ url: `${baseUrl}/pvtimg.png` }],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description: descText,
+        images: [`${baseUrl}/pvtimg.png`],
       },
     };
   } catch (err) {
