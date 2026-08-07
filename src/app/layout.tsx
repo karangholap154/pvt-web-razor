@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/next"; 
 import { checkIsAdmin } from "../utils/auth";
 import { createSupabaseServerClient } from "../utils/supabaseServer";
 import Navbar from "./Navbar";
@@ -399,7 +399,7 @@ export default async function RootLayout({
           </FooterWrapper>
           </ToastProvider>
         </AuthProvider>
-        <Analytics />
+        <Analytics /> 
       </body>
     </html>
   );
