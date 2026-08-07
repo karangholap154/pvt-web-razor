@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { getContributorShareRate } from "@/utils/badgeUtils";
+import { checkRateLimit } from "@/utils/rateLimiter";
 
 export async function GET() {
   try {
@@ -35,7 +36,7 @@ export async function GET() {
       // 3. Fetch all successful purchases of this contributor's notes
       const { data: purchases } = await supabaseAdmin
         .from("purchases")
-        .select("amount, note_id")
+        .select("amount, contributor_earnings, note_id")
         .in("note_id", noteIds)
         .eq("status", "success");
 
@@ -43,7 +44,12 @@ export async function GET() {
         totalSalesCount = purchases.length;
         grossSales = purchases.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
         const shareRate = getContributorShareRate(userProfile?.badge_tier);
-        netEarnings = grossSales * shareRate;
+        netEarnings = purchases.reduce((sum, p) => {
+          const earnings = (p.contributor_earnings !== null && p.contributor_earnings !== undefined)
+            ? Number(p.contributor_earnings)
+            : Number(p.amount || 0) * shareRate;
+          return sum + earnings;
+        }, 0);
       }
     }
 
@@ -91,6 +97,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
+    // Rate limit payout requests: max 5 requests per 15 minutes per user
+    const { allowed, retryAfterSeconds } = checkRateLimit(`payout_request_${user.id}`, 5, 15 * 60 * 1000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: `Too many payout requests. Please wait ${retryAfterSeconds} seconds before trying again.` },
+        { status: 429 }
+      );
+    }
+
     const { upiId, payoutName, amount } = await request.json();
 
     const cleanUpiId = (upiId || "").trim();
@@ -131,14 +146,18 @@ export async function POST(request: Request) {
     if (noteIds.length > 0) {
       const { data: purchases } = await supabaseAdmin
         .from("purchases")
-        .select("amount")
+        .select("amount, contributor_earnings")
         .in("note_id", noteIds)
         .eq("status", "success");
 
       if (purchases) {
-        const grossSales = purchases.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
         const shareRate = getContributorShareRate(userProfile?.badge_tier);
-        netEarnings = grossSales * shareRate;
+        netEarnings = purchases.reduce((sum, p) => {
+          const earnings = (p.contributor_earnings !== null && p.contributor_earnings !== undefined)
+            ? Number(p.contributor_earnings)
+            : Number(p.amount || 0) * shareRate;
+          return sum + earnings;
+        }, 0);
       }
     }
 

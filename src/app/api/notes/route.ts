@@ -79,6 +79,8 @@ export async function GET(request: Request) {
 
     const enrichedNotes = rawNotes.map((item) => ({
       ...item,
+      // Omit raw storage URL for paid resources in public API responses
+      download_url: item.price && Number(item.price) > 0 ? null : item.download_url,
       contributor_username: item.contributor_id ? userMap[item.contributor_id]?.username : null,
       contributor_name: item.contributor_id ? userMap[item.contributor_id]?.full_name : null,
     }));

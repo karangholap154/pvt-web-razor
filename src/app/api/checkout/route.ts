@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
+import { checkRateLimit } from "@/utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
@@ -11,11 +12,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const { noteId, email } = await request.json();
-
-    if (!noteId || !email) {
+    // Enforce rate limiting: 10 order checkouts per 15 minutes per user
+    const { allowed, retryAfterSeconds } = checkRateLimit(`checkout_${user.id}`, 10, 15 * 60 * 1000);
+    if (!allowed) {
       return NextResponse.json(
-        { error: "noteId and email are required" },
+        { error: `Too many payment requests. Please try again in ${retryAfterSeconds} seconds.` },
+        { status: 429 }
+      );
+    }
+
+    const { noteId } = await request.json();
+    const checkoutEmail = user.email.trim().toLowerCase();
+
+    if (!noteId) {
+      return NextResponse.json(
+        { error: "noteId is required" },
         { status: 400 }
       );
     }
@@ -60,7 +71,7 @@ export async function POST(request: Request) {
       receipt: `rcpt_${noteId.slice(0, 20)}_${Date.now().toString().slice(-8)}`,
       notes: {
         noteId,
-        email,
+        email: checkoutEmail,
         noteTitle: note.title,
       },
     };
