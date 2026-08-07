@@ -87,6 +87,16 @@ export async function POST(request: Request) {
         contributorEarnings = Number((grossAmount - platformCommission).toFixed(2));
       }
 
+      // Check if purchase was already recorded by verify endpoint to prevent duplicate receipt emails
+      const { data: existingPurchase } = await supabaseAdmin
+        .from("purchases")
+        .select("id")
+        .eq("razorpay_order_id", razorpay_order_id)
+        .eq("status", "success")
+        .maybeSingle();
+
+      const isAlreadyRecorded = !!existingPurchase;
+
       // Insert or update the purchase record in Supabase using admin client
       const { error: upsertError } = await supabaseAdmin.from("purchases").upsert(
         {
@@ -111,13 +121,15 @@ export async function POST(request: Request) {
         );
       }
 
-      // Trigger purchase receipt email via Resend (non-blocking)
-      sendOrderReceiptEmail({
-        to: email,
-        orderId: razorpay_order_id,
-        noteTitle: noteItem?.title || "Study Notes",
-        amount: grossAmount,
-      }).catch((err) => console.error("Webhook error triggering receipt email:", err));
+      // Trigger purchase receipt email via Resend ONLY if not previously sent for this order
+      if (!isAlreadyRecorded) {
+        sendOrderReceiptEmail({
+          to: email,
+          orderId: razorpay_order_id,
+          noteTitle: noteItem?.title || "Study Notes",
+          amount: grossAmount,
+        }).catch((err) => console.error("Webhook error triggering receipt email:", err));
+      }
 
       console.log(`Webhook successfully recorded purchase for ${email} / Note: ${noteId}`);
     }
