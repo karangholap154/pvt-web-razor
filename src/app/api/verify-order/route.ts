@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
 import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
 import { syncContributorBadgeTier } from "@/utils/badgeUtils";
+import { sendOrderReceiptEmail } from "@/utils/resend";
 
 export async function POST(request: Request) {
   try {
@@ -141,6 +142,15 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Trigger purchase confirmation email via Resend (async/non-blocking)
+    const noteTitle = (razorpayOrder.notes?.title as string) || "Study Notes";
+    sendOrderReceiptEmail({
+      to: userEmail,
+      orderId,
+      noteTitle,
+      amount: grossAmount,
+    }).catch((err) => console.error("Error triggering receipt email:", err));
 
     return NextResponse.json({
       success: true,

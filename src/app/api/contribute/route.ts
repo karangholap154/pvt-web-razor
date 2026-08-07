@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { checkRateLimit } from "@/utils/rateLimiter";
+import { sendSubmissionAlertEmail } from "@/utils/resend";
 
 export async function POST(request: Request) {
   try {
@@ -124,6 +125,15 @@ export async function POST(request: Request) {
       console.error("Failed to insert note submission record:", dbError);
       return NextResponse.json({ error: "Failed to record submission in database" }, { status: 500 });
     }
+
+    // Trigger admin alert email safely (non-blocking)
+    sendSubmissionAlertEmail({
+      contributorEmail: user.email || 'Unknown User',
+      noteTitle: title,
+      university,
+      branch,
+      semester,
+    }).catch((err) => console.error("Error triggering submission alert email:", err));
 
     return NextResponse.json({
       success: true,
