@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { checkIsAdmin } from "@/utils/auth";
 import { calculateBadgeTier, getPlatformCommissionRate } from "@/utils/badgeUtils";
+import { sendContributionStatusUpdateEmail } from "@/utils/resend";
 
 export async function GET(request: Request) {
   try {
@@ -192,6 +193,24 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
       }
 
+      // Fetch user email to send rejection email safely (non-blocking)
+      const feedbackMessage = adminFeedback || "Submission did not meet quality guidelines.";
+      (async () => {
+        try {
+          const { data: contributor } = await supabaseAdmin.from("users").select("email").eq("id", submission.user_id).single();
+          if (contributor?.email) {
+            await sendContributionStatusUpdateEmail({
+              to: contributor.email,
+              noteTitle: submission.title,
+              status: "rejected",
+              feedback: feedbackMessage,
+            });
+          }
+        } catch (err) {
+          console.error("Error triggering rejection email:", err);
+        }
+      })();
+
       return NextResponse.json({ success: true, message: "Submission marked as rejected and pending file removed from storage" });
     }
 
@@ -254,7 +273,7 @@ export async function POST(request: Request) {
     // Update student's approved_notes_count & recalculate badge_tier using AND criteria
     const { data: userProfile } = await supabaseAdmin
       .from("users")
-      .select("approved_notes_count, total_downloads_count, badge_tier")
+      .select("email, approved_notes_count, total_downloads_count, badge_tier")
       .eq("id", submission.user_id)
       .maybeSingle();
 
@@ -317,6 +336,27 @@ export async function POST(request: Request) {
       console.error("Failed to insert live note record:", noteInsertError);
       return NextResponse.json({ error: "Failed to publish note to live catalog" }, { status: 500 });
     }
+
+    // Trigger approval status email safely (non-blocking)
+    (async () => {
+      try {
+        let recipientEmail = userProfile?.email;
+        if (!recipientEmail) {
+          const { data: u } = await supabaseAdmin.from("users").select("email").eq("id", submission.user_id).single();
+          recipientEmail = u?.email;
+        }
+        if (recipientEmail) {
+          await sendContributionStatusUpdateEmail({
+            to: recipientEmail,
+            noteTitle: submission.title,
+            status: "approved",
+            feedback: adminFeedback || undefined,
+          });
+        }
+      } catch (err) {
+        console.error("Error triggering approval status email:", err);
+      }
+    })();
 
     return NextResponse.json({
       success: true,

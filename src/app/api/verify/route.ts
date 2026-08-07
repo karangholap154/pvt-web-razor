@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
 import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
 import { syncContributorBadgeTier } from "@/utils/badgeUtils";
+import { sendOrderReceiptEmail } from "@/utils/resend";
 
 export async function POST(request: Request) {
   try {
@@ -113,7 +114,7 @@ export async function POST(request: Request) {
     // 4. Fetch the note's actual price and contributor info from Supabase to prevent price tampering
     const { data: note, error: noteError } = await supabaseAdmin
       .from("notes")
-      .select("price, is_community_contributed, contributor_id, platform_commission_rate")
+      .select("title, price, is_community_contributed, contributor_id, platform_commission_rate")
       .eq("id", noteId)
       .single();
 
@@ -172,6 +173,14 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Trigger purchase receipt email via Resend (non-blocking)
+    sendOrderReceiptEmail({
+      to: cleanEmail,
+      orderId: razorpay_order_id,
+      noteTitle: note.title || "Study Notes",
+      amount: grossAmount,
+    }).catch((err) => console.error("Error triggering receipt email:", err));
 
     return NextResponse.json({
       success: true,

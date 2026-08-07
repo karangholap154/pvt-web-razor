@@ -10,7 +10,8 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'support@mail.privateacademy.in';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.privateacademy.in';
 
 export interface OrderReceiptEmailPayload {
   to: string;
@@ -56,14 +57,14 @@ export async function sendOrderReceiptEmail(payload: OrderReceiptEmailPayload) {
             <p>You can now access your purchased notes anytime directly from your dashboard.</p>
             
             <div style="text-align: center; margin-top: 24px;">
-              <a href="https://${process.env.VERCEL_URL || 'localhost:3000'}/dashboard" 
+              <a href="${SITE_URL}/dashboard" 
                  style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
                 Go to Dashboard
               </a>
             </div>
           </div>
           <div style="background-color: #f3f4f6; padding: 12px; text-align: center; font-size: 12px; color: #6b7280;">
-            <p style="margin: 0;">Private Academy &copy; ${new Date().getFullYear()}. All rights reserved.</p>
+            <p style="margin: 0;">Private Academy Engineering &copy; ${new Date().getFullYear()}. All rights reserved.</p>
           </div>
         </div>
       `,
@@ -96,7 +97,7 @@ export async function sendContactFormEmail(payload: ContactFormEmailPayload) {
   const adminNotificationEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'privateacademy.in@gmail.com';
 
   try {
-    // 1. Send notification to admin(s)
+    // 1. Send notification to admin
     await resend.emails.send({
       from: `PVT Contact Form <${FROM_EMAIL}>`,
       to: [adminNotificationEmail],
@@ -116,6 +117,7 @@ export async function sendContactFormEmail(payload: ContactFormEmailPayload) {
     await resend.emails.send({
       from: `PVT Support <${FROM_EMAIL}>`,
       to: [userEmail],
+      replyTo: adminNotificationEmail,
       subject: `We received your message: ${subject}`,
       html: `
         <p>Hi <strong>${userName}</strong>,</p>
@@ -162,7 +164,7 @@ export async function sendSubmissionAlertEmail(payload: SubmissionAlertPayload) 
         <p><strong>Title:</strong> ${noteTitle}</p>
         <p><strong>University:</strong> ${university}</p>
         <p><strong>Branch / Sem:</strong> ${branch} (Sem ${semester})</p>
-        <p>Log in to your Admin Dashboard to review and approve this submission.</p>
+        <p><a href="${SITE_URL}/admin">Click here to review in Admin Dashboard</a></p>
       `,
     });
 
@@ -173,3 +175,70 @@ export async function sendSubmissionAlertEmail(payload: SubmissionAlertPayload) 
   }
 }
 
+export interface ContributionStatusUpdatePayload {
+  to: string;
+  noteTitle: string;
+  status: 'approved' | 'rejected';
+  feedback?: string;
+}
+
+/**
+ * Sends an email update to contributor when their note submission is approved or rejected by admin.
+ */
+export async function sendContributionStatusUpdateEmail(payload: ContributionStatusUpdatePayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    return { success: false, error: 'Resend API key missing' };
+  }
+
+  const { to, noteTitle, status, feedback } = payload;
+  const isApproved = status === 'approved';
+  const replyToEmail = process.env.ADMIN_REPLY_TO_EMAIL || 'privateacademy.in@gmail.com';
+
+  try {
+    await resend.emails.send({
+      from: `PVT Contributions <${FROM_EMAIL}>`,
+      to: [to],
+      replyTo: replyToEmail,
+      subject: isApproved
+        ? `🎉 Approved! Your note "${noteTitle}" is now live!`
+        : `Update on your note submission "${noteTitle}"`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: ${isApproved ? '#22c55e' : '#ef4444'}; color: #ffffff; padding: 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 22px;">
+              ${isApproved ? 'Submission Approved & Published!' : 'Submission Status Update'}
+            </h1>
+          </div>
+          <div style="padding: 24px; background-color: #ffffff;">
+            <p>Your submitted study note "<strong>${noteTitle}</strong>" has been reviewed.</p>
+            
+            <div style="background-color: #f9fafb; border-left: 4px solid ${isApproved ? '#22c55e' : '#ef4444'}; padding: 16px; margin: 20px 0;">
+              <p style="margin: 0;"><strong>Status:</strong> ${isApproved ? 'Approved & Published to Live Library' : 'Not Approved'}</p>
+              ${feedback ? `<p style="margin-top: 8px;"><strong>Admin Note:</strong> ${feedback}</p>` : ''}
+            </div>
+
+            ${
+              isApproved
+                ? `<p>Your note is now available to engineering students. You can track downloads & earnings split from your profile dashboard.</p>
+                   <div style="text-align: center; margin-top: 24px;">
+                     <a href="${SITE_URL}/contribute" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
+                       View Dashboard
+                     </a>
+                   </div>`
+                : `<p>If you have any questions or want to submit an updated version, please reply directly to this email.</p>`
+            }
+          </div>
+          <div style="background-color: #f3f4f6; padding: 12px; text-align: center; font-size: 12px; color: #6b7280;">
+            <p style="margin: 0;">Private Academy Engineering &copy; ${new Date().getFullYear()}. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('[Resend] Error sending contribution status update email:', error);
+    return { success: false, error };
+  }
+}

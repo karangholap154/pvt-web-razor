@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabaseAdmin } from "../../../../utils/supabaseAdmin";
 import { syncContributorBadgeTier } from "@/utils/badgeUtils";
+import { sendOrderReceiptEmail } from "@/utils/resend";
 
 export async function POST(request: Request) {
   try {
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
 
       const { data: noteItem } = await supabaseAdmin
         .from("notes")
-        .select("is_community_contributed, contributor_id, platform_commission_rate")
+        .select("title, is_community_contributed, contributor_id, platform_commission_rate")
         .eq("id", noteId)
         .maybeSingle();
 
@@ -109,6 +110,14 @@ export async function POST(request: Request) {
           { status: 500 }
         );
       }
+
+      // Trigger purchase receipt email via Resend (non-blocking)
+      sendOrderReceiptEmail({
+        to: email,
+        orderId: razorpay_order_id,
+        noteTitle: noteItem?.title || "Study Notes",
+        amount: grossAmount,
+      }).catch((err) => console.error("Webhook error triggering receipt email:", err));
 
       console.log(`Webhook successfully recorded purchase for ${email} / Note: ${noteId}`);
     }
