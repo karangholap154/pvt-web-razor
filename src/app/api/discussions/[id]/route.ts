@@ -1,0 +1,206 @@
+import { NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/utils/supabaseServer";
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: "Discussion ID is required" }, { status: 400 });
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 1. Fetch single discussion
+    const { data: discussion, error: discError } = await supabase
+      .from("discussions")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (discError || !discussion) {
+      return NextResponse.json({ error: "Discussion topic not found" }, { status: 404 });
+    }
+
+    // 2. Fetch discussion replies
+    const { data: rawReplies, error: replyError } = await supabase
+      .from("discussion_replies")
+      .select("*")
+      .eq("discussion_id", id)
+      .order("is_accepted_answer", { ascending: false })
+      .order("upvotes_count", { ascending: false })
+      .order("created_at", { ascending: true });
+
+    if (replyError) {
+      console.error("Error fetching discussion replies:", replyError);
+    }
+
+    const replies = rawReplies || [];
+
+    // 3. Batch fetch authors & linked note details
+    const allUserIds = Array.from(
+      new Set([discussion.user_id, ...replies.map((r) => r.user_id)])
+    );
+
+    const userMap: Record<string, { username: string | null; full_name?: string | null; badge_tier?: string | null }> = {};
+    let linkedNote = null;
+    const userVotedSet = new Set<string>();
+
+    if (allUserIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("users")
+        .select("id, username, full_name, badge_tier")
+        .in("id", allUserIds);
+
+      if (profiles) {
+        profiles.forEach((p) => {
+          userMap[p.id] = { username: p.username, full_name: p.full_name, badge_tier: p.badge_tier };
+        });
+      }
+    }
+
+    if (discussion.note_id) {
+      const { data: note } = await supabase
+        .from("notes")
+        .select("id, title, branch, semester, university")
+        .eq("id", discussion.note_id)
+        .maybeSingle();
+
+      if (note) linkedNote = note;
+    }
+
+    // Check user vote status for post and replies
+    if (user) {
+      const replyIds = replies.map((r) => r.id);
+
+      const { data: discVotes } = await supabase
+        .from("discussion_votes")
+        .select("discussion_id, reply_id")
+        .eq("user_id", user.id)
+        .or(`discussion_id.eq.${id}${replyIds.length > 0 ? `,reply_id.in.(${replyIds.join(",")})` : ""}`);
+
+      if (discVotes) {
+        discVotes.forEach((v) => {
+          if (v.discussion_id) userVotedSet.add(`disc_${v.discussion_id}`);
+          if (v.reply_id) userVotedSet.add(`reply_${v.reply_id}`);
+        });
+      }
+    }
+
+    const enrichedDiscussion = {
+      ...discussion,
+      author: {
+        id: discussion.user_id,
+        username: userMap[discussion.user_id]?.username || "Anonymous",
+        full_name: userMap[discussion.user_id]?.full_name,
+        badge_tier: userMap[discussion.user_id]?.badge_tier || "contributor",
+      },
+      linked_note: linkedNote,
+      has_user_voted: userVotedSet.has(`disc_${discussion.id}`),
+    };
+
+    const enrichedReplies = replies.map((r) => ({
+      ...r,
+      author: {
+        id: r.user_id,
+        username: userMap[r.user_id]?.username || "Anonymous",
+        full_name: userMap[r.user_id]?.full_name,
+        badge_tier: userMap[r.user_id]?.badge_tier || "contributor",
+      },
+      has_user_voted: userVotedSet.has(`reply_${r.id}`),
+    }));
+
+    return NextResponse.json({
+      discussion: enrichedDiscussion,
+      replies: enrichedReplies,
+      isOriginalPoster: user ? user.id === discussion.user_id : false,
+    });
+  } catch (err) {
+    console.error("Discussion thread GET exception:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createSupabaseServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in to reply." }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { content } = body;
+
+    if (!content || !content.trim()) {
+      return NextResponse.json({ error: "Reply content cannot be empty." }, { status: 400 });
+    }
+
+    // 1. Verify discussion exists
+    const { data: discussion, error: discError } = await supabase
+      .from("discussions")
+      .select("id, replies_count")
+      .eq("id", id)
+      .single();
+
+    if (discError || !discussion) {
+      return NextResponse.json({ error: "Discussion not found" }, { status: 404 });
+    }
+
+    // 2. Insert text reply
+    const { data: newReply, error: replyInsertError } = await supabase
+      .from("discussion_replies")
+      .insert({
+        discussion_id: id,
+        user_id: user.id,
+        content: content.trim(),
+      })
+      .select()
+      .single();
+
+    if (replyInsertError) {
+      console.error("Error creating reply:", replyInsertError);
+      return NextResponse.json({ error: replyInsertError.message }, { status: 500 });
+    }
+
+    // 3. Increment discussion replies_count atomically
+    await supabase
+      .from("discussions")
+      .update({
+        replies_count: (discussion.replies_count || 0) + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    // Fetch author profile
+    const { data: profile } = await supabase
+      .from("users")
+      .select("username, full_name, badge_tier")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const enrichedReply = {
+      ...newReply,
+      author: {
+        id: user.id,
+        username: profile?.username || "Anonymous",
+        full_name: profile?.full_name,
+        badge_tier: profile?.badge_tier || "contributor",
+      },
+      has_user_voted: false,
+    };
+
+    return NextResponse.json({ success: true, reply: enrichedReply }, { status: 201 });
+  } catch (err) {
+    console.error("Discussion POST reply exception:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

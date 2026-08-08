@@ -44,6 +44,120 @@ export type Database = {
         }
         Relationships: []
       }
+      discussions: {
+        Row: {
+          category?: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_resolved: boolean | null
+          note_id: string | null
+          replies_count: number | null
+          branch: string
+          semester: string
+          tags: string[] | null
+          title: string
+          university: string
+          updated_at: string | null
+          upvotes_count: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          note_id?: string | null
+          replies_count?: number | null
+          branch: string
+          semester: string
+          tags?: string[] | null
+          title: string
+          university: string
+          updated_at?: string | null
+          upvotes_count?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          note_id?: string | null
+          replies_count?: number | null
+          branch?: string
+          semester?: string
+          tags?: string[] | null
+          title?: string
+          university?: string
+          updated_at?: string | null
+          upvotes_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      discussion_replies: {
+        Row: {
+          content: string
+          created_at: string | null
+          discussion_id: string
+          id: string
+          is_accepted_answer: boolean | null
+          updated_at: string | null
+          upvotes_count: number | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          discussion_id: string
+          id?: string
+          is_accepted_answer?: boolean | null
+          updated_at?: string | null
+          upvotes_count?: number | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          discussion_id?: string
+          id?: string
+          is_accepted_answer?: boolean | null
+          updated_at?: string | null
+          upvotes_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      discussion_votes: {
+        Row: {
+          created_at: string | null
+          discussion_id: string | null
+          id: string
+          reply_id: string | null
+          user_id: string
+          vote_type: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          discussion_id?: string | null
+          id?: string
+          reply_id?: string | null
+          user_id: string
+          vote_type?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          discussion_id?: string | null
+          id?: string
+          reply_id?: string | null
+          user_id?: string
+          vote_type?: number | null
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           branch: string
