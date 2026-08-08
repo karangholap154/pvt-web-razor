@@ -24,28 +24,40 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close menu and dropdown whenever route changes
+  // Close menu and dropdowns whenever route changes
   useEffect(() => {
     const timer = setTimeout(() => {
       setMenuOpen(false);
       setDropdownOpen(false);
+      setMoreDropdownOpen(false);
     }, 0);
     return () => clearTimeout(timer);
   }, [pathname]);
 
-  // Handle click outside dropdown
+  // Handle click outside dropdowns
   useEffect(() => {
-    if (!dropdownOpen) return;
-    const handleOutsideClick = () => setDropdownOpen(false);
+    if (!dropdownOpen && !moreDropdownOpen) return;
+    const handleOutsideClick = () => {
+      setDropdownOpen(false);
+      setMoreDropdownOpen(false);
+    };
     document.addEventListener("click", handleOutsideClick);
     return () => document.removeEventListener("click", handleOutsideClick);
-  }, [dropdownOpen]);
+  }, [dropdownOpen, moreDropdownOpen]);
 
   const toggleDropdown = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setMoreDropdownOpen(false);
     setDropdownOpen((prev) => !prev);
+  };
+
+  const toggleMoreDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDropdownOpen(false);
+    setMoreDropdownOpen((prev) => !prev);
   };
 
   // Lock body scroll when menu is open
@@ -67,30 +79,86 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
     return pathname.startsWith(href);
   };
 
-  const navLinks = [
+  // Primary 4 tabs for main visibility across screens
+  const primaryNavLinks = [
     { href: "/", label: "Home" },
-    { href: "/discussions", label: "Discussions 💬" },
-    { href: "/contribute", label: "Contribute 💰" },
+    { href: "/discussions", label: "Discussions" },
+    { href: "/contribute", label: "Contribute" },
+    { href: "/projects", label: "Projects" },
+  ];
+
+  // Secondary tabs tucked into More dropdown on LG screens
+  const secondaryNavLinks = [
     { href: "/articles", label: "Articles" },
     { href: "/about", label: "About" },
-    { href: "/projects", label: "Projects" },
     { href: "/careers", label: "Careers" },
     { href: "/contact", label: "Contact" },
   ];
 
+  const allNavLinks = [...primaryNavLinks, ...secondaryNavLinks];
+  const isSecondaryActive = secondaryNavLinks.some((link) => isActive(link.href));
+
   return (
     <>
       <nav className={styles.nav} id="desktop-nav" aria-label="Main navigation">
-        {navLinks.map((link) => (
+        {/* Primary Main Links */}
+        {primaryNavLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
             className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
-            id={`nav-link-${link.label.toLowerCase()}`}
+            id={`nav-link-${link.label.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
           >
             {link.label}
           </Link>
         ))}
+
+        {/* Secondary Links (Expanded on XL screens) */}
+        <div className={styles.secondaryDesktopGroup}>
+          {secondaryNavLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
+              id={`nav-link-${link.label.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* "More ▾" Overflow Dropdown (Visible on LG screens: 900px - 1199px) */}
+        <div className={styles.moreDropdownContainer}>
+          <button
+            type="button"
+            className={`${styles.navLink} ${styles.moreBtn} ${isSecondaryActive ? styles.navLinkActive : ""}`}
+            onClick={toggleMoreDropdown}
+            aria-label="More navigation options"
+            aria-haspopup="true"
+            aria-expanded={moreDropdownOpen}
+          >
+            More <span className={`${styles.dropdownArrow} ${moreDropdownOpen ? styles.dropdownArrowOpen : ""}`}>▾</span>
+          </button>
+
+          {moreDropdownOpen && (
+            <div className={styles.moreDropdownMenu} onClick={(e) => e.stopPropagation()}>
+              {secondaryNavLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${styles.moreDropdownItem} ${isActive(link.href) ? styles.moreDropdownItemActive : ""}`}
+                  onClick={() => setMoreDropdownOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Header Actions Container (Visible on Desktop, Tablet & Mobile Header) */}
+      <div className={styles.headerActions}>
         {sessionEmail ? (
           <div className={styles.profileContainer}>
             <button 
@@ -151,32 +219,32 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
             Login
           </Link>
         )}
-      </nav>
 
-      {/* Hamburger Button */}
-      <button
-        className={styles.mobileMenuBtn}
-        id="btn-mobile-menu"
-        aria-label={menuOpen ? "Close menu" : "Open menu"}
-        aria-expanded={menuOpen}
-        aria-controls="mobile-nav-drawer"
-        onClick={() => setMenuOpen((prev) => !prev)}
-      >
-        {menuOpen ? (
-          /* X icon */
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        ) : (
-          /* Hamburger icon */
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="4" y1="12" x2="20" y2="12" />
-            <line x1="4" y1="18" x2="20" y2="18" />
-          </svg>
-        )}
-      </button>
+        {/* Hamburger Button */}
+        <button
+          className={styles.mobileMenuBtn}
+          id="btn-mobile-menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav-drawer"
+          onClick={() => setMenuOpen((prev) => !prev)}
+        >
+          {menuOpen ? (
+            /* X icon */
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            /* Hamburger icon */
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+          )}
+        </button>
+      </div>
 
       {/* Mobile Backdrop */}
       {menuOpen && (
@@ -210,7 +278,24 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
         </div>
 
         <div className={styles.mobileNavLinks}>
-          {navLinks.map((link) => (
+          {/* Section 1: Core Navigation */}
+          <div className={styles.drawerSectionLabel}>Main</div>
+          {primaryNavLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`${styles.mobileNavLink} ${isActive(link.href) ? styles.mobileNavLinkActive : ""}`}
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          <div className={styles.drawerSectionDivider} />
+
+          {/* Section 2: Explore */}
+          <div className={styles.drawerSectionLabel}>Explore</div>
+          {secondaryNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -223,6 +308,8 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
 
           {sessionEmail ? (
             <>
+              <div className={styles.drawerSectionDivider} />
+              <div className={styles.drawerSectionLabel}>Account</div>
               {isUserAdmin && (
                 <Link
                   href="/admin"

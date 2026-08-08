@@ -206,6 +206,29 @@
   font-weight: 600;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.drawerSectionLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  text-transform: uppercase;
+  padding: 0.6rem 0.75rem 0.2rem 0.75rem;
+  opacity: 0.9;
+}
+
+.drawerSectionDivider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 0.5rem 0.5rem;
+  opacity: 0.6;
+}
+
 .mobileNavLinkAuth {
   font-size: 0.975rem;
   font-weight: 600;
@@ -674,21 +697,110 @@
   word-break: break-all;
 }
 
+/* ─── More Dropdown Navigation ──────────────────────────────── */
+.secondaryDesktopGroup {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.moreDropdownContainer {
+  position: relative;
+  display: none;
+}
+
+.moreBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: inherit;
+}
+
+.dropdownArrow {
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.dropdownArrowOpen {
+  transform: rotate(180deg);
+}
+
+.moreDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  width: 170px;
+  background: rgba(9, 9, 11, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 250;
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.moreDropdownItem {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.moreDropdownItem:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.moreDropdownItemActive {
+  color: var(--accent) !important;
+  background-color: rgba(251, 191, 36, 0.08) !important;
+  font-weight: 600;
+}
+
 /* ─── Responsive Breakpoints ────────────────────────────────── */
 
-/* Large tablet / small desktop — compact the nav links */
-@media (max-width: 1024px) {
-  .nav {
-    gap: 0.1rem;
+/* XL Desktop — display all primary + secondary links inline */
+@media (min-width: 1200px) {
+  .secondaryDesktopGroup {
+    display: flex;
   }
-  .navLink {
-    font-size: 0.825rem;
-    padding: 0.4rem 0.5rem;
+  .moreDropdownContainer {
+    display: none;
   }
 }
 
-/* Tablet — show hamburger, hide desktop nav */
-@media (max-width: 768px) {
+/* LG Laptop / Small Desktop (900px - 1199px) — show primary + More dropdown */
+@media (max-width: 1199px) and (min-width: 900px) {
+  .nav {
+    gap: 0.2rem;
+  }
+  .secondaryDesktopGroup {
+    display: none;
+  }
+  .moreDropdownContainer {
+    display: block;
+  }
+  .navLink {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.6rem;
+  }
+}
+
+/* Tablet & Mobile (< 900px) — show hamburger menu button, hide desktop nav */
+@media (max-width: 899px) {
   .nav {
     display: none;
   }
