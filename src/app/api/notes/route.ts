@@ -11,26 +11,23 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "60", 10);
 
-    if (!university) {
-      return NextResponse.json(
-        { error: "University parameter is required" },
-        { status: 400 }
-      );
-    }
-
     const supabase = await createSupabaseServerClient();
 
     // 1. Fetch metadata (lightweight branch/semester note summaries for folder tree & counts)
-    const { data: allNotesMeta } = await supabase
-      .from("notes")
-      .select("id, title, branch, semester")
-      .eq("university", university);
+    let metaQuery = supabase.from("notes").select("id, title, branch, semester, university");
+    if (university && university !== "All universities") {
+      metaQuery = metaQuery.eq("university", university);
+    }
+    const { data: allNotesMeta } = await metaQuery;
 
     // 2. Build filtered notes query
     let query = supabase
       .from("notes")
-      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed", { count: "exact" })
-      .eq("university", university);
+      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed", { count: "exact" });
+
+    if (university && university !== "All universities") {
+      query = query.eq("university", university);
+    }
 
     if (branch && branch !== "All branches") {
       query = query.eq("branch", branch);
@@ -95,7 +92,7 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+          "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
         },
       }
     );

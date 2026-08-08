@@ -26,7 +26,12 @@ interface RazorpayWindow extends Window {
   Razorpay?: new (options: unknown) => { open: () => void };
 }
 
-export default function HomeContent() {
+interface HomeContentProps {
+  initialNotes?: Note[];
+  initialMeta?: { id: string; title: string; branch: string; semester: string; university?: string }[];
+}
+
+export default function HomeContent({ initialNotes = [], initialMeta = [] }: HomeContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
@@ -36,9 +41,21 @@ export default function HomeContent() {
   const { authState, email: userEmail, username: userUsername, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
 
   // Live database states
-  const [metaNotes, setMetaNotes] = useState<{ id: string; title: string; branch: string; semester: string }[]>([]);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [metaNotes, setMetaNotes] = useState<{ id: string; title: string; branch: string; semester: string; university?: string }[]>(initialMeta);
+  const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedUniv, setSelectedUniv] = useState("All universities");
+
+  const availableUniversities = useMemo(() => {
+    const set = new Set<string>();
+    metaNotes.forEach((m) => {
+      if (m.university) set.add(m.university);
+    });
+    if (set.size === 0) {
+      ["Mumbai University", "SPPU (Pune)", "DBATU", "RTMNU (Nagpur)"].forEach((u) => set.add(u));
+    }
+    return Array.from(set).sort();
+  }, [metaNotes]);
 
   // Search state (initialized in useEffect based on preferences)
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,8 +89,10 @@ export default function HomeContent() {
     const b = searchParams.get("branch");
     const s = searchParams.get("semester");
     const q = searchParams.get("q");
+    const u = searchParams.get("university");
     if (b) setSelectedBranch(b);
     if (s) setSelectedSemester(s);
+    if (u) setSelectedUniv(u);
     if (q) {
       setSearchQuery(q);
       setDebouncedSearchQuery(q);
@@ -90,15 +109,32 @@ export default function HomeContent() {
 
   // ── Fetch server-side filtered notes via /api/notes ─────────────────────
   useEffect(() => {
-    if (authState !== "ready" || !userUniversity) return;
+    // For unauthenticated visitors on default initial load, use pre-rendered initialNotes to preserve Supabase free tier bandwidth
+    if (
+      authState === "unauthenticated" &&
+      selectedUniv === "All universities" &&
+      selectedBranch === "All branches" &&
+      selectedSemester === "All semesters" &&
+      !debouncedSearchQuery &&
+      initialNotes.length > 0
+    ) {
+      setNotes(initialNotes);
+      setMetaNotes(initialMeta);
+      return;
+    }
+
+    if (authState === "loading") return;
+    if (authState === "ready" && !userUniversity) return;
 
     async function loadData() {
       setIsLoading(true);
       try {
-        const queryParams = new URLSearchParams({
-          university: userUniversity!,
-        });
+        const queryParams = new URLSearchParams();
+        const activeUniv = userUniversity || (selectedUniv !== "All universities" ? selectedUniv : "");
 
+        if (activeUniv) {
+          queryParams.set("university", activeUniv);
+        }
         if (selectedBranch && selectedBranch !== "All branches") {
           queryParams.set("branch", selectedBranch);
         }
@@ -158,7 +194,7 @@ export default function HomeContent() {
     }
 
     loadData();
-  }, [authState, userUniversity, selectedBranch, selectedSemester, debouncedSearchQuery]);
+  }, [authState, userUniversity, selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta]);
 
   // Server pre-filters notes, so filteredNotes simply references state notes
   const filteredNotes = notes;
@@ -468,7 +504,632 @@ export default function HomeContent() {
     );
   }
 
-  if (authState === "unauthenticated") return <LoginGate />;
+  const renderModals = () => (
+    <>
+      {/* Checkout Modal */}
+      {showCheckoutPrompt && checkoutNote && (
+        <div className={styles.modalBackdrop} onClick={() => setShowCheckoutPrompt(false)} id="checkout-backdrop">
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="checkout-modal-content">
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Unlock Study Resource</h3>
+              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.modalCloseBtn} id="btn-close-checkout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{checkoutNote.title}</h4>
+              {!userEmail ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
+                  <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+                    You need to be signed in to purchase or access premium study guides.
+                  </p>
+                  <Link
+                    href={`/login?redirect=/?unlock=${checkoutNote.id}`}
+                    className={styles.btnPrimary}
+                    style={{ justifyContent: "center", textDecoration: "none" }}
+                    id="btn-login-to-purchase"
+                  >
+                    Log In / Sign Up
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                    This is a premium resource. Proceed to verify your past purchase or buy now for <strong>₹{checkoutNote.price}</strong>.
+                  </p>
+                  <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "0.5rem" }} id="checkout-form">
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>Account Profile Email</label>
+                      <input
+                        type="email"
+                        id="checkout-email"
+                        required
+                        value={checkoutEmail}
+                        onChange={(e) => setCheckoutEmail(e.target.value)}
+                        disabled={true}
+                        style={{ 
+                          width: "100%", 
+                          backgroundColor: "var(--background)", 
+                          border: "1px solid var(--border)", 
+                          borderRadius: "var(--radius-sm)", 
+                          color: "var(--text-primary)", 
+                          padding: "0.75rem 1rem", 
+                          fontFamily: "var(--font-sans)", 
+                          outline: "none", 
+                          opacity: 0.75 
+                        }}
+                      />
+                      <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>Logged in session email</span>
+                    </div>
+                    <button
+                      type="submit"
+                      className={styles.btnPrimary}
+                      disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
+                      style={{ justifyContent: "center", marginTop: "0.25rem" }}
+                      id="btn-trigger-payment-flow"
+                    >
+                      {checkoutStatus === "verifying" && "Checking database logs..."}
+                      {checkoutStatus === "paying" && "Accessing secure Razorpay checkout..."}
+                      {checkoutStatus === "idle" && "Proceed to Unlock"}
+                    </button>
+                    {activeOrderId && (
+                      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <button
+                          type="button"
+                          onClick={handleSyncPayment}
+                          disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
+                          className={styles.btnSecondary}
+                          style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
+                          id="btn-sync-payment"
+                        >
+                          {checkoutStatus === "verifying" ? "Syncing..." : "Already Paid? Sync Payment Status"}
+                        </button>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
+                          Use this if your payment was deducted but the note did not unlock.
+                        </span>
+                      </div>
+                    )}
+                  </form>
+                </>
+              )}
+            </div>
+            <div className={styles.modalFooter}>
+              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.btnSecondary} id="btn-close-checkout-footer">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video / PDF Modal */}
+      {modalType && selectedNote && (
+        <div className={styles.modalBackdrop} onClick={closeModal} id="modal-backdrop">
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="modal-content-container">
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                {modalType === "video" && "Video Walkthrough"}
+                {modalType === "pdf" && "Download PDF File"}
+              </h3>
+              <button onClick={closeModal} className={styles.modalCloseBtn} id="btn-close-modal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <span className={styles.tagBranch}>{selectedNote.branch}</span>
+                <span className={styles.badgeSemester}>{selectedNote.semester}</span>
+              </div>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{selectedNote.title}</h4>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.5 }}>{selectedNote.description}</p>
+
+              {modalType === "video" && (
+                <div className={styles.videoWrapper} id="video-preview-iframe">
+                  <iframe
+                    src={selectedNote.videoUrl}
+                    title={`${selectedNote.title} Video Walkthrough`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              )}
+
+              {modalType === "pdf" && (
+                <div style={{ 
+                  textAlign: "center", 
+                  padding: "2.5rem 1.5rem", 
+                  backgroundColor: "var(--background)", 
+                  borderRadius: "var(--radius)", 
+                  border: "1px dashed var(--border)" 
+                }} id="pdf-download-pane">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" style={{ marginBottom: "1.25rem" }}>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <polyline points="9 15 12 18 15 15"></polyline>
+                  </svg>
+                  <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>{selectedNote.title}.pdf</h5>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
+                  <button
+                    onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
+                    className={styles.btnPrimary}
+                    style={{ marginTop: "1.5rem", width: "100%", justifyContent: "center" }}
+                    disabled={downloadingPdf}
+                    id="btn-trigger-pdf-download"
+                  >
+                    {downloadingPdf ? "Downloading file..." : "Download PDF File"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button onClick={closeModal} className={styles.btnSecondary} id="btn-close-modal-footer">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  if (authState === "unauthenticated") {
+    return (
+      <>
+        <LoginGate
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedUniv={selectedUniv}
+          setSelectedUniv={setSelectedUniv}
+          availableUniversities={availableUniversities}
+          resultsCount={filteredNotes.length}
+        >
+
+          {/* Featured Notes Catalog Section (Identical Code & Layout) */}
+          <section className={styles.notesSection} id="featured-notes-section">
+          <div className={styles.catalogHeader}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
+              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+              <select
+                value={selectedUniv}
+                onChange={(e) => setSelectedUniv(e.target.value)}
+                style={{
+                  padding: "0.45rem 0.85rem",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                  background: "var(--card-bg)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  outline: "none"
+                }}
+                id="select-university-filter-unauth"
+              >
+                <option value="All universities">🎓 All Universities</option>
+                {availableUniversities.map((u) => (
+                  <option key={u} value={u}>{u}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Desktop: inline search */}
+            <div className={styles.catalogSearchDesktop}>
+              <div className={styles.inputGroup} style={{ minWidth: "260px" }}>
+                <svg className={styles.inputIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search notes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                  id="search-notes-input-unauth"
+                  style={{ fontSize: "0.875rem", padding: "0.65rem 1rem 0.65rem 2.5rem" }}
+                />
+              </div>
+              {searchQuery && (
+                <button onClick={handleClearFilters} className={styles.btnClearMinimal} aria-label="Clear search">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Mobile: icon toggle */}
+            <div className={styles.catalogSearchMobile}>
+              <button
+                className={styles.searchIconBtn}
+                onClick={() => { setSearchOpen(v => !v); if (searchOpen) setSearchQuery(""); }}
+                aria-label={searchOpen ? "Close search" : "Open search"}
+                id="btn-toggle-search-unauth"
+              >
+                {searchOpen ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile expanded search input */}
+          {searchOpen && (
+            <div className={styles.mobileSearchExpanded} id="mobile-search-expanded-unauth">
+              <div className={styles.inputGroup}>
+                <svg className={styles.inputIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search notes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                  id="search-notes-input-mobile-unauth"
+                  autoFocus
+                />
+              </div>
+            </div>
+          )}
+
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "5rem 2rem", color: "var(--text-secondary)" }}>
+              <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.06)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1.25rem" }} />
+              <h3>Syncing notes with database...</h3>
+            </div>
+          ) : debouncedSearchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
+            /* Flat list mode for Search or Semester-only filtering */
+            <div>
+              <div className={styles.breadcrumbsContainer}>
+                <div className={styles.breadcrumbs}>
+                  <span 
+                    className={styles.breadcrumbLink} 
+                    onClick={() => {
+                      setSelectedBranch("All branches");
+                      setSelectedSemester("All semesters");
+                    }}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <FaGraduationCap style={{ fontSize: "1.1rem" }} /> Library
+                  </span>
+                  
+                  {selectedBranch !== "All branches" && (
+                    <>
+                      <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                      <span 
+                        className={selectedSemester === "All semesters" ? styles.breadcrumbActive : styles.breadcrumbLink}
+                        onClick={() => {
+                          if (selectedSemester !== "All semesters") {
+                            setSelectedSemester("All semesters");
+                          }
+                        }}
+                      >
+                        {selectedBranch}
+                      </span>
+                    </>
+                  )}
+                  
+                  {selectedSemester !== "All semesters" && (
+                    <>
+                      <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                      <span className={styles.breadcrumbActive}>
+                        {selectedSemester}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {(selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
+                  <button 
+                    className={styles.btnBreadcrumbBack}
+                    onClick={() => {
+                      if (selectedSemester !== "All semesters") {
+                        setSelectedSemester("All semesters");
+                      } else {
+                        setSelectedBranch("All branches");
+                      }
+                    }}
+                  >
+                    <FaArrowLeft /> Back
+                  </button>
+                )}
+              </div>
+
+              {filteredNotes.length > 0 ? (
+                <div className={styles.grid}>
+                  {filteredNotes.map((note) => {
+                    const hasVideo = !!note.videoUrl;
+                    const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
+                    return (
+                      <article 
+                        key={note.id} 
+                        className={`${styles.noteCard} ${styles.noteCardGlow}`} 
+                        id={`unauth-note-${note.id}`}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => router.push(`/notes/${note.id}`)}
+                      >
+                        <div className={styles.noteCardHeader}>
+                          <h3 className={styles.noteCardTitle}>
+                            <Link href={`/notes/${note.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                              {note.title}
+                            </Link>
+                          </h3>
+                        </div>
+                        <div className={styles.badgeRow}>
+                          <span className={styles.tagBranch}>{note.branch}</span>
+                          <span className={styles.badgeSemester}>{note.semester}</span>
+                          {note.price && note.price > 0 ? (
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+                              ₹{note.price}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+                              Free
+                            </span>
+                          )}
+                        </div>
+                        <p className={styles.noteCardDesc}>{note.description}</p>
+                        <div className={styles.noteCardActions} style={{ display: "grid", gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr", gap: "0.5rem" }}>
+                          {hasVideo && (
+                            <button onClick={(e) => { e.stopPropagation(); openModal(note, "video"); }} className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}>
+                              Watch Video
+                            </button>
+                          )}
+                          <button onClick={(e) => { e.stopPropagation(); router.push(`/notes/${note.id}`); }} className={`${styles.btnNoteAction} ${styles.btnNoteDownloadFree}`} style={{ gridColumn: hasVideo ? "auto" : "span 2" }}>
+                            Preview & Details →
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.noResults}>
+                  <h3>No study notes found</h3>
+                  <p>Try clearing search keywords or selecting another university filter.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Folder navigation mode - Identical Level 1 & 2 Folders */
+            <div>
+              <div className={styles.breadcrumbsContainer}>
+                <div className={styles.breadcrumbs}>
+                  <span 
+                    className={styles.breadcrumbLink} 
+                    onClick={() => {
+                      setSelectedBranch("All branches");
+                      setSelectedSemester("All semesters");
+                    }}
+                  >
+                    <FaGraduationCap style={{ fontSize: "1.1rem" }} /> Library
+                  </span>
+                  
+                  {selectedBranch !== "All branches" && (
+                    <>
+                      <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                      <span 
+                        className={selectedSemester === "All semesters" ? styles.breadcrumbActive : styles.breadcrumbLink}
+                        onClick={() => {
+                          if (selectedSemester !== "All semesters") {
+                            setSelectedSemester("All semesters");
+                          }
+                        }}
+                      >
+                        {selectedBranch}
+                      </span>
+                    </>
+                  )}
+                  
+                  {selectedSemester !== "All semesters" && (
+                    <>
+                      <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                      <span className={styles.breadcrumbActive}>
+                        {selectedSemester}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {(selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
+                  <button 
+                    className={styles.btnBreadcrumbBack}
+                    onClick={() => {
+                      if (selectedSemester !== "All semesters") {
+                        setSelectedSemester("All semesters");
+                      } else {
+                        setSelectedBranch("All branches");
+                      }
+                    }}
+                  >
+                    <FaArrowLeft /> Back
+                  </button>
+                )}
+              </div>
+
+              {notes.length === 0 ? (
+                <div className={styles.noResults}>
+                  <h3>No study notes found</h3>
+                  <p>Try selecting another university filter or adjusting your search.</p>
+                </div>
+              ) : selectedBranch === "All branches" ? (
+                /* Level 1: Branch Folders */
+                <div className={styles.folderGrid}>
+                  {activeBranches.map((branch) => {
+                    const semesters = branchSemestersMap[branch] || [];
+                    const count = branchNotesCount[branch] || 0;
+                    return (
+                      <div 
+                        key={branch} 
+                        className={`${styles.folderCard} ${getBranchFolderClass(branch)}`}
+                        onClick={() => setSelectedBranch(branch)}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <div className={styles.folderIconContainer}>
+                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaFolderOpen className={styles.folderOpenedIcon} />
+                        </div>
+                        <div className={styles.folderHeaderInfo}>
+                          <h3 className={styles.folderTitle}>{branch}</h3>
+                          <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} available</span>
+                        </div>
+                        <div className={styles.folderBadges}>
+                          {semesters.map((sem) => (
+                            <span key={sem} className={styles.folderMiniBadge}>{sem}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : selectedSemester === "All semesters" ? (
+                /* Level 2: Semester Folders */
+                <div className={styles.folderGrid}>
+                  {(branchSemestersMap[selectedBranch] || []).map((sem) => {
+                    const key = `${selectedBranch}-${sem}`;
+                    const count = semesterNotesCount[key] || 0;
+                    const previews = folderPreviewsMap[key] || [];
+                    return (
+                      <div 
+                        key={sem} 
+                        className={`${styles.folderCard} ${getBranchFolderClass(selectedBranch)}`}
+                        onClick={() => setSelectedSemester(sem)}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <div className={styles.folderIconContainer}>
+                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaFolderOpen className={styles.folderOpenedIcon} />
+                        </div>
+                        <div className={styles.folderHeaderInfo}>
+                          <h3 className={styles.folderTitle}>{sem} Folder</h3>
+                          <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} inside</span>
+                        </div>
+                        {previews.length > 0 && (
+                          <ul className={styles.folderPreviewList}>
+                            {previews.map((title, idx) => (
+                              <li key={idx}>{title}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* Level 3: Notes Grid for selected branch & semester */
+                <div className={styles.grid}>
+                  {filteredNotes.map((note) => {
+                    const hasVideo = !!note.videoUrl;
+                    const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
+                    return (
+                      <article 
+                        key={note.id} 
+                        className={`${styles.noteCard} ${styles.noteCardGlow}`} 
+                        id={`unauth-grid-note-${note.id}`}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => router.push(`/notes/${note.id}`)}
+                      >
+                        <div className={styles.noteCardHeader}>
+                          <h3 className={styles.noteCardTitle}>
+                            <Link href={`/notes/${note.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                              {note.title}
+                            </Link>
+                          </h3>
+                        </div>
+                        <div className={styles.badgeRow}>
+                          <span className={styles.tagBranch}>{note.branch}</span>
+                          <span className={styles.badgeSemester}>{note.semester}</span>
+                          {note.price && note.price > 0 ? (
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+                              ₹{note.price}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+                              Free
+                            </span>
+                          )}
+                        </div>
+                        <p className={styles.noteCardDesc}>{note.description}</p>
+                        <div className={styles.noteCardActions} style={{ display: "grid", gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr", gap: "0.5rem" }}>
+                          {hasVideo && (
+                            <button onClick={(e) => { e.stopPropagation(); openModal(note, "video"); }} className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}>
+                              Watch Video
+                            </button>
+                          )}
+                          <button onClick={(e) => { e.stopPropagation(); router.push(`/notes/${note.id}`); }} className={`${styles.btnNoteAction} ${styles.btnNoteDownloadFree}`} style={{ gridColumn: hasVideo ? "auto" : "span 2" }}>
+                            Preview & Details →
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* High Conversion Callout Banner */}
+        <section style={{
+          background: "linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 146, 60, 0.08) 100%)",
+          border: "1px solid rgba(251, 191, 36, 0.3)",
+          borderRadius: "16px",
+          padding: "1.75rem 2rem",
+          margin: "2.5rem 0 1rem",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1.5rem"
+        }}>
+          <div>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.35rem" }}>
+              Found the study guide for your exam? 🎓
+            </h3>
+            <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0 }}>
+              Sign up in 15 seconds to download offline PDF copies, access visual video walkthroughs, and unlock full guides.
+            </p>
+          </div>
+          <Link href="/login" style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            backgroundColor: "var(--accent)",
+            color: "#000",
+            fontWeight: 800,
+            fontSize: "0.9rem",
+            padding: "0.75rem 1.75rem",
+            borderRadius: "10px",
+            textDecoration: "none",
+          }}>
+            Sign Up / Log In to Unlock <FaChevronRight style={{ fontSize: "0.75rem" }} />
+          </Link>
+        </section>
+      </LoginGate>
+        {renderModals()}
+      </>
+    );
+  }
 
   if (authState === "no-username") {
     return <UsernameGate email={userEmail} onComplete={async () => { await refreshAuth(); }} />;
@@ -480,100 +1141,50 @@ export default function HomeContent() {
 
   return (
     <main className={styles.main}>
-      {/* Personalized Welcome Banner */}
-      <section className={styles.welcomeBanner} id="dashboard-welcome-banner">
-        <div className={styles.welcomeLeft}>
-          <div className={styles.welcomeUnivBadge}>
-            🎓 {userUniversity} Library
-          </div>
-          <h1 className={styles.welcomeTitle} id="welcome-title">
-            Welcome back,{" "}
-            <span style={{
-              background: "linear-gradient(135deg, var(--accent) 30%, #fb923c 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent"
-            }}>
-              {userUsername ?? "Student"}
-            </span>{" "}👋
-          </h1>
-          <p className={styles.welcomeSubtitle}>
-            Your branch folders, semester filters, and exam materials are ready below.
-          </p>
-        </div>
-        <div className={styles.welcomeActions}>
-          <Link
-            href="/dashboard"
-            className={styles.btnSecondary}
-            style={{ padding: "0.6rem 1.25rem", fontSize: "0.875rem" }}
-            id="btn-go-to-dashboard"
-          >
-            Open My Library 
-          </Link>
-        </div>
-      </section>
-
-      {/* Contribution Service CTA Banner */}
+      {/* Compact Logged-In Student Header */}
       <section style={{
-        background: "linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%)",
-        border: "1px solid rgba(245, 158, 11, 0.25)",
-        borderRadius: "16px",
-        padding: "1.5rem 1.75rem",
-        marginBottom: "2rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: "1.5rem",
+        gap: "1rem",
         flexWrap: "wrap",
-        boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)",
+        marginBottom: "1.5rem",
+        padding: "1rem 1.25rem",
+        background: "var(--card-bg)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius)",
       }}>
-        <div style={{ flex: "1 1 400px" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", backgroundColor: "rgba(245, 158, 11, 0.15)", color: "var(--accent, #f59e0b)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "20px", padding: "0.2rem 0.65rem", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.6rem" }}>
-            <FaCoins /> Contribution Service
-          </div>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.4rem" }}>
-            Turn Your Study Notes Into Earnings 💰
-          </h2>
-          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-            Share high-quality PDF notes & earn <strong>70% to 90% revenue share</strong> with direct UPI payouts. Help your peers excel while building your verified academic profile!
-          </p>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>
+            Welcome back, <span style={{ color: "var(--accent)" }}>{userUsername ?? "Student"}</span> 👋
+          </span>
+          <span style={{
+            fontSize: "0.775rem",
+            fontWeight: 700,
+            background: "rgba(251, 191, 36, 0.12)",
+            color: "var(--accent)",
+            padding: "0.25rem 0.65rem",
+            borderRadius: "999px",
+            border: "1px solid rgba(251, 191, 36, 0.25)"
+          }}>
+            🎓 {userUniversity}
+          </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <Link
             href="/contribute"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              backgroundColor: "var(--accent, #f59e0b)",
-              color: "#000",
-              fontWeight: 800,
-              fontSize: "0.875rem",
-              padding: "0.65rem 1.25rem",
-              borderRadius: "10px",
-              textDecoration: "none",
-              transition: "transform 0.15s ease",
-            }}
-          >
-            How It Works <FaChevronRight style={{ fontSize: "0.75rem" }} />
-          </Link>
-          <Link
-            href="/dashboard?tab=submissions"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              backgroundColor: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "var(--text-primary)",
+              fontSize: "0.8rem",
               fontWeight: 700,
-              fontSize: "0.875rem",
-              padding: "0.65rem 1.25rem",
-              borderRadius: "10px",
+              color: "var(--text-secondary)",
               textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem"
             }}
           >
-            <FaCloudArrowUp style={{ fontSize: "1.05rem" }} /> Submit Note
+            💰 Earn by contributing notes →
           </Link>
         </div>
       </section>
@@ -581,9 +1192,31 @@ export default function HomeContent() {
       {/* Featured Notes Section */}
       <section className={styles.notesSection} id="featured-notes-section">
         <div className={styles.catalogHeader}>
-          <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
             <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
-
+            {!userUniversity && (
+              <select
+                value={selectedUniv}
+                onChange={(e) => setSelectedUniv(e.target.value)}
+                style={{
+                  padding: "0.45rem 0.85rem",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                  background: "var(--card-bg)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  outline: "none"
+                }}
+                id="select-university-filter"
+              >
+                <option value="All universities">🎓 All Universities</option>
+                {availableUniversities.map((u) => (
+                  <option key={u} value={u}>{u}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Desktop: inline search */}
@@ -1264,175 +1897,7 @@ export default function HomeContent() {
 
       </section>
 
-      {/* Checkout Modal */}
-      {showCheckoutPrompt && checkoutNote && (
-        <div className={styles.modalBackdrop} onClick={() => setShowCheckoutPrompt(false)} id="checkout-backdrop">
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="checkout-modal-content">
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Unlock Study Resource</h3>
-              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.modalCloseBtn} id="btn-close-checkout">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{checkoutNote.title}</h4>
-              {!userEmail ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
-                    You need to be signed in to purchase or access premium study guides.
-                  </p>
-                  <Link
-                    href={`/login?redirect=/?unlock=${checkoutNote.id}`}
-                    className={styles.btnPrimary}
-                    style={{ justifyContent: "center", textDecoration: "none" }}
-                    id="btn-login-to-purchase"
-                  >
-                    Log In / Sign Up
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                    This is a premium resource. Proceed to verify your past purchase or buy now for <strong>₹{checkoutNote.price}</strong>.
-                  </p>
-                  <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "0.5rem" }} id="checkout-form">
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>Account Profile Email</label>
-                      <input
-                        type="email"
-                        id="checkout-email"
-                        required
-                        value={checkoutEmail}
-                        onChange={(e) => setCheckoutEmail(e.target.value)}
-                        disabled={true}
-                        style={{ 
-                          width: "100%", 
-                          backgroundColor: "var(--background)", 
-                          border: "1px solid var(--border)", 
-                          borderRadius: "var(--radius-sm)", 
-                          color: "var(--text-primary)", 
-                          padding: "0.75rem 1rem", 
-                          fontFamily: "var(--font-sans)", 
-                          outline: "none", 
-                          opacity: 0.75 
-                        }}
-                      />
-                      <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>Logged in session email</span>
-                    </div>
-                    <button
-                      type="submit"
-                      className={styles.btnPrimary}
-                      disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
-                      style={{ justifyContent: "center", marginTop: "0.25rem" }}
-                      id="btn-trigger-payment-flow"
-                    >
-                      {checkoutStatus === "verifying" && "Checking database logs..."}
-                      {checkoutStatus === "paying" && "Accessing secure Razorpay checkout..."}
-                      {checkoutStatus === "idle" && "Proceed to Unlock"}
-                    </button>
-                    {activeOrderId && (
-                      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <button
-                          type="button"
-                          onClick={handleSyncPayment}
-                          disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
-                          className={styles.btnSecondary}
-                          style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
-                          id="btn-sync-payment"
-                        >
-                          {checkoutStatus === "verifying" ? "Syncing..." : "Already Paid? Sync Payment Status"}
-                        </button>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
-                          Use this if your payment was deducted but the note did not unlock.
-                        </span>
-                      </div>
-                    )}
-                  </form>
-                </>
-              )}
-            </div>
-            <div className={styles.modalFooter}>
-              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.btnSecondary} id="btn-close-checkout-footer">Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Video / PDF Modal */}
-      {modalType && selectedNote && (
-        <div className={styles.modalBackdrop} onClick={closeModal} id="modal-backdrop">
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="modal-content-container">
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                {modalType === "video" && "Video Walkthrough"}
-                {modalType === "pdf" && "Download PDF File"}
-              </h3>
-              <button onClick={closeModal} className={styles.modalCloseBtn} id="btn-close-modal">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <span className={styles.tagBranch}>{selectedNote.branch}</span>
-                <span className={styles.badgeSemester}>{selectedNote.semester}</span>
-              </div>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{selectedNote.title}</h4>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.5 }}>{selectedNote.description}</p>
-
-              {modalType === "video" && (
-                <div className={styles.videoWrapper} id="video-preview-iframe">
-                  <iframe
-                    src={selectedNote.videoUrl}
-                    title={`${selectedNote.title} Video Walkthrough`}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              )}
-
-              {modalType === "pdf" && (
-                <div style={{ 
-                  textAlign: "center", 
-                  padding: "2.5rem 1.5rem", 
-                  backgroundColor: "var(--background)", 
-                  borderRadius: "var(--radius)", 
-                  border: "1px dashed var(--border)" 
-                }} id="pdf-download-pane">
-                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" style={{ marginBottom: "1.25rem" }}>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                    <polyline points="9 15 12 18 15 15"></polyline>
-                  </svg>
-                  <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>{selectedNote.title}.pdf</h5>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
-                  <button
-                    onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
-                    className={styles.btnPrimary}
-                    style={{ marginTop: "1.5rem", width: "100%", justifyContent: "center" }}
-                    disabled={downloadingPdf}
-                    id="btn-trigger-pdf-download"
-                  >
-                    {downloadingPdf ? "Downloading file..." : "Download PDF File"}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button onClick={closeModal} className={styles.btnSecondary} id="btn-close-modal-footer">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderModals()}
     </main>
   );
 }

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { createClient } from "@supabase/supabase-js";
 import HomeContent from "../components/portal/HomeContent";
+import { Note } from "../data/mockData";
+
+export const revalidate = 300; // Cache and revalidate every 5 minutes (ISR)
 
 export const metadata: Metadata = {
   title: "Private Academy | Engineering Study Notes, Guides & Video Tutorials",
@@ -15,7 +19,75 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+async function getPublicNotesData() {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return { notes: [], meta: [] };
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    const { data: rawNotes } = await supabase
+      .from("notes")
+      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed")
+      .order("title", { ascending: true })
+      .limit(100);
+
+    const meta = (rawNotes || []).map((n) => ({
+      id: n.id,
+      title: n.title,
+      branch: n.branch,
+      semester: n.semester,
+      university: n.university || undefined,
+    }));
+
+    const contributorIds = Array.from(
+      new Set((rawNotes || []).map((n) => n.contributor_id).filter((id): id is string => Boolean(id)))
+    );
+
+    const userMap: Record<string, { username?: string | null; full_name?: string | null }> = {};
+    if (contributorIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("users")
+        .select("id, username, full_name")
+        .in("id", contributorIds);
+
+      if (profiles) {
+        profiles.forEach((p) => {
+          userMap[p.id] = { username: p.username, full_name: p.full_name };
+        });
+      }
+    }
+
+    const formattedNotes: Note[] = (rawNotes || []).map((item) => ({
+      id: item.id,
+      title: item.title,
+      branch: item.branch as Note["branch"],
+      semester: item.semester as Note["semester"],
+      description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
+      downloadUrl: item.price && Number(item.price) > 0 ? "" : (item.download_url || ""),
+      videoUrl: item.video_url || "",
+      price: item.price ? Number(item.price) : 0,
+      university: item.university || undefined,
+      is_community_contributed: item.is_community_contributed,
+      contributor_id: item.contributor_id,
+      contributor_username: item.contributor_id ? userMap[item.contributor_id]?.username : null,
+      contributor_name: item.contributor_id ? userMap[item.contributor_id]?.full_name : null,
+    }));
+
+    return { notes: formattedNotes, meta };
+  } catch (err) {
+    console.error("Error pre-fetching public notes:", err);
+    return { notes: [], meta: [] };
+  }
+}
+
+export default async function Home() {
+  const { notes, meta } = await getPublicNotesData();
+
   return (
     <Suspense
       fallback={
@@ -27,7 +99,7 @@ export default function Home() {
         </div>
       }
     >
-      <HomeContent />
+      <HomeContent initialNotes={notes} initialMeta={meta} />
     </Suspense>
   );
 }

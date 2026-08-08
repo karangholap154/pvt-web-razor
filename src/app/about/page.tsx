@@ -410,6 +410,40 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Frequently Asked Questions */}
+      <section className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }} id="about-faq-section">
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", textAlign: "center" }}>Frequently Asked Questions</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.25rem" }}>
+          {[
+            {
+              q: "Are the notes aligned with university syllabus?",
+              a: "Yes. All uploaded notes are periodically reviewed by senior contributors to match current university syllabus requirements."
+            },
+            {
+              q: "Can I view PDF previews before downloading?",
+              a: "Yes! Every note details page allows you to preview the first 3 pages of the PDF before unlocking or downloading."
+            },
+            {
+              q: "Is checkout secure?",
+              a: "Yes. We use Razorpay with PCI-DSS compliance. We never capture or store your payment credentials on our database."
+            },
+            {
+              q: "Can I upload my own study notes?",
+              a: "Yes! You can share your verified study notes and earn 70% to 90% revenue share with direct UPI payouts."
+            }
+          ].map((faq, idx) => (
+            <div key={idx} style={{ padding: "1.5rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "rgba(24, 24, 27, 0.2)" }}>
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.5rem", display: "flex", gap: "0.4rem" }}>
+                <span style={{ color: "var(--accent)" }}>Q:</span> {faq.q}
+              </h4>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.55, margin: 0 }}>
+                {faq.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Support / Contact Section */}
       <section className="animate-fade contact-cta" style={{ padding: "2.5rem", borderRadius: "var(--radius-lg)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }} id="about-contact-section">
         <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary)" }}>Get in Touch</h3>
