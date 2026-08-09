@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../discussions.module.css";
-import { FaArrowLeft, FaThumbsUp, FaCheck, FaFilePdf, FaPaperPlane, FaMessage, FaShareNodes, FaLock, FaTrash } from "react-icons/fa6";
+import { FaArrowLeft, FaThumbsUp, FaCheck, FaFilePdf, FaPaperPlane, FaMessage, FaShareNodes, FaLock, FaTrash, FaComments } from "react-icons/fa6";
 import type { DiscussionPost, DiscussionReply } from "@/types/discussions";
+import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
 
 export default function DiscussionThreadPage({
   params,
@@ -250,6 +251,30 @@ export default function DiscussionThreadPage({
       setIsSubmittingReply(false);
     }
   };
+
+  if (IS_DISCUSSIONS_COMING_SOON) {
+    return (
+      <main className={styles.mainContainer}>
+        <div className={styles.comingSoonWrapper}>
+          <div className={styles.comingSoonCard}>
+            <div className={styles.comingSoonGlow} />
+            <div className={styles.comingSoonBadge}>
+              <FaComments style={{ color: "#f59e0b" }} /> Community Discussions • Coming Soon 🚀
+            </div>
+            <h1 className={styles.comingSoonTitle}>
+              Discussions Feature Under Maintenance
+            </h1>
+            <p className={styles.comingSoonSubtitle}>
+              This discussion thread is currently hidden while we upgrade our student community features.
+            </p>
+            <Link href="/discussions" className={styles.comingSoonBtn}>
+              Return to Discussions Home
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (authState === "loading" || isLoading) {
     return (

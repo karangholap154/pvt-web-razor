@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import AskQuestionModal from "@/components/discussions/AskQuestionModal";
 import styles from "./discussions.module.css";
 import { FaPlus, FaMagnifyingGlass, FaComments, FaFire, FaCircleQuestion, FaCircleCheck } from "react-icons/fa6";
 import type { DiscussionPost } from "@/types/discussions";
+import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
 
 export default function DiscussionsClient() {
   const router = useRouter();
@@ -110,6 +112,62 @@ export default function DiscussionsClient() {
     }
     setIsModalOpen(true);
   };
+
+  if (IS_DISCUSSIONS_COMING_SOON) {
+    return (
+      <main className={styles.mainContainer}>
+        <div className={styles.comingSoonWrapper}>
+          <div className={styles.comingSoonCard}>
+            {/* Top Radial Yellow Glow */}
+            <div className={styles.comingSoonGlow} />
+
+            {/* Status Badge */}
+            <div className={styles.comingSoonBadge}>
+              <FaComments style={{ color: "#f59e0b" }} /> Community Discussions • Coming Soon 🚀
+            </div>
+
+            {/* Main Heading */}
+            <h1 className={styles.comingSoonTitle}>
+              Student Doubts & Peer Discussions
+            </h1>
+
+            {/* Subtitle */}
+            <p className={styles.comingSoonSubtitle}>
+              We are building an AI-moderated, ultra-fast peer discussion hub for engineering students to ask exam doubts, share pyq solutions, and collaborate with university peers.
+            </p>
+
+            {/* Teaser Feature Cards */}
+            <div className={styles.comingSoonGrid}>
+              <div className={styles.comingSoonTeaserCard}>
+                <div className={styles.comingSoonTeaserIcon}>🎓</div>
+                <h3 className={styles.comingSoonTeaserTitle}>University Doubts</h3>
+                <p className={styles.comingSoonTeaserText}>Ask & solve questions specific to your university and branch.</p>
+              </div>
+
+              <div className={styles.comingSoonTeaserCard}>
+                <div className={styles.comingSoonTeaserIcon}>🛡️</div>
+                <h3 className={styles.comingSoonTeaserTitle}>AI Moderated</h3>
+                <p className={styles.comingSoonTeaserText}>Multilingual safety protection keeping discussions respectful & helpful.</p>
+              </div>
+
+              <div className={styles.comingSoonTeaserCard}>
+                <div className={styles.comingSoonTeaserIcon}>📄</div>
+                <h3 className={styles.comingSoonTeaserTitle}>Linked Notes</h3>
+                <p className={styles.comingSoonTeaserText}>Attach study notes and PYQ solution PDFs directly to questions.</p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/" className={styles.comingSoonBtn}>
+                Explore Notes & Question Papers 📚
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (authState === "loading") {
     return (
