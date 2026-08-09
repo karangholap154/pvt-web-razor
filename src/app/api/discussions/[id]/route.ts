@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
 
 export async function GET(
   request: Request,
@@ -201,6 +202,106 @@ export async function POST(
     return NextResponse.json({ success: true, reply: enrichedReply }, { status: 201 });
   } catch (err) {
     console.error("Discussion POST reply exception:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: "Discussion ID is required" }, { status: 400 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const replyId = searchParams.get("replyId");
+
+    const supabase = await createSupabaseServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (replyId) {
+      // 1. Fetch reply & verify ownership
+      const { data: reply, error: fetchError } = await supabaseAdmin
+        .from("discussion_replies")
+        .select("id, user_id")
+        .eq("id", replyId)
+        .eq("discussion_id", id)
+        .maybeSingle();
+
+      if (fetchError || !reply) {
+        return NextResponse.json({ error: "Reply not found" }, { status: 404 });
+      }
+
+      if (reply.user_id !== user.id) {
+        return NextResponse.json({ error: "You can only delete your own replies" }, { status: 403 });
+      }
+
+      // Perform deletion using supabaseAdmin
+      const { error: deleteError } = await supabaseAdmin
+        .from("discussion_replies")
+        .delete()
+        .eq("id", replyId)
+        .eq("user_id", user.id);
+
+      if (deleteError) {
+        console.error("Error deleting reply:", deleteError);
+        return NextResponse.json({ error: deleteError.message }, { status: 500 });
+      }
+
+      // Sync discussion replies_count
+      const { data: remainingReplies } = await supabaseAdmin
+        .from("discussion_replies")
+        .select("id")
+        .eq("discussion_id", id);
+
+      const newCount = remainingReplies ? remainingReplies.length : 0;
+      await supabaseAdmin
+        .from("discussions")
+        .update({
+          replies_count: newCount,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+
+      return NextResponse.json({ success: true, message: "Reply deleted successfully" });
+    } else {
+      // 2. Fetch discussion topic & verify ownership
+      const { data: discussion, error: fetchError } = await supabaseAdmin
+        .from("discussions")
+        .select("id, user_id")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchError || !discussion) {
+        return NextResponse.json({ error: "Discussion not found" }, { status: 404 });
+      }
+
+      if (discussion.user_id !== user.id) {
+        return NextResponse.json({ error: "You can only delete your own doubts" }, { status: 403 });
+      }
+
+      const { error: deleteError } = await supabaseAdmin
+        .from("discussions")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+      if (deleteError) {
+        console.error("Error deleting discussion:", deleteError);
+        return NextResponse.json({ error: deleteError.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, message: "Doubt deleted successfully" });
+    }
+  } catch (err) {
+    console.error("Discussion DELETE exception:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

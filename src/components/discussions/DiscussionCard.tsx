@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaThumbsUp, FaCheck, FaMessage, FaFilePdf, FaShareNodes } from "react-icons/fa6";
+import { FaThumbsUp, FaCheck, FaMessage, FaFilePdf, FaShareNodes, FaTrash } from "react-icons/fa6";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -12,16 +12,53 @@ import type { DiscussionPost } from "@/types/discussions";
 interface DiscussionCardProps {
   post: DiscussionPost;
   onVoteToggle?: (postId: string, newCount: number, voted: boolean) => void;
+  onDelete?: (postId: string) => void;
 }
 
-export default function DiscussionCard({ post, onVoteToggle }: DiscussionCardProps) {
+export default function DiscussionCard({ post, onVoteToggle, onDelete }: DiscussionCardProps) {
   const router = useRouter();
   const toast = useToast();
-  const { authState } = useAuth();
+  const { authState, username } = useAuth();
 
   const [upvotes, setUpvotes] = useState(post.upvotes_count || 0);
   const [hasVoted, setHasVoted] = useState(post.has_user_voted || false);
   const [isVoting, setIsVoting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isAuthor = Boolean(
+    username &&
+      post.author?.username &&
+      username.toLowerCase() === post.author.username.toLowerCase()
+  );
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isDeleting) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this doubt? This action cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/discussions/${post.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Doubt deleted successfully!");
+        if (onDelete) onDelete(post.id);
+      } else {
+        toast.error(data.error || "Failed to delete doubt.");
+      }
+    } catch (err) {
+      console.error("Error deleting post:", err);
+      toast.error("An error occurred while deleting doubt.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleVote = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -190,6 +227,20 @@ export default function DiscussionCard({ post, onVoteToggle }: DiscussionCardPro
             <FaShareNodes style={{ fontSize: "0.85rem" }} />
             <span>Share</span>
           </button>
+
+          {/* Delete Action (Author only) */}
+          {isAuthor && (
+            <button
+              type="button"
+              className={`${styles.actionBtn} ${styles.actionDelete}`}
+              onClick={handleDelete}
+              disabled={isDeleting}
+              title="Delete your doubt"
+            >
+              <FaTrash style={{ fontSize: "0.85rem" }} />
+              <span>{isDeleting ? "Deleting..." : "Delete"}</span>
+            </button>
+          )}
         </div>
       </div>
     </article>

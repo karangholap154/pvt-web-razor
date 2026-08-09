@@ -260,7 +260,13 @@ export default function DiscussionsClient() {
       ) : (
         <div className={styles.feedList}>
           {discussions.map((post) => (
-            <DiscussionCard key={post.id} post={post} />
+            <DiscussionCard
+              key={post.id}
+              post={post}
+              onDelete={(postId) =>
+                setDiscussions((prev) => prev.filter((p) => p.id !== postId))
+              }
+            />
           ))}
 
           {page < totalPages && (

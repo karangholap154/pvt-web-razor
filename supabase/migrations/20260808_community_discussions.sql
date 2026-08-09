@@ -63,9 +63,11 @@ ALTER TABLE public.discussion_votes ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public read access to discussions" ON public.discussions;
 DROP POLICY IF EXISTS "Allow authenticated users to create discussions" ON public.discussions;
 DROP POLICY IF EXISTS "Allow original poster to update discussion" ON public.discussions;
+DROP POLICY IF EXISTS "Allow original poster to delete discussion" ON public.discussions;
 DROP POLICY IF EXISTS "Allow public read access to discussion replies" ON public.discussion_replies;
 DROP POLICY IF EXISTS "Allow authenticated users to create replies" ON public.discussion_replies;
 DROP POLICY IF EXISTS "Allow update replies" ON public.discussion_replies;
+DROP POLICY IF EXISTS "Allow author to delete reply" ON public.discussion_replies;
 DROP POLICY IF EXISTS "Allow public read votes" ON public.discussion_votes;
 DROP POLICY IF EXISTS "Allow authenticated user to vote" ON public.discussion_votes;
 DROP POLICY IF EXISTS "Allow authenticated user to delete vote" ON public.discussion_votes;
@@ -79,6 +81,9 @@ CREATE POLICY "Allow authenticated users to create discussions" ON public.discus
 
 CREATE POLICY "Allow original poster to update discussion" ON public.discussions
   FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow original poster to delete discussion" ON public.discussions
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- Replies Policies
 CREATE POLICY "Allow public read access to discussion replies" ON public.discussion_replies
@@ -94,6 +99,9 @@ CREATE POLICY "Allow update replies" ON public.discussion_replies
       SELECT d.user_id FROM public.discussions d WHERE d.id = discussion_id
     )
   );
+
+CREATE POLICY "Allow author to delete reply" ON public.discussion_replies
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- Votes Policies
 CREATE POLICY "Allow public read votes" ON public.discussion_votes

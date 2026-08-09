@@ -375,6 +375,32 @@
   background: rgba(56, 189, 248, 0.12);
 }
 
+.actionDelete:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.btnDanger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnDanger:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
 /* Modal Overlay & Form */
 .modalOverlay {
   position: fixed;

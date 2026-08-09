@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../discussions.module.css";
-import { FaArrowLeft, FaThumbsUp, FaCheck, FaFilePdf, FaPaperPlane, FaMessage, FaShareNodes, FaLock } from "react-icons/fa6";
+import { FaArrowLeft, FaThumbsUp, FaCheck, FaFilePdf, FaPaperPlane, FaMessage, FaShareNodes, FaLock, FaTrash } from "react-icons/fa6";
 import type { DiscussionPost, DiscussionReply } from "@/types/discussions";
 
 export default function DiscussionThreadPage({
@@ -18,12 +18,14 @@ export default function DiscussionThreadPage({
   const discussionId = resolvedParams.id;
   const router = useRouter();
   const toast = useToast();
-  const { authState } = useAuth();
+  const { authState, username } = useAuth();
 
   const [discussion, setDiscussion] = useState<DiscussionPost | null>(null);
   const [replies, setReplies] = useState<DiscussionReply[]>([]);
   const [isOriginalPoster, setIsOriginalPoster] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeletingPost, setIsDeletingPost] = useState(false);
+  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
 
   // New reply state
   const [replyText, setReplyText] = useState("");
@@ -154,6 +156,63 @@ export default function DiscussionThreadPage({
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href);
       toast.success("Discussion link copied to clipboard! 🔗");
+    }
+  };
+
+  // OP-Only Delete Doubt
+  const handleDeletePost = async () => {
+    if (!isOriginalPoster || isDeletingPost) return;
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this doubt? This will delete all answers and comments as well."
+    );
+    if (!confirmed) return;
+
+    setIsDeletingPost(true);
+    try {
+      const res = await fetch(`/api/discussions/${discussionId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Doubt deleted successfully!");
+        router.push("/discussions");
+      } else {
+        toast.error(data.error || "Failed to delete doubt.");
+      }
+    } catch {
+      toast.error("An error occurred while deleting doubt.");
+    } finally {
+      setIsDeletingPost(false);
+    }
+  };
+
+  // Delete Reply
+  const handleDeleteReply = async (replyId: string) => {
+    if (deletingReplyId) return;
+    const confirmed = window.confirm("Are you sure you want to delete this answer?");
+    if (!confirmed) return;
+
+    setDeletingReplyId(replyId);
+    try {
+      const res = await fetch(`/api/discussions/${discussionId}?replyId=${replyId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Answer deleted successfully!");
+        setReplies((prev) => prev.filter((r) => r.id !== replyId));
+        setDiscussion((prev) =>
+          prev ? { ...prev, replies_count: Math.max(0, (prev.replies_count || 1) - 1) } : null
+        );
+      } else {
+        toast.error(data.error || "Failed to delete answer.");
+      }
+    } catch {
+      toast.error("An error occurred while deleting answer.");
+    } finally {
+      setDeletingReplyId(null);
     }
   };
 
@@ -305,6 +364,19 @@ export default function DiscussionThreadPage({
               <FaShareNodes style={{ fontSize: "0.85rem" }} />
               <span>Share</span>
             </button>
+
+            {isOriginalPoster && (
+              <button
+                type="button"
+                className={`${styles.actionBtn} ${styles.actionDelete}`}
+                onClick={handleDeletePost}
+                disabled={isDeletingPost}
+                title="Delete your doubt"
+              >
+                <FaTrash style={{ fontSize: "0.85rem" }} />
+                <span>{isDeletingPost ? "Deleting..." : "Delete"}</span>
+              </button>
+            )}
           </div>
         </div>
       </article>
@@ -323,6 +395,11 @@ export default function DiscussionThreadPage({
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {replies.map((reply) => {
               const replyInitial = (reply.author?.username || "S").charAt(0).toUpperCase();
+              const isReplyAuthor = Boolean(
+                username &&
+                  reply.author?.username &&
+                  username.toLowerCase() === reply.author.username.toLowerCase()
+              );
               return (
                 <div
                   key={reply.id}
@@ -392,6 +469,20 @@ export default function DiscussionThreadPage({
                           }}
                         >
                           <FaCheck /> Mark as Best Answer
+                        </button>
+                      )}
+
+                      {/* Delete Answer Action (Reply author only) */}
+                      {isReplyAuthor && (
+                        <button
+                          type="button"
+                          className={`${styles.actionBtn} ${styles.actionDelete}`}
+                          onClick={() => handleDeleteReply(reply.id)}
+                          disabled={deletingReplyId === reply.id}
+                          title="Delete your answer"
+                        >
+                          <FaTrash style={{ fontSize: "0.8rem" }} />
+                          <span>{deletingReplyId === reply.id ? "Deleting..." : "Delete"}</span>
                         </button>
                       )}
                     </div>
