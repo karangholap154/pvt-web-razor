@@ -33,7 +33,6 @@ export default function ContributeModal({
 
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [activeModalTab, setActiveModalTab] = useState<"submit" | "guide">("submit");
 
   if (!isOpen) return null;
 
@@ -156,14 +155,30 @@ export default function ContributeModal({
           grid-template-columns: 1fr 1fr;
           gap: 1rem;
         }
+        .cm-action-btns {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+          margin-top: 0.5rem;
+        }
         @media (max-width: 540px) {
           .cm-modal-box {
-            padding: 1.1rem;
-            max-height: 95vh;
+            padding: 1rem 0.85rem !important;
+            max-height: 94vh !important;
+            border-radius: 14px !important;
           }
           .cm-grid-2col {
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+          }
+          .cm-action-btns {
+            flex-direction: column-reverse !important;
+            gap: 0.6rem !important;
+          }
+          .cm-action-btns > button {
+            width: 100% !important;
+            justify-content: center !important;
+            min-height: 44px !important;
           }
         }
       `}</style>
@@ -204,120 +219,6 @@ export default function ContributeModal({
           </button>
         </div>
 
-        {/* Modal Navigation Tabs */}
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", borderBottom: "1px solid var(--border, rgba(255,255,255,0.1))", paddingBottom: "0.5rem" }}>
-          <button
-            type="button"
-            onClick={() => setActiveModalTab("submit")}
-            style={{
-              padding: "0.45rem 0.9rem",
-              borderRadius: "6px",
-              border: "none",
-              backgroundColor: activeModalTab === "submit" ? "var(--accent, #f59e0b)" : "transparent",
-              color: activeModalTab === "submit" ? "#000" : "var(--text-secondary)",
-              fontWeight: 700,
-              cursor: "pointer",
-              fontSize: "0.825rem",
-            }}
-          >
-            📄 Submit Note
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveModalTab("guide")}
-            style={{
-              padding: "0.45rem 0.9rem",
-              borderRadius: "6px",
-              border: "none",
-              backgroundColor: activeModalTab === "guide" ? "var(--accent, #f59e0b)" : "transparent",
-              color: activeModalTab === "guide" ? "#000" : "var(--text-secondary)",
-              fontWeight: 700,
-              cursor: "pointer",
-              fontSize: "0.825rem",
-            }}
-          >
-            💡 How It Works & Revenue
-          </button>
-        </div>
-
-        {activeModalTab === "guide" ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-            <div style={{ backgroundColor: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.25)", borderRadius: "10px", padding: "1rem" }}>
-              <h4 style={{ color: "var(--text-primary)", margin: "0 0 0.4rem", fontSize: "0.95rem", fontWeight: 700 }}>
-                🚀 How the Contribution Service Works
-              </h4>
-              <p style={{ margin: 0, lineHeight: 1.5 }}>
-                Share your handwritten or digital PDF study notes with university peers. Earn up to <strong>90% of net sales</strong> with direct payout to your UPI ID.
-              </p>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-              <h5 style={{ color: "var(--text-primary)", margin: 0, fontWeight: 700 }}>Workflow Overview</h5>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
-                <div style={{ backgroundColor: "rgba(0,0,0,0.25)", padding: "0.65rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--accent)", fontSize: "0.8rem" }}>1. Submit PDF</div>
-                  <div style={{ fontSize: "0.75rem", marginTop: "0.2rem" }}>PDF under 5 MB with subject, branch, and semester details.</div>
-                </div>
-                <div style={{ backgroundColor: "rgba(0,0,0,0.25)", padding: "0.65rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--accent)", fontSize: "0.8rem" }}>2. Admin Approval</div>
-                  <div style={{ fontSize: "0.75rem", marginTop: "0.2rem" }}>Admins verify legibility, accuracy, and note quality.</div>
-                </div>
-                <div style={{ backgroundColor: "rgba(0,0,0,0.25)", padding: "0.65rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--accent)", fontSize: "0.8rem" }}>3. Go Live</div>
-                  <div style={{ fontSize: "0.75rem", marginTop: "0.2rem" }}>Listed on marketplace with your profile attribution & badge.</div>
-                </div>
-                <div style={{ backgroundColor: "rgba(0,0,0,0.25)", padding: "0.65rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--accent)", fontSize: "0.8rem" }}>4. Get Paid</div>
-                  <div style={{ fontSize: "0.75rem", marginTop: "0.2rem" }}>Withdraw earnings to UPI upon accumulating ₹100+.</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: "10px", padding: "0.85rem", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <h5 style={{ color: "var(--text-primary)", margin: "0 0 0.4rem", fontWeight: 700 }}>Badge Tiers & Revenue Share</h5>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", fontSize: "0.78rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>🎓 Contributor (Base)</span>
-                  <strong style={{ color: "#22c55e" }}>70% Share</strong>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>⚡ Rising Scholar (3+ Notes, 25+ Sales)</span>
-                  <strong style={{ color: "#3b82f6" }}>75% Share</strong>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>🌟 Top Author (5+ Notes, 50+ Sales)</span>
-                  <strong style={{ color: "#f59e0b" }}>82% Share</strong>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>👑 Legend (10+ Notes, 100+ Sales)</span>
-                  <strong style={{ color: "#ec4899" }}>90% Share</strong>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", marginTop: "0.5rem" }}>
-              <a href="/contribute" target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.8rem", color: "var(--accent)", textDecoration: "underline", alignSelf: "center" }}>
-                Full Contribution Guide ➔
-              </a>
-              <button
-                type="button"
-                onClick={() => setActiveModalTab("submit")}
-                style={{
-                  padding: "0.6rem 1.25rem",
-                  borderRadius: "8px",
-                  border: "none",
-                  backgroundColor: "var(--accent, #f59e0b)",
-                  color: "#000",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  fontSize: "0.85rem",
-                }}
-              >
-                Submit Note Now
-              </button>
-            </div>
-          </div>
-        ) : (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           {/* File Dropzone */}
           <div>
@@ -488,7 +389,7 @@ export default function ContributeModal({
           </p>
 
           {/* Action Buttons */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "0.5rem" }}>
+          <div className="cm-action-btns">
             <button
               type="button"
               onClick={onClose}
@@ -526,7 +427,6 @@ export default function ContributeModal({
             </button>
           </div>
         </form>
-        )}
       </div>
     </div>
   );

@@ -178,8 +178,8 @@ select option:checked {
   color: var(--accent, #fbbf24);
 }
 
-/* Mobile Responsiveness for Select Dropdowns */
-@media (max-width: 600px) {
+/* Mobile Responsiveness Utilities */
+@media (max-width: 640px) {
   select {
     font-size: 0.825rem;
     padding-left: 0.75rem;
@@ -187,5 +187,9 @@ select option:checked {
     background-position: right 0.65rem center;
     background-size: 1em;
     min-height: 44px; /* Accessible mobile touch target height */
+  }
+
+  .hide-on-mobile {
+    display: none !important;
   }
 }

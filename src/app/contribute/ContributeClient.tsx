@@ -17,7 +17,8 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaCircleQuestion,
-  FaArrowLeft,
+  FaFlask,
+  FaCircleCheck,
 } from "react-icons/fa6";
 
 export default function ContributeClient() {
@@ -100,44 +101,234 @@ export default function ContributeClient() {
   ];
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      backgroundColor: "var(--bg-primary, #0a0a0c)",
-      color: "var(--text-primary, #f9fafb)",
-      padding: "2rem 1rem 5rem 1rem",
-      fontFamily: "inherit"
-    }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        
-        {/* Back Link */}
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            color: "var(--text-secondary)",
-            fontSize: "0.875rem",
-            textDecoration: "none",
-            marginBottom: "1.5rem",
-            fontWeight: 600
-          }}
-        >
-          <FaArrowLeft /> Back to Library
-        </Link>
+    <div style={{ backgroundColor: "var(--bg-primary, #0a0a0c)", color: "var(--text-primary, #f9fafb)", minHeight: "100vh" }}>
+      {/* ── BETA NOTICE STRIP (Full Edge-to-Edge Width touching left & right screen edges) ── */}
+      <div style={{
+        width: "100%",
+        background: "linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)",
+        borderBottom: "1px solid rgba(245, 158, 11, 0.3)",
+        backdropFilter: "blur(8px)",
+        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.25)"
+      }}>
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0.55rem 1.5rem",
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "0.5rem 0.75rem"
+        }} className="contrib-beta-inner">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem 0.65rem", flexWrap: "wrap", flex: "1 1 260px", minWidth: 0 }}>
+            <span style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              backgroundColor: "rgba(245, 158, 11, 0.22)",
+              color: "#f59e0b",
+              border: "1px solid rgba(245, 158, 11, 0.45)",
+              borderRadius: "20px",
+              padding: "0.2rem 0.6rem",
+              fontSize: "0.725rem",
+              fontWeight: 800,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              flexShrink: 0
+            }}>
+              <FaFlask style={{ fontSize: "0.8rem" }} /> Beta
+            </span>
 
+            <p style={{ margin: 0, fontSize: "clamp(0.775rem, 3.2vw, 0.825rem)", color: "var(--text-primary, #f9fafb)", lineHeight: 1.4, fontWeight: 500, flex: "1 1 200px", minWidth: 0 }}>
+              The Contributor Program is in <strong>Beta</strong>, but fully functional! Note uploads, reviews, and UPI payouts are <strong>100% operational</strong>.
+            </p>
+          </div>
+
+          <div 
+            className="hide-on-mobile"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              fontSize: "0.725rem",
+              color: "#22c55e",
+              fontWeight: 700,
+              backgroundColor: "rgba(34, 197, 94, 0.1)",
+              border: "1px solid rgba(34, 197, 94, 0.25)",
+              borderRadius: "20px",
+              padding: "0.2rem 0.6rem",
+              whiteSpace: "nowrap",
+              flexShrink: 0
+            }}
+          >
+            <FaCircleCheck style={{ fontSize: "0.8rem" }} /> Fully Operational
+          </div>
+        </div>
+      </div>
+
+      <div className="contrib-page-container">
+        <style>{`
+          .contrib-beta-container {
+            padding: 0 1.5rem;
+          }
+          .contrib-page-container {
+            padding: 1.5rem 1rem 5rem 1rem;
+            font-family: inherit;
+          }
+          .contrib-main-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+          }
+          .contrib-hero-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 50px -15px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+          }
+          .contrib-hero-title {
+            font-size: clamp(1.65rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.18;
+            margin: 0 0 1.25rem 0;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent, #f59e0b) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+          .contrib-hero-subtitle {
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+            color: var(--text-secondary, #9ca3af);
+            max-width: 750px;
+            margin: 0 auto 2rem auto;
+            line-height: 1.6;
+          }
+          .contrib-hero-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+          }
+          .contrib-section-margin {
+            margin-bottom: 4rem;
+          }
+          .contrib-section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+          }
+          .contrib-section-title {
+            font-size: clamp(1.35rem, 4.5vw, 1.8rem);
+            font-weight: 800;
+            margin: 0 0 0.5rem 0;
+          }
+          .contrib-section-sub {
+            color: var(--text-secondary);
+            font-size: clamp(0.85rem, 3vw, 0.95rem);
+          }
+          .contrib-calc-box {
+            background-color: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 4rem;
+          }
+          .contrib-calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+          }
+          .contrib-calc-output {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+          .contrib-card-padding {
+            padding: 1.5rem;
+          }
+          .contrib-faq-answer {
+            padding: 0 1.3rem 1.1rem 2.6rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            border-top: 1px dashed rgba(255,255,255,0.06);
+            padding-top: 0.85rem;
+          }
+          .contrib-cta-box {
+            background-color: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+          }
+
+          /* Mobile Breakpoints (< 640px) */
+          @media (max-width: 640px) {
+            .contrib-beta-inner {
+              padding: 0.55rem 0.85rem !important;
+            }
+            .contrib-page-container {
+              padding: 1rem 0.75rem 3.5rem 0.75rem !important;
+            }
+            .contrib-hero-card {
+              padding: 1.75rem 1rem !important;
+              border-radius: 18px !important;
+              margin-bottom: 2rem !important;
+            }
+            .contrib-hero-btn-group {
+              flex-direction: column !important;
+              width: 100% !important;
+            }
+            .contrib-hero-btn-group > button,
+            .contrib-hero-btn-group > a {
+              width: 100% !important;
+              justify-content: center !important;
+            }
+            .contrib-section-margin {
+              margin-bottom: 2.5rem !important;
+            }
+            .contrib-section-header {
+              margin-bottom: 1.25rem !important;
+            }
+            .contrib-card-padding {
+              padding: 1.15rem 0.85rem !important;
+              border-radius: 14px !important;
+            }
+            .contrib-calc-box {
+              padding: 1.15rem 0.85rem !important;
+              border-radius: 16px !important;
+              margin-bottom: 2.5rem !important;
+            }
+            .contrib-calc-grid {
+              gap: 1.25rem !important;
+            }
+            .contrib-calc-output {
+              padding: 1.15rem 0.85rem !important;
+            }
+            .contrib-faq-answer {
+              padding: 0.65rem 0.85rem 1rem 0.85rem !important;
+            }
+            .contrib-cta-box {
+              padding: 1.5rem 1rem !important;
+              border-radius: 16px !important;
+            }
+            .contrib-cta-box > button {
+              width: 100% !important;
+              justify-content: center !important;
+            }
+          }
+        `}</style>
+        <div className="contrib-main-wrapper">
+          
         {/* ── 1. HERO SECTION ────────────────────────────────────────────── */}
-        <section style={{
-          background: "linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%)",
-          border: "1px solid rgba(245, 158, 11, 0.3)",
-          borderRadius: "24px",
-          padding: "3rem 2rem",
-          textAlign: "center",
-          marginBottom: "3rem",
-          boxShadow: "0 20px 50px -15px rgba(0,0,0,0.6)",
-          position: "relative",
-          overflow: "hidden"
-        }}>
+        <section className="contrib-hero-card">
           <div style={{
             display: "inline-flex",
             alignItems: "center",
@@ -154,29 +345,15 @@ export default function ContributeClient() {
             💰 Contribution Service Program
           </div>
 
-          <h1 style={{
-            fontSize: "clamp(2rem, 5vw, 3.2rem)",
-            fontWeight: 900,
-            lineHeight: 1.15,
-            margin: "0 0 1.25rem 0",
-            background: "linear-gradient(135deg, #ffffff 30%, var(--accent, #f59e0b) 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent"
-          }}>
+          <h1 className="contrib-hero-title">
             Monetize Your University Notes &amp; Empower Peers
           </h1>
 
-          <p style={{
-            fontSize: "1.1rem",
-            color: "var(--text-secondary, #9ca3af)",
-            maxWidth: "750px",
-            margin: "0 auto 2rem auto",
-            lineHeight: 1.6
-          }}>
+          <p className="contrib-hero-subtitle">
             Turn your semester revision guides into a continuous passive income stream. Earn up to <strong>90% revenue share</strong> with direct payouts straight to your UPI account!
           </p>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+          <div className="contrib-hero-btn-group">
             <button
               onClick={() => setIsModalOpen(true)}
               style={{
@@ -218,22 +395,21 @@ export default function ContributeClient() {
         </section>
 
         {/* ── 2. STEP-BY-STEP WORKFLOW ────────────────────────────────────── */}
-        <section style={{ marginBottom: "4rem" }}>
-          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1.8rem", fontWeight: 800, margin: "0 0 0.5rem" }}>How It Works in 4 Simple Steps</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>A transparent process from note upload to instant UPI earnings</p>
+        <section className="contrib-section-margin">
+          <div className="contrib-section-header">
+            <h2 className="contrib-section-title">How It Works in 4 Simple Steps</h2>
+            <p className="contrib-section-sub">A transparent process from note upload to instant UPI earnings</p>
           </div>
 
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: "1.25rem"
           }}>
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(255, 255, 255, 0.03)",
               border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
               borderRadius: "16px",
-              padding: "1.5rem",
               position: "relative"
             }}>
               <div style={{
@@ -256,11 +432,10 @@ export default function ContributeClient() {
               </p>
             </div>
 
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(255, 255, 255, 0.03)",
               border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{
                 width: "48px",
@@ -282,11 +457,10 @@ export default function ContributeClient() {
               </p>
             </div>
 
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(255, 255, 255, 0.03)",
               border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{
                 width: "48px",
@@ -308,11 +482,10 @@ export default function ContributeClient() {
               </p>
             </div>
 
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(255, 255, 255, 0.03)",
               border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{
                 width: "48px",
@@ -337,32 +510,27 @@ export default function ContributeClient() {
         </section>
 
         {/* ── 3. INTERACTIVE EARNINGS CALCULATOR ──────────────────────────── */}
-        <section id="calculator" style={{
-          backgroundColor: "rgba(0, 0, 0, 0.35)",
-          border: "1px solid var(--border, rgba(255, 255, 255, 0.12))",
-          borderRadius: "20px",
-          padding: "2rem",
-          marginBottom: "4rem"
-        }}>
+        <section id="calculator" className="contrib-calc-box">
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
             <div style={{
               backgroundColor: "rgba(245, 158, 11, 0.15)",
               color: "var(--accent, #f59e0b)",
               padding: "0.6rem",
               borderRadius: "10px",
-              fontSize: "1.2rem"
+              fontSize: "1.2rem",
+              flexShrink: 0
             }}>
               <FaCalculator />
             </div>
             <div>
-              <h2 style={{ fontSize: "1.4rem", fontWeight: 800, margin: 0 }}>Interactive Earnings Calculator</h2>
+              <h2 className="contrib-section-title" style={{ fontSize: "clamp(1.2rem, 4vw, 1.4rem)" }}>Interactive Earnings Calculator</h2>
               <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: "0.2rem 0 0" }}>
                 Estimate how much you can earn based on your uploaded notes and unlocks
               </p>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem" }}>
+          <div className="contrib-calc-grid">
             {/* Input Controls */}
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <div>
@@ -414,20 +582,12 @@ export default function ContributeClient() {
             </div>
 
             {/* Calculated Output Card */}
-            <div style={{
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid rgba(245, 158, 11, 0.3)",
-              borderRadius: "16px",
-              padding: "1.5rem",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between"
-            }}>
+            <div className="contrib-calc-output">
               <div>
                 <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>
                   Estimated Contributor Tier
                 </div>
-                <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--accent)", margin: "0.25rem 0 1rem 0" }}>
+                <div style={{ fontSize: "clamp(1.1rem, 4vw, 1.3rem)", fontWeight: 800, color: "var(--accent)", margin: "0.25rem 0 1rem 0" }}>
                   {badgeTierLabel} <span style={{ fontSize: "0.9rem", color: "#22c55e", fontWeight: 700 }}>({(shareRate * 100).toFixed(0)}% Share)</span>
                 </div>
 
@@ -449,10 +609,10 @@ export default function ContributeClient() {
 
               <div style={{ marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                 <div style={{ fontSize: "0.825rem", color: "#22c55e", fontWeight: 700 }}>Your Net Contributor Earnings</div>
-                <div style={{ fontSize: "2.2rem", fontWeight: 900, color: "#22c55e", margin: "0.2rem 0" }}>
+                <div style={{ fontSize: "clamp(1.75rem, 6vw, 2.2rem)", fontWeight: 900, color: "#22c55e", margin: "0.2rem 0" }}>
                   ₹{netEarnings.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
                   💡 {nextTierGoal}
                 </div>
               </div>
@@ -461,18 +621,17 @@ export default function ContributeClient() {
         </section>
 
         {/* ── 4. GAMIFIED BADGE TIERS ─────────────────────────────────────── */}
-        <section style={{ marginBottom: "4rem" }}>
-          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1.8rem", fontWeight: 800, margin: "0 0 0.5rem" }}>Contributor Badge Tiers &amp; Revenue Splits</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>The more quality notes you contribute, the higher your revenue split becomes!</p>
+        <section className="contrib-section-margin">
+          <div className="contrib-section-header">
+            <h2 className="contrib-section-title">Contributor Badge Tiers &amp; Revenue Splits</h2>
+            <p className="contrib-section-sub">The more quality notes you contribute, the higher your revenue split becomes!</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "1.25rem" }}>
-            <div style={{
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(34, 197, 94, 0.05)",
               border: "1px solid rgba(34, 197, 94, 0.25)",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>🎓</div>
               <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#22c55e", margin: "0 0 0.25rem" }}>Verified Contributor</h3>
@@ -482,11 +641,10 @@ export default function ContributeClient() {
               </p>
             </div>
 
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(59, 130, 246, 0.05)",
               border: "1px solid rgba(59, 130, 246, 0.25)",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>⚡</div>
               <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#3b82f6", margin: "0 0 0.25rem" }}>Rising Scholar</h3>
@@ -496,11 +654,10 @@ export default function ContributeClient() {
               </p>
             </div>
 
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(245, 158, 11, 0.05)",
               border: "1px solid rgba(245, 158, 11, 0.25)",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>🌟</div>
               <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#f59e0b", margin: "0 0 0.25rem" }}>Top Author</h3>
@@ -510,11 +667,10 @@ export default function ContributeClient() {
               </p>
             </div>
 
-            <div style={{
+            <div className="contrib-card-padding" style={{
               backgroundColor: "rgba(236, 72, 153, 0.05)",
               border: "1px solid rgba(236, 72, 153, 0.25)",
-              borderRadius: "16px",
-              padding: "1.5rem"
+              borderRadius: "16px"
             }}>
               <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>👑</div>
               <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#ec4899", margin: "0 0 0.25rem" }}>Legend Author</h3>
@@ -527,10 +683,10 @@ export default function ContributeClient() {
         </section>
 
         {/* ── 5. FAQ ACCORDION ───────────────────────────────────────────── */}
-        <section style={{ marginBottom: "4rem" }}>
-          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1.8rem", fontWeight: 800, margin: "0 0 0.5rem" }}>Frequently Asked Questions</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>Everything you need to know about contributing notes</p>
+        <section className="contrib-section-margin">
+          <div className="contrib-section-header">
+            <h2 className="contrib-section-title">Frequently Asked Questions</h2>
+            <p className="contrib-section-sub">Everything you need to know about contributing notes</p>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", maxWidth: "850px", margin: "0 auto" }}>
@@ -550,35 +706,28 @@ export default function ContributeClient() {
                     onClick={() => setOpenFaqIndex(isOpen ? null : index)}
                     style={{
                       width: "100%",
-                      padding: "1.1rem 1.3rem",
+                      padding: "1rem 1.15rem",
                       backgroundColor: "transparent",
                       border: "none",
                       color: "var(--text-primary)",
                       fontWeight: 700,
-                      fontSize: "0.95rem",
+                      fontSize: "clamp(0.85rem, 3.2vw, 0.95rem)",
                       textAlign: "left",
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
-                      gap: "1rem"
+                      gap: "0.75rem"
                     }}
                   >
                     <span style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                      <FaCircleQuestion style={{ color: "var(--accent)" }} /> {faq.q}
+                      <FaCircleQuestion style={{ color: "var(--accent)", flexShrink: 0 }} /> {faq.q}
                     </span>
-                    {isOpen ? <FaChevronUp style={{ fontSize: "0.8rem" }} /> : <FaChevronDown style={{ fontSize: "0.8rem" }} />}
+                    {isOpen ? <FaChevronUp style={{ fontSize: "0.8rem", flexShrink: 0 }} /> : <FaChevronDown style={{ fontSize: "0.8rem", flexShrink: 0 }} />}
                   </button>
 
                   {isOpen && (
-                    <div style={{
-                      padding: "0 1.3rem 1.1rem 2.6rem",
-                      fontSize: "0.875rem",
-                      color: "var(--text-secondary)",
-                      lineHeight: 1.6,
-                      borderTop: "1px dashed rgba(255,255,255,0.06)",
-                      paddingTop: "0.85rem"
-                    }}>
+                    <div className="contrib-faq-answer">
                       {faq.a}
                     </div>
                   )}
@@ -589,15 +738,9 @@ export default function ContributeClient() {
         </section>
 
         {/* ── 6. BOTTOM CTA BOX ───────────────────────────────────────────── */}
-        <section style={{
-          backgroundColor: "rgba(245, 158, 11, 0.08)",
-          border: "1px solid rgba(245, 158, 11, 0.3)",
-          borderRadius: "20px",
-          padding: "2.5rem 2rem",
-          textAlign: "center"
-        }}>
-          <h2 style={{ fontSize: "1.6rem", fontWeight: 800, margin: "0 0 0.6rem" }}>Ready to Share Your Notes &amp; Earn?</h2>
-          <p style={{ color: "var(--text-secondary)", maxWidth: "600px", margin: "0 auto 1.5rem auto", fontSize: "0.95rem" }}>
+        <section className="contrib-cta-box">
+          <h2 className="contrib-section-title" style={{ fontSize: "clamp(1.3rem, 5vw, 1.6rem)" }}>Ready to Share Your Notes &amp; Earn?</h2>
+          <p style={{ color: "var(--text-secondary)", maxWidth: "600px", margin: "0 auto 1.5rem auto", fontSize: "0.95rem", lineHeight: 1.5 }}>
             Join hundreds of university contributors turning study guides into income. Submit your first PDF note in under 2 minutes.
           </p>
 
@@ -630,5 +773,6 @@ export default function ContributeClient() {
 
       </div>
     </div>
-  );
+  </div>
+);
 }
