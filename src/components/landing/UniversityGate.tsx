@@ -20,13 +20,17 @@ export default function UniversityGate({ onSelect }: UniversityGateProps) {
   useEffect(() => {
     async function fetchCounts() {
       try {
+        const { data } = await supabase
+          .from("notes")
+          .select("university");
+
         const counts: Record<string, number> = {};
-        for (const u of UNIVERSITIES) {
-          const { count } = await supabase
-            .from("notes")
-            .select("*", { count: "exact", head: true })
-            .eq("university", u.value);
-          counts[u.value] = count ?? 0;
+        if (data) {
+          data.forEach((item) => {
+            if (item.university) {
+              counts[item.university] = (counts[item.university] || 0) + 1;
+            }
+          });
         }
         setNoteCounts(counts);
       } catch (err) {

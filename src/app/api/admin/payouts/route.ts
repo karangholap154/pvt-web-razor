@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
     let query = supabaseAdmin
       .from("payout_requests")
-      .select("*")
+      .select("*, users:user_id(id, username, email, full_name)")
       .order("created_at", { ascending: false });
 
     if (statusFilter && statusFilter !== "all") {
@@ -31,26 +31,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Failed to fetch payout requests" }, { status: 500 });
     }
 
-    const userIds = Array.from(new Set(payoutRequests.map((p) => p.user_id)));
-    const userProfilesMap: Record<string, { username?: string | null; email?: string | null; full_name?: string | null }> = {};
-
-    if (userIds.length > 0) {
-      const { data: userProfiles } = await supabaseAdmin
-        .from("users")
-        .select("id, username, email, full_name")
-        .in("id", userIds);
-
-      if (userProfiles) {
-        userProfiles.forEach((u) => {
-          userProfilesMap[u.id] = { username: u.username, email: u.email, full_name: u.full_name };
-        });
-      }
-    }
-
-    const enrichedPayouts = payoutRequests.map((p) => ({
-      ...p,
-      user_profile: userProfilesMap[p.user_id] || { username: "Unknown", email: "" },
-    }));
+    const rawPayouts = payoutRequests || [];
+    const enrichedPayouts = rawPayouts.map((p) => {
+      const userProfile = Array.isArray(p.users) ? p.users[0] : p.users;
+      return {
+        ...p,
+        user_profile: userProfile || { username: "Unknown", email: "" },
+      };
+    });
 
     return NextResponse.json({ payoutRequests: enrichedPayouts });
   } catch (error) {

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import type { Metadata } from "next";
@@ -7,15 +8,25 @@ interface PageProps {
   params: Promise<{ username: string }>;
 }
 
+const getProfileByUsername = cache(async (username: string) => {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data: profile } = await supabase
+      .from("users")
+      .select("id, full_name, university, default_branch, avatar_url, created_at, username, email, badge_tier")
+      .eq("username", username.toLowerCase())
+      .maybeSingle();
+
+    return profile;
+  } catch (err) {
+    console.error("Error fetching profile by username:", err);
+    return null;
+  }
+});
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
-  const supabase = await createSupabaseServerClient();
-
-  const { data: profile } = await supabase
-    .from("users")
-    .select("full_name, university, default_branch, avatar_url")
-    .eq("username", username.toLowerCase())
-    .maybeSingle();
+  const profile = await getProfileByUsername(username);
 
   if (!profile) {
     return {
@@ -64,18 +75,13 @@ interface Note {
 
 export default async function UserProfilePage({ params }: PageProps) {
   const { username } = await params;
-  const supabase = await createSupabaseServerClient();
-
-  // Fetch the public profile by username
-  const { data: profile } = await supabase
-    .from("users")
-    .select("id, full_name, university, default_branch, avatar_url, created_at, username, email, badge_tier")
-    .eq("username", username.toLowerCase())
-    .maybeSingle();
+  const profile = await getProfileByUsername(username);
 
   if (!profile) {
     notFound();
   }
+
+  const supabase = await createSupabaseServerClient();
 
   // Check if the viewer is the profile owner
   const { data: { user: currentUser } } = await supabase.auth.getUser();

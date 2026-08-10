@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
-import { isAdmin } from "@/utils/auth";
+import { checkIsAdmin } from "@/utils/auth";
 import ProfileClient from "./ProfileClient";
 
 export const metadata: Metadata = {
@@ -47,7 +47,7 @@ export default async function UserProfileSettingsPage({ params }: PageProps) {
     redirect(`/u/${profile.username}/profile`);
   }
 
-  const isUserAdmin = await isAdmin();
+  const isUserAdmin = checkIsAdmin(user.email);
 
   // Fetch purchases
   const { data: dbPurchases } = await supabase

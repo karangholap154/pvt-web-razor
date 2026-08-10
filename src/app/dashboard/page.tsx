@@ -53,7 +53,7 @@ export default async function DashboardPage() {
   try {
     const { data: dbPurchases, error } = await supabase
       .from("purchases")
-      .select("*, notes(*)")
+      .select("notes(id, title, branch, semester, download_url, video_url, price, university)")
       .eq("email", sessionEmail)
       .eq("status", "success");
 

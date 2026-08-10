@@ -15,10 +15,10 @@ export async function GET(
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 1. Fetch single discussion
+    // 1. Fetch single discussion with linked note
     const { data: discussion, error: discError } = await supabase
       .from("discussions")
-      .select("*")
+      .select("*, notes(id, title, branch, semester, university)")
       .eq("id", id)
       .single();
 
@@ -41,13 +41,13 @@ export async function GET(
 
     const replies = rawReplies || [];
 
-    // 3. Batch fetch authors & linked note details
+    // 3. Batch fetch authors
     const allUserIds = Array.from(
       new Set([discussion.user_id, ...replies.map((r) => r.user_id)])
     );
 
     const userMap: Record<string, { username: string | null; full_name?: string | null; badge_tier?: string | null }> = {};
-    let linkedNote = null;
+    const linkedNote = Array.isArray(discussion.notes) ? discussion.notes[0] : discussion.notes;
     const userVotedSet = new Set<string>();
 
     if (allUserIds.length > 0) {
@@ -61,16 +61,6 @@ export async function GET(
           userMap[p.id] = { username: p.username, full_name: p.full_name, badge_tier: p.badge_tier };
         });
       }
-    }
-
-    if (discussion.note_id) {
-      const { data: note } = await supabase
-        .from("notes")
-        .select("id, title, branch, semester, university")
-        .eq("id", discussion.note_id)
-        .maybeSingle();
-
-      if (note) linkedNote = note;
     }
 
     // Check user vote status for post and replies

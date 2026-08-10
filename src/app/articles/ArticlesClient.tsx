@@ -13,17 +13,26 @@ function calculateReadTime(content: string): string {
   return `${minutes} min read`;
 }
 
-export default function ArticlesClient() {
+interface ArticlesClientProps {
+  initialArticles?: Article[];
+}
+
+export default function ArticlesClient({ initialArticles }: ArticlesClientProps) {
   const router = useRouter();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [articles, setArticles] = useState<Article[]>(initialArticles || []);
+  const [isLoading, setIsLoading] = useState(!initialArticles || initialArticles.length === 0);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   // Filter categories
   const categories = ["All", "Guidance", "Tutorial", "Project Ideas", "Software Tips"];
 
-  // Fetch articles from Supabase
+  // Fetch articles from Supabase fallback if initialArticles was not provided
   useEffect(() => {
+    if (initialArticles && initialArticles.length > 0) {
+      setIsLoading(false);
+      return;
+    }
+
     async function loadArticles() {
       setIsLoading(true);
       try {
@@ -56,7 +65,7 @@ export default function ArticlesClient() {
     }
 
     loadArticles();
-  }, []);
+  }, [initialArticles]);
 
   // Filtered articles
   const filteredArticles = useMemo(() => {

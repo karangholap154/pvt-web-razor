@@ -20,10 +20,10 @@ export async function GET(request: Request) {
     }
     const { data: allNotesMeta } = await metaQuery;
 
-    // 2. Build filtered notes query
+    // 2. Build filtered notes query with relational contributor join
     let query = supabase
       .from("notes")
-      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed", { count: "exact" });
+      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed, users:contributor_id(username, full_name)", { count: "exact" });
 
     if (university && university !== "All universities") {
       query = query.eq("university", university);
@@ -67,33 +67,25 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Enrich contributor usernames
     const rawNotes = notes || [];
-    const contributorIds = Array.from(
-      new Set(rawNotes.map((n) => n.contributor_id).filter((id): id is string => Boolean(id)))
-    );
-    const userMap: Record<string, { username?: string | null; full_name?: string | null }> = {};
-
-    if (contributorIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from("users")
-        .select("id, username, full_name")
-        .in("id", contributorIds);
-
-      if (profiles) {
-        profiles.forEach((p) => {
-          userMap[p.id] = { username: p.username, full_name: p.full_name };
-        });
-      }
-    }
-
-    const enrichedNotes = rawNotes.map((item) => ({
-      ...item,
-      // Omit raw storage URL for paid resources in public API responses
-      download_url: item.price && Number(item.price) > 0 ? null : item.download_url,
-      contributor_username: item.contributor_id ? userMap[item.contributor_id]?.username : null,
-      contributor_name: item.contributor_id ? userMap[item.contributor_id]?.full_name : null,
-    }));
+    const enrichedNotes = rawNotes.map((item) => {
+      const userProfile = Array.isArray(item.users) ? item.users[0] : item.users;
+      return {
+        id: item.id,
+        title: item.title,
+        branch: item.branch,
+        semester: item.semester,
+        video_url: item.video_url,
+        price: item.price,
+        university: item.university,
+        is_community_contributed: item.is_community_contributed,
+        contributor_id: item.contributor_id,
+        // Omit raw storage URL for paid resources in public API responses
+        download_url: item.price && Number(item.price) > 0 ? null : item.download_url,
+        contributor_username: userProfile?.username ?? null,
+        contributor_name: userProfile?.full_name ?? null,
+      };
+    });
 
     return NextResponse.json(
       {

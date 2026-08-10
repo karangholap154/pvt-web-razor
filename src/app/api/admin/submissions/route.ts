@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
     let query = supabaseAdmin
       .from("note_submissions")
-      .select("*")
+      .select("*, users:user_id(id, username, email, full_name)")
       .order("created_at", { ascending: false });
 
     if (statusFilter && statusFilter !== "all") {
@@ -33,27 +33,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Failed to fetch submissions" }, { status: 500 });
     }
 
-    // Fetch user details for each submission to display contributor username/email
-    const userIds = Array.from(new Set(submissions.map((s) => s.user_id)));
-    const userProfilesMap: Record<string, { username?: string | null; email?: string | null; full_name?: string | null }> = {};
-
-    if (userIds.length > 0) {
-      const { data: userProfiles } = await supabaseAdmin
-        .from("users")
-        .select("id, username, email, full_name")
-        .in("id", userIds);
-
-      if (userProfiles) {
-        userProfiles.forEach((u) => {
-          userProfilesMap[u.id] = { username: u.username, email: u.email, full_name: u.full_name };
-        });
-      }
-    }
-
-    const enrichedSubmissions = submissions.map((sub) => ({
-      ...sub,
-      user_profile: userProfilesMap[sub.user_id] || { username: "Unknown", email: "" },
-    }));
+    const rawSubmissions = submissions || [];
+    const enrichedSubmissions = rawSubmissions.map((sub) => {
+      const userProfile = Array.isArray(sub.users) ? sub.users[0] : sub.users;
+      return {
+        ...sub,
+        user_profile: userProfile || { username: "Unknown", email: "" },
+      };
+    });
 
     return NextResponse.json({ submissions: enrichedSubmissions });
   } catch (error) {

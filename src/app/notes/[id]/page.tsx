@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import NoteDetailsClient from "./NoteDetailsClient";
@@ -7,89 +8,71 @@ interface NotePageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: NotePageProps) {
-  const { id } = await params;
-  const supabase = await createSupabaseServerClient();
-  
+const getNote = cache(async (id: string) => {
   try {
+    const supabase = await createSupabaseServerClient();
     const { data: item } = await supabase
       .from("notes")
-      .select("title, branch, semester, university")
+      .select("*, users:contributor_id(username, full_name)")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
-    if (!item) {
-      return {
-        title: "Study Note Not Found | Private Academy",
-        description: "The requested engineering study resource could not be found.",
-        robots: { index: false },
-      };
-    }
-
-    const title = `${item.title} | Private Academy Notes`;
-    const descText = `${item.title} - ${item.branch} Engineering, ${item.semester} study note ${item.university ? `for ${item.university}` : ""}. Download PDF & watch video explanations.`;
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
-    const url = `${baseUrl}/notes/${id}`;
-
-    return {
-      title,
-      description: descText,
-      alternates: {
-        canonical: url,
-      },
-      openGraph: {
-        title,
-        description: descText,
-        url,
-        type: "website",
-        siteName: "Private Academy",
-        images: [{ url: `${baseUrl}/pvtimg.png` }],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description: descText,
-        images: [`${baseUrl}/pvtimg.png`],
-      },
-    };
+    return item;
   } catch (err) {
-    console.error("Error generating metadata for note page:", err);
+    console.error("Error fetching note by id:", err);
+    return null;
+  }
+});
+
+export async function generateMetadata({ params }: NotePageProps) {
+  const { id } = await params;
+  const item = await getNote(id);
+
+  if (!item) {
     return {
-      title: "Private Academy Notes Library",
-      description: "Access engineering notes, guides, and lectures.",
+      title: "Study Note Not Found | Private Academy",
+      description: "The requested engineering study resource could not be found.",
+      robots: { index: false },
     };
   }
+
+  const title = `${item.title} | Private Academy Notes`;
+  const descText = `${item.title} - ${item.branch} Engineering, ${item.semester} study note ${item.university ? `for ${item.university}` : ""}. Download PDF & watch video explanations.`;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+  const url = `${baseUrl}/notes/${id}`;
+
+  return {
+    title,
+    description: descText,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description: descText,
+      url,
+      type: "website",
+      siteName: "Private Academy",
+      images: [{ url: `${baseUrl}/pvtimg.png` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: descText,
+      images: [`${baseUrl}/pvtimg.png`],
+    },
+  };
 }
 
 export default async function NotePage({ params }: NotePageProps) {
   const { id } = await params;
-  const supabase = await createSupabaseServerClient();
+  const item = await getNote(id);
 
-  const { data: item, error } = await supabase
-    .from("notes")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !item) {
+  if (!item) {
     notFound();
   }
 
-  let contributorUsername: string | null = null;
-  let contributorName: string | null = null;
-
-  if (item.contributor_id) {
-    const { data: userProfile } = await supabase
-      .from("users")
-      .select("username, full_name")
-      .eq("id", item.contributor_id)
-      .maybeSingle();
-
-    if (userProfile) {
-      contributorUsername = userProfile.username;
-      contributorName = userProfile.full_name;
-    }
-  }
+  const userProfile = Array.isArray(item.users) ? item.users[0] : item.users;
 
   // Format to client Note structure
   const note: Note = {
@@ -104,8 +87,8 @@ export default async function NotePage({ params }: NotePageProps) {
     university: item.university || undefined,
     is_community_contributed: item.is_community_contributed,
     contributor_id: item.contributor_id,
-    contributor_username: contributorUsername,
-    contributor_name: contributorName,
+    contributor_username: userProfile?.username ?? null,
+    contributor_name: userProfile?.full_name ?? null,
   };
 
   const jsonLd = {

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import ArticleDetailsClient from "./ArticleDetailsClient";
@@ -13,71 +14,67 @@ function calculateReadTime(content: string): string {
   return `${minutes} min read`;
 }
 
-export async function generateMetadata({ params }: ArticlePageProps) {
-  const { id } = await params;
-  const supabase = await createSupabaseServerClient();
-
+const getArticle = cache(async (id: string) => {
   try {
+    const supabase = await createSupabaseServerClient();
     const { data: item } = await supabase
       .from("articles")
-      .select("title, summary, category")
+      .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
-    if (!item) {
-      return {
-        title: "Article Not Found | Private Academy",
-        description: "The requested academic article could not be found.",
-        robots: { index: false },
-      };
-    }
-
-    const title = `${item.title} | Private Academy`;
-    const description = item.summary || "Read this syllabus explanation or study guide from our experts.";
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
-    const url = `${baseUrl}/articles/${id}`;
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: url,
-      },
-      openGraph: {
-        title,
-        description,
-        url,
-        type: "article",
-        siteName: "Private Academy",
-        images: [{ url: `${baseUrl}/pvtimg.png` }],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: [`${baseUrl}/pvtimg.png`],
-      },
-    };
+    return item;
   } catch (err) {
-    console.error("Error generating metadata for article page:", err);
+    console.error("Error fetching article by id:", err);
+    return null;
+  }
+});
+
+export async function generateMetadata({ params }: ArticlePageProps) {
+  const { id } = await params;
+  const item = await getArticle(id);
+
+  if (!item) {
     return {
-      title: "Private Academy Articles & Guides",
-      description: "Read educational articles and roadmap guides.",
+      title: "Article Not Found | Private Academy",
+      description: "The requested academic article could not be found.",
+      robots: { index: false },
     };
   }
+
+  const title = `${item.title} | Private Academy`;
+  const description = item.summary || "Read this syllabus explanation or study guide from our experts.";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+  const url = `${baseUrl}/articles/${id}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      siteName: "Private Academy",
+      images: [{ url: `${baseUrl}/pvtimg.png` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`${baseUrl}/pvtimg.png`],
+    },
+  };
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id } = await params;
-  const supabase = await createSupabaseServerClient();
+  const item = await getArticle(id);
 
-  const { data: item, error } = await supabase
-    .from("articles")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !item) {
+  if (!item) {
     notFound();
   }
 
