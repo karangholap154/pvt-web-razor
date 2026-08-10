@@ -75,7 +75,7 @@ export default async function ProjectsPage() {
   };
 
   return (
-    <div style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
+    <div className="projects-page-root" style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -238,6 +238,37 @@ export default async function ProjectsPage() {
           background-color: #20ba56;
           box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
           transform: translateY(-1px);
+        }
+        @media (max-width: 768px) {
+          .projects-page-root {
+            padding: 2.5rem 1.25rem !important;
+            gap: 3rem !important;
+          }
+          .step-card {
+            padding: 1.5rem 1.25rem 1.25rem !important;
+          }
+          .project-card {
+            padding: 1.25rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .projects-page-root {
+            padding: 1.5rem 1rem !important;
+            gap: 2.25rem !important;
+          }
+          .step-card {
+            padding: 1.25rem 1rem 1rem !important;
+          }
+          .project-card {
+            padding: 1rem !important;
+          }
+          .contact-cta {
+            padding: 1.5rem 1rem !important;
+          }
+          .contact-btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
       `}</style>
 

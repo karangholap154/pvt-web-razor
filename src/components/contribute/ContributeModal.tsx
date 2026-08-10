@@ -143,11 +143,32 @@ export default function ContributeModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "1rem",
+        padding: "0.75rem",
       }}
       onClick={onClose}
     >
+      <style>{`
+        .cm-modal-box {
+          padding: 1.75rem;
+        }
+        .cm-grid-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+        @media (max-width: 540px) {
+          .cm-modal-box {
+            padding: 1.1rem;
+            max-height: 95vh;
+          }
+          .cm-grid-2col {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+          }
+        }
+      `}</style>
       <div
+        className="cm-modal-box"
         style={{
           background: "var(--bg-secondary, #121216)",
           border: "1px solid var(--border, rgba(255, 255, 255, 0.12))",
@@ -156,7 +177,6 @@ export default function ContributeModal({
           maxWidth: "540px",
           maxHeight: "90vh",
           overflowY: "auto",
-          padding: "1.75rem",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
           color: "var(--text-primary, #f9fafb)",
         }}
@@ -375,7 +395,7 @@ export default function ContributeModal({
           </div>
 
           {/* University & Branch */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div className="cm-grid-2col">
             <div>
               <label htmlFor="contribute-univ-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
                 University
@@ -409,7 +429,7 @@ export default function ContributeModal({
           </div>
 
           {/* Semester & Price */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div className="cm-grid-2col">
             <div>
               <label htmlFor="contribute-sem-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
                 Semester

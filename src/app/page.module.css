@@ -636,6 +636,37 @@
   }
 }
 
+@media (max-width: 480px) {
+  .main {
+    padding: 1.5rem 1rem;
+    gap: 2rem;
+  }
+  .heroTitle {
+    font-size: clamp(1.75rem, 6vw, 2.75rem);
+  }
+  .heroSubtext {
+    font-size: 0.95rem;
+  }
+  .searchSection {
+    padding: 1rem 0.85rem;
+  }
+  .folderGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .folderCard {
+    padding: 1.25rem 1rem 1rem 1rem;
+    min-height: 150px;
+  }
+  .breadcrumbsContainer {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.82rem;
+  }
+  .welcomeBanner {
+    padding: 1.25rem 1rem;
+  }
+}
+
 .customWidgetCard {
   border: 1px solid var(--border);
   background: rgba(24, 24, 27, 0.2);

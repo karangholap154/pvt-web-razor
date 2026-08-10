@@ -136,7 +136,7 @@ export default function CareersPage() {
   };
 
   return (
-    <div style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
+    <div className="careers-page-root" style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -188,6 +188,29 @@ export default function CareersPage() {
           border: 1px solid var(--border);
           padding: 0.25rem 0.65rem;
           border-radius: 6px;
+        }
+        @media (max-width: 768px) {
+          .careers-page-root {
+            padding: 2.5rem 1.25rem !important;
+            gap: 3rem !important;
+          }
+          .job-card {
+            padding: 1.5rem !important;
+            gap: 1.25rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .careers-page-root {
+            padding: 1.5rem 1rem !important;
+            gap: 2.25rem !important;
+          }
+          .job-card {
+            padding: 1rem !important;
+          }
+          .apply-btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
       `}</style>
 
