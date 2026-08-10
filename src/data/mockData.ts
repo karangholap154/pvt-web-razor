@@ -1,9 +1,26 @@
 export const BRANCHES = [
   "Computer Engineering",
-  "Information Technology",
-  "AIML",
-  "Mechanical",
-  "Chemical"
+  "Computer Science & Engineering (CSE)",
+  "Information Technology (IT)",
+  "Artificial Intelligence & Machine Learning (AIML)",
+  "Artificial Intelligence & Data Science (AIDS)",
+  "Data Science & Analytics",
+  "Cyber Security & Forensic Science",
+  "Electronics & Telecommunication (EXTC)",
+  "Electrical Engineering",
+  "Electronics & Computer Engineering",
+  "Instrumentation & Control Engineering",
+  "Mechanical Engineering",
+  "Robotics & Automation",
+  "Mechatronics Engineering",
+  "Automobile Engineering",
+  "Aerospace & Aeronautical Engineering",
+  "Production & Industrial Engineering",
+  "Civil Engineering",
+  "Chemical Engineering",
+  "Biomedical Engineering",
+  "Biotechnology & Bioengineering",
+  "Environmental Engineering"
 ] as const;
 
 export const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"] as const;

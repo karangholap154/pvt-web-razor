@@ -5,6 +5,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import { BRANCHES, SEMESTERS } from "@/data/mockData";
 import { UNIVERSITIES } from "@/utils/constants";
 import { FaCloudArrowUp, FaFilePdf, FaXmark, FaCheck } from "react-icons/fa6";
+import BranchSelect from "@/components/ui/BranchSelect";
 
 interface ContributeModalProps {
   isOpen: boolean;
@@ -403,24 +404,7 @@ export default function ContributeModal({
               <label htmlFor="contribute-branch-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
                 Branch
               </label>
-              <select
-                id="contribute-branch-select"
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.85rem",
-                }}
-              >
-                {BRANCHES.map((b) => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-              </select>
+              <BranchSelect id="contribute-branch-select" value={branch} onChange={setBranch} required />
             </div>
           </div>
 

@@ -261,12 +261,35 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
 
   const getBranchFolderClass = useCallback((branch: string) => {
     switch (branch) {
-      case "Computer Engineering": return styles.folderComputer;
-      case "Information Technology": return styles.folderIT;
-      case "AIML": return styles.folderAIML;
-      case "Mechanical": return styles.folderMechanical;
-      case "Chemical": return styles.folderChemical;
-      default: return styles.folderDefault;
+      case "Computer Engineering":
+      case "Computer Science & Engineering (CSE)":
+        return styles.folderComputer;
+      case "Information Technology":
+      case "Information Technology (IT)":
+      case "Software Engineering":
+        return styles.folderIT;
+      case "AIML":
+      case "Artificial Intelligence & Machine Learning (AIML)":
+      case "Artificial Intelligence & Data Science (AIDS)":
+      case "Data Science & Analytics":
+      case "Cyber Security & Forensic Science":
+        return styles.folderAIML;
+      case "Mechanical":
+      case "Mechanical Engineering":
+      case "Mechatronics Engineering":
+      case "Robotics & Automation":
+      case "Automobile Engineering":
+      case "Aerospace & Aeronautical Engineering":
+      case "Production & Industrial Engineering":
+        return styles.folderMechanical;
+      case "Chemical":
+      case "Chemical Engineering":
+      case "Biomedical Engineering":
+      case "Biotechnology & Bioengineering":
+      case "Environmental Engineering":
+        return styles.folderChemical;
+      default:
+        return styles.folderDefault;
     }
   }, []);
 
@@ -699,15 +722,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 value={selectedUniv}
                 onChange={(e) => setSelectedUniv(e.target.value)}
                 style={{
-                  padding: "0.45rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border)",
-                  background: "var(--card-bg)",
-                  color: "var(--text-primary)",
+                  padding: "0.5rem 2.6rem 0.5rem 0.85rem",
                   fontSize: "0.85rem",
                   fontWeight: 700,
-                  cursor: "pointer",
-                  outline: "none"
                 }}
                 id="select-university-filter-unauth"
               >
@@ -1199,15 +1216,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 value={selectedUniv}
                 onChange={(e) => setSelectedUniv(e.target.value)}
                 style={{
-                  padding: "0.45rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border)",
-                  background: "var(--card-bg)",
-                  color: "var(--text-primary)",
+                  padding: "0.5rem 2.6rem 0.5rem 0.85rem",
                   fontSize: "0.85rem",
                   fontWeight: 700,
-                  cursor: "pointer",
-                  outline: "none"
                 }}
                 id="select-university-filter"
               >

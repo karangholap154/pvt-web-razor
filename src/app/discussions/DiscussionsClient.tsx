@@ -13,6 +13,8 @@ import styles from "./discussions.module.css";
 import { FaPlus, FaMagnifyingGlass, FaComments, FaFire, FaCircleQuestion, FaCircleCheck } from "react-icons/fa6";
 import type { DiscussionPost } from "@/types/discussions";
 import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
+import { BRANCHES } from "@/data/mockData";
+import BranchSelect from "@/components/ui/BranchSelect";
 
 export default function DiscussionsClient() {
   const router = useRouter();
@@ -216,18 +218,12 @@ export default function DiscussionsClient() {
             />
           </div>
 
-          <select
-            className={styles.filterSelect}
+          <BranchSelect
             value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
-          >
-            <option value="All branches">All Branches</option>
-            <option value="Computer Engineering">Computer Engineering</option>
-            <option value="Information Technology">Information Technology</option>
-            <option value="AIML">AIML</option>
-            <option value="Mechanical">Mechanical</option>
-            <option value="Chemical">Chemical</option>
-          </select>
+            onChange={setSelectedBranch}
+            includeAllOption={true}
+            style={{ flex: "1 1 220px", minWidth: "180px" }}
+          />
 
           <select
             className={styles.filterSelect}

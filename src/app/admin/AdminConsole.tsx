@@ -5,6 +5,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
 import { Note, Article, BRANCHES, SEMESTERS } from "../../data/mockData";
+import BranchSelect from "@/components/ui/BranchSelect";
 
 interface Project {
   id: string;
@@ -975,15 +976,12 @@ export default function AdminConsole({
 
             <div className={styles.filterGroup}>
               <label htmlFor="analytics-branch-select" className={styles.filterLabel}>Branch Specialty</label>
-              <select
+              <BranchSelect
                 id="analytics-branch-select"
                 value={analyticsBranch}
-                onChange={(e) => setAnalyticsBranch(e.target.value)}
-                className={styles.select}
-              >
-                <option value="All branches">All branches</option>
-                {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-              </select>
+                onChange={setAnalyticsBranch}
+                includeAllOption={true}
+              />
             </div>
           </div>
 
@@ -2031,9 +2029,7 @@ export default function AdminConsole({
                     <div className={styles.formGrid}>
                       <div className={styles.inputGroup}>
                         <label className={styles.label}>Branch</label>
-                        <select className={styles.select} value={noteBranch} onChange={(e) => setNoteBranch(e.target.value)}>
-                          {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                        </select>
+                        <BranchSelect value={noteBranch} onChange={setNoteBranch} required />
                       </div>
 
                       <div className={styles.inputGroup}>
@@ -2143,9 +2139,7 @@ export default function AdminConsole({
                     <div className={styles.formGrid}>
                       <div className={styles.inputGroup}>
                         <label className={styles.label}>Branch</label>
-                        <select className={styles.select} value={projectBranch} onChange={(e) => setProjectBranch(e.target.value)}>
-                          {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                        </select>
+                        <BranchSelect value={projectBranch} onChange={setProjectBranch} required />
                       </div>
 
                       <div className={styles.inputGroup}>

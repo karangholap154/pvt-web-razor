@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import { BRANCHES, SEMESTERS } from "@/data/mockData";
+import BranchSelect from "@/components/ui/BranchSelect";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { 
   FaUser, 
@@ -539,17 +540,7 @@ export default function ProfileClient({
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.label} htmlFor="branch">Default Branch</label>
-                    <select
-                      id="branch"
-                      className={styles.select}
-                      value={branch}
-                      onChange={(e) => setBranch(e.target.value)}
-                    >
-                      <option value="">Select your branch</option>
-                      {BRANCHES.map((b) => (
-                        <option key={b} value={b}>{b}</option>
-                      ))}
-                    </select>
+                    <BranchSelect id="branch" value={branch} onChange={setBranch} placeholder="Search or select your branch..." />
                     <span className={styles.inputHelp}>Your course materials will automatically filter to this stream when you log in.</span>
                   </div>
 

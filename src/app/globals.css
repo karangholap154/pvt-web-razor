@@ -117,3 +117,75 @@ select:focus-visible,
   outline: 2.5px solid var(--accent);
   outline-offset: 4px;
 }
+
+/* ==========================================
+   Global Modern & Glassmorphic Select Dropdowns
+   ========================================== */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1.1em;
+  padding-right: 2.6rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm, 8px);
+  color: var(--text-primary, #f8fafc);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  min-height: 42px;
+}
+
+select:hover {
+  border-color: rgba(251, 191, 36, 0.5);
+  background-color: rgba(30, 30, 35, 0.95);
+  box-shadow: 0 6px 18px rgba(251, 191, 36, 0.15);
+  transform: translateY(-1px);
+}
+
+select:focus,
+select:focus-visible {
+  outline: none !important;
+  border-color: var(--accent, #fbbf24) !important;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Styled option popups for dark theme */
+select option {
+  background-color: #121215;
+  color: var(--text-primary, #f8fafc);
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #27272a;
+  color: var(--accent, #fbbf24);
+}
+
+/* Mobile Responsiveness for Select Dropdowns */
+@media (max-width: 600px) {
+  select {
+    font-size: 0.825rem;
+    padding-left: 0.75rem;
+    padding-right: 2.2rem !important;
+    background-position: right 0.65rem center;
+    background-size: 1em;
+    min-height: 44px; /* Accessible mobile touch target height */
+  }
+}

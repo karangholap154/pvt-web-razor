@@ -210,7 +210,7 @@ export default function AboutPage() {
         {[
           { num: "2500+", label: "Students Helped" },
           { num: "50K+", label: "Downloads" },
-          { num: "5", label: "Branches Covered" },
+          { num: `${BRANCHES.length}+`, label: "Branches Covered" },
           { num: "98%", label: "Satisfaction Rate" }
         ].map((stat, i) => (
           <div key={i} className="stat-card" style={{ padding: "1.75rem", borderRadius: "var(--radius)", textAlign: "center" }}>

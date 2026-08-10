@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { FaXmark } from "react-icons/fa6";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
+import { BRANCHES } from "@/data/mockData";
+import BranchSelect from "@/components/ui/BranchSelect";
 
 interface AskQuestionModalProps {
   isOpen: boolean;
@@ -132,13 +134,7 @@ export default function AskQuestionModal({
           <div className={styles.formGridTwoCol}>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Branch *</label>
-              <select className={styles.formSelect} value={branch} onChange={(e) => setBranch(e.target.value)}>
-                <option value="Computer Engineering">Computer Engineering</option>
-                <option value="Information Technology">Information Technology</option>
-                <option value="AIML">AIML</option>
-                <option value="Mechanical">Mechanical</option>
-                <option value="Chemical">Chemical</option>
-              </select>
+              <BranchSelect value={branch} onChange={setBranch} required />
             </div>
 
             <div className={styles.formGroup}>
