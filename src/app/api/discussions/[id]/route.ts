@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
+import { moderateContentWithFallback } from "@/utils/moderation";
 
 export async function GET(
   request: Request,
@@ -133,6 +134,15 @@ export async function POST(
 
     if (!content || !content.trim()) {
       return NextResponse.json({ error: "Reply content cannot be empty." }, { status: 400 });
+    }
+
+    // Multilingual Content Moderation Check (Gemini AI + Local Fallback)
+    const moderation = await moderateContentWithFallback(content.trim());
+    if (!moderation.isAllowed) {
+      return NextResponse.json(
+        { error: `Reply rejected: ${moderation.reason || "Content violates community standards."}` },
+        { status: 400 }
+      );
     }
 
     // 1. Verify discussion exists

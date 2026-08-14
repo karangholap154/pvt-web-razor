@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
+import { moderateContentWithFallback } from "@/utils/moderation";
 
 export async function GET(request: Request) {
   try {
@@ -181,6 +182,19 @@ export async function POST(request: Request) {
     const formattedTags = Array.isArray(tags)
       ? tags.map((t: string) => t.trim().toLowerCase().replace(/[^a-z0-9-]/g, "")).filter(Boolean).slice(0, 5)
       : [];
+
+    // Multilingual Content Moderation Check (Title + Content + Tags)
+    const combinedText = `Title: ${title.trim()}\nContent: ${content.trim()}${
+      formattedTags.length > 0 ? `\nTags: ${formattedTags.join(", ")}` : ""
+    }`;
+    const moderation = await moderateContentWithFallback(combinedText);
+
+    if (!moderation.isAllowed) {
+      return NextResponse.json(
+        { error: `Post rejected: ${moderation.reason || "Content violates community standards."}` },
+        { status: 400 }
+      );
+    }
 
     const { data: newDiscussion, error: insertError } = await supabase
       .from("discussions")
