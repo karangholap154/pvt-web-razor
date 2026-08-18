@@ -51,6 +51,11 @@ export async function POST(request: Request) {
     const { error } = await supabase.auth.signUp({
       email: cleanEmail,
       password,
+      options: {
+        data: {
+          accepted_legal_at: new Date().toISOString(),
+        },
+      },
     });
 
     if (error) {

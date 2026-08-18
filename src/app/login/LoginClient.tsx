@@ -29,6 +29,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     callbackError === "confirmation_failed"
@@ -87,6 +88,12 @@ function LoginForm() {
     }
 
     if (activeTab === "signup") {
+      if (!acceptedLegal) {
+        setError(
+          "You must agree to the Terms & Conditions, Privacy Policy, and Disclaimer to create an account."
+        );
+        return;
+      }
       if (password.length < 6) {
         setError("Password must be at least 6 characters long.");
         return;
@@ -137,11 +144,13 @@ function LoginForm() {
           setActiveTab("login");
           setPassword("");
           setConfirmPassword("");
+          setAcceptedLegal(false);
         } else {
           setSuccessMsg("Signup successful! You can now log in.");
           setActiveTab("login");
           setPassword("");
           setConfirmPassword("");
+          setAcceptedLegal(false);
         }
       }
     } catch (err: unknown) {
@@ -200,6 +209,37 @@ function LoginForm() {
               <FiMail className={styles.emailIcon} size={18} />
               <span>Continue with Email</span>
             </button>
+
+            <p className={styles.legalNotice}>
+              By continuing, you agree to our{" "}
+              <a
+                href="/terms-and-condition"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.legalLink}
+              >
+                Terms &amp; Conditions
+              </a>
+              ,{" "}
+              <a
+                href="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.legalLink}
+              >
+                Privacy Policy
+              </a>
+              , and{" "}
+              <a
+                href="/disclaimer"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.legalLink}
+              >
+                Disclaimer
+              </a>
+              .
+            </p>
           </div>
         ) : (
           <div className={`${styles.optionsContainer} ${styles.fadeInUp}`}>
@@ -337,21 +377,66 @@ function LoginForm() {
                   </div>
 
                   {activeTab === "signup" && (
-                    <div className={styles.inputGroup}>
-                      <label htmlFor="confirmPassword" className={styles.label}>
-                        Confirm Password
-                      </label>
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        className={styles.input}
-                        placeholder="••••••••"
-                        required={showEmailForm && activeTab === "signup" && !showRecoveryInfo}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        disabled={loading}
-                      />
-                    </div>
+                    <>
+                      <div className={styles.inputGroup}>
+                        <label htmlFor="confirmPassword" className={styles.label}>
+                          Confirm Password
+                        </label>
+                        <input
+                          type="password"
+                          id="confirmPassword"
+                          className={styles.input}
+                          placeholder="••••••••"
+                          required={showEmailForm && activeTab === "signup" && !showRecoveryInfo}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+
+                      <div className={styles.legalGroup}>
+                        <label className={styles.legalLabel}>
+                          <input
+                            type="checkbox"
+                            id="acceptedLegal"
+                            className={styles.legalCheckbox}
+                            checked={acceptedLegal}
+                            onChange={(e) => setAcceptedLegal(e.target.checked)}
+                            disabled={loading}
+                          />
+                          <span className={styles.legalText}>
+                            I agree to the{" "}
+                            <a
+                              href="/terms-and-condition"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.legalLink}
+                            >
+                              Terms &amp; Conditions
+                            </a>
+                            ,{" "}
+                            <a
+                              href="/privacy-policy"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.legalLink}
+                            >
+                              Privacy Policy
+                            </a>
+                            , and{" "}
+                            <a
+                              href="/disclaimer"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.legalLink}
+                            >
+                              Disclaimer
+                            </a>
+                            .
+                          </span>
+                        </label>
+                      </div>
+                    </>
                   )}
 
                   <button
@@ -367,6 +452,39 @@ function LoginForm() {
                       "Register"
                     )}
                   </button>
+
+                  {activeTab === "login" && (
+                    <p className={styles.legalNotice}>
+                      By signing in, you agree to our{" "}
+                      <a
+                        href="/terms-and-condition"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.legalLink}
+                      >
+                        Terms &amp; Conditions
+                      </a>
+                      ,{" "}
+                      <a
+                        href="/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.legalLink}
+                      >
+                        Privacy Policy
+                      </a>
+                      , and{" "}
+                      <a
+                        href="/disclaimer"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.legalLink}
+                      >
+                        Disclaimer
+                      </a>
+                      .
+                    </p>
+                  )}
                 </form>
 
                 <button
