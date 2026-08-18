@@ -355,6 +355,8 @@ export default async function RootLayout({
                     <ul className={styles.footerLinks}>
                       <li><Link href="/privacy-policy" className={styles.footerLink}>Privacy Policy</Link></li>
                       <li><Link href="/terms-and-condition" className={styles.footerLink}>Terms & Conditions</Link></li>
+                      <li><Link href="/refund-policy" className={styles.footerLink}>Refund Policy</Link></li>
+                      <li><Link href="/shipping-policy" className={styles.footerLink}>Shipping Policy</Link></li>
                       <li><Link href="/disclaimer" className={styles.footerLink}>Disclaimer</Link></li>
                     </ul>
                   </div>

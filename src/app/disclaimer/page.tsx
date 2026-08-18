@@ -186,6 +186,7 @@ export default function DisclaimerPage() {
           <a href="#performance" className="toc-link">3. Exam Grades &amp; Performance</a>
           <a href="#links" className="toc-link">4. External Media &amp; Tutorial Links</a>
           <a href="#errors" className="toc-link">5. Typographic Errors &amp; Corrections</a>
+          <a href="#copyright" className="toc-link">6. Copyright &amp; Fair Use Notice</a>
         </nav>
       </div>
 
@@ -268,6 +269,19 @@ export default function DisclaimerPage() {
           </p>
           <p>
             If you identify a calculation mistake, layout error, or incorrect fact, please report it immediately through our <Link href="/contact" style={{ color: "var(--accent)", fontWeight: 600 }}>Contact Page</Link>. We will update the corresponding PDF file in our Supabase Storage bucket as soon as the correction is verified.
+          </p>
+        </section>
+
+        {/* Section 6 */}
+        <section id="copyright" className="legal-section">
+          <h2>
+            <span style={{ color: "#ef4444" }}>06.</span> Copyright &amp; Fair Use Notice
+          </h2>
+          <p>
+            All original study guides, custom handwritten notes, and code summaries on Private Academy Engineering are copyrighted by their respective authors and Private Academy.
+          </p>
+          <p>
+            Previous years&apos; question papers and university syllabus outlines are referenced under <strong>Fair Use</strong> for educational, non-commercial commentary and study reference. If you believe any document hosted on our platform infringes upon your copyright, please contact us at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a> with proof of ownership for prompt review and takedown.
           </p>
         </section>
 

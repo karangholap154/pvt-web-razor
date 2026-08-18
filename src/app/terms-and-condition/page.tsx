@@ -199,7 +199,7 @@ export default function TermsAndConditionPage() {
             <span style={{ color: "var(--accent)" }}>01.</span> Acceptance of Terms &amp; Profiles
           </h2>
           <p>
-            By accessing Private Academy Engineering, you warrant that you are legally capable of agreeing to these Terms. To customize your notes library, you are required to register an account. You agree to:
+            By accessing Private Academy Engineering, you warrant that you are legally capable of agreeing to these Terms (or have parental/guardian consent if under 18 years of age). To customize your notes library, you are required to register an account. You agree to:
           </p>
           <ul>
             <li>Provide accurate, current, and complete email credentials.</li>
@@ -236,7 +236,8 @@ export default function TermsAndConditionPage() {
           </p>
           <ul>
             <li><strong>Order Completion</strong>: An unlock code or PDF link is activated immediately upon successful transaction verification through Razorpay&apos;s API.</li>
-            <li><strong>Digital Refund Rules</strong>: Since notes are delivered as instant digital downloads (PDF files), <strong>all transactions are final and non-refundable</strong> once a file has been successfully unlocked. We cannot process refunds for change-of-mind, syllabus mismatches, or exam cancellations.</li>
+            <li><strong>Digital Refund Rules</strong>: Since notes are delivered as instant digital downloads (PDF files), transactions are governed by our standalone <Link href="/refund-policy" style={{ color: "var(--accent)", fontWeight: 600 }}>Cancellation &amp; Refund Policy</Link>.</li>
+            <li><strong>Delivery &amp; Fulfillment</strong>: Electronic delivery of study materials is governed by our standalone <Link href="/shipping-policy" style={{ color: "var(--accent)", fontWeight: 600 }}>Shipping &amp; Delivery Policy</Link>.</li>
             <li><strong>Technical Issues</strong>: In the event of double-billing or payment status errors (where bank balances are debited but note access is not granted), contact our team with invoice logs at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a>. We will manually verify and resolve access settings within 24 hours.</li>
           </ul>
         </section>

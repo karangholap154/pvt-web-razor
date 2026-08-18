@@ -90,7 +90,7 @@ function LoginForm() {
     if (activeTab === "signup") {
       if (!acceptedLegal) {
         setError(
-          "You must agree to the Terms & Conditions, Privacy Policy, and Disclaimer to create an account."
+          "You must agree to the Terms & Conditions, Privacy Policy, Refund Policy, Shipping Policy, and Disclaimer to create an account."
         );
         return;
       }
@@ -228,6 +228,24 @@ function LoginForm() {
                 className={styles.legalLink}
               >
                 Privacy Policy
+              </a>
+              ,{" "}
+              <a
+                href="/refund-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.legalLink}
+              >
+                Refund Policy
+              </a>
+              ,{" "}
+              <a
+                href="/shipping-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.legalLink}
+              >
+                Shipping Policy
               </a>
               , and{" "}
               <a
@@ -423,6 +441,24 @@ function LoginForm() {
                             >
                               Privacy Policy
                             </a>
+                            ,{" "}
+                            <a
+                              href="/refund-policy"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.legalLink}
+                            >
+                              Refund Policy
+                            </a>
+                            ,{" "}
+                            <a
+                              href="/shipping-policy"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.legalLink}
+                            >
+                              Shipping Policy
+                            </a>
                             , and{" "}
                             <a
                               href="/disclaimer"
@@ -472,6 +508,24 @@ function LoginForm() {
                         className={styles.legalLink}
                       >
                         Privacy Policy
+                      </a>
+                      ,{" "}
+                      <a
+                        href="/refund-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.legalLink}
+                      >
+                        Refund Policy
+                      </a>
+                      ,{" "}
+                      <a
+                        href="/shipping-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.legalLink}
+                      >
+                        Shipping Policy
                       </a>
                       , and{" "}
                       <a
