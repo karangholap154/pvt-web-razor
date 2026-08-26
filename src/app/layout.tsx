@@ -226,7 +226,12 @@ export default async function RootLayout({
         "name": "Private Academy Engineering",
         "url": siteUrl,
         "logo": `${siteUrl}/pvtimg.png`,
-        "description": "Comprehensive study resource platform built for engineering students across leading universities.",
+        "description": "Comprehensive engineering study resource platform built for students across Mumbai University, SPPU, DBATU, and leading technical universities.",
+        "founder": {
+          "@type": "Person",
+          "name": "Karan Gholap",
+          "url": "https://www.karangholap.com/"
+        },
         "sameAs": [
           "https://t.me/mumcomputer",
           "https://www.youtube.com/@pvtacademy",
@@ -241,6 +246,7 @@ export default async function RootLayout({
         "@id": `${siteUrl}/#website`,
         "url": siteUrl,
         "name": "Private Academy",
+        "description": "Syllabus-aligned engineering study notes, semester question guides, project source code, and video tutorials.",
         "publisher": {
           "@id": `${siteUrl}/#organization`
         },
@@ -249,6 +255,36 @@ export default async function RootLayout({
           "target": `${siteUrl}/?search={search_term_string}`,
           "query-input": "required name=search_term_string"
         }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${siteUrl}/#breadcrumb`,
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": siteUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Articles",
+            "item": `${siteUrl}/articles`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Projects",
+            "item": `${siteUrl}/projects`
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "Discussions",
+            "item": `${siteUrl}/discussions`
+          }
+        ]
       }
     ]
   };

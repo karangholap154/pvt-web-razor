@@ -1,0 +1,24 @@
+# Private Academy
+
+> Private Academy (https://www.privateacademy.in) is an engineering study hub and notes library offering syllabus-aligned study materials, semester question guides, project source code, and video tutorials for Mumbai University, SPPU, DBATU, and leading Indian engineering universities.
+
+## Primary Sections
+- [Home Page](https://www.privateacademy.in): Comprehensive engineering study hub and resource portal.
+- [Academic Articles](https://www.privateacademy.in/articles): Detailed study guides, syllabus explanations, exam preparation tips, and subject breakdowns.
+- [Engineering Projects](https://www.privateacademy.in/projects): Micro and mini project source code, documentation, and live demos for IT & Computer engineering.
+- [Student Discussions](https://www.privateacademy.in/discussions): Community doubt-solving, peer Q&A, and semester question discussions.
+- [Contribute Notes](https://www.privateacademy.in/contribute): Platform for engineering students and educators to share verified study resources.
+- [About Us](https://www.privateacademy.in/about): Learn about Private Academy's mission and founding vision by Karan Gholap.
+
+## Covered Engineering Disciplines & Universities
+- **Universities:** Mumbai University (MU), Savitribai Phule Pune University (SPPU), Dr. Babasaheb Ambedkar Technological University (DBATU), and leading technical institutes.
+- **Branches:** Computer Engineering, Information Technology (IT), Artificial Intelligence & Data Science (AIDS), Electronics & Telecommunication (EXTC).
+- **Resources:** Handwritten & typed study notes, previous year question paper solutions, syllabus blueprints, and semester projects.
+
+## Community & Social Profiles
+- [Telegram Community](https://t.me/mumcomputer): 2,500+ active engineering members.
+- [YouTube Channel](https://www.youtube.com/@pvtacademy): Video tutorials & project walkthroughs.
+- [LinkedIn Page](https://www.linkedin.com/company/privateacademy/): Professional network & official announcements.
+- [Instagram](https://www.instagram.com/privateacademy.in): Academic updates & student tips.
+- [X / Twitter](https://x.com/PVTAcademyEdu): Real-time platform announcements.
+- [Peerlist](https://peerlist.io/company/privateacademy): Company profile & product updates.

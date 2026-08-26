@@ -1,0 +1,56 @@
+# Private Academy - Full Knowledge Base & Platform Guide
+
+Website: https://www.privateacademy.in
+Publisher: Private Academy Engineering
+Founder / Lead Engineer: Karan Gholap (https://www.karangholap.com/)
+
+---
+
+## 1. Platform Overview & Purpose
+Private Academy is an open, high-quality academic platform built specifically for engineering undergraduates in India. It addresses the gap in syllabus-aligned study materials by providing curated lecture notes, solved semester question banks, project source code, and educational video guides.
+
+### Key Value Propositions
+- **Syllabus-Aligned:** Content strictly structured around university curricula (Mumbai University Rev-2019/C-Scheme, SPPU 2019 Pattern, DBATU).
+- **Free & Accessible:** Core study notes and question guides are accessible to all engineering students without paywalls.
+- **Peer & Community Contributed:** Verified notes uploaded by top-performing students and subject matter experts.
+- **Hands-on Projects:** Mini and micro projects complete with source code, setup documentation, and live demo links.
+
+---
+
+## 2. Core Modules & Content Specifications
+
+### A. Engineering Notes Library (`/notes`)
+- **Branches Supported:** Computer Engineering, Information Technology (IT), Artificial Intelligence & Data Science (AI-DS), Electronics & Telecommunication (EXTC).
+- **Semesters Covered:** Semester 1 to Semester 8.
+- **Content Types:** PDF study notes, module-wise summaries, formula sheets, previous year solved question papers (PYQs), and video walkthrough links.
+
+### B. Technical & Educational Articles (`/articles`)
+- **Topics:** Detailed subject explanations (e.g., Applied Mathematics, Data Structures, Database Systems, Computer Networks, Operating Systems, Web Development).
+- **Exam Preparation Guides:** Scoring strategies, key question breakdowns, and syllabus roadmap guides for university end-sem exams.
+
+### C. Student Micro & Mini Projects (`/projects`)
+- **Domains:** Full-Stack Web Apps, Mobile Development, Python & Data Science, Machine Learning models, Internet of Things (IoT).
+- **Deliverables:** Full GitHub repository links, setup guides, documentation, and live preview links.
+
+### D. Community Discussions (`/discussions`)
+- **Function:** Doubt-solving portal where students post specific exam questions, code bugs, or concept queries and receive verified answers from peers and admins.
+
+---
+
+## 3. Structural Schemas & Machine Readability
+Private Academy uses standard JSON-LD Schema.org specifications across all pages:
+- `EducationalOrganization` & `WebSite` schemas on the root layout.
+- `LearningResource` schema on study note pages.
+- `TechArticle` schema on academic articles.
+- `ItemList` & `SoftwareSourceCode` schemas on project listings.
+
+---
+
+## 4. Contact & Community Links
+- Official Contact Email: privateacademy.in@gmail.com
+- Telegram Community: https://t.me/mumcomputer
+- YouTube Channel: https://www.youtube.com/@pvtacademy
+- LinkedIn: https://www.linkedin.com/company/privateacademy/
+- Instagram: https://www.instagram.com/privateacademy.in
+- Twitter / X: https://x.com/PVTAcademyEdu
+- Peerlist: https://peerlist.io/company/privateacademy
