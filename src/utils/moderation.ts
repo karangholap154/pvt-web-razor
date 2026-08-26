@@ -101,7 +101,7 @@ Respond ONLY with valid JSON in this exact structure:
         },
       });
 
-      const response: any = await Promise.race([generatePromise, timeoutPromise]);
+      const response = (await Promise.race([generatePromise, timeoutPromise])) as { text?: string };
       const responseText = response.text || "{}";
       const result = JSON.parse(responseText);
 
@@ -111,12 +111,13 @@ Respond ONLY with valid JSON in this exact structure:
         isAllowed: typeof result.isAllowed === "boolean" ? result.isAllowed : true,
         reason: result.reason || "Content violates community guidelines.",
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string; status?: number };
       console.warn(
-        `Gemini API Key index ${keyIndex} attempt ${attempt + 1} failed or timed out: ${err?.message || err}`
+        `Gemini API Key index ${keyIndex} attempt ${attempt + 1} failed or timed out: ${errorObj?.message || String(err)}`
       );
 
-      if (err?.status === 429 && attempt < maxRetries) {
+      if (errorObj?.status === 429 && attempt < maxRetries) {
         await delay(500);
       }
     }

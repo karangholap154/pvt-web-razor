@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
-import { BRANCHES, SEMESTERS } from "@/data/mockData";
+import { SEMESTERS } from "@/data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { 

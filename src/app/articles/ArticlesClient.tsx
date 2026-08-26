@@ -29,7 +29,6 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   // Fetch articles from Supabase fallback if initialArticles was not provided
   useEffect(() => {
     if (initialArticles && initialArticles.length > 0) {
-      setIsLoading(false);
       return;
     }
 

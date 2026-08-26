@@ -13,7 +13,6 @@ import styles from "./discussions.module.css";
 import { FaPlus, FaMagnifyingGlass, FaComments, FaFire, FaCircleQuestion, FaCircleCheck } from "react-icons/fa6";
 import type { DiscussionPost } from "@/types/discussions";
 import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
-import { BRANCHES } from "@/data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
 
 export default function DiscussionsClient() {
@@ -32,6 +31,7 @@ export default function DiscussionsClient() {
   const [selectedBranch, setSelectedBranch] = useState("All branches");
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
   const [activeTab, setActiveTab] = useState<"all" | "trending" | "unanswered" | "solved">("all");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -45,8 +45,8 @@ export default function DiscussionsClient() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Load paginated discussions
-  const loadDiscussions = useCallback(async (pageNum = 1, append = false) => {
+  // Load paginated discussions (for load more)
+  const loadMoreDiscussions = useCallback(async (pageNum: number) => {
     setIsLoading(true);
 
     try {
@@ -70,11 +70,7 @@ export default function DiscussionsClient() {
       const data = await res.json();
 
       if (data.discussions) {
-        if (append) {
-          setDiscussions((prev) => [...prev, ...data.discussions]);
-        } else {
-          setDiscussions(data.discussions);
-        }
+        setDiscussions((prev) => [...prev, ...data.discussions]);
         setTotalPages(data.totalPages || 1);
         setPage(pageNum);
       }
@@ -86,10 +82,51 @@ export default function DiscussionsClient() {
   }, [activeUniversity, selectedBranch, selectedSemester, debouncedQuery, activeTab]);
 
   useEffect(() => {
-    if (authState !== "loading") {
-      loadDiscussions(1, false);
+    if (authState === "loading") return;
+    let isCancelled = false;
+
+    async function fetchInitialDiscussions() {
+      setIsLoading(true);
+
+      try {
+        const params = new URLSearchParams({
+          page: "1",
+          limit: "10",
+        });
+
+        if (activeUniversity && activeUniversity !== "All Universities") {
+          params.set("university", activeUniversity);
+        }
+        if (selectedBranch !== "All branches") params.set("branch", selectedBranch);
+        if (selectedSemester !== "All semesters") params.set("semester", selectedSemester);
+        if (debouncedQuery.trim()) params.set("q", debouncedQuery.trim());
+
+        if (activeTab === "trending") params.set("status", "trending");
+        else if (activeTab === "unanswered") params.set("status", "unanswered");
+        else if (activeTab === "solved") params.set("status", "solved");
+
+        const res = await fetch(`/api/discussions?${params.toString()}`);
+        const data = await res.json();
+
+        if (!isCancelled && data.discussions) {
+          setDiscussions(data.discussions);
+          setTotalPages(data.totalPages || 1);
+          setPage(1);
+        }
+      } catch (err) {
+        console.error("Error fetching discussions feed:", err);
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
     }
-  }, [authState, activeUniversity, selectedBranch, selectedSemester, debouncedQuery, activeTab, loadDiscussions]);
+
+    fetchInitialDiscussions();
+    return () => {
+      isCancelled = true;
+    };
+  }, [authState, activeUniversity, selectedBranch, selectedSemester, debouncedQuery, activeTab, refreshKey]);
 
   // Clear all active filters
   const handleClearFilters = () => {
@@ -103,7 +140,7 @@ export default function DiscussionsClient() {
   const handlePostSuccess = (newBranch?: string, newSemester?: string) => {
     if (newBranch) setSelectedBranch(newBranch);
     if (newSemester) setSelectedSemester(newSemester);
-    loadDiscussions(1, false);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const handleAskClick = () => {
@@ -326,7 +363,7 @@ export default function DiscussionsClient() {
           {page < totalPages && (
             <button
               className={styles.loadMoreBtn}
-              onClick={() => loadDiscussions(page + 1, true)}
+              onClick={() => loadMoreDiscussions(page + 1)}
               disabled={isLoading}
             >
               {isLoading ? "Loading..." : "Load More Discussions"}

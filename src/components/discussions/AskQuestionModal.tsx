@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { FaXmark } from "react-icons/fa6";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
-import { BRANCHES } from "@/data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
 
 interface AskQuestionModalProps {

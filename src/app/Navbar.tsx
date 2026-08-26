@@ -95,7 +95,6 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
     { href: "/contact", label: "Contact" },
   ];
 
-  const allNavLinks = [...primaryNavLinks, ...secondaryNavLinks];
   const isSecondaryActive = secondaryNavLinks.some((link) => isActive(link.href));
 
   return (

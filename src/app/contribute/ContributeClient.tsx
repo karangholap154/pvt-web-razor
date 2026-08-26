@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import ContributeModal from "@/components/contribute/ContributeModal";
 import {
   calculateBadgeTier,

@@ -13,7 +13,7 @@ import { loadRazorpayScript } from "../../utils/razorpay";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
-import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft, FaCloudArrowUp, FaCoins } from "react-icons/fa6";
+import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
 interface RazorpayResponse {
@@ -874,7 +874,6 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 <div className={styles.grid}>
                   {filteredNotes.map((note) => {
                     const hasVideo = !!note.videoUrl;
-                    const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
                     return (
                       <article 
                         key={note.id} 
@@ -1057,7 +1056,6 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 <div className={styles.grid}>
                   {filteredNotes.map((note) => {
                     const hasVideo = !!note.videoUrl;
-                    const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
                     return (
                       <article 
                         key={note.id} 

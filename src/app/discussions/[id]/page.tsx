@@ -32,34 +32,43 @@ export default function DiscussionThreadPage({
   const [replyText, setReplyText] = useState("");
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
-  // Load discussion thread details
-  const loadThread = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch(`/api/discussions/${discussionId}`);
-      const data = await res.json();
-
-      if (res.ok && data.discussion) {
-        setDiscussion(data.discussion);
-        setReplies(data.replies || []);
-        setIsOriginalPoster(Boolean(data.isOriginalPoster));
-      } else {
-        toast.error(data.error || "Discussion topic not found");
-        router.push("/discussions");
-      }
-    } catch (err) {
-      console.error("Error loading thread:", err);
-      toast.error("Failed to load discussion topic");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (authState !== "loading") {
-      loadThread();
+    if (authState === "loading") return;
+    let isCancelled = false;
+
+    async function fetchThread() {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`/api/discussions/${discussionId}`);
+        const data = await res.json();
+
+        if (!isCancelled) {
+          if (res.ok && data.discussion) {
+            setDiscussion(data.discussion);
+            setReplies(data.replies || []);
+            setIsOriginalPoster(Boolean(data.isOriginalPoster));
+          } else {
+            toast.error(data.error || "Discussion topic not found");
+            router.push("/discussions");
+          }
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          console.error("Error loading thread:", err);
+          toast.error("Failed to load discussion topic");
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
     }
-  }, [authState, discussionId]);
+
+    fetchThread();
+    return () => {
+      isCancelled = true;
+    };
+  }, [authState, discussionId, router, toast]);
 
   // Handle upvote main post
   const handlePostVote = async () => {

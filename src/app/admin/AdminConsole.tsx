@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
-import { Note, Article, BRANCHES, SEMESTERS } from "../../data/mockData";
+import { Note, Article, SEMESTERS } from "../../data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
 
 interface Project {
