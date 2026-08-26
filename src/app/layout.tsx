@@ -182,6 +182,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+    other: {
+      "msvalidate.01": "371830F3B362C11D41A8C0409EE7E41B",
+    },
   },
   robots: {
     index: true,
