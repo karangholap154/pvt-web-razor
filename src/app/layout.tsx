@@ -150,9 +150,12 @@ export const metadata: Metadata = {
     canonical: "./",
   },
   icons: {
-    icon: "/pvtimg.png",
-    shortcut: "/pvtimg.png",
-    apple: "/pvtimg.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/pvtimg.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",
