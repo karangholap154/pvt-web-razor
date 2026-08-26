@@ -90,7 +90,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic routes fetched from Supabase
   let noteRoutes: MetadataRoute.Sitemap = [];
   let articleRoutes: MetadataRoute.Sitemap = [];
-  let profileRoutes: MetadataRoute.Sitemap = [];
 
   try {
     // 1. Fetch public notes
@@ -120,25 +119,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       }));
     }
-
-    // 3. Fetch public usernames
-    const { data: dbUsers } = await supabaseAdmin
-      .from("users")
-      .select("username, created_at");
-
-    if (dbUsers && dbUsers.length > 0) {
-      profileRoutes = dbUsers
-        .filter((user) => Boolean(user.username))
-        .map((user) => ({
-          url: `${baseUrl}/u/${encodeURIComponent(user.username!)}`,
-          lastModified: user.created_at ? new Date(user.created_at) : currentDate,
-          changeFrequency: "weekly",
-          priority: 0.6,
-        }));
-    }
   } catch (err) {
     console.error("Error generating dynamic sitemap entries:", err);
   }
 
-  return [...staticRoutes, ...noteRoutes, ...articleRoutes, ...profileRoutes];
+  return [...staticRoutes, ...noteRoutes, ...articleRoutes];
 }
