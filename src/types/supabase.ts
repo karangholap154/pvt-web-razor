@@ -381,6 +381,7 @@ export type Database = {
           approved_notes_count?: number | null
           total_downloads_count?: number | null
           role?: string | null
+          status?: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -398,6 +399,7 @@ export type Database = {
           approved_notes_count?: number | null
           total_downloads_count?: number | null
           role?: string | null
+          status?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -415,6 +417,7 @@ export type Database = {
           approved_notes_count?: number | null
           total_downloads_count?: number | null
           role?: string | null
+          status?: string | null
         }
         Relationships: []
       }

@@ -4,8 +4,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import { supabase } from "@/utils/supabaseClient";
 
-export type AuthState = "loading" | "unauthenticated" | "no-username" | "no-university" | "ready";
+export type AuthState = "loading" | "unauthenticated" | "no-username" | "no-university" | "ready" | "banned";
 export type UserRole = "admin" | "contributor" | "user";
+export type UserStatus = "active" | "suspended" | "banned";
 
 interface AuthContextType {
   authState: AuthState;
@@ -15,6 +16,7 @@ interface AuthContextType {
   defaultBranch: string | null;
   defaultSemester: string | null;
   role: UserRole;
+  status: UserStatus;
   isAdmin: boolean;
   refreshAuth: () => Promise<void>;
 }
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [defaultBranch, setDefaultBranch] = useState<string | null>(null);
   const [defaultSemester, setDefaultSemester] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole>("user");
+  const [status, setStatus] = useState<UserStatus>("active");
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
   const isFetchingRef = useRef(false);
 
@@ -38,8 +41,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch("/api/auth/me");
       if (!res.ok) {
-        setAuthState("unauthenticated");
-        setEmail(null);
+        const errData = await res.json().catch(() => ({}));
+        if (res.status === 403 && (errData.error === "ACCOUNT_BANNED" || errData.status === "banned")) {
+          setAuthState("banned");
+          setStatus("banned");
+          if (errData.email) setEmail(errData.email);
+        } else {
+          setAuthState("unauthenticated");
+          setEmail(null);
+          setStatus("active");
+        }
         setUsername(null);
         setUniversity(null);
         setDefaultBranch(null);
@@ -51,8 +62,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await res.json();
       if (!data.authenticated) {
-        setAuthState("unauthenticated");
-        setEmail(null);
+        if (data.error === "ACCOUNT_BANNED" || data.status === "banned") {
+          setAuthState("banned");
+          setStatus("banned");
+          if (data.email) setEmail(data.email);
+        } else {
+          setAuthState("unauthenticated");
+          setEmail(null);
+          setStatus("active");
+        }
         setUsername(null);
         setUniversity(null);
         setDefaultBranch(null);
@@ -63,10 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setEmail(data.email);
         setUsername(data.username ?? null);
         setRole(data.role || (data.isAdmin ? "admin" : "user"));
+        setStatus(data.status || "active");
         setIsAdminUser(!!data.isAdmin);
         setDefaultBranch(data.default_branch ?? null);
         setDefaultSemester(data.default_semester ?? null);
-        if (!data.username) {
+
+        if (data.status === "banned") {
+          setAuthState("banned");
+        } else if (!data.username) {
           setAuthState("no-username");
           setUniversity(data.university ?? null);
         } else if (!data.university) {
@@ -86,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setDefaultBranch(null);
       setDefaultSemester(null);
       setRole("user");
+      setStatus("active");
       setIsAdminUser(false);
     } finally {
       isFetchingRef.current = false;
@@ -120,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         defaultBranch,
         defaultSemester,
         role,
+        status,
         isAdmin: isAdminUser,
         refreshAuth: fetchSession,
       }}

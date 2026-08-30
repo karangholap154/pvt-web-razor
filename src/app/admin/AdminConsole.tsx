@@ -38,6 +38,7 @@ interface User {
   created_at: string | null;
   avatar_url: string | null;
   role?: string | null;
+  status?: string | null;
 }
 
 interface AdminSubmission {
@@ -252,6 +253,59 @@ export default function AdminConsole({
     }
   };
 
+  const [updatingUserStatusId, setUpdatingUserStatusId] = useState<string | null>(null);
+
+  const handleUserStatusChange = async (userId: string, newStatus: string) => {
+    if (updatingUserStatusId) return;
+    setUpdatingUserStatusId(userId);
+    try {
+      const res = await fetch("/api/admin/users/status", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, newStatus }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update user status");
+
+      toast.success(`User status updated to ${newStatus}!`);
+      setUsersList((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u))
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update user status";
+      toast.error(msg);
+    } finally {
+      setUpdatingUserStatusId(null);
+    }
+  };
+
+  const [deleteUserModal, setDeleteUserModal] = useState<{ id: string; email: string; name?: string } | null>(null);
+  const [deletingUser, setDeletingUser] = useState(false);
+
+  const handleDeleteUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deleteUserModal || deletingUser) return;
+    setDeletingUser(true);
+    try {
+      const res = await fetch(`/api/admin/users/delete?userId=${deleteUserModal.id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete user");
+
+      toast.success(`User account ${deleteUserModal.email} deleted successfully!`);
+      setUsersList((prev) => prev.filter((u) => u.id !== deleteUserModal.id));
+      setDeleteUserModal(null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete user account";
+      toast.error(msg);
+    } finally {
+      setDeletingUser(false);
+    }
+  };
+
   // Filtered users for user management tab
   const filteredUsersList = useMemo(() => {
     if (!userSearchQuery.trim()) return usersList;
@@ -262,7 +316,8 @@ export default function AdminConsole({
         (u.username && u.username.toLowerCase().includes(query)) ||
         (u.full_name && u.full_name.toLowerCase().includes(query)) ||
         (u.university && u.university.toLowerCase().includes(query)) ||
-        (u.role && u.role.toLowerCase().includes(query))
+        (u.role && u.role.toLowerCase().includes(query)) ||
+        (u.status && u.status.toLowerCase().includes(query))
     );
   }, [usersList, userSearchQuery]);
 
@@ -1496,6 +1551,7 @@ export default function AdminConsole({
                 <th>Username</th>
                 <th>Email Address</th>
                 <th>Role</th>
+                <th>Status</th>
                 <th>University</th>
                 <th>Academic Focus</th>
                 <th>Joined Date</th>
@@ -1585,6 +1641,43 @@ export default function AdminConsole({
                       </select>
                     </td>
                     <td>
+                      <select
+                        value={user.status || "active"}
+                        onChange={(e) => handleUserStatusChange(user.id, e.target.value)}
+                        disabled={updatingUserStatusId === user.id}
+                        style={{
+                          backgroundColor:
+                            (user.status || "active") === "banned"
+                              ? "rgba(239, 68, 68, 0.15)"
+                              : (user.status || "active") === "suspended"
+                              ? "rgba(251, 191, 36, 0.15)"
+                              : "rgba(34, 197, 94, 0.15)",
+                          color:
+                            (user.status || "active") === "banned"
+                              ? "#f87171"
+                              : (user.status || "active") === "suspended"
+                              ? "#fde047"
+                              : "#4ade80",
+                          border:
+                            (user.status || "active") === "banned"
+                              ? "1px solid rgba(239, 68, 68, 0.3)"
+                              : (user.status || "active") === "suspended"
+                              ? "1px solid rgba(251, 191, 36, 0.3)"
+                              : "1px solid rgba(34, 197, 94, 0.3)",
+                          borderRadius: "6px",
+                          padding: "0.25rem 0.5rem",
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          outline: "none",
+                        }}
+                      >
+                        <option value="active" style={{ background: "#18181b", color: "#4ade80" }}>Active</option>
+                        <option value="suspended" style={{ background: "#18181b", color: "#fde047" }}>Suspended</option>
+                        <option value="banned" style={{ background: "#18181b", color: "#f87171" }}>Banned</option>
+                      </select>
+                    </td>
+                    <td>
                       <span
                         className={styles.badge}
                         style={{
@@ -1646,7 +1739,7 @@ export default function AdminConsole({
                         : "—"}
                     </td>
                     <td>
-                      <div className={styles.actionsCell}>
+                      <div className={styles.actionsCell} style={{ display: "flex", gap: "0.5rem" }}>
                         <button
                           className={`${styles.btnAction} ${styles.btnEdit}`}
                           onClick={() => openResetPasswordModal(user.id, user.email)}
@@ -1657,7 +1750,19 @@ export default function AdminConsole({
                             border: "1px solid rgba(251, 191, 36, 0.2)",
                           }}
                         >
-                          Change Password
+                          Password
+                        </button>
+                        <button
+                          className={`${styles.btnAction} ${styles.btnDelete}`}
+                          onClick={() => setDeleteUserModal({ id: user.id, email: user.email, name: user.full_name || user.username || undefined })}
+                          title="Delete User Account"
+                          style={{
+                            backgroundColor: "rgba(239, 68, 68, 0.15)",
+                            color: "#f87171",
+                            border: "1px solid rgba(239, 68, 68, 0.2)",
+                          }}
+                        >
+                          Delete
                         </button>
                       </div>
                     </td>
@@ -1976,26 +2081,21 @@ export default function AdminConsole({
           setConfirmNewPassword("");
           setResetError(null);
         }}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px" }}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "450px" }}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Change Password</h3>
-              <button className={styles.modalCloseBtn} onClick={() => {
+              <h3>Reset User Password</h3>
+              <button className={styles.btnClose} onClick={() => {
                 setResetPasswordUser(null);
                 setNewPassword("");
                 setConfirmNewPassword("");
                 setResetError(null);
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
+              }}>✕</button>
             </div>
 
-            <form onSubmit={handlePasswordResetSubmit} className={styles.form}>
+            <form onSubmit={handlePasswordResetSubmit}>
               <div className={styles.modalBody}>
-                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: "1.4" }}>
-                  Set a new password for <strong style={{ color: "var(--text-primary)" }}>{resetPasswordUser.email}</strong>.
+                <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                  Set a new password for account <strong style={{ color: "var(--text-primary)" }}>{resetPasswordUser.email}</strong>:
                 </p>
 
                 {resetError && <div className={styles.errorAlert} style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", padding: "0.75rem 1rem", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "1rem" }}>{resetError}</div>}
@@ -2047,6 +2147,57 @@ export default function AdminConsole({
                   disabled={resetLoading}
                 >
                   {resetLoading ? "Updating..." : "Update Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE USER CONFIRMATION MODAL */}
+      {deleteUserModal && (
+        <div className={styles.modalBackdrop} onClick={() => setDeleteUserModal(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "480px" }}>
+            <div className={styles.modalHeader}>
+              <h3 style={{ color: "#f87171" }}>Delete User Account</h3>
+              <button className={styles.btnClose} onClick={() => setDeleteUserModal(null)}>✕</button>
+            </div>
+
+            <form onSubmit={handleDeleteUserSubmit}>
+              <div className={styles.modalBody} style={{ gap: "1rem" }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                  Are you sure you want to permanently delete user account <strong style={{ color: "#fff" }}>{deleteUserModal.email}</strong>?
+                </p>
+                <p style={{ color: "#f87171", fontSize: "0.82rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", padding: "0.75rem", borderRadius: "8px" }}>
+                  ⚠️ This action cannot be undone. It will remove the user from Supabase Auth and database records.
+                </p>
+              </div>
+
+              <div className={styles.modalFooter} style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "1.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setDeleteUserModal(null)}
+                  className={styles.btnCancel}
+                  disabled={deletingUser}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: "#ef4444",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "0.6rem 1.25rem",
+                    fontWeight: 600,
+                    fontSize: "0.875rem",
+                    cursor: deletingUser ? "not-allowed" : "pointer",
+                    opacity: deletingUser ? 0.7 : 1,
+                  }}
+                  disabled={deletingUser}
+                >
+                  {deletingUser ? "Deleting..." : "Permanently Delete Account"}
                 </button>
               </div>
             </form>

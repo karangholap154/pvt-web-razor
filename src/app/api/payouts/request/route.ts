@@ -122,9 +122,16 @@ export async function POST(request: Request) {
     // Save/update user UPI ID in profile and fetch badge tier for payout calculation
     const { data: userProfile } = await supabaseAdmin
       .from("users")
-      .select("badge_tier")
+      .select("badge_tier, status")
       .eq("id", user.id)
       .maybeSingle();
+
+    if (userProfile?.status === "suspended" || userProfile?.status === "banned") {
+      return NextResponse.json(
+        { error: "Your account is currently suspended from requesting payouts." },
+        { status: 403 }
+      );
+    }
 
     await supabaseAdmin
       .from("users")

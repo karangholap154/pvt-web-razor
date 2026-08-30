@@ -13,6 +13,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
+    const { data: userProfile } = await supabaseAdmin
+      .from("users")
+      .select("status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userProfile?.status === "suspended" || userProfile?.status === "banned") {
+      return NextResponse.json(
+        { error: "Your account is currently suspended from uploading note contributions." },
+        { status: 403 }
+      );
+    }
+
     // Rate limit upload contributions: max 5 submissions per 15 minutes per user
     const { allowed, retryAfterSeconds } = checkRateLimit(`contribute_${user.id}`, 5, 15 * 60 * 1000);
     if (!allowed) {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+import { supabaseAdmin } from "../../../../utils/supabaseAdmin";
 import { ALLOWED_DOMAINS } from "../../../../utils/constants";
 import { checkRateLimit } from "../../../../utils/rateLimiter";
 
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
 
     // 2. Sign in via Supabase Auth — sessions stored in cookies automatically
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: cleanEmail,
       password,
     });
@@ -64,6 +65,23 @@ export async function POST(request: Request) {
         { error: "Invalid email or password" },
         { status: 401 }
       );
+    }
+
+    // 3. Check user status in public.users
+    if (authData.user) {
+      const { data: userData } = await supabaseAdmin
+        .from("users")
+        .select("status")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+
+      if (userData?.status === "banned") {
+        await supabase.auth.signOut();
+        return NextResponse.json(
+          { error: "Your account has been permanently banned due to community guidelines violation." },
+          { status: 403 }
+        );
+      }
     }
 
     return NextResponse.json({

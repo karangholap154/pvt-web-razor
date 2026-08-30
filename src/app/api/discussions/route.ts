@@ -172,6 +172,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized. Please sign in to ask a doubt." }, { status: 401 });
     }
 
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (userProfile?.status === "suspended" || userProfile?.status === "banned") {
+      return NextResponse.json(
+        { error: "Your account is currently suspended from creating new discussion posts." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { title, content, university, branch, semester, tags, note_id } = body;
 

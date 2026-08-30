@@ -19,19 +19,25 @@ export async function GET() {
     // Query DB by id first (primary key), fallback to email
     let { data: userData } = await supabaseAdmin
       .from("users")
-      .select("university, default_branch, default_semester, username, role")
+      .select("university, default_branch, default_semester, username, role, status")
       .eq("id", user.id)
       .maybeSingle();
 
     if (!userData) {
       const { data: byEmail } = await supabaseAdmin
         .from("users")
-        .select("university, default_branch, default_semester, username, role")
+        .select("university, default_branch, default_semester, username, role, status")
         .eq("email", cleanEmail)
         .maybeSingle();
       userData = byEmail;
     }
 
+    // Block session for banned users
+    if (userData?.status === "banned") {
+      return NextResponse.json({ authenticated: false, email: cleanEmail, status: "banned", error: "ACCOUNT_BANNED" }, { status: 403 });
+    }
+
+    const userStatus = userData?.status || "active";
     const isUserAdmin = checkIsAdmin(cleanEmail, userData?.role);
     const userRole = isUserAdmin ? "admin" : userData?.role || "user";
 
@@ -50,6 +56,7 @@ export async function GET() {
           email: cleanEmail,
           username,
           role: "admin",
+          status: userStatus,
           university,
         },
         { onConflict: "id" }
@@ -61,6 +68,7 @@ export async function GET() {
           id: user.id,
           email: cleanEmail,
           role: userRole,
+          status: "active",
         },
         { onConflict: "id" }
       );
@@ -75,6 +83,7 @@ export async function GET() {
         default_semester: userData?.default_semester ?? null,
         username,
         role: userRole,
+        status: userStatus,
         isAdmin: isUserAdmin,
       },
       {

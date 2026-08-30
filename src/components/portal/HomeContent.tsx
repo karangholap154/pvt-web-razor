@@ -13,6 +13,7 @@ import { loadRazorpayScript } from "../../utils/razorpay";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
+import BannedGate from "../landing/BannedGate";
 import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
@@ -1144,6 +1145,10 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
         {renderModals()}
       </>
     );
+  }
+
+  if (authState === "banned") {
+    return <BannedGate email={userEmail} onSignOut={async () => { await refreshAuth(); }} />;
   }
 
   if (authState === "no-username") {
