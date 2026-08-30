@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
 
 // Dot allowed in middle only — not first/last char, no consecutive dots
 // Pattern: first=[a-z0-9_], middle=[a-z0-9_.]{1,13}, last=[a-z0-9_] = 3-15 chars total
@@ -12,10 +13,11 @@ export async function PUT(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (!user || !user.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const cleanEmail = user.email.trim().toLowerCase();
     const body = await request.json();
     const { full_name, university, default_branch, default_semester, username } = body;
 
@@ -31,40 +33,41 @@ export async function PUT(request: Request) {
         );
       }
       // Check uniqueness — exclude current user
-      const { data: existing } = await supabase
+      const { data: existing } = await supabaseAdmin
         .from("users")
         .select("id")
         .eq("username", normalizedUsername as string)
         .neq("id", user.id)
         .maybeSingle();
+
       if (existing) {
         return NextResponse.json({ error: "Username is already taken." }, { status: 409 });
       }
     }
 
-    const updatePayload: {
-      full_name?: string | null;
-      university?: string | null;
-      default_branch?: string | null;
-      default_semester?: string | null;
-      username?: string | null;
-    } = {
-      full_name: full_name || null,
-      university: university || null,
-      default_branch: default_branch || null,
-      default_semester: default_semester || null,
-    };
-    if (username !== undefined) {
-      updatePayload.username = normalizedUsername;
-    }
-
-    const { error } = await supabase
+    // Fetch existing user record to preserve unspecified fields
+    const { data: existingUser } = await supabaseAdmin
       .from("users")
-      .update(updatePayload)
-      .eq("id", user.id);
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const upsertPayload = {
+      id: user.id,
+      email: cleanEmail,
+      full_name: full_name !== undefined ? full_name : existingUser?.full_name ?? null,
+      university: university !== undefined ? university : existingUser?.university ?? null,
+      default_branch: default_branch !== undefined ? default_branch : existingUser?.default_branch ?? null,
+      default_semester: default_semester !== undefined ? default_semester : existingUser?.default_semester ?? null,
+      username: username !== undefined ? normalizedUsername : existingUser?.username ?? null,
+    };
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .upsert(upsertPayload, { onConflict: "id" });
 
     if (error) {
-      console.error("Supabase profile update error:", error);
+      console.error("Supabase profile upsert error:", error);
       return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
     }
 
@@ -72,7 +75,7 @@ export async function PUT(request: Request) {
     try {
       const { error: authError } = await supabase.auth.updateUser({
         data: {
-          full_name: full_name || null,
+          full_name: full_name || existingUser?.full_name || null,
         },
       });
 
@@ -89,4 +92,3 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-

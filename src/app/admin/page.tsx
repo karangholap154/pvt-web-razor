@@ -35,8 +35,14 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  // 2. Authorization check: Is whitelisted admin?
-  const authorized = checkIsAdmin(user.email);
+  // 2. Authorization check: DB role or whitelisted admin
+  const { data: currentUserData } = await supabase
+    .from("users")
+    .select("role")
+    .eq("email", user.email)
+    .maybeSingle();
+
+  const authorized = checkIsAdmin(user.email, currentUserData?.role);
   if (!authorized) {
     return (
       <div className={styles.container}>

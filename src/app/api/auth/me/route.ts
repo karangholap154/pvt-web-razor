@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
+import { supabaseAdmin } from "../../../../utils/supabaseAdmin";
 import { checkIsAdmin } from "../../../../utils/auth";
 
 export async function GET() {
@@ -13,27 +14,72 @@ export async function GET() {
       return NextResponse.json({ authenticated: false });
     }
 
-    const { data: userData } = await supabase
+    const cleanEmail = user.email.trim().toLowerCase();
+
+    // Query DB by id first (primary key), fallback to email
+    let { data: userData } = await supabaseAdmin
       .from("users")
-      .select("university, default_branch, default_semester, username")
-      .eq("email", user.email)
+      .select("university, default_branch, default_semester, username, role")
+      .eq("id", user.id)
       .maybeSingle();
 
-    const isUserAdmin = checkIsAdmin(user.email);
+    if (!userData) {
+      const { data: byEmail } = await supabaseAdmin
+        .from("users")
+        .select("university, default_branch, default_semester, username, role")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+      userData = byEmail;
+    }
+
+    const isUserAdmin = checkIsAdmin(cleanEmail, userData?.role);
+    const userRole = isUserAdmin ? "admin" : userData?.role || "user";
+
+    let username = userData?.username ?? null;
+    let university = userData?.university ?? null;
+
+    // For admin accounts, if username is missing, auto-assign default admin username to avoid infinite gate loop
+    if (isUserAdmin && !username) {
+      const emailPrefix = cleanEmail.split("@")[0].replace(/[^a-z0-9_]/g, "");
+      username = emailPrefix || "admin";
+      university = university || "Mumbai University";
+
+      await supabaseAdmin.from("users").upsert(
+        {
+          id: user.id,
+          email: cleanEmail,
+          username,
+          role: "admin",
+          university,
+        },
+        { onConflict: "id" }
+      );
+    } else if (!userData) {
+      // Auto-provision basic user record if missing in public.users
+      await supabaseAdmin.from("users").upsert(
+        {
+          id: user.id,
+          email: cleanEmail,
+          role: userRole,
+        },
+        { onConflict: "id" }
+      );
+    }
 
     return NextResponse.json(
       {
         authenticated: true,
-        email: user.email,
-        university: userData?.university ?? null,
+        email: cleanEmail,
+        university,
         default_branch: userData?.default_branch ?? null,
         default_semester: userData?.default_semester ?? null,
-        username: userData?.username ?? null,
+        username,
+        role: userRole,
         isAdmin: isUserAdmin,
       },
       {
         headers: {
-          "Cache-Control": "private, max-age=15, stale-while-revalidate=30",
+          "Cache-Control": "no-store, max-age=0",
         },
       }
     );
@@ -42,4 +88,3 @@ export async function GET() {
     return NextResponse.json({ authenticated: false }, { status: 500 });
   }
 }
-

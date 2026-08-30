@@ -37,6 +37,7 @@ interface User {
   default_semester: string | null;
   created_at: string | null;
   avatar_url: string | null;
+  role?: string | null;
 }
 
 interface AdminSubmission {
@@ -220,21 +221,50 @@ export default function AdminConsole({
     }
   };
 
+  // Users list state & role management
+  const [usersList, setUsersList] = useState<User[]>(initialUsers);
+  const [updatingUserRoleId, setUpdatingUserRoleId] = useState<string | null>(null);
+
   // User search filtering state
   const [userSearchQuery, setUserSearchQuery] = useState("");
 
+  const handleUserRoleChange = async (userId: string, newRole: string) => {
+    setUpdatingUserRoleId(userId);
+    try {
+      const res = await fetch("/api/admin/users/role", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, newRole }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update user role");
+
+      toast.success(`User role updated to ${newRole}!`);
+      setUsersList((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update user role";
+      toast.error(msg);
+    } finally {
+      setUpdatingUserRoleId(null);
+    }
+  };
+
   // Filtered users for user management tab
   const filteredUsersList = useMemo(() => {
-    if (!userSearchQuery.trim()) return initialUsers;
+    if (!userSearchQuery.trim()) return usersList;
     const query = userSearchQuery.toLowerCase();
-    return initialUsers.filter(
+    return usersList.filter(
       (u) =>
         (u.email && u.email.toLowerCase().includes(query)) ||
         (u.username && u.username.toLowerCase().includes(query)) ||
         (u.full_name && u.full_name.toLowerCase().includes(query)) ||
-        (u.university && u.university.toLowerCase().includes(query))
+        (u.university && u.university.toLowerCase().includes(query)) ||
+        (u.role && u.role.toLowerCase().includes(query))
     );
-  }, [initialUsers, userSearchQuery]);
+  }, [usersList, userSearchQuery]);
 
   // Password reset modal states
   const [resetPasswordUser, setResetPasswordUser] = useState<{ id: string; email: string } | null>(null);
@@ -1465,6 +1495,7 @@ export default function AdminConsole({
                 <th>User Profile</th>
                 <th>Username</th>
                 <th>Email Address</th>
+                <th>Role</th>
                 <th>University</th>
                 <th>Academic Focus</th>
                 <th>Joined Date</th>
@@ -1516,6 +1547,43 @@ export default function AdminConsole({
                       {user.username ? `@${user.username}` : "—"}
                     </td>
                     <td>{user.email}</td>
+                    <td>
+                      <select
+                        value={user.role || "user"}
+                        onChange={(e) => handleUserRoleChange(user.id, e.target.value)}
+                        disabled={updatingUserRoleId === user.id}
+                        style={{
+                          backgroundColor:
+                            (user.role || "user") === "admin"
+                              ? "rgba(239, 68, 68, 0.15)"
+                              : (user.role || "user") === "contributor"
+                              ? "rgba(251, 191, 36, 0.15)"
+                              : "rgba(56, 189, 248, 0.15)",
+                          color:
+                            (user.role || "user") === "admin"
+                              ? "#f87171"
+                              : (user.role || "user") === "contributor"
+                              ? "#fde047"
+                              : "#38bdf8",
+                          border:
+                            (user.role || "user") === "admin"
+                              ? "1px solid rgba(239, 68, 68, 0.3)"
+                              : (user.role || "user") === "contributor"
+                              ? "1px solid rgba(251, 191, 36, 0.3)"
+                              : "1px solid rgba(56, 189, 248, 0.3)",
+                          borderRadius: "6px",
+                          padding: "0.25rem 0.5rem",
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          outline: "none",
+                        }}
+                      >
+                        <option value="user" style={{ background: "#18181b", color: "#fff" }}>User</option>
+                        <option value="contributor" style={{ background: "#18181b", color: "#fff" }}>Contributor</option>
+                        <option value="admin" style={{ background: "#18181b", color: "#fff" }}>Admin</option>
+                      </select>
+                    </td>
                     <td>
                       <span
                         className={styles.badge}

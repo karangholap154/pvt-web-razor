@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback,
 import { supabase } from "@/utils/supabaseClient";
 
 export type AuthState = "loading" | "unauthenticated" | "no-username" | "no-university" | "ready";
+export type UserRole = "admin" | "contributor" | "user";
 
 interface AuthContextType {
   authState: AuthState;
@@ -13,6 +14,7 @@ interface AuthContextType {
   university: string | null;
   defaultBranch: string | null;
   defaultSemester: string | null;
+  role: UserRole;
   isAdmin: boolean;
   refreshAuth: () => Promise<void>;
 }
@@ -26,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [university, setUniversity] = useState<string | null>(null);
   const [defaultBranch, setDefaultBranch] = useState<string | null>(null);
   const [defaultSemester, setDefaultSemester] = useState<string | null>(null);
+  const [role, setRole] = useState<UserRole>("user");
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
   const isFetchingRef = useRef(false);
 
@@ -41,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUniversity(null);
         setDefaultBranch(null);
         setDefaultSemester(null);
+        setRole("user");
         setIsAdminUser(false);
         return;
       }
@@ -53,10 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUniversity(null);
         setDefaultBranch(null);
         setDefaultSemester(null);
+        setRole("user");
         setIsAdminUser(false);
       } else {
         setEmail(data.email);
         setUsername(data.username ?? null);
+        setRole(data.role || (data.isAdmin ? "admin" : "user"));
         setIsAdminUser(!!data.isAdmin);
         setDefaultBranch(data.default_branch ?? null);
         setDefaultSemester(data.default_semester ?? null);
@@ -79,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUniversity(null);
       setDefaultBranch(null);
       setDefaultSemester(null);
+      setRole("user");
       setIsAdminUser(false);
     } finally {
       isFetchingRef.current = false;
@@ -112,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         university,
         defaultBranch,
         defaultSemester,
+        role,
         isAdmin: isAdminUser,
         refreshAuth: fetchSession,
       }}

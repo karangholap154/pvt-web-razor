@@ -1,11 +1,12 @@
 import { createSupabaseServerClient } from "./supabaseServer";
 
 /**
- * Synchronously checks if a given email belongs to an admin.
- * Admin emails are defined in the ADMIN_EMAILS environment variable (comma-separated).
+ * Synchronously checks if a user is an admin based on role or ADMIN_EMAILS environment variable fallback.
  */
-export function checkIsAdmin(email?: string | null): boolean {
+export function checkIsAdmin(email?: string | null, role?: string | null): boolean {
+  if (role === "admin") return true;
   if (!email) return false;
+
   const adminEmailsStr = process.env.ADMIN_EMAILS || "";
   const adminEmails = adminEmailsStr
     .split(",")
@@ -15,21 +16,68 @@ export function checkIsAdmin(email?: string | null): boolean {
 }
 
 /**
- * Checks if the currently logged-in user (via Supabase Auth session or provided email) is an admin.
+ * Asynchronously checks if a user is an admin using DB role with ADMIN_EMAILS fallback.
  */
 export async function isAdmin(userEmail?: string | null): Promise<boolean> {
-  if (userEmail !== undefined) {
-    return checkIsAdmin(userEmail);
-  }
   try {
     const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    let email = userEmail;
 
-    return checkIsAdmin(user?.email);
-  } catch {
+    if (!email) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      email = user?.email || null;
+    }
+
+    if (!email) return false;
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check DB role first
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("email", cleanEmail)
+      .maybeSingle();
+
+    if (userData?.role === "admin") {
+      return true;
+    }
+
+    // Fall back to environment variable configuration for backwards compatibility
+    return checkIsAdmin(cleanEmail);
+  } catch (err) {
+    console.error("Error in isAdmin evaluation:", err);
     return false;
   }
 }
 
+/**
+ * Returns the effective role of a user ('admin' | 'contributor' | 'user').
+ */
+export async function getUserRole(email?: string | null): Promise<"admin" | "contributor" | "user"> {
+  if (!email) return "user";
+
+  try {
+    const cleanEmail = email.trim().toLowerCase();
+    const supabase = await createSupabaseServerClient();
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("email", cleanEmail)
+      .maybeSingle();
+
+    if (userData?.role === "admin" || checkIsAdmin(cleanEmail)) {
+      return "admin";
+    }
+
+    if (userData?.role === "contributor") {
+      return "contributor";
+    }
+
+    return "user";
+  } catch {
+    return checkIsAdmin(email) ? "admin" : "user";
+  }
+}

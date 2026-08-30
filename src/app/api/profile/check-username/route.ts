@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
 
 // Dot allowed in middle only — not first/last char, no consecutive dots
 const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
@@ -21,11 +22,20 @@ export async function GET(request: Request) {
     }
 
     const supabase = await createSupabaseServerClient();
-    const { data: existing } = await supabase
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    let query = supabaseAdmin
       .from("users")
       .select("id")
-      .eq("username", username)
-      .maybeSingle();
+      .eq("username", username);
+
+    if (user?.id) {
+      query = query.neq("id", user.id);
+    }
+
+    const { data: existing } = await query.maybeSingle();
 
     return NextResponse.json({ available: !existing });
   } catch (error) {

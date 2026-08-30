@@ -380,6 +380,7 @@ export type Database = {
           badge_tier?: string | null
           approved_notes_count?: number | null
           total_downloads_count?: number | null
+          role?: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -396,6 +397,7 @@ export type Database = {
           badge_tier?: string | null
           approved_notes_count?: number | null
           total_downloads_count?: number | null
+          role?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -412,6 +414,7 @@ export type Database = {
           badge_tier?: string | null
           approved_notes_count?: number | null
           total_downloads_count?: number | null
+          role?: string | null
         }
         Relationships: []
       }

@@ -317,11 +317,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
     }
 
+    // Auto-upgrade user role to 'contributor' if currently 'user'
+    const { data: currentUserData } = await supabaseAdmin
+      .from("users")
+      .select("role")
+      .eq("id", submission.user_id)
+      .maybeSingle();
+
+    const newRole = currentUserData?.role === "admin" ? "admin" : "contributor";
+
     await supabaseAdmin
       .from("users")
       .update({
         approved_notes_count: currentApprovedCount,
         badge_tier: newBadgeTier,
+        role: newRole,
       })
       .eq("id", submission.user_id);
 
