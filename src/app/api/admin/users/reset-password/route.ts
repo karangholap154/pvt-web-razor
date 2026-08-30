@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
 import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
-import { checkIsAdmin } from "../../../../../utils/auth";
+import { isAdmin } from "../../../../../utils/auth";
 import { checkRateLimit } from "../../../../../utils/rateLimiter";
 
 export async function POST(request: Request) {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user?.email || !checkIsAdmin(user.email)) {
+    if (!user?.email || !(await isAdmin(user.email))) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

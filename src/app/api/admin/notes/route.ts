@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { checkIsAdmin } from "../../../../utils/auth";
+import { isAdmin } from "../../../../utils/auth";
 
 // Helper to slugify title
 function slugify(text: string): string {
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user?.email || !checkIsAdmin(user.email)) {
+    if (!user?.email || !(await isAdmin(user.email))) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -71,7 +71,7 @@ export async function PUT(request: Request) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user?.email || !checkIsAdmin(user.email)) {
+    if (!user?.email || !(await isAdmin(user.email))) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -118,7 +118,7 @@ export async function DELETE(request: Request) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user?.email || !checkIsAdmin(user.email)) {
+    if (!user?.email || !(await isAdmin(user.email))) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -142,4 +142,3 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Internal processing error" }, { status: 500 });
   }
 }
-

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
 import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
-import { checkIsAdmin } from "../../../../../utils/auth";
+import { isAdmin } from "../../../../../utils/auth";
 
 export async function PUT(request: Request) {
   try {
@@ -9,17 +9,7 @@ export async function PUT(request: Request) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { data: adminProfile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("email", user.email)
-      .maybeSingle();
-
-    if (!checkIsAdmin(user.email, adminProfile?.role)) {
+    if (!user?.email || !(await isAdmin(user.email))) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 

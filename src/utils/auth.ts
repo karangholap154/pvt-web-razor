@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "./supabaseServer";
+import { supabaseAdmin } from "./supabaseAdmin";
 
 /**
  * Synchronously checks if a user is an admin based on role or ADMIN_EMAILS environment variable fallback.
@@ -17,13 +18,14 @@ export function checkIsAdmin(email?: string | null, role?: string | null): boole
 
 /**
  * Asynchronously checks if a user is an admin using DB role with ADMIN_EMAILS fallback.
+ * Uses service role client to ensure RLS policies do not block role evaluation.
  */
 export async function isAdmin(userEmail?: string | null): Promise<boolean> {
   try {
-    const supabase = await createSupabaseServerClient();
     let email = userEmail;
 
     if (!email) {
+      const supabase = await createSupabaseServerClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -34,8 +36,8 @@ export async function isAdmin(userEmail?: string | null): Promise<boolean> {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check DB role first
-    const { data: userData } = await supabase
+    // Query DB role using admin client (bypasses RLS restrictions)
+    const { data: userData } = await supabaseAdmin
       .from("users")
       .select("role")
       .eq("email", cleanEmail)
@@ -61,8 +63,7 @@ export async function getUserRole(email?: string | null): Promise<"admin" | "con
 
   try {
     const cleanEmail = email.trim().toLowerCase();
-    const supabase = await createSupabaseServerClient();
-    const { data: userData } = await supabase
+    const { data: userData } = await supabaseAdmin
       .from("users")
       .select("role")
       .eq("email", cleanEmail)
