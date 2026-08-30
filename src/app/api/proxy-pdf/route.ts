@@ -128,7 +128,7 @@ export async function GET(request: Request) {
     if (isPreview) {
       const rawBuffer = await fetchFileBuffer();
       if (!rawBuffer) {
-        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to retrieve the PDF file from storage. File may be missing or inaccessible." }, { status: 404 });
       }
 
       try {
@@ -158,7 +158,7 @@ export async function GET(request: Request) {
         }
 
         const previewBuffer = await previewDoc.save();
-        return new NextResponse(new Blob([previewBuffer as unknown as BlobPart], { type: "application/pdf" }), {
+        return new NextResponse(Buffer.from(previewBuffer), {
           headers: {
             "Content-Type": "application/pdf",
             "Content-Disposition": contentDisposition,
@@ -174,10 +174,10 @@ export async function GET(request: Request) {
     // 4. Non-preview mode: Serve PDF
     const rawBuffer = await fetchFileBuffer();
     if (!rawBuffer) {
-      return NextResponse.json({ error: "Failed to retrieve the PDF file from storage" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to retrieve the PDF file from storage. File may be missing or inaccessible." }, { status: 404 });
     }
 
-    return new NextResponse(new Blob([rawBuffer as unknown as BlobPart], { type: "application/pdf" }), {
+    return new NextResponse(Buffer.from(rawBuffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": contentDisposition,

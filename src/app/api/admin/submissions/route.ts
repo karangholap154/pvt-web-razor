@@ -242,21 +242,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Update submission status to approved
-    const { error: updateSubError } = await supabaseAdmin
-      .from("note_submissions")
-      .update({
-        status: "approved",
-        admin_feedback: adminFeedback || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", submissionId);
-
-    if (updateSubError) {
-      console.error("Failed to approve submission:", updateSubError);
-      return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
-    }
-
     // Update student's approved_notes_count & recalculate badge_tier using AND criteria
     const { data: userProfile } = await supabaseAdmin
       .from("users")
@@ -290,15 +275,7 @@ export async function POST(request: Request) {
     const newBadgeTier = calculateBadgeTier(currentApprovedCount, purchasesCount);
     const commissionRate = getPlatformCommissionRate(newBadgeTier);
 
-    await supabaseAdmin
-      .from("users")
-      .update({
-        approved_notes_count: currentApprovedCount,
-        badge_tier: newBadgeTier,
-      })
-      .eq("id", submission.user_id);
-
-    // Insert live note record into notes table with clean human-readable slug ID
+    // Insert live note record into notes table FIRST before updating submission status
     const titleSlug = slugify(submission.title) || "study-note";
     const randSuffix = Math.random().toString(36).substring(2, 6);
     const noteId = `${titleSlug}-${randSuffix}`;
@@ -321,8 +298,32 @@ export async function POST(request: Request) {
 
     if (noteInsertError) {
       console.error("Failed to insert live note record:", noteInsertError);
-      return NextResponse.json({ error: "Failed to publish note to live catalog" }, { status: 500 });
+      return NextResponse.json({ error: `Failed to publish note to live catalog: ${noteInsertError.message}` }, { status: 500 });
     }
+
+    // Update submission status to approved after live note is created
+    const { error: updateSubError } = await supabaseAdmin
+      .from("note_submissions")
+      .update({
+        status: "approved",
+        admin_feedback: adminFeedback || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", submissionId);
+
+    if (updateSubError) {
+      console.error("Failed to approve submission:", updateSubError);
+      await supabaseAdmin.from("notes").delete().eq("id", noteId);
+      return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
+    }
+
+    await supabaseAdmin
+      .from("users")
+      .update({
+        approved_notes_count: currentApprovedCount,
+        badge_tier: newBadgeTier,
+      })
+      .eq("id", submission.user_id);
 
     // Trigger approval status email safely (non-blocking)
     (async () => {
