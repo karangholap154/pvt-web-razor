@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "../utils/supabaseServer";
 import HomeContent from "../components/portal/HomeContent";
 import { Note } from "../data/mockData";
 
@@ -21,14 +21,7 @@ export const metadata: Metadata = {
 
 async function getPublicNotesData() {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return { notes: [], meta: [] };
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabase = await createSupabaseServerClient();
 
     const { data: rawNotes } = await supabase
       .from("notes")
@@ -85,9 +78,12 @@ async function getPublicNotesData() {
   }
 }
 
-export default async function Home() {
+async function AsyncHomeContent() {
   const { notes, meta } = await getPublicNotesData();
+  return <HomeContent initialNotes={notes} initialMeta={meta} />;
+}
 
+export default function Home() {
   return (
     <Suspense
       fallback={
@@ -99,7 +95,7 @@ export default async function Home() {
         </div>
       }
     >
-      <HomeContent initialNotes={notes} initialMeta={meta} />
+      <AsyncHomeContent />
     </Suspense>
   );
 }

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     noimageindex: true,
   },
 };
-import { checkIsAdmin } from "../../utils/auth";
+import { isAdmin } from "../../utils/auth";
 import { createSupabaseServerClient } from "../../utils/supabaseServer";
 import { supabaseAdmin } from "../../utils/supabaseAdmin";
 import AdminConsole from "./AdminConsole";
@@ -35,14 +35,8 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  // 2. Authorization check: DB role or whitelisted admin
-  const { data: currentUserData } = await supabase
-    .from("users")
-    .select("role")
-    .eq("email", user.email)
-    .maybeSingle();
-
-  const authorized = checkIsAdmin(user.email, currentUserData?.role);
+  // 2. Authorization check: DB role or whitelisted admin (uses service role check)
+  const authorized = await isAdmin(user.email);
   if (!authorized) {
     return (
       <div className={styles.container}>
