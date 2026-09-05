@@ -72,11 +72,12 @@ export async function GET(request: Request) {
       ? "inline" 
       : `attachment; filename="${filename}"`;
 
+    // Configure CDN Edge caching directives for Vercel/Cloudflare CDN edge locations
     const cacheControl = isPreview
-      ? "public, max-age=31536000, immutable"
+      ? "public, max-age=31536000, s-maxage=604800, stale-while-revalidate=86400, immutable"
       : price === 0
-      ? "public, max-age=86400"
-      : "private, max-age=3600";
+      ? "public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600"
+      : "private, max-age=3600, no-transform";
 
     // Parse bucket and relative file path dynamically from storage URL
     let targetBucket = "notes-bucket";
@@ -132,7 +133,7 @@ export async function GET(request: Request) {
       }
 
       try {
-        const srcDoc = await PDFDocument.load(rawBuffer);
+        const srcDoc = await PDFDocument.load(rawBuffer, { ignoreEncryption: true });
         const previewDoc = await PDFDocument.create();
         const helveticaFont = await previewDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -163,6 +164,8 @@ export async function GET(request: Request) {
             "Content-Type": "application/pdf",
             "Content-Disposition": contentDisposition,
             "Cache-Control": cacheControl,
+            "X-Content-Type-Options": "nosniff",
+            "Accept-Ranges": "bytes",
           },
         });
       } catch (pdfError) {
@@ -182,6 +185,8 @@ export async function GET(request: Request) {
         "Content-Type": "application/pdf",
         "Content-Disposition": contentDisposition,
         "Cache-Control": cacheControl,
+        "X-Content-Type-Options": "nosniff",
+        "Accept-Ranges": "bytes",
       },
     });
   } catch (error) {
