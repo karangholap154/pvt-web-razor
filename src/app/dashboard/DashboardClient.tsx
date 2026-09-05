@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import pageStyles from "../page.module.css";
 import { Note } from "../../data/mockData";
-import ContributeModal from "@/components/contribute/ContributeModal";
+import ContributeModal from "@/components/contribute/ContributeModalDynamic";
 import { useToast } from "@/components/providers/ToastProvider";
 import { FaCloudUploadAlt, FaClock, FaCheckCircle, FaTimesCircle, FaTrash } from "react-icons/fa";
 

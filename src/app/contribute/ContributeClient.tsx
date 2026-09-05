@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ContributeModal from "@/components/contribute/ContributeModal";
+import ContributeModal from "@/components/contribute/ContributeModalDynamic";
 import {
   calculateBadgeTier,
   getContributorShareRate,
