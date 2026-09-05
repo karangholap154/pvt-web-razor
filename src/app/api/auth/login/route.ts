@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../../utils/supabaseAdmin";
 import { ALLOWED_DOMAINS } from "../../../../utils/constants";
-import { checkRateLimit } from "../../../../utils/rateLimiter";
+import { checkRateLimitAsync } from "../../../../utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
     const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
-    const { allowed, retryAfterSeconds } = checkRateLimit(`login_${clientIp}`, 10, 15 * 60 * 1000);
+    const { allowed, retryAfterSeconds } = await checkRateLimitAsync(`login_${clientIp}`, 10, 15 * 60 * 1000);
 
     if (!allowed) {
       return NextResponse.json(

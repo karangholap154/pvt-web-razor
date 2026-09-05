@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { getContributorShareRate } from "@/utils/badgeUtils";
-import { checkRateLimit } from "@/utils/rateLimiter";
+import { checkRateLimitAsync } from "@/utils/rateLimiter";
 
 export async function GET() {
   try {
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
     }
 
     // Rate limit payout requests: max 5 requests per 15 minutes per user
-    const { allowed, retryAfterSeconds } = checkRateLimit(`payout_request_${user.id}`, 5, 15 * 60 * 1000);
+    const { allowed, retryAfterSeconds } = await checkRateLimitAsync(`payout_request_${user.id}`, 5, 15 * 60 * 1000);
     if (!allowed) {
       return NextResponse.json(
         { error: `Too many payout requests. Please wait ${retryAfterSeconds} seconds before trying again.` },

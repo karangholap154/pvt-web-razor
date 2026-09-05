@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
-import { checkRateLimit } from "@/utils/rateLimiter";
+import { checkRateLimitAsync } from "@/utils/rateLimiter";
 import { sendSubmissionAlertEmail } from "@/utils/resend";
 
 export async function POST(request: Request) {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     // Rate limit upload contributions: max 5 submissions per 15 minutes per user
-    const { allowed, retryAfterSeconds } = checkRateLimit(`contribute_${user.id}`, 5, 15 * 60 * 1000);
+    const { allowed, retryAfterSeconds } = await checkRateLimitAsync(`contribute_${user.id}`, 5, 15 * 60 * 1000);
     if (!allowed) {
       return NextResponse.json(
         { error: `Too many submissions. Please wait ${retryAfterSeconds} seconds before uploading another file.` },

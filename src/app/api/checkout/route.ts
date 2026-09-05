@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
-import { checkRateLimit } from "@/utils/rateLimiter";
+import { checkRateLimitAsync } from "@/utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     // Enforce rate limiting: 10 order checkouts per 15 minutes per user
-    const { allowed, retryAfterSeconds } = checkRateLimit(`checkout_${user.id}`, 10, 15 * 60 * 1000);
+    const { allowed, retryAfterSeconds } = await checkRateLimitAsync(`checkout_${user.id}`, 10, 15 * 60 * 1000);
     if (!allowed) {
       return NextResponse.json(
         { error: `Too many payment requests. Please try again in ${retryAfterSeconds} seconds.` },
