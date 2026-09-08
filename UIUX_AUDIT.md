@@ -108,24 +108,24 @@ These are real strengths to protect:
 
 > Words are design content. Every string was evaluated for clarity, active voice, and tone.
 
-| Location | Current text | Problem | Revised |
-|----------|-------------|---------|---------|
-| `loading.tsx` | "Loading content…" | Spinner + vague text | Replace with skeleton (no text needed) |
-| `HomeContent.tsx:813` | "Syncing notes with database..." | Internal tech language | Replace with skeleton grid |
-| `HomeContent.tsx:813` | `<h3>Syncing notes with database...</h3>` | `h3` heading for a loading message | Remove entirely with skeleton |
-| `HomeContent.tsx:598` | "Checking database logs..." | User should never see "database logs" | "Checking your purchase..." |
-| `HomeContent.tsx:599` | "Accessing secure Razorpay checkout..." | Verbose and awkward | "Opening payment..." |
-| `HomeContent.tsx:600` | "Proceed to Unlock" | Weak CTA, no price | "Unlock for ₹{price}" |
-| `HomeContent.tsx:612` | "Already Paid? Sync Payment Status" | ALL CAPS "Paid?" mid-sentence | "Already paid? Recover access" |
-| `HomeContent.tsx:614` | "Use this if your payment was deducted but the note did not unlock." | Passive, nervous-sounding | "Paid but can't access? This will reconnect your payment." |
-| `DiscussionCard.tsx:39` | "Are you sure you want to delete this doubt? This action cannot be undone." | Browser confirm, cold | Use Radix AlertDialog: "Delete this post? It can't be recovered." |
-| `UniversityGate.tsx:146` | "This selection is permanent and customizes your dashboard settings" | Scary — makes users hesitate | "You can update this from your profile later." |
-| `LoginGate.tsx:206` | "Jump to Catalog ↓" | Arrow as text decoration | "View notes" |
-| `HomeContent.tsx:1207` | "💰 Earn by contributing notes →" | Emoji + arrow = template chrome | "Contribute notes → Earn rewards" → actually just "Contribute study notes" |
-| `HomeContent.tsx:923` | "No study notes found" | Empty state with no action | "No results for this filter" + [Clear filters] button |
-| `NotFound.tsx:37` | "⚠️ Error 404" | Emoji as status indicator | Just "404" in a small badge |
-| `footer` | "Made with ❤️ by Karan Gholap" | Standard — fine. Keep | ✅ |
-| Checkout modal title | "Unlock Study Resource" | Generic | "Unlock: {note.title}" (truncated) |
+| Location | Current text | Status / Revision |
+|----------|-------------|-------------------|
+| `loading.tsx` | "Loading content…" | ✅ Replaced with full page layout skeleton |
+| `HomeContent.tsx:813` | "Syncing notes with database..." | ✅ Replaced with 6-card shimmer skeleton grid |
+| `HomeContent.tsx:813` | `<h3>Syncing notes with database...</h3>` | ✅ Removed loading header entirely |
+| `HomeContent.tsx:598` | "Checking database logs..." | ✅ "Checking your purchase..." |
+| `HomeContent.tsx:599` | "Accessing secure Razorpay checkout..." | ✅ "Opening payment..." |
+| `HomeContent.tsx:600` | "Proceed to Unlock" | ✅ Dynamic CTA: "Unlock for ₹{price}" |
+| `HomeContent.tsx:612` | "Already Paid? Sync Payment Status" | ✅ "Already paid? Recover access" |
+| `HomeContent.tsx:614` | "Use this if your payment was deducted..." | ✅ "Paid but can't access? This will reconnect your payment." |
+| `DiscussionCard.tsx:39` | "Are you sure you want to delete this doubt?..." | ⏳ Pending custom dialog |
+| `UniversityGate.tsx:146` | "This selection is permanent..." | ✅ "You can update your university selection anytime from your profile" |
+| `LoginGate.tsx:206` | "Jump to Catalog ↓" | ✅ "View notes" |
+| `HomeContent.tsx:1207` | "💰 Earn by contributing notes →" | ✅ "Contribute study notes" |
+| `HomeContent.tsx:923` | "No study notes found" | ✅ "No results for this filter" + [Clear filters] action button |
+| `NotFound.tsx:37` | "⚠️ Error 404" | ⏳ Pending minor touchup |
+| `footer` | "Made with ❤️ by Karan Gholap" | ✅ Standard & authentic |
+| Checkout modal title | "Unlock Study Resource" | ✅ "Unlock: {note.title}" (specific resource title) |
 
 ### Writing principles to apply globally:
 1. **Active voice always.** "Download" not "Download PDF File." "Sign in" not "Log In / Sign Up."
@@ -306,38 +306,13 @@ Or with CSS if staying custom:
 
 ---
 
-### 13. Form Errors — Inline Placement
-
-**Current:** `UniversityGate.tsx:308` — error is shown below the entire grid, separated from the action button. `UsernameGate.tsx:157` — error `<p>` is inside the form but above the submit button.
-
-**Rule:** Show form errors immediately below the field they reference.
-
-**Fixes:**
-- In `UsernameGate`: error for username → move `errorMsg` below the `inputWrapper`, before the rules list
-- In `UniversityGate`: general API error → keep below grid but closer to the button (already fine)
-- In `LoginGate` (`LoginClient.tsx`): ensure the `errorAlert` is directly below the email/password fields, not at the top of the form
+### ✅ DONE — 13. Form Errors — Inline Placement
+**Completed:** Re-positioned error messages in `UsernameGate.tsx` directly underneath the input field and status feedback, rather than separated below the entire rules checklist.
 
 ---
 
-### 14. Empty States — One Clear Action
-
-**Current:** `dashboard.module.css` has `.emptyState` with `.emptyText` and `.btnExplore`. This is actually good ✅. But `HomeContent.tsx` `noResults` div (when search returns nothing):
-```tsx
-<div className={styles.noResults}>
-  // Just text, no action button
-```
-
-**Fix:** Add a "Clear search" CTA button in the no-results state:
-```tsx
-<div className={styles.noResults}>
-  <svg>... search icon ...</svg>
-  <h3>No notes found</h3>
-  <p>Try different keywords or browse all notes</p>
-  <button onClick={handleClearFilters} className={styles.btnPrimary}>
-    Clear filters
-  </button>
-</div>
-```
+### ✅ DONE — 14. Empty States — One Clear Action
+**Completed:** Upgraded `.noResults` empty state in `HomeContent.tsx` and `page.module.css`. When search/filters return 0 notes, users now see a clean status icon, clear explanatory copy, and a primary `[Clear filters]` action button that resets search keywords, branch, and semester in one click.
 
 ---
 

@@ -146,6 +146,8 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
 
           <div className={styles.statusMessage}>{getStatusMessage()}</div>
 
+          {error && <p className={styles.errorMsg}>{error}</p>}
+
           <div className={styles.rules}>
             <span className={username.length >= 3 ? styles.ruleMet : styles.rulePending}>✓ Min 3 characters</span>
             <span className={username.length <= 15 ? styles.ruleMet : styles.rulePending}>✓ Max 15 characters</span>
@@ -153,8 +155,6 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
             <span className={/[a-z0-9_]$/.test(username) || username.length < 2 ? styles.ruleMet : styles.rulePending}>✓ End with letter/number/_</span>
             <span className={!username.includes('..') ? styles.ruleMet : styles.rulePending}>✓ No consecutive dots</span>
           </div>
-
-          {error && <p className={styles.errorMsg}>{error}</p>}
 
           <button
             type="submit"

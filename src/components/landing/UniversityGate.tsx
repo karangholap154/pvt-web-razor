@@ -130,20 +130,20 @@ export default function UniversityGate({ onSelect }: UniversityGateProps) {
             display: "inline-flex",
             alignItems: "center",
             gap: "0.5rem",
-            background: "rgba(245,158,11,0.08)",
-            border: "1px solid rgba(245,158,11,0.25)",
+            background: "rgba(255, 255, 255, 0.04)",
+            border: "1px solid var(--border)",
             borderRadius: "var(--radius-sm)",
             padding: "0.5rem 1rem",
             fontSize: "0.8rem",
-            color: "#f59e0b",
-            fontWeight: 600,
+            color: "var(--text-secondary)",
+            fontWeight: 500,
           }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
-            This selection is permanent and customizes your dashboard settings
+            You can update your university selection anytime from your profile
           </div>
         </div>
 

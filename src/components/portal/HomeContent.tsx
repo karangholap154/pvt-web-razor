@@ -297,6 +297,8 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
   const handleClearFilters = () => {
     setSearchQuery("");
     setDebouncedSearchQuery("");
+    setSelectedBranch("All branches");
+    setSelectedSemester("All semesters");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
@@ -535,7 +537,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
         <div className={styles.modalBackdrop} onClick={() => setShowCheckoutPrompt(false)} id="checkout-backdrop">
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="checkout-modal-content">
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Unlock Study Resource</h3>
+              <h3 className={styles.modalTitle} style={{ maxWidth: "85%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                Unlock: {checkoutNote.title}
+              </h3>
               <button onClick={() => setShowCheckoutPrompt(false)} className={styles.modalCloseBtn} id="btn-close-checkout">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -548,7 +552,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
               {!userEmail ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
                   <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
-                    You need to be signed in to purchase or access premium study guides.
+                    Sign in with your account to purchase or access your unlocked study materials.
                   </p>
                   <Link
                     href={`/login?redirect=/?unlock=${checkoutNote.id}`}
@@ -556,13 +560,13 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                     style={{ justifyContent: "center", textDecoration: "none" }}
                     id="btn-login-to-purchase"
                   >
-                    Log In / Sign Up
+                    Sign in to unlock
                   </Link>
                 </div>
               ) : (
                 <>
                   <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                    This is a premium resource. Proceed to verify your past purchase or buy now for <strong>₹{checkoutNote.price}</strong>.
+                    This is a premium resource. Verify your past purchase or unlock instant access for <strong>₹{checkoutNote.price}</strong>.
                   </p>
                   <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "0.5rem" }} id="checkout-form">
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -595,9 +599,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                       style={{ justifyContent: "center", marginTop: "0.25rem" }}
                       id="btn-trigger-payment-flow"
                     >
-                      {checkoutStatus === "verifying" && "Checking database logs..."}
-                      {checkoutStatus === "paying" && "Accessing secure Razorpay checkout..."}
-                      {checkoutStatus === "idle" && "Proceed to Unlock"}
+                      {checkoutStatus === "verifying" && "Checking your purchase..."}
+                      {checkoutStatus === "paying" && "Opening payment..."}
+                      {checkoutStatus === "idle" && `Unlock for ₹${checkoutNote.price}`}
                     </button>
                     {activeOrderId && (
                       <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -609,10 +613,10 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                           style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
                           id="btn-sync-payment"
                         >
-                          {checkoutStatus === "verifying" ? "Syncing..." : "Already Paid? Sync Payment Status"}
+                          {checkoutStatus === "verifying" ? "Connecting..." : "Already paid? Recover access"}
                         </button>
                         <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
-                          Use this if your payment was deducted but the note did not unlock.
+                          Paid but can&apos;t access? This will reconnect your payment.
                         </span>
                       </div>
                     )}
@@ -808,9 +812,37 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
           )}
 
           {isLoading ? (
-            <div style={{ textAlign: "center", padding: "5rem 2rem", color: "var(--text-secondary)" }}>
-              <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.06)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1.25rem" }} />
-              <h3>Syncing notes with database...</h3>
+            <div className={styles.grid} style={{ marginTop: "1rem" }}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "var(--card-bg)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--radius)",
+                    padding: "1.25rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.85rem",
+                    minHeight: "220px",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
+                    <div style={{ height: "20px", width: "70%", background: "var(--border)", borderRadius: "4px" }} />
+                    <div style={{ height: "20px", width: "45px", background: "var(--border)", borderRadius: "4px" }} />
+                  </div>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <div style={{ height: "22px", width: "70px", background: "var(--border)", borderRadius: "4px" }} />
+                    <div style={{ height: "22px", width: "50px", background: "var(--border)", borderRadius: "4px" }} />
+                  </div>
+                  <div style={{ height: "14px", width: "100%", background: "var(--border)", borderRadius: "4px", marginTop: "0.25rem" }} />
+                  <div style={{ height: "14px", width: "75%", background: "var(--border)", borderRadius: "4px" }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
+                    <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
+                    <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : debouncedSearchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
             /* Flat list mode for Search or Semester-only filtering */
@@ -920,8 +952,34 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 </div>
               ) : (
                 <div className={styles.noResults}>
-                  <h3>No study notes found</h3>
-                  <p>Try clearing search keywords or selecting another university filter.</p>
+                  <div style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "50%",
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid var(--border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--text-secondary)",
+                    marginBottom: "0.25rem"
+                  }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      <line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                  </div>
+                  <h3 className={styles.noResultsTitle}>No results for this filter</h3>
+                  <p className={styles.noResultsDesc}>No study notes match your current search and filters. Reset filters to browse all resources.</p>
+                  <button 
+                    type="button"
+                    onClick={handleClearFilters}
+                    className={styles.btnPrimary}
+                    style={{ padding: "0.6rem 1.25rem", fontSize: "0.85rem", marginTop: "0.25rem" }}
+                  >
+                    Clear filters
+                  </button>
                 </div>
               )}
             </div>
@@ -1305,9 +1363,37 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
         )}
 
         {isLoading ? (
-          <div style={{ textAlign: "center", padding: "5rem 2rem", color: "var(--text-secondary)" }}>
-            <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.06)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1.25rem" }} />
-            <h3>Syncing notes with database...</h3>
+          <div className={styles.grid} style={{ marginTop: "1rem" }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "var(--radius)",
+                  padding: "1.25rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.85rem",
+                  minHeight: "220px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
+                  <div style={{ height: "20px", width: "70%", background: "var(--border)", borderRadius: "4px" }} />
+                  <div style={{ height: "20px", width: "45px", background: "var(--border)", borderRadius: "4px" }} />
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div style={{ height: "22px", width: "70px", background: "var(--border)", borderRadius: "4px" }} />
+                  <div style={{ height: "22px", width: "50px", background: "var(--border)", borderRadius: "4px" }} />
+                </div>
+                <div style={{ height: "14px", width: "100%", background: "var(--border)", borderRadius: "4px", marginTop: "0.25rem" }} />
+                <div style={{ height: "14px", width: "75%", background: "var(--border)", borderRadius: "4px" }} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
+                  <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
+                  <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
+                </div>
+              </div>
+            ))}
           </div>
         ) : debouncedSearchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
           /* Flat list mode for Search or Semester-only filtering */
