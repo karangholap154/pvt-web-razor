@@ -333,9 +333,8 @@ export default function DiscussionThreadPage({
               <span className={styles.authorHandle}>
                 @{discussion.author?.username || "student"}
               </span>
-              <span className={styles.metaDot}>•</span>
-              <span className={styles.badgePill}>{discussion.branch} ({discussion.semester})</span>
-              <span className={styles.metaDot}>•</span>
+              <span className={styles.badgePill}>{discussion.branch}</span>
+              <span className={styles.badgePill}>{discussion.semester}</span>
               <span className={styles.metaTime}>{new Date(discussion.created_at).toLocaleDateString()}</span>
             </div>
 

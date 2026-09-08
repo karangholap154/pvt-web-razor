@@ -84,18 +84,12 @@ export default function LoginGate({
           fontSize: "clamp(2rem, 5.5vw, 3.75rem)",
           fontWeight: 900,
           lineHeight: 1.1,
-          letterSpacing: "-0.03em",
+          letterSpacing: "-0.035em",
           margin: 0,
-          maxWidth: "800px"
+          maxWidth: "800px",
+          color: "var(--text-primary)"
         }}>
-          Ace Your Semester Exams with{" "}
-          <span style={{
-            background: "linear-gradient(135deg, var(--accent) 30%, #fb923c 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>
-            Private Academy Notes
-          </span>
+          Ace Your Semester Exams with Private Academy Notes
         </h1>
 
         <p style={{
@@ -203,7 +197,7 @@ export default function LoginGate({
                   Found <strong>{resultsCount}</strong> matching study {resultsCount === 1 ? "sheet" : "sheets"}
                   {selectedUniv && selectedUniv !== "All universities" ? ` in ${selectedUniv}` : ""}
                 </span>
-                <span style={{ textDecoration: "underline", marginLeft: "0.2rem" }}>Jump to Catalog ↓</span>
+                <span style={{ textDecoration: "underline", marginLeft: "0.2rem" }}>View notes</span>
               </div>
             )}
           </div>
@@ -218,14 +212,14 @@ export default function LoginGate({
           paddingTop: "1rem"
         }}>
           {[
-            { num: "100+", label: "Verified Guides" },
-            { num: "4.9★", label: "Student Rating" },
+            { num: "100+", label: "Verified guides" },
+            { num: "4.9★", label: "Student rating" },
           ].map((stat, idx) => (
             <div key={idx} style={{ textAlign: "center" }}>
               <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "var(--accent)", letterSpacing: "-0.02em" }}>
                 {stat.num}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600, marginTop: "0.15rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600, marginTop: "0.15rem", letterSpacing: "0.02em" }}>
                 {stat.label}
               </div>
             </div>

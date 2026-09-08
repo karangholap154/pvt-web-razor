@@ -911,7 +911,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                             </button>
                           )}
                           <button onClick={(e) => { e.stopPropagation(); router.push(`/notes/${note.id}`); }} className={`${styles.btnNoteAction} ${styles.btnNoteDownloadFree}`} style={{ gridColumn: hasVideo ? "auto" : "span 2" }}>
-                            Preview & Details →
+                            Preview & details
                           </button>
                         </div>
                       </article>
@@ -1093,7 +1093,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                             </button>
                           )}
                           <button onClick={(e) => { e.stopPropagation(); router.push(`/notes/${note.id}`); }} className={`${styles.btnNoteAction} ${styles.btnNoteDownloadFree}`} style={{ gridColumn: hasVideo ? "auto" : "span 2" }}>
-                            Preview & Details →
+                            Preview & details
                           </button>
                         </div>
                       </article>
@@ -1204,7 +1204,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
               gap: "0.35rem"
             }}
           >
-            💰 Earn by contributing notes →
+            Contribute study notes
           </Link>
         </div>
       </section>

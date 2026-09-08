@@ -67,93 +67,28 @@ Everything else — badge tints, card hover borders, focus accents — should us
 
 ---
 
-### ❌ Tell #3: Template chrome — tracked-out ALL CAPS eyebrow labels (hits multiple)
-
-Found throughout the project:
-1. `footerTitle` → `text-transform: uppercase` → "QUICK LINKS", "LEGAL", "SUPPORT"
-2. `footerTagline` → "ENGINEERING EXCELLENCE HUB"
-3. `drawerSectionLabel` → uppercase nav section labels
-4. `widgetCardCategory` → uppercase category label above article cards
-5. `heroSection` badge → "TRUSTED ENGINEERING STUDY PLATFORM" (in uppercase via CSS)
-
-The skill explicitly calls this out: *"tracked-out ALL-CAPS eyebrow labels above every heading"* is a default tell.
-
-**Fix:** Remove `text-transform: uppercase` from all of these. Replace hierarchy through:
-- Font weight alone (`font-weight: 600`)
-- Size contrast (smaller label at `0.8rem`, heading at `1rem`)
-- Color (muted secondary vs. primary)
+### ✅ DONE — Tell #3: Template chrome — tracked-out ALL CAPS eyebrow labels
+**Completed:** Removed `text-transform: uppercase` from footer titles, social section title, drawer section labels, and widget categories. Replaced with font weight (600/700) and proper letter spacing for hierarchy.
 
 ---
 
-### ❌ Tell #4: Accent on a single word/phrase in headlines
-
-**Exact match — `LoginGate.tsx:92-99`:**
-```tsx
-Ace Your Semester Exams with{" "}
-<span style={{
-  background: "linear-gradient(135deg, var(--accent) 30%, #fb923c 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-}}>
-  Private Academy Notes
-</span>
-```
-
-And in `globals.css:92-96`:
-```css
-.gradient-text { background: linear-gradient(135deg, #ffffff 40%, var(--accent) 100%); }
-```
-
-The skill calls this out directly: *"Accenting just a single word or phrase in a headline... putting one word in italic/bold or a different color."*
-
-**Fix:** The hero headline should be one color — white/`text-primary`. Let the heading's **content** be the memorable thing, not a gradient applied to half the words. If visual emphasis is needed, make the entire headline heavier (display weight, tighter tracking) or use whitespace to isolate it.
+### ✅ DONE — Tell #4: Accent on a single word/phrase in headlines
+**Completed:** Removed gradient text from hero title in `LoginGate.tsx`. The headline now renders cleanly in uniform display typography (`var(--text-primary)`). Also deleted `.gradient-text` utility from `globals.css`.
 
 ---
 
-### ❌ Tell #5: Middle-dot meta strings
-
-**Exact match — `DiscussionCard.tsx:148`:**
-```tsx
-<span className={styles.badgePill}>{post.branch} • {post.semester}</span>
-```
-
-The skill calls this out: *"Meta strings joined with middle dots ('A · B · C')"*
-
-**Fix:** Branch and semester are already in separate badge pills — just render them as two separate `<span>` elements with `gap: 0.5rem`. No bullet needed.
+### ✅ DONE — Tell #5: Middle-dot meta strings
+**Completed:** Replaced middle-dot joined metadata in `DiscussionCard.tsx` and `discussions/[id]/page.tsx` with separate, clean badge pills (`{post.branch}` and `{post.semester}` rendered as independent elements with gap).
 
 ---
 
-### ❌ Tell #6: `→` appended to link/button text
-
-**Found in:**
-- `HomeContent.tsx:914` → `"Preview & Details →"`
-- `HomeContent.tsx:1096` → `"Preview & Details →"`
-- `HomeContent.tsx:1141` → `"Sign Up / Log In to Unlock"` + `<FaChevronRight />`
-- `HomeContent.tsx:1207` → `"Earn by contributing notes →"`
-- `LoginGate.tsx` → `"Jump to Catalog ↓"`
-
-The skill: *"A '→' appended to link and button text"* is explicit template chrome.
-
-**Fix:**
-- Remove the `→` arrow from button/link text entirely. The visual affordance of the button border/fill/color already communicates "this is clickable."
-- If you want directional affordance on inline links, use a subtle `FaArrowRight` icon but only on links that actually navigate elsewhere (not CTAs in cards).
+### ✅ DONE — Tell #6: `→` appended to link/button text
+**Completed:** Stripped trailing arrows (`→` and `↓`) from buttons and links across `HomeContent.tsx` (`Preview & details`, `Contribute study notes`) and `LoginGate.tsx` (`View notes`).
 
 ---
 
-### ❌ Tell #7: Non-user-triggered motion on every card
-
-**Found:** Every card type — note cards, folder cards, branch cards, testimonial cards, social cards, FAQ items, feature cards, university cards — all have `transform: translateY(-4px)` or `translateY(-3px)` + `border-color: var(--accent)` on `:hover`.
-
-The skill: *"Fade-and-slide-up entrances on each section and hover transitions on every card are the generic default and read as AI-generated."*
-
-**Fix — be selective about which surfaces earn hover motion:**
-- Note cards (primary content object the user is choosing): keep hover lift ✅
-- Folder cards (navigation affordance): keep hover ✅
-- Social link cards: keep (already well-differentiated) ✅
-- Testimonial cards: **remove hover**. Testimonials are read, not clicked.
-- Feature cards (LoginGate): **remove hover**. Features are read, not clicked.
-- FAQ items: **remove hover**. They're expanded with click, not hovered.
-- Stats/university cards in LoginGate hero: **remove hover transform**. Stats are data, not actions.
+### ✅ DONE — Tell #7: Non-user-triggered motion on every card
+**Completed:** Removed hover transforms (`translateY(-4px)` / `-3px`) and artificial amber glow borders from non-interactive reading cards (`.gate-feature-card`, `.gate-step`, `.testimonial-card`, `.faq-item` in `LoginGate.module.css`). Only interactive components (note cards, action buttons, folder items) now elevate on hover.
 
 ---
 

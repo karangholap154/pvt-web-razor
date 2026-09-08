@@ -144,9 +144,8 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
             <span className={styles.authorHandle}>
               @{post.author?.username || "student"}
             </span>
-            <span className={styles.metaDot}>•</span>
-            <span className={styles.badgePill}>{post.branch} • {post.semester}</span>
-            <span className={styles.metaDot}>•</span>
+            <span className={styles.badgePill}>{post.branch}</span>
+            <span className={styles.badgePill}>{post.semester}</span>
             <span className={styles.metaTime}>{formattedDate}</span>
           </div>
 
