@@ -134,7 +134,8 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* ease-in for closing — fast exit */
+  transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
   overflow-y: auto;
   overscroll-behavior: contain;
   /* Account for iOS home-bar at the bottom */
@@ -143,6 +144,8 @@
 
 .mobileDrawerOpen {
   transform: translateX(0);
+  /* ease-out for opening — snappy entrance, gentle arrival */
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mobileDrawerHeader {
@@ -163,8 +166,10 @@
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.35rem;
-  line-height: 0;
+  /* 44×44px minimum touch target (was ~28px with padding: 0.35rem) */
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   transition: var(--transition);
 }
 
@@ -215,11 +220,11 @@
 .drawerSectionLabel {
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  /* No uppercase — sentence case + accent color provides hierarchy without the AI-generated template look */
+  letter-spacing: 0.04em;
   color: var(--accent);
-  text-transform: uppercase;
   padding: 0.6rem 0.75rem 0.2rem 0.75rem;
-  opacity: 0.9;
+  /* No opacity reduction — it lowers contrast on an already-small label */
 }
 
 .drawerSectionDivider {
@@ -314,8 +319,8 @@
 .footerTitle {
   font-size: 0.875rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  /* No uppercase — weight provides hierarchy without the template tell */
+  letter-spacing: 0.02em;
   color: var(--text-primary);
   margin-bottom: 1.25rem;
 }
@@ -370,9 +375,9 @@
 
 .socialSectionTitle {
   font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  /* Sentence case — weight and muted color provide hierarchy */
+  letter-spacing: 0.02em;
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
   text-align: center;
@@ -519,8 +524,9 @@
   padding: 0;
   cursor: pointer;
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
+  /* 44×44px minimum touch target (up from 38×38px) */
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;

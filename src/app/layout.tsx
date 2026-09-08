@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next"; 
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -10,6 +11,14 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 import styles from "./layout.module.css";
+
+// Inter loaded via next/font — self-hosted, zero FOUT, no blocking network request
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
 
 // SVG Icon components for the socials
 const FaTelegram = () => (
@@ -293,7 +302,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <head>
         <script
           type="application/ld+json"

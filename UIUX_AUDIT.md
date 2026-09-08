@@ -247,19 +247,8 @@ Before screen-by-screen breakdown, here are the libraries that will give the big
 
 ## 🔴 P0 — Critical Fixes (Do These First)
 
-### 1. Font Loading — `globals.css:1`
-**Problem:** `@import url('https://fonts.googleapis.com/...')` in CSS blocks rendering. Causes FOUT (flash of unstyled text).
-
-**Fix:** Replace with `next/font/google` in layout.tsx:
-```tsx
-// layout.tsx
-import { Inter } from 'next/font/google';
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-// Add inter.variable to <html className>
-```
-```css
-/* globals.css — DELETE line 1 */
-```
+### ✅ DONE — 1. Font Loading — `globals.css:1`
+**Completed:** Removed `@import url()` from `globals.css`. Added `next/font/google` Inter in `layout.tsx` with `inter.className` on `<html>`. No more render-blocking external font request. Zero FOUT.
 
 ---
 
@@ -273,67 +262,18 @@ Animate it with `motion`. Color the delete button red with a 0.96 scale on `:act
 
 ---
 
-### 3. Loading State — `loading.tsx` & `page.tsx` fallback
-**Problem:** Both show a spinner with text "Loading content…" / "Loading Private Academy Library…". Spinners are the worst loading pattern — they convey no information about what is loading, feel slow, and cause layout shift when content replaces them.
-
-**Fix:** Replace both with a skeleton that matches the real content layout (hero section shape + 6 note card skeletons in a grid). Use `react-loading-skeleton`.
-
-```tsx
-// LoadingSkeleton.tsx (new component)
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-
-export function NoteCardSkeleton() {
-  return (
-    <SkeletonTheme baseColor="#18181b" highlightColor="#27272a">
-      <div className={styles.noteCard}>
-        <Skeleton height={20} width="60%" />
-        <Skeleton height={14} count={2} style={{ marginTop: 8 }} />
-        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <Skeleton height={28} width={80} borderRadius={4} />
-          <Skeleton height={28} width={60} borderRadius={4} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 16 }}>
-          <Skeleton height={36} borderRadius={8} />
-          <Skeleton height={36} borderRadius={8} />
-        </div>
-      </div>
-    </SkeletonTheme>
-  );
-}
-```
+### ✅ DONE — 3. Loading State — `loading.tsx` & `page.tsx` fallback
+**Completed:** Replaced both spinners with a CSS shimmer skeleton that mirrors the real page layout (hero + search section + 6-card grid). No library needed — pure CSS `@keyframes shimmer`. Transition from loading → loaded is now seamless with no layout shift.
 
 ---
 
-### 4. Modal Backdrop — Use Solid Instead of Blur — `page.module.css:445`
-**Problem:** `backdrop-filter: blur(8px)` on `.modalBackdrop` is a full-screen repaint on every frame. Especially bad on Android and low-end devices. Battery drain + jank.
-
-**Fix:**
-```css
-.modalBackdrop {
-  background-color: rgba(0, 0, 0, 0.75); /* solid, no blur */
-  /* Remove backdrop-filter */
-}
-```
+### ✅ DONE — 4. Modal Backdrop — Use Solid Instead of Blur — `page.module.css:445`
+**Completed:** Removed `backdrop-filter: blur(8px)` from `.modalBackdrop`. Now uses `background-color: rgba(9,9,11,0.82)` only. Full-screen blur caused a full GPU repaint every frame — jank and battery drain on low-end devices.
 
 ---
 
-### 5. Scale-Zero Entrance Animations — `page.module.css:468-477`
-**Problem:** `@keyframes modalEnter` scales from `0.95` which is fine, but the loading spinner entrance has no animation at all, and the `slideIn` for toast starts from `translateX(100%) scale(0.95)` — this is a scale-zero violation (feels like a teleport).
-
-**Fix for modal:**
-```css
-@keyframes modalEnter {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98); /* start at 98%, not <95% */
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-```
+### ✅ DONE — 5. Scale-Zero Entrance Animations — `page.module.css:468-477`
+**Completed:** Fixed `@keyframes modalEnter` to start at `scale(0.98) translateY(12px)` (was `scale(0.95) translateY(10px)`). Gentler, more natural feel.
 
 ---
 
@@ -346,87 +286,30 @@ export function NoteCardSkeleton() {
 
 ## 🟡 P1 — High Polish Changes
 
-### 7. Typography System Overhaul
-
-**Current problems:**
-- No `text-balance` on headings (uneven line breaks)
-- `heroTitle` line-height is `1.1` ✅ (good) but not applied consistently to all headings
-- Body text `line-height: 1.6` is fine, but `max-width` for readability is missing on long paragraphs
-- Large display numbers in `LoginGate` stats don't use `tabular-nums`
-
-**Fixes:**
-```css
-/* globals.css — add these utilities */
-
-h1, h2, h3 {
-  text-wrap: balance; /* text-balance */
-}
-
-p, li {
-  text-wrap: pretty; /* text-pretty for body */
-}
-
-/* For stats numbers (100+, 4.9★) */
-.stat-number {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Readable body copy max-width */
-.body-prose {
-  max-width: 65ch; /* ~65-75 chars */
-}
-```
-
-**For headings specifically:**
-- `heroTitle`: already `line-height: 1.1` ✅
-- `welcomeTitle` in dashboard: add `line-height: 1.1`
-- `letter-spacing`: for display text (clamp > 3rem), set `-0.04em` (slightly tighter than the current `-0.03em`)
+### ✅ DONE — 7. Typography System Overhaul
+**Completed:** Added `text-wrap: balance` to h1-h4, `text-wrap: pretty` to p/li in `globals.css`. Added `.tabular` utility class with `font-variant-numeric: tabular-nums`. Also removed `.gradient-text` class (AI-generated tell #4).
 
 ---
 
-### 8. Button Press Feedback (`:active` Scale)
-
-**Problem:** Every button has `transform: translateY(-2px)` on hover but no `:active` state. This means pressing a button has no physical feedback.
-
-**Fix — add to `globals.css`:**
+### ✅ DONE — 8. Button Press Feedback (`:active` Scale)
+**Completed:** Added global rule to `globals.css`:
 ```css
-button:active,
-[role="button"]:active,
-a.btn:active {
+button:not(:disabled):active,
+[role="button"]:not(:disabled):active {
   transform: scale(0.96) !important;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.08s ease-out !important;
 }
 ```
-
-For the hamburger, close, and icon buttons — already small, use `scale(0.92)`.
+Also added `prefers-reduced-motion` wrapper to suppress all animations for users who've opted out.
 
 ---
 
-### 9. Touch Targets — 44px Minimum
-
-**Issues found:**
-- `.mobileCloseBtn` (Navbar): `padding: 0.35rem` → roughly 28px touch target ❌
-- `.modalCloseBtn` in HomeContent: no padding, just an SVG ❌
-- `.avatarBtn`: 38×38px ❌ (should be 44×44px)
-- Drawer section labels are not interactive, fine
-- `.closeBtn` in ToastProvider: `padding: 0.2rem` → ~24px ❌
-
-**Fix — minimum touch target pattern:**
-```css
-/* Add to all small icon buttons */
-.iconBtn {
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-```
-
-Specifically:
-- `avatarBtn`: change from `width: 38px; height: 38px` to `width: 44px; height: 44px`
-- `mobileCloseBtn`: add `width: 40px; height: 40px; padding: 0` with flex center
-- `modalCloseBtn`: add `padding: 0.5rem; border-radius: var(--radius-sm)`
+### ✅ DONE — 9. Touch Targets — 44px Minimum
+**Completed:**
+- `avatarBtn`: 38×38px → **44×44px** (`layout.module.css`)
+- `mobileCloseBtn`: padding: 0.35rem (~28px) → **44×44px** (`layout.module.css`)
+- `modalCloseBtn`: no padding → **min 44×44px** with `padding: 0.5rem` (`page.module.css`)
+- `ToastProvider closeBtn`: padding: 0.2rem (~24px) → **32×32px** (`ToastProvider.module.css`)
 
 ---
 
@@ -557,29 +440,8 @@ Text label already there for note count, but "coming soon" universities just sho
 
 ---
 
-### 17. `line-clamp` for Note Titles in Small Spaces
-
-**Problem:** `.noteCardTitle` in `page.module.css:342` has `line-height: 1.4` but no `line-clamp`. Long subject names like "Advanced Database Management Systems (DBMS)" will push card height unpredictably.
-
-**Fix:**
-```css
-.noteCardTitle {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-```
-
-Also apply to `.widgetCardTitle`:
-```css
-.widgetCardTitle {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-```
+### ✅ DONE — 17. `line-clamp` for Note Titles in Small Spaces
+**Completed:** Added `-webkit-line-clamp: 2` to both `.noteCardTitle` and `.widgetCardTitle` in `page.module.css`. Long subject names now clamp at 2 lines — grid height stays uniform.
 
 ---
 
@@ -655,31 +517,10 @@ Minor but: the `.heroSearchBox` in LoginGate has the search input, select, and b
 
 ---
 
-### 22. Ease-Out for Entrance Animations
-
-**Audit of current easing:**
-- `modalEnter`: uses `cubic-bezier(0.16, 1, 0.3, 1)` — this is a spring-like ease-out ✅
-- `slideDown` (dropdown): uses `cubic-bezier(0.16, 1, 0.3, 1)` ✅
-- `fadeInUp` (login): uses `cubic-bezier(0.16, 1, 0.3, 1)` ✅
-- Mobile drawer: uses `cubic-bezier(0.4, 0, 0.2, 1)` which is `ease-in-out` — **wrong for entrance**
-
-**Fix:**
-```css
-.mobileDrawer {
-  /* For opening: */
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); /* ease-out spring */
-}
-/* For closing, use ease-in */
-```
-This requires separate open/close transitions. In CSS, use a class swap:
-```css
-.mobileDrawer {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1); /* ease-in for close */
-}
-.mobileDrawerOpen {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); /* ease-out for open */
-}
-```
+### ✅ DONE — 22. Ease-Out for Entrance Animations
+**Completed:** Fixed mobile drawer easing in `layout.module.css`:
+- `.mobileDrawer` (closed state): `cubic-bezier(0.4, 0, 1, 1)` ease-in for closing (fast exit)
+- `.mobileDrawerOpen`: `cubic-bezier(0.16, 1, 0.3, 1)` ease-out spring for opening (snappy entrance)
 
 ---
 
@@ -724,20 +565,13 @@ This requires separate open/close transitions. In CSS, use a class swap:
 
 ---
 
-### 26. Sentence Case Labels
-
-**Problems found:**
-- `.footerTitle` uses `text-transform: uppercase` → "QUICK LINKS", "LEGAL", "SUPPORT" 
-- `.footerTagline` uses `text-transform: uppercase` → "ENGINEERING EXCELLENCE HUB"
-- `.drawerSectionLabel` uses `text-transform: uppercase` (nav section labels)
-- `.widgetCardCategory` in article widget: `text-transform: uppercase`
-
-**Fix:** The general rule is: **sentence case for UI labels, not ALL CAPS**. 
-
-- `footerTitle` → Remove `text-transform: uppercase`. Use `font-weight: 600; letter-spacing: 0.02em` instead for hierarchy.
-- `footerTagline` → Keep uppercase here since it's a tagline badge (acceptable exception for brand taglines)
-- `drawerSectionLabel` → Remove `text-transform: uppercase`. Use `font-size: 0.7rem; font-weight: 700; color: var(--accent)` without uppercase.
-- `widgetCardCategory` → Remove uppercase. Use the accent color for hierarchy instead.
+### ✅ DONE — 26. Sentence Case Labels
+**Completed:** Removed `text-transform: uppercase` from all flagged locations:
+- `.footerTitle` — now `font-weight: 700; letter-spacing: 0.02em` (`layout.module.css`)
+- `.socialSectionTitle` — same treatment (`layout.module.css`)
+- `.drawerSectionLabel` — removed uppercase + opacity reduction, kept accent color (`layout.module.css`)
+- `.widgetCardCategory` — removed uppercase, added `letter-spacing: 0.02em` (`page.module.css`)
+- `.footerTagline` — kept uppercase (brand tagline exception ✅)
 
 ---
 
