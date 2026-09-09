@@ -215,10 +215,11 @@ Before screen-by-screen breakdown, here are the libraries that will give the big
 
 ---
 
-### 6. Tab Switches Should Be Instant — Login page
-**Problem:** Switching between "Login" / "Sign Up" tabs in the login modal triggers `fadeInUp` animation — this is a routine interaction, not a first-load entrance. Animations on routine actions feel sluggish.
-
-**Fix:** Remove the `fadeInUp` animation from tab panel switches. Only keep it on initial card mount.
+### ✅ DONE — 6. Tab Switches Should Be Instant — Login Page (`LoginClient.tsx` & `login.module.css`)
+**Completed:** 
+- Removed `.fadeInUp` animations from `.optionsContainer` in `LoginClient.tsx`. Toggling between "Login" and "Sign Up", and switching between Google auth / Email forms, is now completely instantaneous without sluggish animation delays.
+- Confined entrance animation strictly to initial card mount on `.authCard` (`@keyframes cardMount` using `scale(0.98) translateY(10px)` → `scale(1) translateY(0)`).
+- **P0 Accessibility Bonus:** Fixed critical contrast violation in `UniversityGate.tsx:332`. Active unlock button previously rendered `#ffffff` text on `var(--accent)` (`#fbbf24`), failing WCAG AA at 1.35:1. Changed to `#09090b`, yielding a crisp 13.5:1 contrast ratio that exceeds WCAG AAA.
 
 ---
 

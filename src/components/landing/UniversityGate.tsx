@@ -329,7 +329,7 @@ export default function UniversityGate({ onSelect }: UniversityGateProps) {
             width: "100%",
             padding: "0.95rem",
             background: selected && selectedHasNotes ? "var(--accent)" : "rgba(255,255,255,0.03)",
-            color: selected && selectedHasNotes ? "#ffffff" : "var(--text-secondary)",
+            color: selected && selectedHasNotes ? "#09090b" : "var(--text-secondary)",
             border: selected && selectedHasNotes ? "none" : "1px solid var(--border)",
             borderRadius: "var(--radius)",
             fontWeight: 700,

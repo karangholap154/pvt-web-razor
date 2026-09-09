@@ -184,7 +184,7 @@ function LoginForm() {
         {infoMsg && <div className={styles.infoAlert}>{infoMsg}</div>}
 
         {!showEmailForm ? (
-          <div className={`${styles.optionsContainer} ${styles.fadeInUp}`}>
+          <div className={styles.optionsContainer}>
             <button
               type="button"
               onClick={handleGoogleSignIn}
@@ -260,7 +260,7 @@ function LoginForm() {
             </p>
           </div>
         ) : (
-          <div className={`${styles.optionsContainer} ${styles.fadeInUp}`}>
+          <div className={styles.optionsContainer}>
             {showRecoveryInfo ? (
               <div className={styles.recoveryContainer}>
                 <button
