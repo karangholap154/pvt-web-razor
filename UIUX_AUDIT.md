@@ -200,8 +200,8 @@ Before screen-by-screen breakdown, here are the libraries that will give the big
 
 ---
 
-### ✅ DONE — 3. Loading State — `loading.tsx` & `page.tsx` fallback
-**Completed:** Replaced both spinners with a CSS shimmer skeleton that mirrors the real page layout (hero + search section + 6-card grid). No library needed — pure CSS `@keyframes shimmer`. Transition from loading → loaded is now seamless with no layout shift.
+### ✅ DONE — 3. Loading State — `loading.tsx` & `HomeContent.tsx` Fallback / Search Skeletons
+**Completed:** Replaced spinners and dead static gray blocks with a CSS shimmer skeleton that mirrors the real page layout (hero + search section + 6-card grid). Defined `@keyframes shimmer` and `.skeletonShimmer` in `page.module.css` and applied across `HomeContent.tsx` (lines 816–845 & 1367–1396). Transition from loading → loaded is now seamless with zero layout shift.
 
 ---
 
@@ -394,23 +394,8 @@ Minor but: the `.heroSearchBox` in LoginGate has the search input, select, and b
 
 ---
 
-### 24. `aspect-ratio` for Image Placeholders
-
-**Found:** `avatarImg` and `avatarFallback` are fixed at `38×38px` (or `42×42px` mobile) — these are fine since they're fixed dimensions.
-
-**BUT:** The video embed `videoWrapper` uses `padding-bottom: 56.25%` which is the old hack. Modern CSS:
-```css
-.videoWrapper {
-  aspect-ratio: 16 / 9;
-  height: auto; /* Remove height: 0 */
-  /* Remove padding-bottom: 56.25% */
-}
-.videoWrapper iframe {
-  position: static; /* Can now be static, not absolute */
-  width: 100%;
-  height: 100%;
-}
-```
+### ✅ DONE — 24. `aspect-ratio` for Video Embeds & Image Placeholders
+**Completed:** Modernized `.videoContainer` in `notes.module.css` and `.videoWrapper` in `page.module.css` to use native CSS `aspect-ratio: 16 / 9; width: 100%;`. Eliminated the legacy `padding-bottom: 56.25%` and `height: 0` hacks. Video iframes now reliably adapt to 16:9 responsive bounds on all viewports without layout distortion.
 
 ---
 

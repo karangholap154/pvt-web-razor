@@ -828,18 +828,18 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
-                    <div style={{ height: "20px", width: "70%", background: "var(--border)", borderRadius: "4px" }} />
-                    <div style={{ height: "20px", width: "45px", background: "var(--border)", borderRadius: "4px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "20px", width: "70%" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "20px", width: "45px" }} />
                   </div>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <div style={{ height: "22px", width: "70px", background: "var(--border)", borderRadius: "4px" }} />
-                    <div style={{ height: "22px", width: "50px", background: "var(--border)", borderRadius: "4px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "22px", width: "70px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "22px", width: "50px" }} />
                   </div>
-                  <div style={{ height: "14px", width: "100%", background: "var(--border)", borderRadius: "4px", marginTop: "0.25rem" }} />
-                  <div style={{ height: "14px", width: "75%", background: "var(--border)", borderRadius: "4px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.25rem" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
-                    <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
-                    <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
                   </div>
                 </div>
               ))}
@@ -1379,18 +1379,18 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
-                  <div style={{ height: "20px", width: "70%", background: "var(--border)", borderRadius: "4px" }} />
-                  <div style={{ height: "20px", width: "45px", background: "var(--border)", borderRadius: "4px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "20px", width: "70%" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "20px", width: "45px" }} />
                 </div>
                 <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <div style={{ height: "22px", width: "70px", background: "var(--border)", borderRadius: "4px" }} />
-                  <div style={{ height: "22px", width: "50px", background: "var(--border)", borderRadius: "4px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "22px", width: "70px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "22px", width: "50px" }} />
                 </div>
-                <div style={{ height: "14px", width: "100%", background: "var(--border)", borderRadius: "4px", marginTop: "0.25rem" }} />
-                <div style={{ height: "14px", width: "75%", background: "var(--border)", borderRadius: "4px" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.25rem" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
-                  <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
-                  <div style={{ height: "34px", background: "var(--border)", borderRadius: "8px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
                 </div>
               </div>
             ))}
