@@ -14,7 +14,7 @@ import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
 import BannedGate from "../landing/BannedGate";
-import { FaFolder, FaFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
+import { FaFolderOpen, FaRegFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
 interface RazorpayResponse {
@@ -1060,7 +1060,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                         tabIndex={0}
                       >
                         <div className={styles.folderIconContainer}>
-                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaRegFolderOpen className={styles.folderClosedIcon} />
                           <FaFolderOpen className={styles.folderOpenedIcon} />
                         </div>
                         <div className={styles.folderHeaderInfo}>
@@ -1092,7 +1092,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                         tabIndex={0}
                       >
                         <div className={styles.folderIconContainer}>
-                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaRegFolderOpen className={styles.folderClosedIcon} />
                           <FaFolderOpen className={styles.folderOpenedIcon} />
                         </div>
                         <div className={styles.folderHeaderInfo}>
@@ -1745,7 +1745,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                         onKeyDown={(e) => handleKeyDown(e, () => setSelectedBranch(branch))}
                       >
                         <div className={styles.folderIconContainer}>
-                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaRegFolderOpen className={styles.folderClosedIcon} />
                           <FaFolderOpen className={styles.folderOpenedIcon} />
                         </div>
                         <div className={styles.folderHeaderInfo}>
@@ -1784,7 +1784,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                         onKeyDown={(e) => handleKeyDown(e, () => setSelectedSemester(sem))}
                       >
                         <div className={styles.folderIconContainer}>
-                          <FaFolder className={styles.folderClosedIcon} />
+                          <FaRegFolderOpen className={styles.folderClosedIcon} />
                           <FaFolderOpen className={styles.folderOpenedIcon} />
                         </div>
                         <div className={styles.folderHeaderInfo}>

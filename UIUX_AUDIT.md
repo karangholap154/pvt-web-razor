@@ -252,61 +252,23 @@ Also added `prefers-reduced-motion` wrapper to suppress all animations for users
 
 ---
 
-### 10. Nested Border Radius — Cards Inside Containers
-
-**Problem:** The folder cards (`folderCard`) have `border-radius: 0 var(--radius) var(--radius) var(--radius)` (12px). Their inner tag badges have `border-radius: 4px`. The parent search section has `border-radius: var(--radius-lg)` (16px). The inner `.searchInput` has `border-radius: var(--radius)` (12px). Math: `16 - 16(padding/8) ≈ 8px` for nested elements.
-
-**Fix:**
-- Search section (parent, `--radius-lg: 16px`, padding `2.5rem`): inner inputs should use `border-radius: 8px` (`--radius-sm`) ✅ already doing this
-- Note cards inside grid: cards have 12px, inner action buttons have `--radius-sm: 8px` → correct ✅
-- The checkout modal (`border-radius: var(--radius-lg)`) contains a button `border-radius: var(--radius-sm)` ✅
-
-Main issue: the profile dropdown menu (`.dropdownMenu`) has `border-radius: var(--radius-sm)` (8px) and inner `.dropdownItem` have `border-radius: 4px` → should be `4px` if padding is ~`0.5rem 0.75rem` → `8 - 8 = 0` but items are 4px. Acceptable but tight. Make it `6px`.
+### ✅ DONE — 10. Nested Border Radius — Cards Inside Containers
+**Completed:** Adjusted inner item border radii across the application. Set `.dropdownItem`, `.dropdownItemLogout`, and `.moreDropdownItem` to `6px` radius inside `8px` (`--radius-sm`) menu containers in `layout.module.css`, satisfying concentric curvature aesthetics.
 
 ---
 
-### 11. Icon Improvements
-
-**Problems:**
-- Social icons in footer/layout use hand-rolled SVG with `stroke-width="2"` (mismatched)
-- Navigation icons (`FaFolder`, `FaFolderOpen`, `FaGraduationCap`) are filled icons used in non-active states (should be outlined)
-- Discussion card action buttons: `FaThumbsUp`, `FaMessage`, etc. — good that they're `fa6` (solid) but for inactive state, use `FaRegThumbsUp` / outline variant
-
-**Fixes:**
-1. In `HomeContent.tsx` — the folder icons:
-   - Default state: `FaFolderOpen` (outline version) → switch to `FaRegFolderOpen` from `react-icons/fa6` for unselected
-   - Active/open state: keep filled `FaFolderOpen`
-2. `DiscussionCard.tsx` upvote button: when `!hasVoted`, use `FaRegThumbsUp`; when `hasVoted`, use `FaThumbsUp`
-3. Stroke weight consistency: all hand-rolled SVGs in layout.tsx use `strokeWidth="2"` — make them `"2"` consistently (fine as is) but pair with the text weight. Nav links are `font-weight: 500` → `stroke-width: 1.5` would match better.
+### ✅ DONE — 11. Icon Improvements
+**Completed:**
+- In `HomeContent.tsx`, updated folder cards to display outlined `FaRegFolderOpen` in default/inactive state, transitioning to filled `FaFolderOpen` on hover/active.
+- In `DiscussionCard.tsx`, upvote button dynamically switches between outline `FaRegThumbsUp` (unvoted) and solid `FaThumbsUp` (voted).
+- Navigation and card icons now strictly differentiate between active/filled and inactive/outline states.
 
 ---
 
-### 12. Popover / Dropdown Animation Origin
-
-**Problem:** The profile dropdown `.dropdownMenu` and `.moreDropdownMenu` animate with `slideDown` which uses `translateY(-8px)` — this is generic and not anchored to the button that opened it.
-
-**Fix with Radix UI DropdownMenu:**
-```tsx
-// The Radix dropdown content automatically animates from the trigger
-// Use Radix for both profile dropdown and "More" dropdown
-```
-Or with CSS if staying custom:
-```css
-.dropdownMenu {
-  transform-origin: top right; /* Avatar is top-right */
-  animation: scaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.moreDropdownMenu {
-  transform-origin: top left; /* "More" button is to the left */
-  animation: scaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-```
+### ✅ DONE — 12. Popover / Dropdown Animation Origin
+**Completed:**
+- In `layout.module.css`, anchored `.dropdownMenu` to `transform-origin: top right` (aligning with avatar trigger) and `.moreDropdownMenu` to `transform-origin: top left` (aligning with "More" link).
+- Replaced detached `translateY(-8px)` slide with an organic `@keyframes scaleIn` animation (`scale(0.94)` → `scale(1)` with cubic-bezier easing).
 
 ---
 
@@ -359,24 +321,8 @@ Text label already there for note count, but "coming soon" universities just sho
 
 ---
 
-### 18. Scroll List — Fade Edges
-
-**Problem:** The `socialCardGrid` in the footer has `grid-template-columns: repeat(auto-fill, minmax(230px, 1fr))` — on mobile this collapses to 1 column. But if there's a horizontal scroll list anywhere (currently there isn't), it needs fade.
-
-**However:** the main notes grid on mobile becomes a single column. The breadcrumbs in `HomeContent` horizontal scroll (the folder breadcrumb) does exist and should have fade.
-
-**Fix for horizontal scrolling breadcrumb container (in `page.module.css`):**
-```css
-.breadcrumbsContainer {
-  mask-image: linear-gradient(
-    to right,
-    transparent 0px,
-    black 16px,
-    black calc(100% - 16px),
-    transparent 100%
-  );
-}
-```
+### ✅ DONE — 18. Scroll List — Fade Edges
+**Completed:** In `page.module.css` under the mobile breakpoint (`max-width: 768px`), configured `.breadcrumbs` to scroll smoothly horizontally (`overflow-x: auto`, hidden native scrollbars) with CSS edge gradient mask (`mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%)`). Breadcrumb trails now scroll neatly with edge fade instead of wrapping awkwardly into multiple lines.
 
 ---
 
