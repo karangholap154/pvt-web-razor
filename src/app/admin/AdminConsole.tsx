@@ -6,6 +6,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
 import { Note, Article, SEMESTERS } from "../../data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Project {
   id: string;
@@ -106,6 +107,22 @@ export default function AdminConsole({
     utr: "",
     notes: "",
   });
+
+  // Custom Confirm Dialog State
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    variant?: "danger" | "warning" | "default";
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false);
 
   // Fetch Submissions
   const fetchAdminSubmissions = async () => {
@@ -900,56 +917,77 @@ export default function AdminConsole({
   };
 
   // Delete resource
-  const handleDeleteItem = async (id: string) => {
-    if (!confirm(`Are you sure you want to delete this ${activeTab.slice(0, -1)}?`)) return;
+  const handleDeleteItem = (id: string) => {
+    const itemType = activeTab === "notes" ? "note" : activeTab === "articles" ? "article" : "project";
+    setConfirmDialog({
+      isOpen: true,
+      title: `Delete ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`,
+      message: `Are you sure you want to delete this ${itemType}? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        setIsConfirmLoading(true);
+        try {
+          const res = await fetch(`/api/admin/${activeTab}?id=${id}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const res = await fetch(`/api/admin/${activeTab}?id=${id}`, {
-        method: "DELETE",
-      });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Deletion failed");
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Deletion failed");
-
-      if (activeTab === "notes") {
-        setNotes((prev) => prev.filter((n) => n.id !== id));
-      } else if (activeTab === "articles") {
-        setArticles((prev) => prev.filter((a) => a.id !== id));
-      } else if (activeTab === "projects") {
-        setProjects((prev) => prev.filter((p) => p.id !== id));
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
-      toast.error(`Delete error: ${errorMessage}`);
-    }
+          if (activeTab === "notes") {
+            setNotes((prev) => prev.filter((n) => n.id !== id));
+          } else if (activeTab === "articles") {
+            setArticles((prev) => prev.filter((a) => a.id !== id));
+          } else if (activeTab === "projects") {
+            setProjects((prev) => prev.filter((p) => p.id !== id));
+          }
+          toast.success(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} deleted successfully`);
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : "Unknown error";
+          toast.error(`Delete error: ${errorMessage}`);
+        } finally {
+          setIsConfirmLoading(false);
+        }
+      },
+    });
   };
 
-  const handleDeleteSubmission = async (submissionId: string, title: string) => {
+  const handleDeleteSubmission = (submissionId: string, title: string) => {
     if (subActionLoading) return;
-    if (!confirm(`Are you sure you want to permanently delete "${title}"?\n\nThis will remove the submission record, published note, and PDF file from storage.`)) {
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Submission",
+      message: `Are you sure you want to permanently delete "${title}"? This will remove the submission record, published note, and PDF file from storage.`,
+      confirmLabel: "Delete Permanently",
+      variant: "danger",
+      onConfirm: async () => {
+        setSubActionLoading(true);
+        setIsConfirmLoading(true);
+        try {
+          const res = await fetch("/api/admin/submissions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ submissionId, action: "delete" }),
+          });
 
-    setSubActionLoading(true);
-    try {
-      const res = await fetch("/api/admin/submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId, action: "delete" }),
-      });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Deletion failed");
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Deletion failed");
-
-      toast.success("Submission and associated files deleted permanently!");
-      setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" });
-      fetchAdminSubmissions();
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Delete failed";
-      toast.error(errorMessage);
-    } finally {
-      setSubActionLoading(false);
-    }
+          toast.success("Submission and associated files deleted permanently!");
+          setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "" });
+          fetchAdminSubmissions();
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : "Delete failed";
+          toast.error(errorMessage);
+        } finally {
+          setSubActionLoading(false);
+          setIsConfirmLoading(false);
+        }
+      },
+    });
   };
 
   return (
@@ -2393,6 +2431,21 @@ export default function AdminConsole({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        description={confirmDialog.message}
+        confirmText={confirmDialog.confirmLabel}
+        variant={confirmDialog.variant}
+        isLoading={isConfirmLoading}
+        onConfirm={confirmDialog.onConfirm}
+        onClose={() => {
+          if (!isConfirmLoading) {
+            setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+          }
+        }}
+      />
     </div>
   );
 }

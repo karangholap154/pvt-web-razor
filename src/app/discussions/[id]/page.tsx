@@ -9,6 +9,7 @@ import styles from "../discussions.module.css";
 import { FaArrowLeft, FaThumbsUp, FaCheck, FaFilePdf, FaPaperPlane, FaMessage, FaShareNodes, FaLock, FaTrash, FaComments } from "react-icons/fa6";
 import type { DiscussionPost, DiscussionReply } from "@/types/discussions";
 import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function DiscussionThreadPage({
   params,
@@ -27,6 +28,8 @@ export default function DiscussionThreadPage({
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingPost, setIsDeletingPost] = useState(false);
   const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
+  const [showDeletePostConfirm, setShowDeletePostConfirm] = useState(false);
+  const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
 
   // New reply state
   const [replyText, setReplyText] = useState("");
@@ -170,12 +173,8 @@ export default function DiscussionThreadPage({
   };
 
   // OP-Only Delete Doubt
-  const handleDeletePost = async () => {
+  const handleConfirmDeletePost = async () => {
     if (!isOriginalPoster || isDeletingPost) return;
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this doubt? This will delete all answers and comments as well."
-    );
-    if (!confirmed) return;
 
     setIsDeletingPost(true);
     try {
@@ -186,6 +185,7 @@ export default function DiscussionThreadPage({
 
       if (res.ok && data.success) {
         toast.success("Doubt deleted successfully!");
+        setShowDeletePostConfirm(false);
         router.push("/discussions");
       } else {
         toast.error(data.error || "Failed to delete doubt.");
@@ -198,11 +198,10 @@ export default function DiscussionThreadPage({
   };
 
   // Delete Reply
-  const handleDeleteReply = async (replyId: string) => {
-    if (deletingReplyId) return;
-    const confirmed = window.confirm("Are you sure you want to delete this answer?");
-    if (!confirmed) return;
+  const handleConfirmDeleteReply = async () => {
+    if (!replyToDelete || deletingReplyId) return;
 
+    const replyId = replyToDelete;
     setDeletingReplyId(replyId);
     try {
       const res = await fetch(`/api/discussions/${discussionId}?replyId=${replyId}`, {
@@ -216,6 +215,7 @@ export default function DiscussionThreadPage({
         setDiscussion((prev) =>
           prev ? { ...prev, replies_count: Math.max(0, (prev.replies_count || 1) - 1) } : null
         );
+        setReplyToDelete(null);
       } else {
         toast.error(data.error || "Failed to delete answer.");
       }
@@ -402,7 +402,7 @@ export default function DiscussionThreadPage({
               <button
                 type="button"
                 className={`${styles.actionBtn} ${styles.actionDelete}`}
-                onClick={handleDeletePost}
+                onClick={() => setShowDeletePostConfirm(true)}
                 disabled={isDeletingPost}
                 title="Delete your doubt"
               >
@@ -510,7 +510,7 @@ export default function DiscussionThreadPage({
                         <button
                           type="button"
                           className={`${styles.actionBtn} ${styles.actionDelete}`}
-                          onClick={() => handleDeleteReply(reply.id)}
+                          onClick={() => setReplyToDelete(reply.id)}
                           disabled={deletingReplyId === reply.id}
                           title="Delete your answer"
                         >
@@ -564,6 +564,32 @@ export default function DiscussionThreadPage({
           </button>
         </section>
       )}
+
+      {isOriginalPoster && (
+        <ConfirmDialog
+          isOpen={showDeletePostConfirm}
+          title="Delete this doubt?"
+          description="This will permanently delete this doubt and all of its answers. This action cannot be undone."
+          confirmText="Delete doubt"
+          cancelText="Cancel"
+          variant="danger"
+          isLoading={isDeletingPost}
+          onConfirm={handleConfirmDeletePost}
+          onClose={() => setShowDeletePostConfirm(false)}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={Boolean(replyToDelete)}
+        title="Delete this answer?"
+        description="Your answer will be permanently deleted from this discussion. This action cannot be undone."
+        confirmText="Delete answer"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={Boolean(deletingReplyId)}
+        onConfirm={handleConfirmDeleteReply}
+        onClose={() => setReplyToDelete(null)}
+      />
     </main>
   );
 }

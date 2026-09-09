@@ -24,6 +24,7 @@ import {
 } from "react-icons/fa6";
 import { parseUserAgent } from "@/utils/userAgent";
 import { supabase } from "@/utils/supabaseClient";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Purchase {
   id: string;
@@ -187,6 +188,12 @@ export default function ProfileClient({
     }
   }, []);
 
+  const [confirmSessionAction, setConfirmSessionAction] = useState<{
+    type: "revoke_others" | "revoke_session";
+    sessionId?: string;
+  } | null>(null);
+  const [isRevokingSession, setIsRevokingSession] = useState(false);
+
   useEffect(() => {
     if (activeTab === "sessions") {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -194,12 +201,9 @@ export default function ProfileClient({
     }
   }, [activeTab, fetchSessions]);
 
-  const handleRevokeSession = async (sessionId: string) => {
+  const executeRevokeSession = async (sessionId: string) => {
+    setIsRevokingSession(true);
     const isCurrent = sessionId === currentSessionId;
-    if (isCurrent && !confirm("Are you sure you want to log out of your current device?")) {
-      return;
-    }
-
     try {
       const clientSessionId = await getCurrentSessionId();
       const headers: Record<string, string> = {};
@@ -217,6 +221,7 @@ export default function ProfileClient({
         throw new Error(data.error || "Failed to revoke session");
       }
 
+      setConfirmSessionAction(null);
       if (isCurrent) {
         router.push("/login");
       } else {
@@ -227,14 +232,13 @@ export default function ProfileClient({
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Failed to revoke session.";
       setMessage({ type: "error", text: errMsg });
+    } finally {
+      setIsRevokingSession(false);
     }
   };
 
-  const handleRevokeOthers = async () => {
-    if (!confirm("Are you sure you want to log out from all other devices?")) {
-      return;
-    }
-
+  const executeRevokeOthers = async () => {
+    setIsRevokingSession(true);
     try {
       const clientSessionId = await getCurrentSessionId();
       const headers: Record<string, string> = {};
@@ -252,12 +256,15 @@ export default function ProfileClient({
         throw new Error(data.error || "Failed to log out other devices");
       }
 
+      setConfirmSessionAction(null);
       setSessions((prev) => prev.filter((s) => s.id === currentSessionId));
       setMessage({ type: "success", text: "Logged out from all other devices." });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Failed to revoke other sessions.";
       setMessage({ type: "error", text: errMsg });
+    } finally {
+      setIsRevokingSession(false);
     }
   };
 
@@ -649,7 +656,7 @@ export default function ProfileClient({
                   {sessions.length > 1 && (
                     <button
                       type="button"
-                      onClick={handleRevokeOthers}
+                      onClick={() => setConfirmSessionAction({ type: "revoke_others" })}
                       className={styles.btnRevokeAll}
                     >
                       Log Out Other Devices
@@ -713,7 +720,7 @@ export default function ProfileClient({
                           {!isCurrent && (
                             <button
                               type="button"
-                              onClick={() => handleRevokeSession(s.id)}
+                              onClick={() => setConfirmSessionAction({ type: "revoke_session", sessionId: s.id })}
                               className={styles.btnRevoke}
                             >
                               Revoke
@@ -745,6 +752,37 @@ export default function ProfileClient({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(confirmSessionAction)}
+        title={
+          confirmSessionAction?.type === "revoke_others"
+            ? "Log out all other devices?"
+            : "Revoke device session?"
+        }
+        description={
+          confirmSessionAction?.type === "revoke_others"
+            ? "This will terminate active sessions on all other phones, laptops, and tablets. You will remain logged in on this browser."
+            : "This device session will be immediately terminated and will need to sign in again."
+        }
+        confirmText={
+          confirmSessionAction?.type === "revoke_others"
+            ? "Log out others"
+            : "Revoke session"
+        }
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isRevokingSession}
+        onConfirm={() => {
+          if (confirmSessionAction?.type === "revoke_others") {
+            return executeRevokeOthers();
+          }
+          if (confirmSessionAction?.sessionId) {
+            return executeRevokeSession(confirmSessionAction.sessionId);
+          }
+        }}
+        onClose={() => setConfirmSessionAction(null)}
+      />
     </div>
   );
 }

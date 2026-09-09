@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaThumbsUp, FaCheck, FaMessage, FaFilePdf, FaShareNodes, FaTrash } from "react-icons/fa6";
+import { FaThumbsUp, FaRegThumbsUp, FaCheck, FaMessage, FaFilePdf, FaShareNodes, FaTrash } from "react-icons/fa6";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
 import type { DiscussionPost } from "@/types/discussions";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface DiscussionCardProps {
   post: DiscussionPost;
@@ -24,6 +25,7 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
   const [hasVoted, setHasVoted] = useState(post.has_user_voted || false);
   const [isVoting, setIsVoting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const isAuthor = Boolean(
     username &&
@@ -31,14 +33,13 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
       username.toLowerCase() === post.author.username.toLowerCase()
   );
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isDeleting) return;
+    setShowDeleteConfirm(true);
+  };
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this doubt? This action cannot be undone."
-    );
-    if (!confirmed) return;
+  const handleConfirmDelete = async () => {
+    if (isDeleting) return;
 
     setIsDeleting(true);
     try {
@@ -48,6 +49,7 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success("Doubt deleted successfully!");
+        setShowDeleteConfirm(false);
         if (onDelete) onDelete(post.id);
       } else {
         toast.error(data.error || "Failed to delete doubt.");
@@ -212,7 +214,11 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
             disabled={isVoting}
             title="Upvote post"
           >
-            <FaThumbsUp style={{ fontSize: "0.85rem" }} />
+            {hasVoted ? (
+              <FaThumbsUp style={{ fontSize: "0.85rem" }} />
+            ) : (
+              <FaRegThumbsUp style={{ fontSize: "0.85rem" }} />
+            )}
             <span>{upvotes}</span>
           </button>
 
@@ -232,7 +238,7 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
             <button
               type="button"
               className={`${styles.actionBtn} ${styles.actionDelete}`}
-              onClick={handleDelete}
+              onClick={handleDeleteClick}
               disabled={isDeleting}
               title="Delete your doubt"
             >
@@ -242,6 +248,20 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
           )}
         </div>
       </div>
+
+      {isAuthor && (
+        <ConfirmDialog
+          isOpen={showDeleteConfirm}
+          title="Delete this doubt?"
+          description="This doubt and all of its replies will be permanently removed. This action cannot be undone."
+          confirmText="Delete doubt"
+          cancelText="Cancel"
+          variant="danger"
+          isLoading={isDeleting}
+          onConfirm={handleConfirmDelete}
+          onClose={() => setShowDeleteConfirm(false)}
+        />
+      )}
     </article>
   );
 }

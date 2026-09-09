@@ -10,6 +10,7 @@ import { Note } from "../../data/mockData";
 import ContributeModal from "@/components/contribute/ContributeModalDynamic";
 import { useToast } from "@/components/providers/ToastProvider";
 import { FaCloudUploadAlt, FaClock, FaCheckCircle, FaTimesCircle, FaTrash } from "react-icons/fa";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface SubmissionItem {
   id: string;
@@ -42,6 +43,8 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<"library" | "submissions" | "earnings">("library");
+  const [submissionToDelete, setSubmissionToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [isDeletingSubmission, setIsDeletingSubmission] = useState(false);
 
   // Modal states
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -137,13 +140,12 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
     }
   }, [activeTab]);
 
-  const handleDeleteStudentSubmission = async (submissionId: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"? This will permanently delete the submission and its PDF file.`)) {
-      return;
-    }
+  const handleConfirmDeleteSubmission = async () => {
+    if (!submissionToDelete || isDeletingSubmission) return;
 
+    setIsDeletingSubmission(true);
     try {
-      const res = await fetch(`/api/contribute?id=${submissionId}`, {
+      const res = await fetch(`/api/contribute?id=${submissionToDelete.id}`, {
         method: "DELETE",
       });
 
@@ -153,10 +155,13 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
       }
 
       toast.success("Submission deleted successfully!");
+      setSubmissionToDelete(null);
       fetchSubmissions();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Deletion failed";
       toast.error(msg);
+    } finally {
+      setIsDeletingSubmission(false);
     }
   };
 
@@ -536,7 +541,7 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
                       Submitted on {new Date(sub.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                     </div>
                     <button
-                      onClick={() => handleDeleteStudentSubmission(sub.id, sub.title)}
+                      onClick={() => setSubmissionToDelete({ id: sub.id, title: sub.title })}
                       style={{
                         background: "none",
                         border: "1px solid rgba(239, 68, 68, 0.3)",
@@ -787,6 +792,23 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
         onSuccess={() => {
           if (activeTab === "submissions") fetchSubmissions();
         }}
+      />
+
+      {/* Delete Submission Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(submissionToDelete)}
+        title="Delete submission?"
+        description={
+          submissionToDelete
+            ? `Are you sure you want to delete "${submissionToDelete.title}"? This will permanently delete the submission and its uploaded PDF file.`
+            : ""
+        }
+        confirmText="Delete submission"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeletingSubmission}
+        onConfirm={handleConfirmDeleteSubmission}
+        onClose={() => setSubmissionToDelete(null)}
       />
     </div>
   );

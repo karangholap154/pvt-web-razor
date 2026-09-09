@@ -187,13 +187,16 @@ Before screen-by-screen breakdown, here are the libraries that will give the big
 
 ---
 
-### 2. Destructive Action — No Confirmation Dialog — `DiscussionCard.tsx:38`
-**Problem:** `window.confirm()` is used for "delete doubt" — a browser-native dialog that is completely unstyled, blocks the thread, and is visually jarring.
-
-**Fix:** Use `@radix-ui/react-alert-dialog`. Show a modal that says:
-> "Delete this doubt?" → [Cancel] [Delete]
-
-Animate it with `motion`. Color the delete button red with a 0.96 scale on `:active`.
+### ✅ DONE — 2. Destructive Action — Confirmation Dialog — `DiscussionCard.tsx`, `page.tsx`, `DashboardClient.tsx`, `ProfileClient.tsx`, `AdminConsole.tsx`
+**Completed:** Built a reusable, fully accessible custom `ConfirmDialog` component (`src/components/ui/ConfirmDialog.tsx` + `ConfirmDialog.module.css`) matching production dark-theme design standards.
+- **Accessibility & UX**: Implemented `role="alertdialog"`, `aria-modal="true"`, focus trap with autofocus on Cancel button, body scroll lock, `Escape` key listener, and backdrop click handling.
+- **Styling & Micro-interactions**: Clean scale entrance (`scale(0.97) translateY(8px)` → `scale(1)`), solid non-jank dark overlay (`rgba(9, 9, 11, 0.82)`), loading spinner state, and tactile `:active` scale (`scale(0.96)`) on buttons.
+- **Zero Browser Native Dialogs Remaining**: Completely removed all `window.confirm()` and `confirm()` calls across the codebase:
+  1. `DiscussionCard.tsx`: Delete doubt
+  2. `discussions/[id]/page.tsx`: Delete doubt (OP) & delete reply/answer
+  3. `DashboardClient.tsx`: Delete student note submission
+  4. `ProfileClient.tsx`: Revoke session & log out other devices
+  5. `AdminConsole.tsx`: Delete catalog resources (notes, articles, projects) & permanently delete submissions
 
 ---
 
