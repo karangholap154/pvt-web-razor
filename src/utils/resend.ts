@@ -31,7 +31,7 @@ export async function sendOrderReceiptEmail(payload: OrderReceiptEmailPayload) {
   }
 
   const { to, customerName = 'Learner', orderId, noteTitle, amount } = payload;
-  const replyToEmail = process.env.ADMIN_REPLY_TO_EMAIL || 'privateacademy.in@gmail.com';
+  const replyToEmail = process.env.ADMIN_REPLY_TO_EMAIL || 'info@privateacademy.in';
 
   try {
     const data = await resend.emails.send({
@@ -94,7 +94,7 @@ export async function sendContactFormEmail(payload: ContactFormEmailPayload) {
   }
 
   const { userName, userEmail, subject, message } = payload;
-  const adminNotificationEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'privateacademy.in@gmail.com';
+  const adminNotificationEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@privateacademy.in';
 
   try {
     // 1. Send notification to admin
@@ -151,7 +151,7 @@ export async function sendSubmissionAlertEmail(payload: SubmissionAlertPayload) 
   }
 
   const { contributorEmail, noteTitle, university, branch, semester } = payload;
-  const adminNotificationEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'privateacademy.in@gmail.com';
+  const adminNotificationEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@privateacademy.in';
 
   try {
     await resend.emails.send({
@@ -193,7 +193,7 @@ export async function sendContributionStatusUpdateEmail(payload: ContributionSta
 
   const { to, noteTitle, status, feedback } = payload;
   const isApproved = status === 'approved';
-  const replyToEmail = process.env.ADMIN_REPLY_TO_EMAIL || 'privateacademy.in@gmail.com';
+  const replyToEmail = process.env.ADMIN_REPLY_TO_EMAIL || 'info@privateacademy.in';
 
   try {
     await resend.emails.send({

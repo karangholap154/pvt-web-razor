@@ -149,7 +149,7 @@ export default function ContactPage() {
     "mainEntity": {
       "@type": "Organization",
       "name": "Private Academy Engineering",
-      "email": "privateacademy.in@gmail.com",
+      "email": "info@privateacademy.in",
       "location": {
         "@type": "Place",
         "name": "Maharashtra, India"
@@ -366,8 +366,8 @@ export default function ContactPage() {
               </div>
               <div>
                 <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.02em" }}>Email Address</div>
-                <a href="mailto:privateacademy.in@gmail.com" style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
-                  privateacademy.in@gmail.com
+                <a href="mailto:info@privateacademy.in" style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
+                  info@privateacademy.in
                 </a>
               </div>
             </div>
@@ -429,7 +429,7 @@ export default function ContactPage() {
             ].map((action, idx) => (
               <a
                 key={idx}
-                href={`mailto:privateacademy.in@gmail.com?subject=${encodeURIComponent(action.subject)}`}
+                href={`mailto:info@privateacademy.in?subject=${encodeURIComponent(action.subject)}`}
                 className="action-card"
               >
                 <div className="action-card-header">
@@ -534,8 +534,8 @@ export default function ContactPage() {
           <div className="fallback-contact-box">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 500 }}>Email Support:</span>
-              <a href="mailto:privateacademy.in@gmail.com" style={{ fontSize: "1rem", fontWeight: 700, color: "var(--accent)" }}>
-                privateacademy.in@gmail.com
+              <a href="mailto:info@privateacademy.in" style={{ fontSize: "1rem", fontWeight: 700, color: "var(--accent)" }}>
+                info@privateacademy.in
               </a>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

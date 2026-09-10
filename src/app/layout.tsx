@@ -421,8 +421,8 @@ export default async function RootLayout({
                           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                           <polyline points="22,6 12,13 2,6"></polyline>
                         </svg>
-                        <a href="mailto:privateacademy.in@gmail.com" className={styles.contactLink}>
-                          privateacademy.in@gmail.com
+                        <a href="mailto:info@privateacademy.in" className={styles.contactLink}>
+                          info@privateacademy.in
                         </a>
                       </div>
                       <div className={`${styles.contactItem} ${styles.footerHideOnMobile}`}>
@@ -439,8 +439,8 @@ export default async function RootLayout({
 
                 {/* Mobile-only: just email */}
                 <div className={styles.footerMobileContact}>
-                  <a href="mailto:privateacademy.in@gmail.com" className={styles.contactLink}>
-                    privateacademy.in@gmail.com
+                  <a href="mailto:info@privateacademy.in" className={styles.contactLink}>
+                    info@privateacademy.in
                   </a>
                 </div>
 

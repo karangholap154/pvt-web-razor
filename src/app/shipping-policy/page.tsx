@@ -245,7 +245,7 @@ export default function ShippingPolicyPage() {
           <ul>
             <li>Ensure you are logged into the exact account profile email used during checkout.</li>
             <li>Refresh your browser session or clear your session cache.</li>
-            <li>If access is still locked after payment deduction, please email our support team at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a> with your Payment ID. We will manually verify the payment webhook and grant document permissions within <strong>12 to 24 hours</strong>.</li>
+            <li>If access is still locked after payment deduction, please email our support team at <a href="mailto:info@privateacademy.in" style={{ color: "var(--accent)", fontWeight: 600 }}>info@privateacademy.in</a> with your Payment ID. We will manually verify the payment webhook and grant document permissions within <strong>12 to 24 hours</strong>.</li>
           </ul>
         </section>
 

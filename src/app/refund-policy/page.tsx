@@ -233,7 +233,7 @@ export default function RefundPolicyPage() {
           </p>
           <ul>
             <li>In such cases, payment gateways automatically initiate a reversal. Your bank will credit the funds back to your original source account within <strong>3 to 5 working days</strong>.</li>
-            <li>If your bank statement reflects a deduction without a corresponding Private Academy order receipt, please forward your Razorpay Payment ID or UPI reference number to <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a> for manual verification.</li>
+            <li>If your bank statement reflects a deduction without a corresponding Private Academy order receipt, please forward your Razorpay Payment ID or UPI reference number to <a href="mailto:info@privateacademy.in" style={{ color: "var(--accent)", fontWeight: 600 }}>info@privateacademy.in</a> for manual verification.</li>
           </ul>
         </section>
 
@@ -274,7 +274,7 @@ export default function RefundPolicyPage() {
             To request a refund review or resolve a billing issue, please reach out to our team with your transaction details:
           </p>
           <ul>
-            <li><strong>Email Support</strong>: <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a></li>
+            <li><strong>Email Support</strong>: <a href="mailto:info@privateacademy.in" style={{ color: "var(--accent)", fontWeight: 600 }}>info@privateacademy.in</a></li>
             <li><strong>Required Information</strong>: Registered Account Email, Razorpay Order ID / Payment ID, Date of Transaction, and a brief description of the issue.</li>
             <li><strong>SLA</strong>: Support inquiries regarding payments are investigated and responded to within <strong>24 to 48 hours</strong>.</li>
           </ul>

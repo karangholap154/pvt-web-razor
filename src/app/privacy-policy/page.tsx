@@ -292,7 +292,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <ul>
             <li><strong>Account Deletion</strong>: You may request complete deletion of your account profile, notes unlock records, and setting preferences at any time.</li>
-            <li><strong>Direct Support</strong>: To request account termination, email us directly at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a>. All requested database records are purged from our live Supabase tables within 48 hours of verification.</li>
+            <li><strong>Direct Support</strong>: To request account termination, email us directly at <a href="mailto:info@privateacademy.in" style={{ color: "var(--accent)", fontWeight: 600 }}>info@privateacademy.in</a>. All requested database records are purged from our live Supabase tables within 48 hours of verification.</li>
           </ul>
         </section>
 

@@ -281,7 +281,7 @@ export default function DisclaimerPage() {
             All original study guides, custom handwritten notes, and code summaries on Private Academy Engineering are copyrighted by their respective authors and Private Academy.
           </p>
           <p>
-            Previous years&apos; question papers and university syllabus outlines are referenced under <strong>Fair Use</strong> for educational, non-commercial commentary and study reference. If you believe any document hosted on our platform infringes upon your copyright, please contact us at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a> with proof of ownership for prompt review and takedown.
+            Previous years&apos; question papers and university syllabus outlines are referenced under <strong>Fair Use</strong> for educational, non-commercial commentary and study reference. If you believe any document hosted on our platform infringes upon your copyright, please contact us at <a href="mailto:info@privateacademy.in" style={{ color: "var(--accent)", fontWeight: 600 }}>info@privateacademy.in</a> with proof of ownership for prompt review and takedown.
           </p>
         </section>
 

@@ -8,7 +8,7 @@ import path from "path";
 // Seller Information
 const SELLER_INFO = {
   name: "Private Academy Engineering",
-  email: "privateacademy.in@gmail.com",
+  email: "info@privateacademy.in",
   address: "Pune, Maharashtra, India",
 };
 

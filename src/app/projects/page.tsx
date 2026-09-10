@@ -444,7 +444,7 @@ export default async function ProjectsPage() {
         
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
           <a 
-            href="mailto:privateacademy.in@gmail.com" 
+            href="mailto:info@privateacademy.in" 
             className="contact-btn email-btn"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

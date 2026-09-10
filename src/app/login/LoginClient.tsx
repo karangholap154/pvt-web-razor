@@ -308,7 +308,7 @@ function LoginForm() {
                 </a>
 
                 <a
-                  href="mailto:privateacademy.in@gmail.com?subject=Account%20Recovery%20Request&body=Hello%20Private%20Academy%20Support,%0A%0AI%20need%20help%20recovering%20access%20to%20my%20account.%20Here%20are%20my%20details:%0A-%20Email:%20%0A-%20Purchase%20Details/Transaction%20ID:%20"
+                  href="mailto:info@privateacademy.in?subject=Account%20Recovery%20Request&body=Hello%20Private%20Academy%20Support,%0A%0AI%20need%20help%20recovering%20access%20to%20my%20account.%20Here%20are%20my%20details:%0A-%20Email:%20%0A-%20Purchase%20Details/Transaction%20ID:%20"
                   className={styles.emailBtn}
                   style={{ textDecoration: "none" }}
                 >

@@ -238,7 +238,7 @@ export default function TermsAndConditionPage() {
             <li><strong>Order Completion</strong>: An unlock code or PDF link is activated immediately upon successful transaction verification through Razorpay&apos;s API.</li>
             <li><strong>Digital Refund Rules</strong>: Since notes are delivered as instant digital downloads (PDF files), transactions are governed by our standalone <Link href="/refund-policy" style={{ color: "var(--accent)", fontWeight: 600 }}>Cancellation &amp; Refund Policy</Link>.</li>
             <li><strong>Delivery &amp; Fulfillment</strong>: Electronic delivery of study materials is governed by our standalone <Link href="/shipping-policy" style={{ color: "var(--accent)", fontWeight: 600 }}>Shipping &amp; Delivery Policy</Link>.</li>
-            <li><strong>Technical Issues</strong>: In the event of double-billing or payment status errors (where bank balances are debited but note access is not granted), contact our team with invoice logs at <a href="mailto:privateacademy.in@gmail.com" style={{ color: "var(--accent)", fontWeight: 600 }}>privateacademy.in@gmail.com</a>. We will manually verify and resolve access settings within 24 hours.</li>
+            <li><strong>Technical Issues</strong>: In the event of double-billing or payment status errors (where bank balances are debited but note access is not granted), contact our team with invoice logs at <a href="mailto:info@privateacademy.in" style={{ color: "var(--accent)", fontWeight: 600 }}>info@privateacademy.in</a>. We will manually verify and resolve access settings within 24 hours.</li>
           </ul>
         </section>
 

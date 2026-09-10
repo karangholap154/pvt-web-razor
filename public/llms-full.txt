@@ -47,7 +47,7 @@ Private Academy uses standard JSON-LD Schema.org specifications across all pages
 ---
 
 ## 4. Contact & Community Links
-- Official Contact Email: privateacademy.in@gmail.com
+- Official Contact Email: info@privateacademy.in
 - Telegram Community: https://t.me/mumcomputer
 - YouTube Channel: https://www.youtube.com/@pvtacademy
 - LinkedIn: https://www.linkedin.com/company/privateacademy/
