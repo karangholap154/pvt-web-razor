@@ -6,7 +6,7 @@ import styles from "./login.module.css";
 import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
 import { FcGoogle } from "react-icons/fc";
-import { FiMail, FiArrowLeft } from "react-icons/fi";
+import { FiMail, FiArrowLeft, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle, FiInfo } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../components/providers/AuthProvider";
 
@@ -29,6 +29,8 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
@@ -179,9 +181,24 @@ function LoginForm() {
           </p>
         </div>
 
-        {error && <div className={styles.errorAlert}>{error}</div>}
-        {successMsg && <div className={styles.successAlert}>{successMsg}</div>}
-        {infoMsg && <div className={styles.infoAlert}>{infoMsg}</div>}
+        {error && (
+          <div className={styles.errorAlert} role="alert">
+            <FiAlertCircle size={18} style={{ flexShrink: 0, marginTop: "0.1rem" }} />
+            <span>{error}</span>
+          </div>
+        )}
+        {successMsg && (
+          <div className={styles.successAlert} role="status">
+            <FiCheckCircle size={18} style={{ flexShrink: 0, marginTop: "0.1rem" }} />
+            <span>{successMsg}</span>
+          </div>
+        )}
+        {infoMsg && (
+          <div className={styles.infoAlert} role="status">
+            <FiInfo size={18} style={{ flexShrink: 0, marginTop: "0.1rem" }} />
+            <span>{infoMsg}</span>
+          </div>
+        )}
 
         {!showEmailForm ? (
           <div className={styles.optionsContainer}>
@@ -366,32 +383,50 @@ function LoginForm() {
                     <label htmlFor="email" className={styles.label}>
                       Email Address
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      className={styles.input}
-                      placeholder="student@gmail.com"
-                      required={showEmailForm && !showRecoveryInfo}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={loading}
-                    />
+                    <div className={styles.inputWrapper}>
+                      <span className={styles.inputFieldIcon}>
+                        <FiMail size={16} />
+                      </span>
+                      <input
+                        type="email"
+                        id="email"
+                        className={styles.inputWithIcon}
+                        placeholder="student@gmail.com"
+                        required={showEmailForm && !showRecoveryInfo}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={loading}
+                      />
+                    </div>
                   </div>
 
                   <div className={styles.inputGroup}>
                     <label htmlFor="password" className={styles.label}>
                       Password
                     </label>
-                    <input
-                      type="password"
-                      id="password"
-                      className={styles.input}
-                      placeholder="••••••••"
-                      required={showEmailForm && !showRecoveryInfo}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={loading}
-                    />
+                    <div className={styles.inputWrapper}>
+                      <span className={styles.inputFieldIcon}>
+                        <FiLock size={16} />
+                      </span>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        className={styles.inputWithIcon}
+                        placeholder="••••••••"
+                        required={showEmailForm && !showRecoveryInfo}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        className={styles.togglePasswordBtn}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                      </button>
+                    </div>
                   </div>
 
                   {activeTab === "signup" && (
@@ -400,16 +435,29 @@ function LoginForm() {
                         <label htmlFor="confirmPassword" className={styles.label}>
                           Confirm Password
                         </label>
-                        <input
-                          type="password"
-                          id="confirmPassword"
-                          className={styles.input}
-                          placeholder="••••••••"
-                          required={showEmailForm && activeTab === "signup" && !showRecoveryInfo}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          disabled={loading}
-                        />
+                        <div className={styles.inputWrapper}>
+                          <span className={styles.inputFieldIcon}>
+                            <FiLock size={16} />
+                          </span>
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            id="confirmPassword"
+                            className={styles.inputWithIcon}
+                            placeholder="••••••••"
+                            required={showEmailForm && activeTab === "signup" && !showRecoveryInfo}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            disabled={loading}
+                          />
+                          <button
+                            type="button"
+                            className={styles.togglePasswordBtn}
+                            onClick={() => setShowConfirmPassword((prev) => !prev)}
+                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                          >
+                            {showConfirmPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                          </button>
+                        </div>
                       </div>
 
                       <div className={styles.legalGroup}>
