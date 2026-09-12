@@ -11,6 +11,7 @@ import ContributeModal from "@/components/contribute/ContributeModalDynamic";
 import { useToast } from "@/components/providers/ToastProvider";
 import { FaCloudUploadAlt, FaClock, FaCheckCircle, FaTimesCircle, FaTrash } from "react-icons/fa";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import NoteCard from "@/components/cards/NoteCard";
 
 interface SubmissionItem {
   id: string;
@@ -393,58 +394,15 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
           {filteredNotes.length > 0 ? (
             <div className={styles.grid}>
               {filteredNotes.map((note) => (
-                <article
-                  className={styles.noteCard}
+                <NoteCard
                   key={note.id}
                   id={`purchased-${note.id}`}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => router.push(`/notes/${note.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
-                >
-                  <div className={styles.noteCardHeader}>
-                    <h3 className={styles.noteCardTitle}>
-                      <Link
-                        href={`/notes/${note.id}`}
-                        style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-                      >
-                        {note.title}
-                      </Link>
-                    </h3>
-                  </div>
-                  <div className={styles.badgeRow}>
-                    <span className={styles.tagBranch}>{note.branch}</span>
-                    <span className={styles.badgeSemester}>{note.semester}</span>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#22c55e", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-                      Unlocked
-                    </span>
-                  </div>
-                  <p className={styles.noteCardDesc}>{note.description}</p>
-
-                  <div className={styles.noteCardActions}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openModal(note, "video");
-                      }}
-                      className={`${styles.btnAction} ${styles.btnActionVideo}`}
-                    >
-                      Watch Video
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openModal(note, "pdf");
-                      }}
-                      className={`${styles.btnAction} ${styles.btnActionPdf}`}
-                    >
-                      Download PDF
-                    </button>
-                  </div>
-                </article>
+                  note={note}
+                  variant="purchased"
+                  onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                  onAction={(n) => openModal(n, "pdf")}
+                  actionLabel="Download PDF"
+                />
               ))}
             </div>
           ) : (

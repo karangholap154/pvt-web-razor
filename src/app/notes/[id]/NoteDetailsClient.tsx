@@ -657,7 +657,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             {checkingPurchase ? (
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-secondary)", padding: "1rem 0" }}>
                 <div className={styles.spinner} />
-                <span>Checking payment ledger status...</span>
+                <span>Checking purchase status...</span>
               </div>
             ) : hasPurchased ? (
               // Unlocked / Free note: Allow immediate download
@@ -719,7 +719,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                       className={styles.btnPrimary}
                       id="btn-details-login-to-unlock"
                     >
-                      Log In / Sign Up to Unlock
+                      Sign in to unlock
                     </Link>
                   </div>
                 ) : (

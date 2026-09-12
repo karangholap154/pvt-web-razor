@@ -14,6 +14,7 @@ import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
 import BannedGate from "../landing/BannedGate";
+import NoteCard from "../cards/NoteCard";
 import { FaFolderOpen, FaRegFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
 
 // Define Razorpay window type interfaces
@@ -905,50 +906,17 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
 
               {filteredNotes.length > 0 ? (
                 <div className={styles.grid}>
-                  {filteredNotes.map((note) => {
-                    const hasVideo = !!note.videoUrl;
-                    return (
-                      <article 
-                        key={note.id} 
-                        className={`${styles.noteCard} ${styles.noteCardGlow}`} 
-                        id={`unauth-note-${note.id}`}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => router.push(`/notes/${note.id}`)}
-                      >
-                        <div className={styles.noteCardHeader}>
-                          <h3 className={styles.noteCardTitle}>
-                            <Link href={`/notes/${note.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                              {note.title}
-                            </Link>
-                          </h3>
-                        </div>
-                        <div className={styles.badgeRow}>
-                          <span className={styles.tagBranch}>{note.branch}</span>
-                          <span className={styles.badgeSemester}>{note.semester}</span>
-                          {note.price && note.price > 0 ? (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
-                              ₹{note.price}
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
-                              Free
-                            </span>
-                          )}
-                        </div>
-                        <p className={styles.noteCardDesc}>{note.description}</p>
-                        <div className={styles.noteCardActions} style={{ display: "grid", gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr", gap: "0.5rem" }}>
-                          {hasVideo && (
-                            <button onClick={(e) => { e.stopPropagation(); openModal(note, "video"); }} className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}>
-                              Watch Video
-                            </button>
-                          )}
-                          <button onClick={(e) => { e.stopPropagation(); router.push(`/notes/${note.id}`); }} className={`${styles.btnNoteAction} ${styles.btnNoteDownloadFree}`} style={{ gridColumn: hasVideo ? "auto" : "span 2" }}>
-                            Preview & details
-                          </button>
-                        </div>
-                      </article>
-                    );
-                  })}
+                  {filteredNotes.map((note) => (
+                    <NoteCard
+                      key={note.id}
+                      id={`unauth-note-${note.id}`}
+                      note={note}
+                      variant="unauth"
+                      onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                      onAction={(n) => router.push(`/notes/${n.id}`)}
+                      actionLabel="Preview & details"
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className={styles.noResults}>
@@ -1113,50 +1081,17 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
               ) : (
                 /* Level 3: Notes Grid for selected branch & semester */
                 <div className={styles.grid}>
-                  {filteredNotes.map((note) => {
-                    const hasVideo = !!note.videoUrl;
-                    return (
-                      <article 
-                        key={note.id} 
-                        className={`${styles.noteCard} ${styles.noteCardGlow}`} 
-                        id={`unauth-grid-note-${note.id}`}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => router.push(`/notes/${note.id}`)}
-                      >
-                        <div className={styles.noteCardHeader}>
-                          <h3 className={styles.noteCardTitle}>
-                            <Link href={`/notes/${note.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                              {note.title}
-                            </Link>
-                          </h3>
-                        </div>
-                        <div className={styles.badgeRow}>
-                          <span className={styles.tagBranch}>{note.branch}</span>
-                          <span className={styles.badgeSemester}>{note.semester}</span>
-                          {note.price && note.price > 0 ? (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
-                              ₹{note.price}
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
-                              Free
-                            </span>
-                          )}
-                        </div>
-                        <p className={styles.noteCardDesc}>{note.description}</p>
-                        <div className={styles.noteCardActions} style={{ display: "grid", gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr", gap: "0.5rem" }}>
-                          {hasVideo && (
-                            <button onClick={(e) => { e.stopPropagation(); openModal(note, "video"); }} className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}>
-                              Watch Video
-                            </button>
-                          )}
-                          <button onClick={(e) => { e.stopPropagation(); router.push(`/notes/${note.id}`); }} className={`${styles.btnNoteAction} ${styles.btnNoteDownloadFree}`} style={{ gridColumn: hasVideo ? "auto" : "span 2" }}>
-                            Preview & details
-                          </button>
-                        </div>
-                      </article>
-                    );
-                  })}
+                  {filteredNotes.map((note) => (
+                    <NoteCard
+                      key={note.id}
+                      id={`unauth-grid-note-${note.id}`}
+                      note={note}
+                      variant="unauth"
+                      onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                      onAction={(n) => router.push(`/notes/${n.id}`)}
+                      actionLabel="Preview & details"
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -1476,180 +1411,17 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
             )}
             {filteredNotes.length > 0 ? (
               <div className={styles.grid}>
-                {filteredNotes.map((note) => {
-                  const hasVideo = !!note.videoUrl;
-                  const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
-                  return (
-                    <article 
-                      key={note.id} 
-                      className={`${styles.noteCard} ${styles.noteCardGlow}`} 
-                      id={note.id}
-                      style={{ 
-                        cursor: "pointer",
-                        borderColor: isStudentNote ? "rgba(168, 85, 247, 0.3)" : undefined
-                      }}
-                      onClick={() => router.push(`/notes/${note.id}`)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
-                      onMouseEnter={(e) => {
-                        if (isStudentNote) {
-                          e.currentTarget.style.borderColor = "#c084fc";
-                          e.currentTarget.style.boxShadow = "0 10px 24px -10px rgba(168, 85, 247, 0.35)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (isStudentNote) {
-                          e.currentTarget.style.borderColor = "rgba(168, 85, 247, 0.3)";
-                          e.currentTarget.style.boxShadow = "none";
-                        }
-                      }}
-                    >
-                      <div className={styles.noteCardHeader}>
-                        <h3 className={styles.noteCardTitle}>
-                          <Link 
-                            href={`/notes/${note.id}`} 
-                            style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = isStudentNote ? "#c084fc" : "var(--accent)")}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-                          >
-                            {note.title}
-                          </Link>
-                        </h3>
-                      </div>
-                      <div className={styles.badgeRow}>
-                        {isStudentNote ? (
-                          <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.12)", color: "#c084fc", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
-                            {note.branch}
-                          </span>
-                        ) : (
-                          <span className={styles.tagBranch}>{note.branch}</span>
-                        )}
-                        <span className={styles.badgeSemester}>{note.semester}</span>
-                        {note.price && note.price > 0 ? (
-                          <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: isStudentNote ? "rgba(168, 85, 247, 0.15)" : "rgba(245, 158, 11, 0.12)", color: isStudentNote ? "#c084fc" : "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: isStudentNote ? "1px solid rgba(168, 85, 247, 0.3)" : "1px solid rgba(245, 158, 11, 0.2)" }}>
-                            ₹{note.price}
-                          </span>
-                        ) : (
-                          <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-                            Free
-                          </span>
-                        )}
-                      </div>
-                      <p className={styles.noteCardDesc}>{note.description}</p>
-
-                      <div className={styles.noteCardActions} style={{ 
-                        display: "grid", 
-                        gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr",
-                        gap: "0.5rem" 
-                      }}>
-                        {hasVideo && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openModal(note, "video");
-                            }}
-                            className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}
-                            id={`btn-watch-video-${note.id}`}
-                          >
-                            Watch Video
-                          </button>
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDownloadClick(note);
-                          }}
-                          className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
-                          id={`btn-download-${note.id}`}
-                          style={{ 
-                            gridColumn: hasVideo ? "auto" : "span 2",
-                            background: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.15)" : undefined,
-                            color: isStudentNote && note.price && note.price > 0 ? "#c084fc" : undefined,
-                            borderColor: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.3)" : undefined,
-                          }}
-                        >
-                          {note.price && note.price > 0 ? (
-                            <>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                              </svg>
-                              Unlock PDF
-                            </>
-                          ) : (
-                            <>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                              </svg>
-                              Download PDF
-                            </>
-                          )}
-                        </button>
-                      </div>
-
-                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.15rem" }}>
-                        {note.is_community_contributed || note.contributor_id ? (
-                          note.contributor_username ? (
-                            <Link
-                              href={`/u/${note.contributor_username}`}
-                              onClick={(e) => e.stopPropagation()}
-                              style={{ textDecoration: "none" }}
-                            >
-                              <span style={{ 
-                                fontSize: "0.68rem", 
-                                fontWeight: 700, 
-                                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
-                                color: "#c084fc", 
-                                padding: "0.15rem 0.5rem", 
-                                borderRadius: "4px", 
-                                border: "1px solid rgba(168, 85, 247, 0.4)",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "0.25rem",
-                                cursor: "pointer"
-                              }}>
-                                🎓 By @{note.contributor_username}
-                              </span>
-                            </Link>
-                          ) : (
-                            <span style={{ 
-                              fontSize: "0.68rem", 
-                              fontWeight: 700, 
-                              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
-                              color: "#c084fc", 
-                              padding: "0.15rem 0.5rem", 
-                              borderRadius: "4px", 
-                              border: "1px solid rgba(168, 85, 247, 0.4)",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "0.25rem"
-                            }}>
-                              🎓 Student Contribution
-                            </span>
-                          )
-                        ) : (
-                          <span style={{ 
-                            fontSize: "0.68rem", 
-                            fontWeight: 700, 
-                            background: "linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.28))", 
-                            color: "#fbbf24", 
-                            padding: "0.15rem 0.5rem", 
-                            borderRadius: "4px", 
-                            border: "1px solid rgba(245, 158, 11, 0.4)",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.25rem"
-                          }}>
-                            🏛️ Official Platform Note
-                          </span>
-                        )}
-                      </div>
-                    </article>
-                  );
-                })}
+                {filteredNotes.map((note) => (
+                  <NoteCard
+                    key={note.id}
+                    id={note.id}
+                    note={note}
+                    variant="catalog"
+                    onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                    onAction={(n) => handleDownloadClick(n)}
+                    actionLabel={note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                  />
+                ))}
               </div>
             ) : (
               <div className={styles.noResults} id="no-results-alert">
@@ -1811,180 +1583,17 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
               /* Level 3: Notes Grid for selected branch & semester */
               filteredNotes.length > 0 ? (
                 <div className={styles.grid}>
-                  {filteredNotes.map((note) => {
-                    const hasVideo = !!note.videoUrl;
-                    const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
-                    return (
-                      <article 
-                        key={note.id} 
-                        className={`${styles.noteCard} ${styles.noteCardGlow}`} 
-                        id={note.id}
-                        style={{ 
-                          cursor: "pointer",
-                          borderColor: isStudentNote ? "rgba(168, 85, 247, 0.3)" : undefined
-                        }}
-                        onClick={() => router.push(`/notes/${note.id}`)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => handleKeyDown(e, () => router.push(`/notes/${note.id}`))}
-                        onMouseEnter={(e) => {
-                          if (isStudentNote) {
-                            e.currentTarget.style.borderColor = "#c084fc";
-                            e.currentTarget.style.boxShadow = "0 10px 24px -10px rgba(168, 85, 247, 0.35)";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (isStudentNote) {
-                            e.currentTarget.style.borderColor = "rgba(168, 85, 247, 0.3)";
-                            e.currentTarget.style.boxShadow = "none";
-                          }
-                        }}
-                      >
-                        <div className={styles.noteCardHeader}>
-                          <h3 className={styles.noteCardTitle}>
-                            <Link 
-                              href={`/notes/${note.id}`} 
-                              style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                              onMouseEnter={(e) => (e.currentTarget.style.color = isStudentNote ? "#c084fc" : "var(--accent)")}
-                              onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-                            >
-                              {note.title}
-                            </Link>
-                          </h3>
-                        </div>
-                        <div className={styles.badgeRow}>
-                          {isStudentNote ? (
-                            <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.12)", color: "#c084fc", padding: "0.25rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
-                              {note.branch}
-                            </span>
-                          ) : (
-                            <span className={styles.tagBranch}>{note.branch}</span>
-                          )}
-                          <span className={styles.badgeSemester}>{note.semester}</span>
-                          {note.price && note.price > 0 ? (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: isStudentNote ? "rgba(168, 85, 247, 0.15)" : "rgba(245, 158, 11, 0.12)", color: isStudentNote ? "#c084fc" : "#f59e0b", padding: "0.2rem 0.5rem", borderRadius: "4px", border: isStudentNote ? "1px solid rgba(168, 85, 247, 0.3)" : "1px solid rgba(245, 158, 11, 0.2)" }}>
-                              ₹{note.price}
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: "0.725rem", fontWeight: 700, backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#22c55e", padding: "0.2rem 0.5rem", borderRadius: "4px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-                              Free
-                            </span>
-                          )}
-                        </div>
-                        <p className={styles.noteCardDesc}>{note.description}</p>
-
-                        <div className={styles.noteCardActions} style={{ 
-                          display: "grid", 
-                          gridTemplateColumns: hasVideo ? "1fr 1fr" : "1fr",
-                          gap: "0.5rem" 
-                        }}>
-                          {hasVideo && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openModal(note, "video");
-                              }}
-                              className={`${styles.btnNoteAction} ${styles.btnNoteWatch}`}
-                              id={`btn-watch-video-${note.id}`}
-                            >
-                              Watch Video
-                            </button>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDownloadClick(note);
-                            }}
-                            className={`${styles.btnNoteAction} ${note.price && note.price > 0 ? styles.btnNoteDownload : styles.btnNoteDownloadFree}`}
-                            id={`btn-download-${note.id}`}
-                            style={{ 
-                              gridColumn: hasVideo ? "auto" : "span 2",
-                              background: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.15)" : undefined,
-                              color: isStudentNote && note.price && note.price > 0 ? "#c084fc" : undefined,
-                              borderColor: isStudentNote && note.price && note.price > 0 ? "rgba(168, 85, 247, 0.3)" : undefined,
-                            }}
-                          >
-                            {note.price && note.price > 0 ? (
-                              <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                </svg>
-                                Unlock PDF
-                              </>
-                            ) : (
-                              <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                  <polyline points="7 10 12 15 17 10"></polyline>
-                                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                                Download PDF
-                              </>
-                            )}
-                          </button>
-                        </div>
-
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.15rem" }}>
-                          {note.is_community_contributed || note.contributor_id ? (
-                            note.contributor_username ? (
-                              <Link
-                                href={`/u/${note.contributor_username}`}
-                                onClick={(e) => e.stopPropagation()}
-                                style={{ textDecoration: "none" }}
-                              >
-                                <span style={{ 
-                                  fontSize: "0.68rem", 
-                                  fontWeight: 700, 
-                                  background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
-                                  color: "#c084fc", 
-                                  padding: "0.15rem 0.5rem", 
-                                  borderRadius: "4px", 
-                                  border: "1px solid rgba(168, 85, 247, 0.4)",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "0.25rem",
-                                  cursor: "pointer"
-                                }}>
-                                  🎓 By @{note.contributor_username}
-                                </span>
-                              </Link>
-                            ) : (
-                              <span style={{ 
-                                fontSize: "0.68rem", 
-                                fontWeight: 700, 
-                                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(147, 51, 234, 0.28))", 
-                                color: "#c084fc", 
-                                padding: "0.15rem 0.5rem", 
-                                borderRadius: "4px", 
-                                border: "1px solid rgba(168, 85, 247, 0.4)",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "0.25rem"
-                              }}>
-                                🎓 Student Contribution
-                              </span>
-                            )
-                          ) : (
-                            <span style={{ 
-                              fontSize: "0.68rem", 
-                              fontWeight: 700, 
-                              background: "linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.28))", 
-                              color: "#fbbf24", 
-                              padding: "0.15rem 0.5rem", 
-                              borderRadius: "4px", 
-                              border: "1px solid rgba(245, 158, 11, 0.4)",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "0.25rem"
-                            }}>
-                              🏛️ Official Platform Note
-                            </span>
-                          )}
-                        </div>
-                      </article>
-                    );
-                  })}
+                  {filteredNotes.map((note) => (
+                    <NoteCard
+                      key={note.id}
+                      id={note.id}
+                      note={note}
+                      variant="catalog"
+                      onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                      onAction={(n) => handleDownloadClick(n)}
+                      actionLabel={note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className={styles.noResults}>
