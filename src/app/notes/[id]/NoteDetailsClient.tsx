@@ -10,6 +10,17 @@ import { useToast } from "@/components/providers/ToastProvider";
 import { loadRazorpayScript } from "@/utils/razorpay";
 import styles from "./notes.module.css";
 import NoteViewerDynamic from "@/components/NoteViewerDynamic";
+import NoteCard from "@/components/cards/NoteCard";
+import { 
+  FaShieldHalved, 
+  FaBolt, 
+  FaCreditCard, 
+  FaCircleCheck, 
+  FaLock, 
+  FaArrowDown, 
+  FaShareNodes, 
+  FaGraduationCap 
+} from "react-icons/fa6";
 
 interface NoteDetailsClientProps {
   note: Note;
@@ -374,56 +385,22 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           {isStudentNote ? (
             note.contributor_username ? (
               <Link href={`/u/${note.contributor_username}`} style={{ textDecoration: "none" }}>
-                <span style={{ 
-                  fontSize: "0.75rem", 
-                  fontWeight: 700, 
-                  background: "linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.3))", 
-                  color: "#c084fc", 
-                  padding: "0.25rem 0.65rem", 
-                  borderRadius: "6px", 
-                  border: "1px solid rgba(168, 85, 247, 0.4)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                  cursor: "pointer"
-                }}>
+                <span className={styles.badgeContributor}>
                   🎓 Contributed by @{note.contributor_username}
                 </span>
               </Link>
             ) : (
-              <span style={{ 
-                fontSize: "0.75rem", 
-                fontWeight: 700, 
-                background: "linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(147, 51, 234, 0.3))", 
-                color: "#c084fc", 
-                padding: "0.25rem 0.65rem", 
-                borderRadius: "6px", 
-                border: "1px solid rgba(168, 85, 247, 0.4)",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.35rem"
-              }}>
+              <span className={styles.badgeContributor}>
                 🎓 Student Contribution
               </span>
             )
           ) : (
-            <span style={{ 
-              fontSize: "0.75rem", 
-              fontWeight: 700, 
-              background: "linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3))", 
-              color: "#fbbf24", 
-              padding: "0.25rem 0.65rem", 
-              borderRadius: "6px", 
-              border: "1px solid rgba(245, 158, 11, 0.4)",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem"
-            }}>
+            <span className={styles.badgeOfficial}>
               🏛️ Official Platform Note
             </span>
           )}
           {isStudentNote ? (
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.25rem 0.6rem", borderRadius: "6px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
+            <span className={styles.tagBranchStudent}>
               {note.branch}
             </span>
           ) : (
@@ -434,10 +411,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             <span className={styles.badgeUniversity}>{note.university}</span>
           )}
           {isPremium ? (
-            <span 
-              className={isStudentNote ? undefined : styles.badgePricePaid} 
-              style={isStudentNote ? { fontSize: "0.75rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.25rem 0.6rem", borderRadius: "6px", border: "1px solid rgba(168, 85, 247, 0.3)" } : undefined}
-            >
+            <span className={isStudentNote ? styles.badgePriceStudent : styles.badgePricePaid}>
               ₹{note.price} (Premium)
             </span>
           ) : (
@@ -662,11 +636,9 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             ) : hasPurchased ? (
               // Unlocked / Free note: Allow immediate download
               <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#22c55e", fontWeight: 700, fontSize: "0.95rem" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  Note Access Unlocked
+                <div className={styles.unlockedBadge}>
+                  <FaCircleCheck />
+                  <span>Note Access Unlocked</span>
                 </div>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.5 }}>
                   You have full authorized access to this study resource. Click below to download the PDF to your local device.
@@ -674,10 +646,9 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                 <div className={styles.actionGrid}>
                   <button
                     onClick={handleDownload}
-                    className={styles.btnPrimary}
+                    className={`${styles.btnPrimary} ${styles.btnPrimaryGreen}`}
                     disabled={downloadingPdf}
                     id="btn-details-download-pdf"
-                    style={{ backgroundColor: "#22c55e", boxShadow: "0 4px 14px rgba(34, 197, 94, 0.25)" }}
                   >
                     {downloadingPdf ? (
                       <>
@@ -686,11 +657,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                       </>
                     ) : (
                       <>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                          <polyline points="7 10 12 15 17 10"></polyline>
-                          <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
+                        <FaArrowDown />
                         Download PDF Copy
                       </>
                     )}
@@ -700,12 +667,9 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             ) : (
               // Locked Premium Note: Prompt Checkout
               <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: isStudentNote ? "#c084fc" : "#f59e0b", fontWeight: 700, fontSize: "0.95rem" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                  Premium Resource Locked
+                <div className={`${styles.lockedBadge} ${isStudentNote ? styles.lockedBadgeStudent : ""}`}>
+                  <FaLock />
+                  <span>Premium Resource Locked</span>
                 </div>
                 
                 {authState === "unauthenticated" ? (
@@ -743,10 +707,9 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                     </div>
                     <button
                       type="submit"
-                      className={styles.btnPrimary}
+                      className={`${styles.btnPrimary} ${isStudentNote ? styles.btnPrimaryStudent : ""}`}
                       disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
                       id="btn-details-trigger-payment"
-                      style={isStudentNote ? { background: "linear-gradient(135deg, #a855f7, #9333ea)", borderColor: "#a855f7", boxShadow: "0 4px 14px rgba(168, 85, 247, 0.3)" } : undefined}
                     >
                       {checkoutStatus === "verifying" && (
                         <>
@@ -791,8 +754,24 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               </div>
             )}
 
+            {/* Trust & Guarantee Badges */}
+            <div className={styles.trustList}>
+              <div className={styles.trustItem}>
+                <FaBolt className={styles.trustIcon} />
+                <span>Instant PDF download & in-browser reader access</span>
+              </div>
+              <div className={styles.trustItem}>
+                <FaCreditCard className={styles.trustIcon} />
+                <span>Secure payments via UPI, Cards, NetBanking (Razorpay)</span>
+              </div>
+              <div className={styles.trustItem}>
+                <FaShieldHalved className={styles.trustIcon} />
+                <span>Verified syllabus matching university standards</span>
+              </div>
+            </div>
+
             {/* Shared Share Widget */}
-            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               <button
                 onClick={handleCopyShareLink}
                 className={styles.btnSecondary}
@@ -801,18 +780,12 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               >
                 {copied ? (
                   <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                    <FaCircleCheck style={{ color: "#22c55e" }} />
                     Link Copied!
                   </>
                 ) : (
                   <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                      <polyline points="16 6 12 2 8 6"></polyline>
-                      <line x1="12" y1="2" x2="12" y2="15"></line>
-                    </svg>
+                    <FaShareNodes />
                     Share Note Details
                   </>
                 )}
@@ -820,42 +793,20 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             </div>
 
             {/* Contributor Spotlight & Invite Banner */}
-            <div style={{
-              marginTop: "1.25rem",
-              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(245, 158, 11, 0.12) 100%)",
-              border: "1px solid rgba(168, 85, 247, 0.25)",
-              borderRadius: "12px",
-              padding: "1.1rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.6rem"
-            }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#c084fc", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <span>💰 Earn Up To 90% Revenue</span>
+            <div className={styles.earnBanner}>
+              <div className={styles.earnBannerTag}>
+                <FaGraduationCap />
+                <span>Earn Up To 90% Revenue</span>
               </div>
-              <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-primary)" }}>
+              <div className={styles.earnBannerTitle}>
                 Have study notes for your course?
               </div>
-              <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
+              <div className={styles.earnBannerText}>
                 Publish your PDF revision guides & earn direct payouts to your UPI ID on every unlock.
               </div>
               <Link
                 href="/contribute"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.4rem",
-                  backgroundColor: "rgba(168, 85, 247, 0.2)",
-                  border: "1px solid rgba(168, 85, 247, 0.4)",
-                  color: "#c084fc",
-                  fontWeight: 700,
-                  fontSize: "0.8rem",
-                  padding: "0.5rem",
-                  borderRadius: "8px",
-                  textDecoration: "none",
-                  marginTop: "0.25rem"
-                }}
+                className={styles.earnBannerBtn}
               >
                 Learn How Contribution Works ➔
               </Link>
@@ -879,41 +830,14 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           <div className={styles.recommendedState}>Loading related notes...</div>
         ) : recommendedNotes.length > 0 ? (
           <div className={styles.recommendedGrid}>
-            {recommendedNotes.map((recommendedNote) => {
-              const recommendedPrice = recommendedNote.price ?? 0;
-
-              return (
-                <Link
-                  key={recommendedNote.id}
-                  href={`/notes/${recommendedNote.id}`}
-                  className={styles.recommendedCard}
-                >
-                  <div className={styles.recommendedCardTop}>
-                    <div className={styles.recommendedBadges}>
-                      {recommendedNote.is_community_contributed || recommendedNote.contributor_id ? (
-                        <span style={{ fontSize: "0.675rem", fontWeight: 700, backgroundColor: "rgba(168, 85, 247, 0.15)", color: "#c084fc", padding: "0.15rem 0.4rem", borderRadius: "4px", border: "1px solid rgba(168, 85, 247, 0.3)" }}>
-                          🎓 Student
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: "0.675rem", fontWeight: 700, backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", padding: "0.15rem 0.4rem", borderRadius: "4px", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
-                          🏛️ Official
-                        </span>
-                      )}
-                      <span className={styles.recommendedBranch}>{recommendedNote.branch}</span>
-                      <span className={styles.recommendedSemester}>{recommendedNote.semester}</span>
-                    </div>
-                    <span className={recommendedPrice > 0 ? styles.recommendedPaid : styles.recommendedFree}>
-                      {recommendedPrice > 0 ? `₹${recommendedPrice}` : "Free"}
-                    </span>
-                  </div>
-
-                  <h3 className={styles.recommendedCardTitle}>{recommendedNote.title}</h3>
-                  <p className={styles.recommendedCardDesc}>
-                    {recommendedNote.description}
-                  </p>
-                </Link>
-              );
-            })}
+            {recommendedNotes.map((recommendedNote) => (
+              <NoteCard
+                key={recommendedNote.id}
+                id={`recommended-${recommendedNote.id}`}
+                note={recommendedNote}
+                variant="catalog"
+              />
+            ))}
           </div>
         ) : (
           <div className={styles.recommendedState}>

@@ -97,6 +97,60 @@
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
+.badgePriceStudent {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+}
+
+.badgeContributor {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.badgeContributor:hover {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: #c084fc;
+  transform: translateY(-1px);
+}
+
+.badgeOfficial {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tagBranchStudent {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+}
+
 .layoutGrid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -351,6 +405,130 @@
   color: var(--text-primary);
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.5rem;
+}
+
+.unlockedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.lockedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.lockedBadgeStudent {
+  color: #c084fc;
+}
+
+.btnPrimaryStudent {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+  border-color: #a855f7;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.3);
+  color: #ffffff;
+}
+
+.btnPrimaryStudent:hover {
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
+}
+
+.btnPrimaryGreen {
+  background-color: #22c55e;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.25);
+  color: #ffffff;
+}
+
+.btnPrimaryGreen:hover {
+  background-color: #16a34a;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.trustList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  margin-top: 0.5rem;
+}
+
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.trustIcon {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.earnBanner {
+  margin-top: 1.25rem;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.earnBannerTag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #c084fc;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.earnBannerTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.earnBannerText {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.earnBannerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: rgba(168, 85, 247, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  margin-top: 0.25rem;
+}
+
+.earnBannerBtn:hover {
+  background-color: rgba(168, 85, 247, 0.28);
+  border-color: #c084fc;
+  transform: translateY(-1px);
 }
 
 .recommendedSection {
