@@ -676,8 +676,8 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
                 <span className={styles.tagBranch}>{selectedNote.branch}</span>
                 <span className={styles.badgeSemester}>{selectedNote.semester}</span>
               </div>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 700 }}>{selectedNote.title}</h4>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>{selectedNote.description}</p>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--nb-ink, #1d3557)" }}>{selectedNote.title}</h4>
+              <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.95rem" }}>{selectedNote.description}</p>
 
               {modalType === "video" && (
                 selectedNote.videoUrl ? (
@@ -694,10 +694,10 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
                   <div style={{
                     textAlign: "center",
                     padding: "2.5rem 1rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
+                    backgroundColor: "var(--nb-paper, #fbfaf4)",
                     borderRadius: "8px",
-                    border: "1px dashed var(--border)",
-                    color: "var(--text-secondary)",
+                    border: "1.5px dashed var(--nb-card-line, #d9d2bd)",
+                    color: "var(--nb-ink-dim, #5c7089)",
                     fontSize: "0.9rem"
                   }}>
                     <p style={{ margin: 0 }}>No video lecture URL is attached to this note yet.</p>
@@ -706,8 +706,8 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
               )}
 
               {modalType === "pdf" && (
-                <div style={{ textAlign: "center", padding: "2rem 1rem", backgroundColor: "var(--background)", borderRadius: "8px", border: "1px dashed var(--border)" }} id="dashboard-pdf-pane">
-                  <h5>{selectedNote.title}.pdf</h5>
+                <div style={{ textAlign: "center", padding: "2rem 1rem", backgroundColor: "var(--nb-paper, #fbfaf4)", borderRadius: "8px", border: "1.5px dashed var(--nb-card-line, #d9d2bd)" }} id="dashboard-pdf-pane">
+                  <h5 style={{ color: "var(--nb-ink, #1d3557)" }}>{selectedNote.title}.pdf</h5>
                   <button
                     onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
                     className={pageStyles.btnPrimary}

@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Work_Sans, Caveat } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../../app/page.module.css";
@@ -16,6 +17,18 @@ import UsernameGate from "../landing/UsernameGate";
 import BannedGate from "../landing/BannedGate";
 import NoteCard from "../cards/NoteCard";
 import { FaFolderOpen, FaRegFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+});
 
 // Define Razorpay window type interfaces
 interface RazorpayResponse {
@@ -549,10 +562,10 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
               </button>
             </div>
             <div className={styles.modalBody}>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{checkoutNote.title}</h4>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--nb-ink, #1d3557)" }}>{checkoutNote.title}</h4>
               {!userEmail ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+                  <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.95rem", lineHeight: 1.5 }}>
                     Sign in with your account to purchase or access your unlocked study materials.
                   </p>
                   <Link
@@ -566,12 +579,12 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 </div>
               ) : (
                 <>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                  <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.9rem" }}>
                     This is a premium resource. Verify your past purchase or unlock instant access for <strong>₹{checkoutNote.price}</strong>.
                   </p>
                   <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "0.5rem" }} id="checkout-form">
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>Account Profile Email</label>
+                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--nb-ink, #1d3557)" }}>Account Profile Email</label>
                       <input
                         type="email"
                         id="checkout-email"
@@ -581,17 +594,17 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                         disabled={true}
                         style={{ 
                           width: "100%", 
-                          backgroundColor: "var(--background)", 
-                          border: "1px solid var(--border)", 
-                          borderRadius: "var(--radius-sm)", 
-                          color: "var(--text-primary)", 
+                          backgroundColor: "#f5f5f5", 
+                          border: "1.5px solid var(--nb-card-line, #d9d2bd)", 
+                          borderRadius: "8px", 
+                          color: "var(--nb-ink, #1d3557)", 
                           padding: "0.75rem 1rem", 
-                          fontFamily: "var(--font-sans)", 
+                          fontFamily: "inherit", 
                           outline: "none", 
-                          opacity: 0.75 
+                          opacity: 0.85 
                         }}
                       />
-                      <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>Logged in session email</span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--nb-ink-dim, #5c7089)", fontWeight: 600 }}>Logged in session email</span>
                     </div>
                     <button
                       type="submit"
@@ -611,12 +624,12 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                           onClick={handleSyncPayment}
                           disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
                           className={styles.btnSecondary}
-                          style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
+                          style={{ width: "100%", border: "1.5px dashed var(--nb-card-line, #d9d2bd)", justifyContent: "center" }}
                           id="btn-sync-payment"
                         >
                           {checkoutStatus === "verifying" ? "Connecting..." : "Already paid? Recover access"}
                         </button>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
+                        <span style={{ fontSize: "0.75rem", color: "var(--nb-ink-dim, #5c7089)", textAlign: "center" }}>
                           Paid but can&apos;t access? This will reconnect your payment.
                         </span>
                       </div>
@@ -654,8 +667,8 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 <span className={styles.tagBranch}>{selectedNote.branch}</span>
                 <span className={styles.badgeSemester}>{selectedNote.semester}</span>
               </div>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{selectedNote.title}</h4>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.5 }}>{selectedNote.description}</p>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--nb-ink, #1d3557)" }}>{selectedNote.title}</h4>
+              <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.9rem", lineHeight: 1.5 }}>{selectedNote.description}</p>
 
               {modalType === "video" && (
                 <div className={styles.videoWrapper} id="video-preview-iframe">
@@ -673,9 +686,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 <div style={{ 
                   textAlign: "center", 
                   padding: "2.5rem 1.5rem", 
-                  backgroundColor: "var(--background)", 
-                  borderRadius: "var(--radius)", 
-                  border: "1px dashed var(--border)" 
+                  backgroundColor: "var(--nb-paper, #fbfaf4)", 
+                  borderRadius: "10px", 
+                  border: "1.5px dashed var(--nb-card-line, #d9d2bd)" 
                 }} id="pdf-download-pane">
                   <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" style={{ marginBottom: "1.25rem" }}>
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -683,8 +696,8 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                     <line x1="12" y1="18" x2="12" y2="12"></line>
                     <polyline points="9 15 12 18 15 15"></polyline>
                   </svg>
-                  <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>{selectedNote.title}.pdf</h5>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
+                  <h5 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--nb-ink, #1d3557)" }}>{selectedNote.title}.pdf</h5>
+                  <p style={{ fontSize: "0.75rem", color: "var(--nb-ink-dim, #5c7089)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
                   <button
                     onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
                     className={styles.btnPrimary}
@@ -723,14 +736,19 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
           <section className={styles.notesSection} id="featured-notes-section">
           <div className={styles.catalogHeader}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+              <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--nb-ink, #1d3557)", margin: 0 }}>Study notes catalog</h2>
               <select
                 value={selectedUniv}
                 onChange={(e) => setSelectedUniv(e.target.value)}
                 style={{
-                  padding: "0.5rem 2.6rem 0.5rem 0.85rem",
-                  fontSize: "0.85rem",
+                  padding: "0.45rem 2.2rem 0.45rem 0.85rem",
+                  fontSize: "0.825rem",
                   fontWeight: 700,
+                  backgroundColor: "#ffffff",
+                  color: "var(--nb-ink, #1d3557)",
+                  border: "1.5px solid var(--nb-card-line, #d9d2bd)",
+                  borderRadius: "8px",
+                  cursor: "pointer",
                 }}
                 id="select-university-filter-unauth"
               >
@@ -818,9 +836,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 <div
                   key={i}
                   style={{
-                    background: "var(--card-bg)",
-                    border: "1px solid var(--border)",
-                    borderRadius: "var(--radius)",
+                    background: "#ffffff",
+                    border: "1.5px solid var(--nb-card-line, #d9d2bd)",
+                    borderRadius: "10px",
                     padding: "1.25rem",
                     display: "flex",
                     flexDirection: "column",
@@ -838,7 +856,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                   </div>
                   <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.25rem" }} />
                   <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1.5px dashed var(--nb-card-line, #d9d2bd)" }}>
                     <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
                     <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
                   </div>
@@ -924,12 +942,12 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                     width: "48px",
                     height: "48px",
                     borderRadius: "50%",
-                    background: "rgba(255, 255, 255, 0.04)",
-                    border: "1px solid var(--border)",
+                    background: "var(--nb-paper, #fbfaf4)",
+                    border: "1.5px solid var(--nb-card-line, #d9d2bd)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "var(--text-secondary)",
+                    color: "var(--nb-ink-dim, #5c7089)",
                     marginBottom: "0.25rem"
                   }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1099,38 +1117,16 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
         </section>
 
         {/* High Conversion Callout Banner */}
-        <section style={{
-          background: "linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 146, 60, 0.08) 100%)",
-          border: "1px solid rgba(251, 191, 36, 0.3)",
-          borderRadius: "16px",
-          padding: "1.75rem 2rem",
-          margin: "2.5rem 0 1rem",
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "1.5rem"
-        }}>
-          <div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.35rem" }}>
+        <section className={styles.conversionBanner}>
+          <div className={styles.conversionBannerLeft}>
+            <h3 className={styles.conversionBannerTitle}>
               Found the study guide for your exam? 🎓
             </h3>
-            <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0 }}>
+            <p className={styles.conversionBannerText}>
               Sign up in 15 seconds to download offline PDF copies, access visual video walkthroughs, and unlock full guides.
             </p>
           </div>
-          <Link href="/login" style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            backgroundColor: "var(--accent)",
-            color: "#000",
-            fontWeight: 800,
-            fontSize: "0.9rem",
-            padding: "0.75rem 1.75rem",
-            borderRadius: "10px",
-            textDecoration: "none",
-          }}>
+          <Link href="/login" className={styles.conversionBannerBtn}>
             Sign Up / Log In to Unlock <FaChevronRight style={{ fontSize: "0.75rem" }} />
           </Link>
         </section>
@@ -1153,71 +1149,54 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
   }
 
   return (
-    <main className={styles.main}>
-      {/* Compact Logged-In Student Header */}
-      <section style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "1rem",
-        flexWrap: "wrap",
-        marginBottom: "1.5rem",
-        padding: "1rem 1.25rem",
-        background: "var(--card-bg)",
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>
-            Welcome back, <span style={{ color: "var(--accent)" }}>{userUsername ?? "Student"}</span> 👋
-          </span>
-          <span style={{
-            fontSize: "0.775rem",
-            fontWeight: 700,
-            background: "rgba(251, 191, 36, 0.12)",
-            color: "var(--accent)",
-            padding: "0.25rem 0.65rem",
-            borderRadius: "999px",
-            border: "1px solid rgba(251, 191, 36, 0.25)"
-          }}>
-            🎓 {userUniversity}
-          </span>
-        </div>
+    <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+      <div className={styles.nbSpine} aria-hidden="true" />
+      <div className={styles.nbMarginRule} aria-hidden="true" />
+      <main className={styles.main}>
+        {/* Compact Logged-In Student Header */}
+        <section className={styles.studentWelcomeCard}>
+          <div className={styles.studentWelcomeLeft}>
+            <span className={styles.studentWelcomeGreeting}>
+              Welcome back, <span className={styles.studentWelcomeName}>{userUsername ?? "Student"}</span> 👋
+            </span>
+            {userUniversity && (
+              <span className={styles.studentWelcomeBadge}>
+                🎓 {userUniversity}
+              </span>
+            )}
+          </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Link
-            href="/contribute"
-            style={{
-              fontSize: "0.8rem",
-              fontWeight: 700,
-              color: "var(--text-secondary)",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem"
-            }}
-          >
-            Contribute study notes
-          </Link>
-        </div>
-      </section>
+          <div className={styles.studentWelcomeRight}>
+            <Link
+              href="/contribute"
+              className={styles.studentContributeBtn}
+            >
+              ✍️ Contribute study notes
+            </Link>
+          </div>
+        </section>
 
-      {/* Featured Notes Section */}
-      <section className={styles.notesSection} id="featured-notes-section">
-        <div className={styles.catalogHeader}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
-            {!userUniversity && (
-              <select
-                value={selectedUniv}
-                onChange={(e) => setSelectedUniv(e.target.value)}
-                style={{
-                  padding: "0.5rem 2.6rem 0.5rem 0.85rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                }}
-                id="select-university-filter"
-              >
+        {/* Featured Notes Section */}
+        <section className={styles.notesSection} id="featured-notes-section">
+          <div className={styles.catalogHeader}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
+              <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--nb-ink, #1d3557)", margin: 0 }}>Study notes catalog</h2>
+              {!userUniversity && (
+                <select
+                  value={selectedUniv}
+                  onChange={(e) => setSelectedUniv(e.target.value)}
+                  style={{
+                    padding: "0.45rem 2.2rem 0.45rem 0.85rem",
+                    fontSize: "0.825rem",
+                    fontWeight: 700,
+                    backgroundColor: "#ffffff",
+                    color: "var(--nb-ink, #1d3557)",
+                    border: "1.5px solid var(--nb-card-line, #d9d2bd)",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                  }}
+                  id="select-university-filter"
+                >
                 <option value="All universities">🎓 All Universities</option>
                 {availableUniversities.map((u) => (
                   <option key={u} value={u}>{u}</option>
@@ -1303,9 +1282,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
               <div
                 key={i}
                 style={{
-                  background: "var(--card-bg)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius)",
+                  background: "#ffffff",
+                  border: "1.5px solid var(--nb-card-line, #d9d2bd)",
+                  borderRadius: "10px",
                   padding: "1.25rem",
                   display: "flex",
                   flexDirection: "column",
@@ -1323,7 +1302,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 </div>
                 <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.25rem" }} />
                 <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1.5px dashed var(--nb-card-line, #d9d2bd)" }}>
                   <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
                   <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
                 </div>
@@ -1398,14 +1377,14 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
             </div>
 
             {debouncedSearchQuery !== "" && (
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--nb-ink, #1d3557)" }}>
                 Search Results for &quot;{debouncedSearchQuery}&quot;
                 {selectedBranch !== "All branches" && ` in ${selectedBranch}`}
                 {selectedSemester !== "All semesters" && ` (Semester ${selectedSemester})`}
               </h3>
             )}
             {selectedBranch === "All branches" && selectedSemester !== "All semesters" && debouncedSearchQuery === "" && (
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--nb-ink, #1d3557)" }}>
                 Showing all {selectedSemester} notes
               </h3>
             )}
@@ -1608,5 +1587,6 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
 
       {renderModals()}
     </main>
+  </div>
   );
 }

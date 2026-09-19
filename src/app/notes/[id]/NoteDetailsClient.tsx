@@ -627,7 +627,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             <h3 className={styles.sidebarTitle}>Resource Access</h3>
             
             {checkingPurchase ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-secondary)", padding: "1rem 0" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--nb-ink-dim, #5c7089)", padding: "1rem 0" }}>
                 <div className={styles.spinner} />
                 <span>Checking purchase status...</span>
               </div>
@@ -638,7 +638,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                   <FaCircleCheck />
                   <span>Note Access Unlocked</span>
                 </div>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.85rem", lineHeight: 1.5 }}>
                   You have full authorized access to this study resource. Click below to download the PDF to your local device.
                 </p>
                 <div className={styles.actionGrid}>

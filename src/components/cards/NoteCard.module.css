@@ -1,6 +1,6 @@
 .noteCard {
-  background-color: var(--card-bg, #ffffff);
-  border: 1.5px solid var(--border, var(--nb-card-line, #d9d2bd));
+  background-color: #ffffff;
+  border: 1.5px solid var(--nb-card-line, #d9d2bd);
   border-radius: 10px;
   padding: 1.25rem;
   display: flex;
@@ -55,7 +55,7 @@
   font-size: 1.08rem;
   font-weight: 800;
   line-height: 1.4;
-  color: var(--text-primary, var(--nb-ink, #1d3557));
+  color: var(--nb-ink, #1d3557);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -146,7 +146,7 @@
 /* Description */
 .cardDesc {
   font-size: 0.85rem;
-  color: var(--text-secondary, var(--nb-ink-dim, #5c7089));
+  color: var(--nb-ink-dim, #5c7089);
   line-height: 1.5;
   margin: 0;
   flex-grow: 1;
@@ -277,9 +277,9 @@
 .contributorBadgePlatform {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-secondary, #cbd5e1);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border, #27272a);
+  color: var(--nb-ink-dim, #5c7089);
+  background: var(--nb-paper, #fbfaf4);
+  border: 1px solid var(--nb-card-line, #d9d2bd);
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   display: inline-flex;
