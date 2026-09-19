@@ -1,7 +1,7 @@
 .noteCard {
-  background-color: var(--card-bg, #18181b);
-  border: 1px solid var(--border, #27272a);
-  border-radius: var(--radius, 12px);
+  background-color: var(--card-bg, #ffffff);
+  border: 1.5px solid var(--border, var(--nb-card-line, #d9d2bd));
+  border-radius: 10px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.2s ease,
               box-shadow 0.2s ease;
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.2));
+  box-shadow: 0 2px 6px rgba(29, 53, 87, 0.05);
   position: relative;
   cursor: pointer;
   text-decoration: none;
@@ -19,23 +19,24 @@
 
 .noteCard:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
+  border-color: var(--nb-ink, #1d3557);
+  box-shadow: 0 10px 22px rgba(29, 53, 87, 0.1);
 }
 
 .noteCard:focus-visible {
-  outline: 2px solid var(--accent, #fbbf24);
+  outline: 2px solid var(--accent, #ffe98a);
   outline-offset: 2px;
 }
 
 /* Community / Student Contributed Note Theme */
 .studentCard {
-  border-color: rgba(168, 85, 247, 0.28);
+  border-color: rgba(168, 85, 247, 0.35);
+  background-color: #faf5ff;
 }
 
 .studentCard:hover {
-  border-color: #c084fc;
-  box-shadow: 0 12px 24px -8px rgba(168, 85, 247, 0.25);
+  border-color: #7e22ce;
+  box-shadow: 0 10px 22px rgba(126, 34, 206, 0.12);
 }
 
 .studentCard:focus-visible {
@@ -51,10 +52,10 @@
 }
 
 .cardTitle {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.08rem;
+  font-weight: 800;
   line-height: 1.4;
-  color: var(--text-primary, #f8fafc);
+  color: var(--text-primary, var(--nb-ink, #1d3557));
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -70,11 +71,11 @@
 }
 
 .noteCard:hover .titleLink {
-  color: var(--accent, #fbbf24);
+  color: var(--nb-margin, #c94f4f);
 }
 
 .studentCard:hover .titleLink {
-  color: #c084fc;
+  color: #7e22ce;
 }
 
 /* Badge Rows */
@@ -89,7 +90,7 @@
   font-size: 0.725rem;
   font-weight: 700;
   padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-sm, 6px);
+  border-radius: 6px;
   line-height: 1.3;
   display: inline-flex;
   align-items: center;
@@ -98,54 +99,54 @@
 }
 
 .tagBranch {
-  background-color: rgba(251, 191, 36, 0.1);
-  color: var(--accent, #fbbf24);
-  border: 1px solid rgba(251, 191, 36, 0.22);
+  background-color: var(--nb-yellow, #fef08a);
+  color: var(--nb-ink, #1d3557);
+  border: 1px dashed rgba(29, 53, 87, 0.3);
 }
 
 .tagBranchStudent {
   background-color: rgba(168, 85, 247, 0.12);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.28);
+  color: #7e22ce;
+  border: 1px dashed #c084fc;
 }
 
 .badgeSemester {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary, #cbd5e1);
-  border: 1px solid var(--border, #27272a);
+  background-color: var(--nb-paper, #fbfaf4);
+  color: var(--nb-ink-dim, #5c7089);
+  border: 1px solid var(--nb-card-line, #d9d2bd);
   font-weight: 600;
 }
 
 .badgePricePaid {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
   font-variant-numeric: tabular-nums;
 }
 
 .badgePricePaidStudent {
-  background-color: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background-color: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
   font-variant-numeric: tabular-nums;
 }
 
 .badgePriceFree {
-  background-color: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  background-color: var(--nb-mint, #bfe3d0);
+  color: #165b33;
+  border: 1px solid #9ad0b3;
 }
 
 .badgeUnlocked {
-  background-color: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.28);
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
 }
 
 /* Description */
 .cardDesc {
-  font-size: 0.875rem;
-  color: var(--text-secondary, #cbd5e1);
+  font-size: 0.85rem;
+  color: var(--text-secondary, var(--nb-ink-dim, #5c7089));
   line-height: 1.5;
   margin: 0;
   flex-grow: 1;
@@ -163,7 +164,7 @@
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 0.85rem;
-  border-top: 1px solid var(--border, #27272a);
+  border-top: 1px dashed var(--nb-card-line, #e2e8f0);
 }
 
 .cardActionsWithVideo {
@@ -175,16 +176,16 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.55rem 0.85rem;
+  padding: 0.5rem 0.85rem;
   font-size: 0.8rem;
   font-weight: 700;
   font-family: inherit;
-  border-radius: var(--radius-sm, 6px);
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+  transition: all 0.15s ease;
   text-decoration: none;
-  border: 1px solid transparent;
-  min-height: 38px;
+  border: 1.5px solid transparent;
+  min-height: 36px;
 }
 
 .btnAction:active {
@@ -192,58 +193,59 @@
 }
 
 .btnWatch {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary, #f8fafc);
-  border-color: var(--border, #27272a);
+  background: var(--nb-paper, #fbfaf4);
+  color: var(--nb-ink, #1d3557);
+  border-color: var(--nb-card-line, #d9d2bd);
 }
 
 .btnWatch:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: var(--nb-yellow, #ffe98a);
+  border-color: var(--nb-ink, #1d3557);
 }
 
 .btnDownloadFree {
-  background: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.25);
+  background: var(--nb-mint, #bfe3d0);
+  color: #165b33;
+  border-color: #9ad0b3;
 }
 
 .btnDownloadFree:hover {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.4);
+  background: #a9e0c1;
 }
 
 .btnUnlock {
-  background: var(--accent, #fbbf24);
-  color: #09090b;
-  border-color: var(--accent, #fbbf24);
+  background: var(--nb-yellow, #ffe98a);
+  color: var(--nb-ink, #1d3557);
+  border-color: var(--nb-ink, #1d3557);
+  box-shadow: 1px 1px 0 rgba(29, 53, 87, 0.1);
 }
 
 .btnUnlock:hover {
-  background: var(--accent-hover, #d97706);
-  border-color: var(--accent-hover, #d97706);
+  background: var(--nb-yellow-hover, #fef08a);
+  transform: translateY(-1px);
 }
 
 .btnUnlockStudent {
-  background: rgba(168, 85, 247, 0.18);
-  color: #c084fc;
-  border-color: rgba(168, 85, 247, 0.35);
+  background: #f3e8ff;
+  color: #7e22ce;
+  border-color: #7e22ce;
+  box-shadow: 1px 1px 0 rgba(126, 34, 206, 0.1);
 }
 
 .btnUnlockStudent:hover {
-  background: rgba(168, 85, 247, 0.28);
-  border-color: #c084fc;
+  background: #fae8ff;
+  transform: translateY(-1px);
 }
 
 .btnSecondaryAction {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary, #f8fafc);
-  border-color: var(--border, #27272a);
+  background: var(--nb-paper, #fbfaf4);
+  color: var(--nb-ink, #1d3557);
+  border-color: var(--nb-card-line, #d9d2bd);
 }
 
 .btnSecondaryAction:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border-color: var(--nb-ink, #1d3557);
 }
 
 .contributorRow {

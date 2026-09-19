@@ -21,6 +21,19 @@ import {
   FaShareNodes, 
   FaGraduationCap 
 } from "react-icons/fa6";
+import { Work_Sans, Caveat } from "next/font/google";
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+});
 
 interface NoteDetailsClientProps {
   note: Note;
@@ -66,85 +79,72 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
     setIsInlineFullscreen((prev) => !prev);
   };
 
-  const isPremium = note.price && note.price > 0;
+  const isPremium = typeof note.price === "number" && note.price > 0;
 
-  // Verify purchase dynamically based on global auth state loading
-  useEffect(() => {
-    if (contextAuthState === "loading") {
-      setCheckingPurchase(true);
-      return;
-    }
-
-    if (contextAuthState === "unauthenticated") {
-      setCheckoutEmail("");
-      setCheckingPurchase(false);
-      if (!isPremium) {
-        setHasPurchased(true);
-      } else {
-        setHasPurchased(false);
-      }
-      return;
-    }
-
-    // Authenticated (ready or no-university)
-    if (contextEmail) {
-      setCheckoutEmail(contextEmail);
-      if (!isPremium) {
-        setHasPurchased(true);
-        setCheckingPurchase(false);
-      } else {
-        const verifyUserPurchase = async (email: string) => {
-          setCheckingPurchase(true);
-          try {
-            const cleanEmail = email.trim().toLowerCase();
-            const { data: purchase, error } = await supabase
-              .from("purchases")
-              .select("id")
-              .eq("email", cleanEmail)
-              .eq("note_id", note.id)
-              .eq("status", "success")
-              .maybeSingle();
-
-            if (purchase && !error) {
-              setHasPurchased(true);
-            } else {
-              setHasPurchased(false);
-            }
-          } catch (err) {
-            console.error("Error verifying purchase:", err);
-          } finally {
-            setCheckingPurchase(false);
-          }
-        };
-        verifyUserPurchase(contextEmail);
-      }
-    }
-  }, [contextAuthState, contextEmail, note.id, isPremium]);
-
-  // Load notes from the same branch and semester for the recommendation section
+  // Sync purchase status on email availability
   useEffect(() => {
     let isActive = true;
 
-    const loadRecommendedNotes = async () => {
-      setLoadingRecommendedNotes(true);
+    const checkStatus = async () => {
+      if (authState === "loading") return;
 
-      if (!note.branch || !note.semester) {
+      const activeEmail = contextEmail || "";
+      if (!activeEmail) {
         if (isActive) {
-          setRecommendedNotes([]);
-          setLoadingRecommendedNotes(false);
+          setHasPurchased(false);
+          setCheckingPurchase(false);
         }
         return;
       }
 
+      setCheckoutEmail(activeEmail);
+
       try {
         const { data, error } = await supabase
+          .from("purchases")
+          .select("id")
+          .eq("email", activeEmail.trim().toLowerCase())
+          .eq("note_id", note.id)
+          .eq("status", "success")
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error checking note purchase verification:", error);
+        }
+
+        if (isActive) {
+          setHasPurchased(!!data);
+        }
+      } catch (err) {
+        console.error("Verification query error:", err);
+      } finally {
+        if (isActive) {
+          setCheckingPurchase(false);
+        }
+      }
+    };
+
+    checkStatus();
+
+    return () => {
+      isActive = false;
+    };
+  }, [contextEmail, authState, note.id]);
+
+  // Load recommended notes in the same branch/semester
+  useEffect(() => {
+    let isActive = true;
+
+    const loadRecommendedNotes = async () => {
+      try {
+        setLoadingRecommendedNotes(true);
+        const { data, error } = await supabase
           .from("notes")
-          .select("*")
+          .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed")
           .eq("branch", note.branch)
           .eq("semester", note.semester)
           .neq("id", note.id)
-          .order("title", { ascending: true })
-          .limit(3);
+          .limit(4);
 
         if (error) {
           throw error;
@@ -252,43 +252,34 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
 
       setActiveOrderId(orderData.orderId);
 
-      // Load Razorpay script dynamically
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        toast.error("Failed to load Razorpay payment gateway. Please check your internet connection.");
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      interface RazorpayResponse {
-        razorpay_order_id: string;
-        razorpay_payment_id: string;
-        razorpay_signature: string;
-      }
-
-      interface RazorpayWindow extends Window {
-        Razorpay?: new (options: unknown) => { open: () => void };
-      }
-
-      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-      if (!razorpayKey) {
-        toast.error("Payment Service is currently unavailable. Please try again later or contact support.");
+      const resLoaded = await loadRazorpayScript();
+      if (!resLoaded) {
+        toast.error("Razorpay SDK failed to load. Are you online?");
         setCheckoutStatus("idle");
         return;
       }
 
       const options = {
-        key: razorpayKey,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Private Academy",
-        description: `Unlock ${note.title}`,
+        description: `Unlock Note: ${note.title}`,
         order_id: orderData.orderId,
-        prefill: { email: cleanEmail },
-        handler: async function (response: RazorpayResponse) {
+        prefill: {
+          email: cleanEmail,
+        },
+        theme: {
+          color: "#1d3557",
+        },
+        handler: async function (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) {
           try {
             setCheckoutStatus("verifying");
-            const verifyRes = await fetch("/api/verify", {
+            const verifyRes = await fetch("/api/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -297,63 +288,66 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                 razorpay_signature: response.razorpay_signature,
                 noteId: note.id,
                 email: cleanEmail,
-                amount: orderData.amount,
               }),
             });
+
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              toast.success("Payment verified successfully! Access granted.");
               setHasPurchased(true);
               setCheckoutStatus("success");
+              toast.success("Payment verified! Full note reader unlocked.");
             } else {
-              toast.error(`Verification failed: ${verifyData.error}`);
-              setCheckoutStatus("idle");
+              toast.error(verifyData.error || "Payment verification failed.");
+              setCheckoutStatus("error");
             }
           } catch (err) {
-            console.error("Verification callback failed:", err);
-            toast.error("Verification check failed.");
-            setCheckoutStatus("idle");
+            console.error("Verification fetch error:", err);
+            toast.error("Network error during payment verification.");
+            setCheckoutStatus("error");
           }
         },
-        modal: { ondismiss: function () { setCheckoutStatus("idle"); } },
-        theme: { color: "#fbbf24" },
+        modal: {
+          ondismiss: function () {
+            setCheckoutStatus("idle");
+          },
+        },
       };
 
-      const rzpWindow = window as unknown as RazorpayWindow;
-      if (rzpWindow.Razorpay) {
-        const rzp = new rzpWindow.Razorpay(options);
-        rzp.open();
-      }
+      const paymentObject = new (window as unknown as { Razorpay: new (opts: unknown) => { open: () => void } }).Razorpay(options);
+      paymentObject.open();
     } catch (err) {
-      console.error("Checkout flow failed:", err);
-      toast.error("Error starting checkout process.");
+      console.error("Checkout initiation error:", err);
+      toast.error("Failed to start checkout process.");
       setCheckoutStatus("idle");
     }
   };
 
-  // Synchronize payment status manually (fallback if client gets out of sync)
   const handleSyncPayment = async () => {
     if (!activeOrderId) return;
-    
     setCheckoutStatus("verifying");
     try {
-      const res = await fetch("/api/verify-order", {
+      const res = await fetch("/api/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: activeOrderId }),
+        body: JSON.stringify({
+          razorpay_order_id: activeOrderId,
+          noteId: note.id,
+          email: checkoutEmail.trim().toLowerCase(),
+          syncOnly: true,
+        }),
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Payment sync successful! Access granted.");
         setHasPurchased(true);
         setCheckoutStatus("success");
+        toast.success("Payment recovered and synced successfully!");
       } else {
-        toast.warning(data.message || "Payment sync failed. No successful transaction found yet.");
+        toast.error(data.error || "Could not find a successful payment for this order yet.");
         setCheckoutStatus("idle");
       }
     } catch (err) {
-      console.error("Manual sync failed:", err);
-      toast.error("Error checking payment status.");
+      console.error("Sync payment error:", err);
+      toast.error("Failed to sync payment status.");
       setCheckoutStatus("idle");
     }
   };
@@ -369,15 +363,19 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
 
   return (
-    <div className={styles.container}>
-      {/* Back Button */}
-      <Link href="/" className={styles.backLink} id="back-to-library-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        Back to Library
-      </Link>
+    <div className={`${styles.notebookPageRoot} ${workSans.variable} ${caveat.variable}`}>
+      <div className={styles.nbSpine} aria-hidden="true" />
+      <div className={styles.nbMarginRule} aria-hidden="true" />
+
+      <div className={styles.container}>
+        {/* Back Button */}
+        <Link href="/" className={styles.backLink} id="back-to-library-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Library
+        </Link>
 
       {/* Header Title Section */}
       <section className={styles.headerSection}>
@@ -433,7 +431,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               <div className={styles.previewCard} id="note-pdf-viewer-card">
                 <h2 className={styles.sectionTitle} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: "0.5rem" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "var(--accent)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#7e22ce" : "var(--nb-ink)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                     </svg>
@@ -477,7 +475,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             ) : (
               <div className={styles.previewCard} id="note-pdf-preview-card">
                 <h2 className={styles.sectionTitle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "var(--accent)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#7e22ce" : "var(--nb-ink)"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                   </svg>
@@ -574,14 +572,14 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             <div className={styles.overviewTile}>
               <div className={styles.overviewTileHeader}>
                 <span className={styles.overviewIcon}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#c084fc" : "var(--accent)"} strokeWidth="2.5">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isStudentNote ? "#7e22ce" : "var(--nb-ink)"} strokeWidth="2.5">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                 </span>
                 Note Author & Origin
               </div>
-              <div className={styles.overviewTileValue} style={{ fontSize: "0.875rem", fontWeight: 700, color: isStudentNote ? "#c084fc" : "#fbbf24" }}>
+              <div className={styles.overviewTileValue} style={{ fontSize: "0.875rem", fontWeight: 800, color: isStudentNote ? "#7e22ce" : "var(--nb-ink)" }}>
                 {isStudentNote ? (
                   note.contributor_username ? (
                     <Link href={`/u/${note.contributor_username}`} style={{ color: "inherit", textDecoration: "underline" }}>
@@ -726,13 +724,13 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                       {checkoutStatus === "idle" && `Pay ₹${note.price} & Unlock`}
                     </button>
                     {activeOrderId && (
-                      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      <div style={{ marginTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                         <button
                           type="button"
                           onClick={handleSyncPayment}
                           disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
                           className={styles.btnSecondary}
-                          style={{ width: "100%", border: isStudentNote ? "1px dashed #c084fc" : "1px dashed var(--accent)", color: isStudentNote ? "#c084fc" : undefined, justifyContent: "center" }}
+                          style={{ width: "100%", border: isStudentNote ? "1px dashed #7e22ce" : "1.5px dashed var(--nb-ink)", color: isStudentNote ? "#7e22ce" : "var(--nb-ink)", justifyContent: "center" }}
                           id="btn-details-sync-payment"
                         >
                           {checkoutStatus === "verifying" ? (
@@ -744,7 +742,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
                             "Already Paid? Sync Payment Status"
                           )}
                         </button>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
+                        <span style={{ fontSize: "0.75rem", color: "var(--nb-ink-dim)", textAlign: "center" }}>
                           Use this if your payment was deducted but the note did not unlock.
                         </span>
                       </div>
@@ -771,7 +769,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             </div>
 
             {/* Shared Share Widget */}
-            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ borderTop: "1.5px dashed var(--nb-card-line)", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               <button
                 onClick={handleCopyShareLink}
                 className={styles.btnSecondary}
@@ -780,7 +778,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               >
                 {copied ? (
                   <>
-                    <FaCircleCheck style={{ color: "#22c55e" }} />
+                    <FaCircleCheck style={{ color: "#165b33" }} />
                     Link Copied!
                   </>
                 ) : (
@@ -845,6 +843,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }
