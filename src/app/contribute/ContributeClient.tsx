@@ -7,6 +7,7 @@ import {
   getContributorShareRate,
   getPlatformCommissionRate,
 } from "@/utils/badgeUtils";
+import { Work_Sans, Caveat } from "next/font/google";
 import {
   FaCloudArrowUp,
   FaShieldHalved,
@@ -15,10 +16,20 @@ import {
   FaCalculator,
   FaChevronDown,
   FaChevronUp,
-  FaCircleQuestion,
   FaFlask,
-  FaCircleCheck,
 } from "react-icons/fa6";
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+});
 
 export default function ContributeClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,703 +86,795 @@ export default function ContributeClient() {
   const faqs = [
     {
       q: "Who can contribute study notes on PrivateAcademy?",
-      a: "Any enrolled student, alumni, top ranker, or educator can contribute! If you have well-structured handwritten or digital PDF notes for university courses, you can upload them."
+      a: "Any enrolled student, alumni, top ranker, or educator can contribute! If you have well-structured handwritten or digital PDF notes for university courses, you can upload them.",
     },
     {
       q: "What file formats and restrictions apply?",
-      a: "Submissions must strictly be in PDF format (.pdf) with a maximum file size of 5 MB per document. Ensure notes are clear, legible, and accurate."
+      a: "Submissions must strictly be in PDF format (.pdf) with a maximum file size of 5 MB per document. Ensure notes are clear, legible, and accurate.",
     },
     {
       q: "How does the revenue split and pricing work?",
-      a: "You set your note price anywhere from ₹0 (Free) up to ₹99. For paid notes, base contributors earn 70% of sales. As you publish more approved notes and get more unlocks, your Tier levels up to Rising (75%), Top Author (82%), and Legend (90%)!"
+      a: "You set your note price anywhere from ₹0 (Free) up to ₹99. For paid notes, base contributors earn 70% of sales. As you publish more approved notes and get more unlocks, your Tier levels up to Rising (75%), Top Author (82%), and Legend (90%)!",
     },
     {
       q: "How and when do I get paid?",
-      a: "Your net earnings accumulate live in your Contributor Dashboard. Once your available balance reaches ₹100, you can request a direct payout to your UPI ID (Google Pay, PhonePe, Paytm, BHIM)."
+      a: "Your net earnings accumulate live in your Contributor Dashboard. Once your available balance reaches ₹100, you can request a direct payout to your UPI ID (Google Pay, PhonePe, Paytm, BHIM).",
     },
     {
       q: "How long does Admin Approval take?",
-      a: "Our admin team usually reviews submissions within 12–24 hours to check PDF quality, subject alignment, and legibility before publishing your note live."
+      a: "Our admin team usually reviews submissions within 12–24 hours to check PDF quality, subject alignment, and legibility before publishing your note live.",
     },
     {
       q: "Can I manage or delete my notes later?",
-      a: "Yes! You can manage, view sales stats, or delete your contributed notes anytime directly from your Contributor Dashboard."
-    }
+      a: "Yes! You can manage, view sales stats, or delete your contributed notes anytime directly from your Contributor Dashboard.",
+    },
+  ];
+
+  const steps = [
+    {
+      icon: <FaCloudArrowUp />,
+      title: "1. Upload PDF",
+      desc: "Select your University, Branch, Semester, upload your PDF (≤5MB), and set a price from ₹0 to ₹99.",
+    },
+    {
+      icon: <FaShieldHalved />,
+      title: "2. Quality review",
+      desc: "Admins verify note accuracy, legibility, and subject alignment within 12–24 hours.",
+    },
+    {
+      icon: <FaRocket />,
+      title: "3. Go live",
+      desc: (
+        <>Your note is published on the marketplace with your profile link (<span style={{ color: "var(--nb-margin)" }}>@username</span>) &amp; badge.</>
+      ),
+    },
+    {
+      icon: <FaMoneyBillWave />,
+      title: "4. Direct UPI payout",
+      desc: "Collect your 70%–90% revenue share in your dashboard and request UPI payouts (min ₹100).",
+    },
+  ];
+
+  const tiers = [
+    { emoji: "🎓", name: "Verified Contributor", share: "70% Share", desc: "Initial tier upon your first approved note submission." },
+    { emoji: "⚡", name: "Rising Scholar", share: "75% Share", desc: <>Unlocked at <strong>3+ approved notes</strong> and <strong>25+ purchases</strong>.</> },
+    { emoji: "🌟", name: "Top Author", share: "82% Share", desc: <>Unlocked at <strong>5+ approved notes</strong> and <strong>50+ purchases</strong>.</> },
+    { emoji: "👑", name: "Legend Author", share: "90% Share", desc: <>Unlocked at <strong>10+ approved notes</strong> and <strong>100+ purchases</strong>.</> },
   ];
 
   return (
-    <div style={{ backgroundColor: "var(--bg-primary, #0a0a0c)", color: "var(--text-primary, #f9fafb)", minHeight: "100vh" }}>
-      {/* ── BETA NOTICE STRIP (Full Edge-to-Edge Width touching left & right screen edges) ── */}
-      <div style={{
-        width: "100%",
-        background: "linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)",
-        borderBottom: "1px solid rgba(245, 158, 11, 0.3)",
-        backdropFilter: "blur(8px)",
-        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.25)"
-      }}>
-        <div style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0.55rem 1.5rem",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "0.5rem 0.75rem"
-        }} className="contrib-beta-inner">
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem 0.65rem", flexWrap: "wrap", flex: "1 1 260px", minWidth: 0 }}>
-            <span style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.3rem",
-              backgroundColor: "rgba(245, 158, 11, 0.22)",
-              color: "#f59e0b",
-              border: "1px solid rgba(245, 158, 11, 0.45)",
-              borderRadius: "20px",
-              padding: "0.2rem 0.6rem",
-              fontSize: "0.725rem",
-              fontWeight: 800,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              flexShrink: 0
-            }}>
-              <FaFlask style={{ fontSize: "0.8rem" }} /> Beta
-            </span>
+    <div className={`${workSans.variable} ${caveat.variable} notebook-page-root`}>
+      <style>{`
+        .notebook-page-root {
+          --nb-paper: #fbfaf4;
+          --nb-rule: #dbe6ef;
+          --nb-margin: #c94f4f;
+          --nb-ink: #1d3557;
+          --nb-ink-dim: #5c7089;
+          --nb-yellow: #ffe98a;
+          --nb-mint: #bfe3d0;
+          --nb-pink: #f6c9d3;
+          --nb-card-line: #d9d2bd;
 
-            <p style={{ margin: 0, fontSize: "clamp(0.775rem, 3.2vw, 0.825rem)", color: "var(--text-primary, #f9fafb)", lineHeight: 1.4, fontWeight: 500, flex: "1 1 200px", minWidth: 0 }}>
-              The Contributor Program is in <strong>Beta</strong>, but fully functional! Note uploads, reviews, and UPI payouts are <strong>100% operational</strong>.
-            </p>
-          </div>
+          position: relative;
+          width: 100%;
+          background:
+            repeating-linear-gradient(to bottom, transparent 0 31px, var(--nb-rule) 31px 32px),
+            var(--nb-paper);
+          color: var(--nb-ink);
+          font-family: var(--font-body), sans-serif;
+          overflow: hidden;
+        }
 
-          <div 
-            className="hide-on-mobile"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-              fontSize: "0.725rem",
-              color: "#22c55e",
-              fontWeight: 700,
-              backgroundColor: "rgba(34, 197, 94, 0.1)",
-              border: "1px solid rgba(34, 197, 94, 0.25)",
-              borderRadius: "20px",
-              padding: "0.2rem 0.6rem",
-              whiteSpace: "nowrap",
-              flexShrink: 0
-            }}
-          >
-            <FaCircleCheck style={{ fontSize: "0.8rem" }} /> Fully Operational
-          </div>
+        .notebook-page-root a { color: inherit; text-decoration: none; }
+
+        .notebook-page-root a:focus-visible,
+        .notebook-page-root button:focus-visible,
+        .notebook-page-root input:focus-visible {
+          outline: 2px solid var(--nb-margin);
+          outline-offset: 3px;
+        }
+
+        .nb-spine {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 58px;
+          background:
+            radial-gradient(circle at 50% 50%, var(--nb-paper) 0 5px, #c7cfd6 5px 6.5px, transparent 6.5px);
+          background-size: 100% 34px;
+          background-repeat: repeat-y;
+          border-right: 1px solid var(--nb-rule);
+        }
+
+        .nb-margin-rule {
+          position: absolute;
+          top: 0;
+          left: 92px;
+          width: 2px;
+          height: 100%;
+          background: var(--nb-margin);
+          opacity: 0.55;
+          transform-origin: top;
+          animation: nb-grow-line 1s ease-out both;
+        }
+
+        @keyframes nb-grow-line {
+          from { transform: scaleY(0); }
+          to { transform: scaleY(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .nb-margin-rule { animation: none; transform: scaleY(1); }
+        }
+
+        .nb-shell {
+          position: relative;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 4.5rem 1.75rem 5rem 6.5rem;
+        }
+
+        /* ---------- beta tape banner ---------- */
+        .nb-beta-tape {
+          position: relative;
+          background: var(--nb-yellow);
+          border: 1px dashed var(--nb-card-line);
+          padding: 0.75rem 1.25rem;
+          margin-bottom: 2.25rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+          transform: rotate(-0.6deg);
+        }
+
+        .nb-beta-icon {
+          color: var(--nb-margin);
+          flex: none;
+          font-size: 1.1rem;
+        }
+
+        .nb-beta-text {
+          font-size: 0.88rem;
+          color: var(--nb-ink);
+          line-height: 1.45;
+          margin: 0;
+        }
+
+        /* ---------- header ---------- */
+        .nb-tab {
+          display: inline-block;
+          font-family: var(--font-hand), cursive;
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: var(--nb-ink);
+          background: var(--nb-yellow);
+          padding: 0.2rem 0.9rem 0.35rem;
+          transform: rotate(-2.5deg);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+          margin-bottom: 1.4rem;
+        }
+
+        .notebook-page-root h1 {
+          font-weight: 700;
+          font-size: clamp(2.2rem, 4.6vw, 3.1rem);
+          line-height: 1.1;
+          letter-spacing: -0.01em;
+          color: var(--nb-ink);
+        }
+
+        .nb-tagline {
+          font-size: 1.05rem;
+          line-height: 1.75;
+          color: var(--nb-ink-dim);
+          max-width: 68ch;
+          margin-top: 1.2rem;
+        }
+
+        .nb-tagline strong { color: var(--nb-ink); }
+
+        .nb-hero-actions {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-top: 1.75rem;
+        }
+
+        .nb-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          background: var(--nb-ink);
+          color: #ffffff !important;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.92rem;
+          padding: 0.75rem 1.5rem;
+          border: none;
+          cursor: pointer;
+          transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .nb-btn-primary:hover {
+          background: var(--nb-margin);
+          color: #ffffff !important;
+          transform: translateY(-1px);
+        }
+
+        .nb-btn-secondary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          color: var(--nb-ink);
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.92rem;
+          padding: 0.72rem 1.4rem;
+          transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .nb-btn-secondary:hover {
+          border-color: var(--nb-ink);
+          transform: translateY(-1px);
+        }
+
+        /* ---------- section heading ---------- */
+        .nb-section-title {
+          font-weight: 700;
+          font-size: 1.3rem;
+          margin-bottom: 1.4rem;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          color: var(--nb-ink);
+        }
+
+        .nb-section-title::before {
+          content: "";
+          width: 8px;
+          height: 8px;
+          background: var(--nb-margin);
+          border-radius: 50%;
+          flex: none;
+        }
+
+        section { margin-top: 3.5rem; }
+
+        /* ---------- flashcards / steps ---------- */
+        .nb-steps-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1.4rem;
+        }
+
+        .nb-flashcard {
+          position: relative;
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 1.5rem;
+          overflow: hidden;
+          box-shadow: 0 3px 8px rgba(29, 53, 87, 0.05);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .nb-flashcard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(29, 53, 87, 0.08);
+        }
+
+        .nb-flashcard::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 0 18px 18px 0;
+          border-color: transparent var(--nb-paper) transparent transparent;
+          filter: drop-shadow(-1px 1px 1px rgba(0,0,0,0.08));
+        }
+
+        .nb-step-icon {
+          color: var(--nb-margin);
+          font-size: 1.4rem;
+          margin-bottom: 0.9rem;
+          display: flex;
+        }
+
+        .nb-flashcard h3 {
+          font-weight: 700;
+          font-size: 1.05rem;
+          margin-bottom: 0.4rem;
+          color: var(--nb-ink);
+        }
+
+        .nb-flashcard p {
+          font-size: 0.88rem;
+          line-height: 1.6;
+          color: var(--nb-ink-dim);
+          margin: 0;
+        }
+
+        /* ---------- calculator worksheet dossier ---------- */
+        .nb-worksheet {
+          position: relative;
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 2rem;
+          box-shadow: 0 4px 14px rgba(29, 53, 87, 0.06);
+        }
+
+        .nb-worksheet::before {
+          content: "";
+          position: absolute;
+          top: -8px;
+          left: 36px;
+          width: 54px;
+          height: 18px;
+          background: rgba(29, 53, 87, 0.12);
+          transform: rotate(-2deg);
+        }
+
+        .nb-worksheet-desc {
+          font-size: 0.92rem;
+          color: var(--nb-ink-dim);
+          margin-bottom: 1.75rem;
+          line-height: 1.5;
+        }
+
+        .nb-calc-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 2rem;
+        }
+
+        .nb-slider-row { margin-bottom: 1.4rem; }
+
+        .nb-slider-label {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.5rem;
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: var(--nb-ink);
+        }
+
+        .nb-slider-value {
+          font-family: var(--font-hand), cursive;
+          font-size: 1.15rem;
+          color: var(--nb-margin);
+        }
+
+        .nb-slider-row input[type="range"] {
+          width: 100%;
+          cursor: pointer;
+        }
+
+        .nb-report-card {
+          background: var(--nb-paper);
+          border: 1px dashed var(--nb-card-line);
+          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+
+        .nb-report-label {
+          font-size: 0.78rem;
+          color: var(--nb-ink-dim);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .nb-report-tier {
+          font-family: var(--font-hand), cursive;
+          font-size: 1.45rem;
+          color: var(--nb-ink);
+          margin: 0.25rem 0 1rem;
+        }
+
+        .nb-report-tier span {
+          font-family: var(--font-body), sans-serif;
+          font-size: 0.82rem;
+          background: var(--nb-ink);
+          color: #fff;
+          padding: 0.1rem 0.4rem;
+          margin-left: 0.4rem;
+          vertical-align: middle;
+        }
+
+        .nb-report-rows {
+          display: flex;
+          flex-direction: column;
+          gap: 0.55rem;
+          font-size: 0.87rem;
+          border-top: 1px dashed var(--nb-card-line);
+          padding-top: 0.9rem;
+        }
+
+        .nb-report-rows > div { display: flex; justify-content: space-between; }
+        .nb-report-rows span:first-child { color: var(--nb-ink-dim); }
+        .nb-report-rows .nb-commission { color: var(--nb-margin); }
+
+        .nb-earnings-block {
+          margin-top: 1.4rem;
+          padding-top: 1rem;
+          border-top: 1px dashed var(--nb-card-line);
+        }
+
+        .nb-earnings-label {
+          font-size: 0.8rem;
+          color: var(--nb-margin);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .nb-earnings-num {
+          font-family: var(--font-hand), cursive;
+          font-size: clamp(2.2rem, 6vw, 2.7rem);
+          color: var(--nb-ink);
+          margin: 0.1rem 0;
+          line-height: 1.1;
+        }
+
+        .nb-next-tier {
+          font-size: 0.78rem;
+          color: var(--nb-ink-dim);
+          line-height: 1.5;
+        }
+
+        /* ---------- tiers cards ---------- */
+        .nb-tiers-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1.25rem;
+        }
+
+        .nb-tier-card {
+          position: relative;
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 1.5rem 1.25rem;
+          box-shadow: 0 3px 8px rgba(29, 53, 87, 0.05);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .nb-tier-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(29, 53, 87, 0.08);
+        }
+
+        .nb-tier-emoji {
+          font-size: 1.6rem;
+          margin-bottom: 0.5rem;
+          line-height: 1;
+        }
+
+        .nb-tier-card h3 {
+          font-weight: 700;
+          font-size: 1.05rem;
+          margin-bottom: 0.2rem;
+          color: var(--nb-ink);
+        }
+
+        .nb-tier-share {
+          font-family: var(--font-hand), cursive;
+          font-size: 1.5rem;
+          color: var(--nb-margin);
+          margin-bottom: 0.4rem;
+        }
+
+        .nb-tier-card p {
+          font-size: 0.86rem;
+          color: var(--nb-ink-dim);
+          line-height: 1.55;
+          margin: 0;
+        }
+
+        /* ---------- faq accordion (notebook style) ---------- */
+        .nb-faq-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .nb-faq-card {
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          box-shadow: 0 2px 6px rgba(29, 53, 87, 0.04);
+          overflow: hidden;
+        }
+
+        .nb-faq-btn {
+          width: 100%;
+          padding: 1rem 1.25rem;
+          background: transparent;
+          border: none;
+          color: var(--nb-ink);
+          font-weight: 700;
+          font-size: 0.95rem;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          gap: 0.75rem;
+          transition: background 0.15s ease;
+        }
+
+        .nb-faq-btn:hover {
+          background: var(--nb-paper);
+        }
+
+        .nb-faq-btn-label {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .nb-faq-q-mark {
+          flex: none;
+          font-family: var(--font-hand), cursive;
+          font-size: 1.5rem;
+          color: var(--nb-margin);
+          line-height: 1;
+        }
+
+        .nb-faq-chevron {
+          color: var(--nb-ink-dim);
+          flex: none;
+          font-size: 0.85rem;
+        }
+
+        .nb-faq-answer {
+          padding: 0.85rem 1.25rem 1.15rem 2.75rem;
+          font-size: 0.88rem;
+          color: var(--nb-ink-dim);
+          line-height: 1.6;
+          border-top: 1px dashed var(--nb-card-line);
+        }
+
+        /* ---------- cta ticket ---------- */
+        .nb-ticket {
+          position: relative;
+          background: #fff;
+          border: 2px dashed var(--nb-card-line);
+          padding: 2.25rem 2rem;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.9rem;
+        }
+
+        .nb-ticket::before,
+        .nb-ticket::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          width: 24px;
+          height: 24px;
+          background: var(--nb-paper);
+          border-radius: 50%;
+          transform: translateY(-50%);
+        }
+
+        .nb-ticket::before { left: -12px; }
+        .nb-ticket::after { right: -12px; }
+
+        .nb-ticket h2 {
+          font-weight: 700;
+          font-size: 1.3rem;
+          color: var(--nb-ink);
+          margin: 0;
+        }
+
+        .nb-ticket p {
+          font-size: 0.92rem;
+          color: var(--nb-ink-dim);
+          max-width: 480px;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        /* ---------- responsive ---------- */
+        @media (max-width: 760px) {
+          .nb-spine, .nb-margin-rule { display: none; }
+          .nb-shell { padding: 3.25rem 1.25rem 3.5rem; }
+          .nb-steps-grid, .nb-tiers-grid { grid-template-columns: 1fr; }
+          .nb-worksheet { padding: 1.4rem 1.15rem; }
+          .nb-calc-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+          .nb-faq-answer { padding: 0.85rem 1.15rem 1.1rem 1.15rem; }
+          .nb-hero-actions { width: 100%; flex-direction: column; }
+          .nb-btn-primary, .nb-btn-secondary { width: 100%; justify-content: center; }
+          .nb-ticket button { width: 100%; justify-content: center; }
+        }
+      `}</style>
+
+      {/* Decorative spine & red margin rule */}
+      <div className="nb-spine" aria-hidden="true" />
+      <div className="nb-margin-rule" aria-hidden="true" />
+
+      <div className="nb-shell">
+        {/* Beta Notice Tape */}
+        <div className="nb-beta-tape">
+          <FaFlask className="nb-beta-icon" aria-hidden="true" />
+          <p className="nb-beta-text">
+            The Contributor Program is in <strong>Beta</strong>, but fully functional! Note uploads, quality reviews, and UPI payouts are <strong>100% operational</strong>.
+          </p>
         </div>
-      </div>
 
-      <div className="contrib-page-container">
-        <style>{`
-          .contrib-beta-container {
-            padding: 0 1.5rem;
-          }
-          .contrib-page-container {
-            padding: 1.5rem 1rem 5rem 1rem;
-            font-family: inherit;
-          }
-          .contrib-main-wrapper {
-            max-width: 1100px;
-            margin: 0 auto;
-          }
-          .contrib-hero-card {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 24px;
-            padding: 3rem 2rem;
-            text-align: center;
-            margin-bottom: 3rem;
-            box-shadow: 0 20px 50px -15px rgba(0,0,0,0.6);
-            position: relative;
-            overflow: hidden;
-          }
-          .contrib-hero-title {
-            font-size: clamp(1.65rem, 5vw, 3.2rem);
-            font-weight: 900;
-            line-height: 1.18;
-            margin: 0 0 1.25rem 0;
-            background: linear-gradient(135deg, #ffffff 30%, var(--accent, #f59e0b) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-          .contrib-hero-subtitle {
-            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
-            color: var(--text-secondary, #9ca3af);
-            max-width: 750px;
-            margin: 0 auto 2rem auto;
-            line-height: 1.6;
-          }
-          .contrib-hero-btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-          }
-          .contrib-section-margin {
-            margin-bottom: 4rem;
-          }
-          .contrib-section-header {
-            text-align: center;
-            margin-bottom: 2rem;
-          }
-          .contrib-section-title {
-            font-size: clamp(1.35rem, 4.5vw, 1.8rem);
-            font-weight: 800;
-            margin: 0 0 0.5rem 0;
-          }
-          .contrib-section-sub {
-            color: var(--text-secondary);
-            font-size: clamp(0.85rem, 3vw, 0.95rem);
-          }
-          .contrib-calc-box {
-            background-color: rgba(0, 0, 0, 0.35);
-            border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 4rem;
-          }
-          .contrib-calc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 2rem;
-          }
-          .contrib-calc-output {
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 16px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-          }
-          .contrib-card-padding {
-            padding: 1.5rem;
-          }
-          .contrib-faq-answer {
-            padding: 0 1.3rem 1.1rem 2.6rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            border-top: 1px dashed rgba(255,255,255,0.06);
-            padding-top: 0.85rem;
-          }
-          .contrib-cta-box {
-            background-color: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 20px;
-            padding: 2.5rem 2rem;
-            text-align: center;
-          }
-
-          /* Mobile Breakpoints (< 640px) */
-          @media (max-width: 640px) {
-            .contrib-beta-inner {
-              padding: 0.55rem 0.85rem !important;
-            }
-            .contrib-page-container {
-              padding: 1rem 0.75rem 3.5rem 0.75rem !important;
-            }
-            .contrib-hero-card {
-              padding: 1.75rem 1rem !important;
-              border-radius: 18px !important;
-              margin-bottom: 2rem !important;
-            }
-            .contrib-hero-btn-group {
-              flex-direction: column !important;
-              width: 100% !important;
-            }
-            .contrib-hero-btn-group > button,
-            .contrib-hero-btn-group > a {
-              width: 100% !important;
-              justify-content: center !important;
-            }
-            .contrib-section-margin {
-              margin-bottom: 2.5rem !important;
-            }
-            .contrib-section-header {
-              margin-bottom: 1.25rem !important;
-            }
-            .contrib-card-padding {
-              padding: 1.15rem 0.85rem !important;
-              border-radius: 14px !important;
-            }
-            .contrib-calc-box {
-              padding: 1.15rem 0.85rem !important;
-              border-radius: 16px !important;
-              margin-bottom: 2.5rem !important;
-            }
-            .contrib-calc-grid {
-              gap: 1.25rem !important;
-            }
-            .contrib-calc-output {
-              padding: 1.15rem 0.85rem !important;
-            }
-            .contrib-faq-answer {
-              padding: 0.65rem 0.85rem 1rem 0.85rem !important;
-            }
-            .contrib-cta-box {
-              padding: 1.5rem 1rem !important;
-              border-radius: 16px !important;
-            }
-            .contrib-cta-box > button {
-              width: 100% !important;
-              justify-content: center !important;
-            }
-          }
-        `}</style>
-        <div className="contrib-main-wrapper">
-          
-        {/* ── 1. HERO SECTION ────────────────────────────────────────────── */}
-        <section className="contrib-hero-card">
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            backgroundColor: "rgba(245, 158, 11, 0.2)",
-            color: "var(--accent, #f59e0b)",
-            border: "1px solid rgba(245, 158, 11, 0.4)",
-            borderRadius: "30px",
-            padding: "0.35rem 1rem",
-            fontSize: "0.825rem",
-            fontWeight: 700,
-            marginBottom: "1.25rem"
-          }}>
-            💰 Contribution Service Program
-          </div>
-
-          <h1 className="contrib-hero-title">
-            Monetize Your University Notes &amp; Empower Peers
-          </h1>
-
-          <p className="contrib-hero-subtitle">
+        {/* Hero Header (Left-aligned matching About, Careers, Contact, Projects) */}
+        <header id="contribute-header">
+          <span className="nb-tab">💰 Contribution service program</span>
+          <h1>Monetize your university notes &amp; empower peers</h1>
+          <p className="nb-tagline">
             Turn your semester revision guides into a continuous passive income stream. Earn up to <strong>90% revenue share</strong> with direct payouts straight to your UPI account!
           </p>
-
-          <div className="contrib-hero-btn-group">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.6rem",
-                backgroundColor: "var(--accent, #f59e0b)",
-                color: "#000",
-                fontWeight: 800,
-                fontSize: "1rem",
-                padding: "0.85rem 1.8rem",
-                borderRadius: "12px",
-                border: "none",
-                cursor: "pointer",
-                boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)"
-              }}
-            >
-              <FaCloudArrowUp style={{ fontSize: "1.2rem" }} /> Submit Note Now
+          <div className="nb-hero-actions">
+            <button className="nb-btn-primary" onClick={() => setIsModalOpen(true)}>
+              <FaCloudArrowUp /> Submit note now
             </button>
-            <a
-              href="#calculator"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                backgroundColor: "rgba(255, 255, 255, 0.08)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                color: "var(--text-primary)",
-                fontWeight: 700,
-                fontSize: "1rem",
-                padding: "0.85rem 1.6rem",
-                borderRadius: "12px",
-                textDecoration: "none"
-              }}
-            >
-              <FaCalculator /> Calculate Earnings
+            <a className="nb-btn-secondary" href="#calculator">
+              <FaCalculator /> Calculate earnings
             </a>
           </div>
-        </section>
+        </header>
 
-        {/* ── 2. STEP-BY-STEP WORKFLOW ────────────────────────────────────── */}
-        <section className="contrib-section-margin">
-          <div className="contrib-section-header">
-            <h2 className="contrib-section-title">How It Works in 4 Simple Steps</h2>
-            <p className="contrib-section-sub">A transparent process from note upload to instant UPI earnings</p>
-          </div>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "1.25rem"
-          }}>
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px",
-              position: "relative"
-            }}>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(245, 158, 11, 0.15)",
-                color: "var(--accent, #f59e0b)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.4rem",
-                marginBottom: "1rem"
-              }}>
-                <FaCloudArrowUp />
+        {/* 4 Steps Section */}
+        <section id="contribute-steps-section">
+          <h2 className="nb-section-title">How it works in 4 simple steps</h2>
+          <div className="nb-steps-grid">
+            {steps.map((step, i) => (
+              <div className="nb-flashcard" key={i}>
+                <div className="nb-step-icon">{step.icon}</div>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
               </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: "0 0 0.5rem" }}>1. Upload PDF</h3>
-              <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-                Select your University, Branch, Semester, upload your PDF (≤5MB), and set a price from ₹0 to ₹99.
-              </p>
-            </div>
-
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px"
-            }}>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(59, 130, 246, 0.15)",
-                color: "#3b82f6",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.4rem",
-                marginBottom: "1rem"
-              }}>
-                <FaShieldHalved />
-              </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: "0 0 0.5rem" }}>2. Quality Review</h3>
-              <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-                Admins verify note accuracy, legibility, and subject alignment within 12–24 hours.
-              </p>
-            </div>
-
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px"
-            }}>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(168, 85, 247, 0.15)",
-                color: "#c084fc",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.4rem",
-                marginBottom: "1rem"
-              }}>
-                <FaRocket />
-              </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: "0 0 0.5rem" }}>3. Go Live</h3>
-              <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-                Your note is published on the marketplace with your profile link (<span style={{ color: "#c084fc" }}>@username</span>) &amp; badge.
-              </p>
-            </div>
-
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-              borderRadius: "16px"
-            }}>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(34, 197, 94, 0.15)",
-                color: "#22c55e",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.4rem",
-                marginBottom: "1rem"
-              }}>
-                <FaMoneyBillWave />
-              </div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: "0 0 0.5rem" }}>4. Direct UPI Payout</h3>
-              <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-                Collect your 70%–90% revenue share in your dashboard and request UPI payouts (min ₹100).
-              </p>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* ── 3. INTERACTIVE EARNINGS CALCULATOR ──────────────────────────── */}
-        <section id="calculator" className="contrib-calc-box">
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
-            <div style={{
-              backgroundColor: "rgba(245, 158, 11, 0.15)",
-              color: "var(--accent, #f59e0b)",
-              padding: "0.6rem",
-              borderRadius: "10px",
-              fontSize: "1.2rem",
-              flexShrink: 0
-            }}>
-              <FaCalculator />
-            </div>
-            <div>
-              <h2 className="contrib-section-title" style={{ fontSize: "clamp(1.2rem, 4vw, 1.4rem)" }}>Interactive Earnings Calculator</h2>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: "0.2rem 0 0" }}>
-                Estimate how much you can earn based on your uploaded notes and unlocks
-              </p>
-            </div>
-          </div>
+        {/* Calculator Section */}
+        <section id="calculator">
+          <h2 className="nb-section-title">Interactive earnings calculator</h2>
+          <div className="nb-worksheet">
+            <p className="nb-worksheet-desc">Estimate how much you can earn based on your uploaded notes and expected student unlocks.</p>
 
-          <div className="contrib-calc-grid">
-            {/* Input Controls */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div className="nb-calc-grid">
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
-                  <span>Number of Approved Notes</span>
-                  <span style={{ color: "var(--accent)" }}>{numNotes} {numNotes === 1 ? "Note" : "Notes"}</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="15"
-                  value={numNotes}
-                  onChange={(e) => setNumNotes(Number(e.target.value))}
-                  style={{ width: "100%", accentColor: "var(--accent, #f59e0b)", cursor: "pointer" }}
-                />
-              </div>
-
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
-                  <span>Average Price per Note (₹)</span>
-                  <span style={{ color: "var(--accent)" }}>₹{pricePerNote}</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="99"
-                  step="5"
-                  value={pricePerNote}
-                  onChange={(e) => setPricePerNote(Number(e.target.value))}
-                  style={{ width: "100%", accentColor: "var(--accent, #f59e0b)", cursor: "pointer" }}
-                />
-              </div>
-
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
-                  <span>Expected Unlocks / Sales per Note</span>
-                  <span style={{ color: "var(--accent)" }}>{salesPerNote} Unlocks</span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="150"
-                  step="5"
-                  value={salesPerNote}
-                  onChange={(e) => setSalesPerNote(Number(e.target.value))}
-                  style={{ width: "100%", accentColor: "var(--accent, #f59e0b)", cursor: "pointer" }}
-                />
-              </div>
-            </div>
-
-            {/* Calculated Output Card */}
-            <div className="contrib-calc-output">
-              <div>
-                <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>
-                  Estimated Contributor Tier
-                </div>
-                <div style={{ fontSize: "clamp(1.1rem, 4vw, 1.3rem)", fontWeight: 800, color: "var(--accent)", margin: "0.25rem 0 1rem 0" }}>
-                  {badgeTierLabel} <span style={{ fontSize: "0.9rem", color: "#22c55e", fontWeight: 700 }}>({(shareRate * 100).toFixed(0)}% Share)</span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", fontSize: "0.875rem", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Total Sales Count:</span>
-                    <strong>{totalSalesCount} Unlocks</strong>
+                <div className="nb-slider-row">
+                  <div className="nb-slider-label">
+                    <span>Number of approved notes</span>
+                    <span className="nb-slider-value">{numNotes} {numNotes === 1 ? "note" : "notes"}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Gross Note Sales:</span>
-                    <strong>₹{grossRevenue.toLocaleString("en-IN")}</strong>
+                  <input
+                    type="range"
+                    min="1"
+                    max="15"
+                    value={numNotes}
+                    onChange={(e) => setNumNotes(Number(e.target.value))}
+                    style={{ accentColor: "var(--nb-ink)" }}
+                  />
+                </div>
+
+                <div className="nb-slider-row">
+                  <div className="nb-slider-label">
+                    <span>Average price per note (₹)</span>
+                    <span className="nb-slider-value">₹{pricePerNote}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Platform Commission Rate:</span>
-                    <strong style={{ color: "#ef4444" }}>{(commissionRate * 100).toFixed(0)}%</strong>
+                  <input
+                    type="range"
+                    min="10"
+                    max="99"
+                    step="5"
+                    value={pricePerNote}
+                    onChange={(e) => setPricePerNote(Number(e.target.value))}
+                    style={{ accentColor: "var(--nb-ink)" }}
+                  />
+                </div>
+
+                <div className="nb-slider-row">
+                  <div className="nb-slider-label">
+                    <span>Expected unlocks / sales per note</span>
+                    <span className="nb-slider-value">{salesPerNote} unlocks</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="150"
+                    step="5"
+                    value={salesPerNote}
+                    onChange={(e) => setSalesPerNote(Number(e.target.value))}
+                    style={{ accentColor: "var(--nb-ink)" }}
+                  />
+                </div>
+              </div>
+
+              <div className="nb-report-card">
+                <div>
+                  <div className="nb-report-label">Estimated contributor tier</div>
+                  <div className="nb-report-tier">
+                    {badgeTierLabel} <span>{(shareRate * 100).toFixed(0)}% share</span>
+                  </div>
+
+                  <div className="nb-report-rows">
+                    <div><span>Total sales count:</span> <strong>{totalSalesCount} unlocks</strong></div>
+                    <div><span>Gross note sales:</span> <strong>₹{grossRevenue.toLocaleString("en-IN")}</strong></div>
+                    <div><span>Platform commission rate:</span> <strong className="nb-commission">{(commissionRate * 100).toFixed(0)}%</strong></div>
                   </div>
                 </div>
-              </div>
 
-              <div style={{ marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                <div style={{ fontSize: "0.825rem", color: "#22c55e", fontWeight: 700 }}>Your Net Contributor Earnings</div>
-                <div style={{ fontSize: "clamp(1.75rem, 6vw, 2.2rem)", fontWeight: 900, color: "#22c55e", margin: "0.2rem 0" }}>
-                  ₹{netEarnings.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
-                  💡 {nextTierGoal}
+                <div className="nb-earnings-block">
+                  <div className="nb-earnings-label">Your net contributor earnings</div>
+                  <div className="nb-earnings-num">₹{netEarnings.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</div>
+                  <div className="nb-next-tier">💡 {nextTierGoal}</div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── 4. GAMIFIED BADGE TIERS ─────────────────────────────────────── */}
-        <section className="contrib-section-margin">
-          <div className="contrib-section-header">
-            <h2 className="contrib-section-title">Contributor Badge Tiers &amp; Revenue Splits</h2>
-            <p className="contrib-section-sub">The more quality notes you contribute, the higher your revenue split becomes!</p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(34, 197, 94, 0.05)",
-              border: "1px solid rgba(34, 197, 94, 0.25)",
-              borderRadius: "16px"
-            }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>🎓</div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#22c55e", margin: "0 0 0.25rem" }}>Verified Contributor</h3>
-              <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem" }}>70% Share</div>
-              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", margin: 0 }}>
-                Initial tier upon your first approved note submission.
-              </p>
-            </div>
-
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(59, 130, 246, 0.05)",
-              border: "1px solid rgba(59, 130, 246, 0.25)",
-              borderRadius: "16px"
-            }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>⚡</div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#3b82f6", margin: "0 0 0.25rem" }}>Rising Scholar</h3>
-              <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem" }}>75% Share</div>
-              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", margin: 0 }}>
-                Unlocked at <strong>3+ Approved Notes</strong> AND <strong>25+ Purchases</strong>.
-              </p>
-            </div>
-
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(245, 158, 11, 0.05)",
-              border: "1px solid rgba(245, 158, 11, 0.25)",
-              borderRadius: "16px"
-            }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>🌟</div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#f59e0b", margin: "0 0 0.25rem" }}>Top Author</h3>
-              <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem" }}>82% Share</div>
-              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", margin: 0 }}>
-                Unlocked at <strong>5+ Approved Notes</strong> AND <strong>50+ Purchases</strong>.
-              </p>
-            </div>
-
-            <div className="contrib-card-padding" style={{
-              backgroundColor: "rgba(236, 72, 153, 0.05)",
-              border: "1px solid rgba(236, 72, 153, 0.25)",
-              borderRadius: "16px"
-            }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>👑</div>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#ec4899", margin: "0 0 0.25rem" }}>Legend Author</h3>
-              <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem" }}>90% Share</div>
-              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", margin: 0 }}>
-                Unlocked at <strong>10+ Approved Notes</strong> AND <strong>100+ Purchases</strong>.
-              </p>
-            </div>
+        {/* Tiers Section */}
+        <section id="contribute-tiers-section">
+          <h2 className="nb-section-title">Contributor badge tiers &amp; revenue splits</h2>
+          <div className="nb-tiers-grid">
+            {tiers.map((tier, i) => (
+              <div className="nb-tier-card" key={i}>
+                <div className="nb-tier-emoji">{tier.emoji}</div>
+                <h3>{tier.name}</h3>
+                <div className="nb-tier-share">{tier.share}</div>
+                <p>{tier.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* ── 5. FAQ ACCORDION ───────────────────────────────────────────── */}
-        <section className="contrib-section-margin">
-          <div className="contrib-section-header">
-            <h2 className="contrib-section-title">Frequently Asked Questions</h2>
-            <p className="contrib-section-sub">Everything you need to know about contributing notes</p>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", maxWidth: "850px", margin: "0 auto" }}>
+        {/* FAQs */}
+        <section id="contribute-faq-section">
+          <h2 className="nb-section-title">Frequently asked questions</h2>
+          <div className="nb-faq-list">
             {faqs.map((faq, index) => {
               const isOpen = openFaqIndex === index;
               return (
-                <div
-                  key={faq.q}
-                  style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-                    borderRadius: "12px",
-                    overflow: "hidden"
-                  }}
-                >
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    style={{
-                      width: "100%",
-                      padding: "1rem 1.15rem",
-                      backgroundColor: "transparent",
-                      border: "none",
-                      color: "var(--text-primary)",
-                      fontWeight: 700,
-                      fontSize: "clamp(0.85rem, 3.2vw, 0.95rem)",
-                      textAlign: "left",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      cursor: "pointer",
-                      gap: "0.75rem"
-                    }}
-                  >
-                    <span style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                      <FaCircleQuestion style={{ color: "var(--accent)", flexShrink: 0 }} /> {faq.q}
+                <div className="nb-faq-card" key={faq.q}>
+                  <button className="nb-faq-btn" onClick={() => setOpenFaqIndex(isOpen ? null : index)}>
+                    <span className="nb-faq-btn-label">
+                      <span className="nb-faq-q-mark" aria-hidden="true">Q</span>
+                      <span>{faq.q}</span>
                     </span>
-                    {isOpen ? <FaChevronUp style={{ fontSize: "0.8rem", flexShrink: 0 }} /> : <FaChevronDown style={{ fontSize: "0.8rem", flexShrink: 0 }} />}
+                    {isOpen ? <FaChevronUp className="nb-faq-chevron" /> : <FaChevronDown className="nb-faq-chevron" />}
                   </button>
-
-                  {isOpen && (
-                    <div className="contrib-faq-answer">
-                      {faq.a}
-                    </div>
-                  )}
+                  {isOpen && <div className="nb-faq-answer">{faq.a}</div>}
                 </div>
               );
             })}
           </div>
         </section>
 
-        {/* ── 6. BOTTOM CTA BOX ───────────────────────────────────────────── */}
-        <section className="contrib-cta-box">
-          <h2 className="contrib-section-title" style={{ fontSize: "clamp(1.3rem, 5vw, 1.6rem)" }}>Ready to Share Your Notes &amp; Earn?</h2>
-          <p style={{ color: "var(--text-secondary)", maxWidth: "600px", margin: "0 auto 1.5rem auto", fontSize: "0.95rem", lineHeight: 1.5 }}>
-            Join hundreds of university contributors turning study guides into income. Submit your first PDF note in under 2 minutes.
-          </p>
-
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              backgroundColor: "var(--accent, #f59e0b)",
-              color: "#000",
-              fontWeight: 800,
-              fontSize: "1rem",
-              padding: "0.85rem 2rem",
-              borderRadius: "12px",
-              border: "none",
-              cursor: "pointer",
-              boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.4)"
-            }}
-          >
-            <FaCloudArrowUp style={{ fontSize: "1.2rem" }} /> Upload Your First Note
-          </button>
+        {/* Ticket CTA */}
+        <section id="contribute-cta-section">
+          <div className="nb-ticket">
+            <h2>Ready to share your notes &amp; earn?</h2>
+            <p>Join hundreds of university contributors turning study guides into income. Submit your first PDF note in under 2 minutes.</p>
+            <button className="nb-btn-primary" onClick={() => setIsModalOpen(true)}>
+              <FaCloudArrowUp /> Upload your first note
+            </button>
+          </div>
         </section>
 
-        {/* Modal Instance */}
         <ContributeModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />
-
       </div>
     </div>
-  </div>
-);
+  );
 }

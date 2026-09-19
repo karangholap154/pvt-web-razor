@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FaXmark } from "react-icons/fa6";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -24,6 +25,7 @@ export default function AskQuestionModal({
   defaultSemester = "Semester 1",
 }: AskQuestionModalProps) {
   const toast = useToast();
+  const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [branch, setBranch] = useState(defaultBranch);
@@ -34,6 +36,20 @@ export default function AskQuestionModal({
 
   // Available notes for dropdown
   const [availableNotes, setAvailableNotes] = useState<{ id: string; title: string }[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && userUniversity) {
@@ -48,7 +64,7 @@ export default function AskQuestionModal({
     }
   }, [isOpen, userUniversity]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,23 +123,23 @@ export default function AskQuestionModal({
     }
   };
 
-  return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+  const modalElement = (
+    <div className={styles.modalOverlay} onClick={onClose} role="dialog" aria-modal="true">
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>Ask a Doubt / Start Discussion 💬</h2>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal" type="button">
             <FaXmark />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Question Title *</label>
             <input
               type="text"
               className={styles.formInput}
-              placeholder="e.g., How to solve Page 12 Differential Equation in Data Structures?"
+              placeholder="e.g. How to solve Page 12 Differential Equation?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -133,7 +149,7 @@ export default function AskQuestionModal({
           <div className={styles.formGridTwoCol}>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Branch *</label>
-              <BranchSelect value={branch} onChange={setBranch} required />
+              <BranchSelect value={branch} onChange={setBranch} required className={styles.notebookBranchSelect} />
             </div>
 
             <div className={styles.formGroup}>
@@ -155,58 +171,53 @@ export default function AskQuestionModal({
             <label className={styles.formLabel}>Doubt Details & Context (Text / Code) *</label>
             <textarea
               className={styles.formTextarea}
-              placeholder="Explain what concept or question you are stuck on. You can paste code snippets or math formulas..."
+              rows={3}
+              placeholder="Explain what concept or question you are stuck on. Paste code snippets or math formulas..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Link a Note from Library (Optional)</label>
-            <select
-              className={styles.formSelect}
-              value={selectedNoteId}
-              onChange={(e) => setSelectedNoteId(e.target.value)}
-            >
-              <option value="">-- No Note Linked --</option>
-              {availableNotes.map((n) => (
-                <option key={n.id} value={n.id}>
-                  📄 {n.title}
-                </option>
-              ))}
-            </select>
+          <div className={styles.formGridTwoCol}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Link a Note (Optional)</label>
+              <select
+                className={styles.formSelect}
+                value={selectedNoteId}
+                onChange={(e) => setSelectedNoteId(e.target.value)}
+              >
+                <option value="">-- No Note Linked --</option>
+                {availableNotes.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    📄 {n.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Tags (Optional)</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="e.g. pyq, exam, math"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Tags (Comma separated, optional)</label>
-            <input
-              type="text"
-              className={styles.formInput}
-              placeholder="e.g. pyq, exam, math, lab"
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "0.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.65rem", marginTop: "0.35rem" }}>
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: "0.65rem 1.25rem",
-                background: "transparent",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: "8px",
-                color: "#94a3b8",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
+              className={styles.modalCancelBtn}
             >
               Cancel
             </button>
 
-            <button type="submit" className={styles.btnPrimary} disabled={isSubmitting}>
+            <button type="submit" className={styles.btnPrimary} disabled={isSubmitting} style={{ padding: "0.5rem 1.25rem", fontSize: "0.88rem" }}>
               {isSubmitting ? "Posting..." : "Post Discussion"}
             </button>
           </div>
@@ -214,4 +225,6 @@ export default function AskQuestionModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalElement, document.body) : null;
 }

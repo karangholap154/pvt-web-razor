@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
+import { Work_Sans, Caveat } from "next/font/google";
 import { supabaseAdmin } from "../../utils/supabaseAdmin";
 
 export const revalidate = 3600; // Cache static page for 1 hour with ISR revalidation
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+});
 
 export const metadata: Metadata = {
   title: "Engineering Micro & Mini Projects with Source Code | Private Academy",
@@ -32,7 +45,7 @@ interface Project {
 
 export default async function ProjectsPage() {
   let projects: Project[] = [];
-  
+
   try {
     const { data, error } = await supabaseAdmin
       .from("projects")
@@ -48,7 +61,7 @@ export default async function ProjectsPage() {
         branch: item.branch || "Information Technology",
         techStack: item.tech_stack || [],
         description: item.description || "",
-        githubUrl: item.github_url || ""
+        githubUrl: item.github_url || "",
       }));
     }
   } catch (err) {
@@ -69,414 +82,659 @@ export default async function ProjectsPage() {
         "name": proj.title,
         "description": proj.description,
         "programmingLanguage": proj.techStack.join(", "),
-        "codeRepository": proj.githubUrl
-      }
-    }))
+        "codeRepository": proj.githubUrl,
+      },
+    })),
   };
 
   return (
-    <div className="projects-page-root" style={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: "4rem 1.5rem", display: "flex", flexDirection: "column", gap: "4rem" }}>
+    <div className={`${workSans.variable} ${caveat.variable} notebook-page-root`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
       <style>{`
-        @keyframes floatIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade {
-          animation: floatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .stat-card {
-          transition: all 0.3s ease;
-          border: 1px solid var(--border);
-          background: rgba(24, 24, 27, 0.2);
-        }
-        .stat-card:hover {
-          transform: translateY(-4px);
-          border-color: var(--accent);
-          background: rgba(251, 191, 36, 0.05);
-          box-shadow: 0 10px 20px -10px rgba(251, 191, 36, 0.3);
-        }
-        .info-card {
-          border: 1px solid var(--border);
-          background: rgba(24, 24, 27, 0.15);
-          border-radius: var(--radius);
-        }
-        .focus-badge {
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--text-secondary);
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--border);
-          padding: 0.5rem 1.15rem;
-          border-radius: 999px;
-          transition: var(--transition);
-        }
-        .focus-badge:hover {
-          background: var(--accent-light);
-          border-color: var(--accent);
-          color: var(--text-primary);
-          transform: translateY(-1px);
-        }
-        .step-card {
-          border: 1px solid var(--border);
-          background: rgba(24, 24, 27, 0.15);
+        .notebook-page-root {
+          --nb-paper: #fbfaf4;
+          --nb-rule: #dbe6ef;
+          --nb-margin: #c94f4f;
+          --nb-ink: #1d3557;
+          --nb-ink-dim: #5c7089;
+          --nb-yellow: #ffe98a;
+          --nb-mint: #bfe3d0;
+          --nb-pink: #f6c9d3;
+          --nb-card-line: #d9d2bd;
+
           position: relative;
-          transition: all 0.3s ease;
-        }
-        .step-card:hover {
-          transform: translateY(-3px);
-          border-color: var(--accent);
-        }
-        .step-num {
-          position: absolute;
-          top: -12px;
-          left: 20px;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: var(--accent);
-          color: #09090b;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 800;
-          font-size: 0.85rem;
-          box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
-        }
-        .project-card {
-          background-color: var(--card-bg);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          padding: 1.75rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1.25rem;
-          transition: var(--transition);
-          box-shadow: var(--shadow);
-          justify-content: space-between;
-        }
-        .project-card:hover {
-          transform: translateY(-4px);
-          border-color: var(--accent);
-          box-shadow: 0 12px 20px -10px rgba(251, 191, 36, 0.3);
-        }
-        .project-tech-tag {
-          font-size: 0.725rem;
-          background-color: var(--accent-light);
-          border: 1px solid rgba(251, 191, 36, 0.2);
-          color: var(--accent);
-          padding: 0.15rem 0.45rem;
-          border-radius: 4px;
-          font-weight: 600;
-        }
-        .preview-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          background-color: rgba(255, 255, 255, 0.03);
-          color: var(--text-primary);
-          border: 1px solid var(--border);
-          font-weight: 600;
-          padding: 0.65rem 1.25rem;
-          border-radius: var(--radius-sm);
-          font-size: 0.85rem;
-          transition: var(--transition);
-          cursor: pointer;
-          text-align: center;
           width: 100%;
-        }
-        .preview-btn:hover {
-          background-color: var(--text-primary);
-          color: var(--background);
-          transform: translateY(-1px);
-        }
-        .contact-cta {
-          border: 1px solid var(--border);
-          background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 146, 60, 0.05) 100%);
-          position: relative;
+          background:
+            repeating-linear-gradient(to bottom, transparent 0 31px, var(--nb-rule) 31px 32px),
+            var(--nb-paper);
+          color: var(--nb-ink);
+          font-family: var(--font-body), sans-serif;
           overflow: hidden;
         }
-        .contact-cta::before {
-          content: "";
+
+        .notebook-page-root a { color: inherit; }
+
+        .notebook-page-root a:focus-visible,
+        .notebook-page-root button:focus-visible {
+          outline: 2px solid var(--nb-margin);
+          outline-offset: 3px;
+        }
+
+        .nb-spine {
           position: absolute;
           top: 0;
+          bottom: 0;
           left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, var(--accent), #fb923c);
+          width: 58px;
+          background:
+            radial-gradient(circle at 50% 50%, var(--nb-paper) 0 5px, #c7cfd6 5px 6.5px, transparent 6.5px);
+          background-size: 100% 34px;
+          background-repeat: repeat-y;
+          border-right: 1px solid var(--nb-rule);
         }
-        .contact-btn {
+
+        .nb-margin-rule {
+          position: absolute;
+          top: 0;
+          left: 92px;
+          width: 2px;
+          height: 100%;
+          background: var(--nb-margin);
+          opacity: 0.55;
+          transform-origin: top;
+          animation: nb-grow-line 1s ease-out both;
+        }
+
+        @keyframes nb-grow-line {
+          from { transform: scaleY(0); }
+          to { transform: scaleY(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .nb-margin-rule { animation: none; transform: scaleY(1); }
+        }
+
+        .nb-shell {
+          position: relative;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 4.5rem 1.75rem 5rem 6.5rem;
+        }
+
+        /* ---------- header ---------- */
+        .nb-tab {
+          display: inline-block;
+          font-family: var(--font-hand), cursive;
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: var(--nb-ink);
+          background: var(--nb-yellow);
+          padding: 0.2rem 0.9rem 0.35rem;
+          transform: rotate(-2.5deg);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+          margin-bottom: 1.4rem;
+        }
+
+        .notebook-page-root h1 {
+          font-weight: 700;
+          font-size: clamp(2.2rem, 4.6vw, 3.1rem);
+          line-height: 1.1;
+          letter-spacing: -0.01em;
+          color: var(--nb-ink);
+        }
+
+        .nb-tagline {
+          font-size: 1.05rem;
+          line-height: 1.75;
+          color: var(--nb-ink-dim);
+          max-width: 68ch;
+          margin-top: 1.2rem;
+        }
+
+        .nb-tagline strong { color: var(--nb-ink); }
+
+        /* ---------- section heading ---------- */
+        .nb-section-title {
+          font-weight: 700;
+          font-size: 1.3rem;
+          margin-bottom: 1.4rem;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          color: var(--nb-ink);
+        }
+
+        .nb-section-title::before {
+          content: "";
+          width: 8px;
+          height: 8px;
+          background: var(--nb-margin);
+          border-radius: 50%;
+          flex: none;
+        }
+
+        section { margin-top: 3.5rem; }
+
+        /* ---------- stats ---------- */
+        .nb-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .nb-stat-card {
+          position: relative;
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 1.5rem 1.25rem 1.25rem;
+          text-align: center;
+          box-shadow: 0 3px 8px rgba(29, 53, 87, 0.06);
+        }
+
+        .nb-stat-card:nth-child(odd) { transform: rotate(-1.2deg); }
+        .nb-stat-card:nth-child(even) { transform: rotate(1.2deg); }
+
+        .nb-stat-card::before {
+          content: "";
+          position: absolute;
+          top: -0.5rem;
+          left: 50%;
+          transform: translateX(-50%) rotate(-3deg);
+          width: 46px;
+          height: 16px;
+          background: rgba(29, 53, 87, 0.1);
+        }
+
+        .nb-stat-num {
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--nb-ink);
+        }
+
+        .nb-stat-label {
+          font-family: var(--font-hand), cursive;
+          font-size: 1.15rem;
+          color: var(--nb-ink-dim);
+          margin-top: 0.15rem;
+        }
+
+        /* ---------- 2-column info & focus areas ---------- */
+        .nb-split-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 2rem;
+          margin-top: 3.5rem;
+        }
+
+        .nb-offers-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .nb-offer-card {
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 0.95rem 1.15rem;
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          box-shadow: 0 2px 6px rgba(29, 53, 87, 0.04);
+        }
+
+        .nb-offer-check {
+          color: var(--nb-margin);
+          font-weight: 700;
+          font-size: 1rem;
+          line-height: 1;
+          margin-top: 0.1rem;
+        }
+
+        .nb-offer-text {
+          font-size: 0.9rem;
+          line-height: 1.5;
+          color: var(--nb-ink-dim);
+        }
+
+        .nb-focus-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.65rem;
+          align-content: flex-start;
+        }
+
+        .nb-focus-pill {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: var(--nb-ink);
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 0.45rem 0.9rem;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+          transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .nb-focus-pill:hover {
+          background: var(--nb-yellow);
+          border-color: var(--nb-ink);
+          transform: translateY(-1px);
+        }
+
+        /* ---------- 3-step guide ---------- */
+        .nb-steps-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1.4rem;
+        }
+
+        .nb-step-card {
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 1.6rem 1.4rem;
+          position: relative;
+          box-shadow: 0 3px 8px rgba(29, 53, 87, 0.05);
+        }
+
+        .nb-step-num {
+          font-family: var(--font-hand), cursive;
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: var(--nb-margin);
+          line-height: 1;
+          margin-bottom: 0.4rem;
+        }
+
+        .nb-step-title {
+          font-weight: 700;
+          font-size: 1.08rem;
+          margin-bottom: 0.4rem;
+          color: var(--nb-ink);
+        }
+
+        .nb-step-desc {
+          font-size: 0.88rem;
+          line-height: 1.6;
+          color: var(--nb-ink-dim);
+        }
+
+        /* ---------- project cards grid ---------- */
+        .nb-projects-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .nb-project-card {
+          position: relative;
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          padding: 1.6rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 1.25rem;
+          box-shadow: 0 3px 10px rgba(29, 53, 87, 0.05);
+          transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .nb-project-card:hover {
+          transform: translateY(-3px);
+          border-color: var(--nb-ink);
+          box-shadow: 0 8px 18px rgba(29, 53, 87, 0.09);
+        }
+
+        .nb-project-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.45rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .nb-project-tag {
+          font-size: 0.75rem;
+          font-weight: 600;
+          background: var(--nb-paper);
+          border: 1px solid var(--nb-card-line);
+          padding: 0.15rem 0.5rem;
+          color: var(--nb-ink-dim);
+        }
+
+        .nb-project-title {
+          font-size: 1.18rem;
+          font-weight: 700;
+          color: var(--nb-ink);
+          margin-bottom: 0.45rem;
+          line-height: 1.3;
+        }
+
+        .nb-project-desc {
+          font-size: 0.88rem;
+          color: var(--nb-ink-dim);
+          line-height: 1.6;
+        }
+
+        .notebook-page-root .nb-preview-btn,
+        .nb-preview-btn {
           display: inline-flex;
           align-items: center;
+          justify-content: center;
           gap: 0.5rem;
-          padding: 0.75rem 1.5rem;
-          border-radius: var(--radius-sm);
-          font-size: 0.9rem;
-          font-weight: 700;
-          transition: var(--transition);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          background: #fff;
+          border: 1px solid var(--nb-card-line);
+          color: var(--nb-ink);
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.88rem;
+          padding: 0.65rem 1.25rem;
+          width: 100%;
+          text-align: center;
+          transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
         }
-        .email-btn {
-          background-color: rgba(255, 255, 255, 0.05);
-          color: var(--text-primary);
-          border: 1px solid var(--border);
+
+        .notebook-page-root .nb-preview-btn:hover,
+        .nb-preview-btn:hover {
+          background: var(--nb-ink);
+          color: #ffffff !important;
+          border-color: var(--nb-ink);
         }
-        .email-btn:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          border-color: var(--text-secondary);
+
+        /* ---------- empty state ---------- */
+        .nb-empty-box {
+          text-align: center;
+          padding: 3.5rem 2rem;
+          background: #fff;
+          border: 1px dashed var(--nb-card-line);
+          color: var(--nb-ink-dim);
+        }
+
+        /* ---------- contact cta ticket ---------- */
+        .nb-ticket {
+          position: relative;
+          background: #fff;
+          border: 2px dashed var(--nb-card-line);
+          padding: 2.25rem 2rem;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.9rem;
+        }
+
+        .nb-ticket::before,
+        .nb-ticket::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          width: 24px;
+          height: 24px;
+          background: var(--nb-paper);
+          border-radius: 50%;
+          transform: translateY(-50%);
+        }
+
+        .nb-ticket::before { left: -12px; }
+        .nb-ticket::after { right: -12px; }
+
+        .nb-ticket h2 { font-weight: 700; font-size: 1.3rem; color: var(--nb-ink); }
+
+        .nb-ticket p {
+          font-size: 0.92rem;
+          color: var(--nb-ink-dim);
+          max-width: 520px;
+          line-height: 1.6;
+        }
+
+        .nb-cta-btn-group {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-top: 0.4rem;
+        }
+
+        .notebook-page-root .nb-mail-btn,
+        .nb-mail-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          background: var(--nb-ink);
+          color: #ffffff !important;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.92rem;
+          padding: 0.7rem 1.4rem;
+          transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .notebook-page-root .nb-mail-btn:hover,
+        .nb-mail-btn:hover {
+          background: var(--nb-margin);
+          color: #ffffff !important;
           transform: translateY(-1px);
         }
-        .wa-btn {
-          background-color: #25D366;
-          color: #fff;
+
+        .notebook-page-root .nb-wa-btn,
+        .nb-wa-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          background: #16a34a;
+          color: #ffffff !important;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.92rem;
+          padding: 0.7rem 1.4rem;
+          transition: background 0.15s ease, transform 0.15s ease;
         }
-        .wa-btn:hover {
-          background-color: #20ba56;
-          box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+
+        .notebook-page-root .nb-wa-btn:hover,
+        .nb-wa-btn:hover {
+          background: #15803d;
+          color: #ffffff !important;
           transform: translateY(-1px);
         }
-        @media (max-width: 768px) {
-          .projects-page-root {
-            padding: 2.5rem 1.25rem !important;
-            gap: 3rem !important;
-          }
-          .step-card {
-            padding: 1.5rem 1.25rem 1.25rem !important;
-          }
-          .project-card {
-            padding: 1.25rem !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .projects-page-root {
-            padding: 1.5rem 1rem !important;
-            gap: 2.25rem !important;
-          }
-          .step-card {
-            padding: 1.25rem 1rem 1rem !important;
-          }
-          .project-card {
-            padding: 1rem !important;
-          }
-          .contact-cta {
-            padding: 1.5rem 1rem !important;
-          }
-          .contact-btn {
-            width: 100%;
-            justify-content: center;
-          }
+
+        /* ---------- responsive ---------- */
+        @media (max-width: 760px) {
+          .nb-spine, .nb-margin-rule { display: none; }
+          .nb-shell { padding: 3.25rem 1.25rem 3.5rem; }
+          .nb-projects-grid { grid-template-columns: 1fr; }
+          .nb-cta-btn-group { width: 100%; flex-direction: column; }
+          .nb-mail-btn, .nb-wa-btn { width: 100%; justify-content: center; }
         }
       `}</style>
 
-      {/* Hero Header */}
-      <header className="animate-fade" style={{ borderBottom: "1px solid var(--border)", paddingBottom: "2.5rem", textAlign: "center" }} id="projects-header">
-        <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "rgba(251, 191, 36, 0.1)",
-          border: "1px solid rgba(251, 191, 36, 0.25)",
-          borderRadius: "999px",
-          padding: "0.4rem 1rem",
-          fontSize: "0.78rem",
-          fontWeight: 600,
-          color: "#facc15",
-          marginBottom: "1.25rem",
-          letterSpacing: "0.02em",
-          textTransform: "uppercase"
-        }}>
-          Projects
+      {/* Decorative spine & red margin rule */}
+      <div className="nb-spine" aria-hidden="true" />
+      <div className="nb-margin-rule" aria-hidden="true" />
+
+      <div className="nb-shell">
+        {/* Hero Header */}
+        <header id="projects-header">
+          <span className="nb-tab">Projects</span>
+          <h1 id="projects-title">Micro &amp; Mini Projects — Private Academy Engineering</h1>
+          <p className="nb-tagline" id="projects-tagline">
+            Tailored project support for <strong>IT engineering students</strong>, covering every semester. Projects come with full source code and documentation.
+          </p>
+        </header>
+
+        {/* Stats Section */}
+        <section className="nb-stats" id="projects-stats-section">
+          {[
+            { num: "8+", label: "Live demos" },
+            { num: "Every", label: "Semester-ready" },
+            { num: "Full", label: "Source + docs" },
+          ].map((stat, i) => (
+            <div key={i} className="nb-stat-card">
+              <div className="nb-stat-num">{stat.num}</div>
+              <div className="nb-stat-label">{stat.label}</div>
+            </div>
+          ))}
+        </section>
+
+        {/* Focus Areas & What We Offer */}
+        <div className="nb-split-grid">
+          {/* What We Offer */}
+          <section style={{ margin: 0 }}>
+            <h2 className="nb-section-title">What We Offer</h2>
+            <div className="nb-offers-list">
+              {[
+                "Micro and mini projects matched to your semester and syllabus",
+                "Full source code + documentation provided",
+                "Helps you learn, present, and extend the project confidently",
+              ].map((offer, i) => (
+                <div key={i} className="nb-offer-card">
+                  <span className="nb-offer-check" aria-hidden="true">✓</span>
+                  <span className="nb-offer-text">{offer}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Focus Areas */}
+          <section style={{ margin: 0 }}>
+            <h2 className="nb-section-title">Focus Areas</h2>
+            <div className="nb-focus-tags">
+              {[
+                "Web development",
+                "Mobile development",
+                "Python projects",
+                "React & modern JS",
+                "Machine Learning & AI",
+                "Cloud & DevOps",
+                "IoT & Embedded Systems",
+                "Cybersecurity",
+                "Database & Backend Systems",
+                "Other domains"
+              ].map((focus, i) => (
+                <span key={i} className="nb-focus-pill">
+                  {focus}
+                </span>
+              ))}
+            </div>
+          </section>
         </div>
-        <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="projects-title">
-          Micro &amp; Mini Projects —{" "}
-          <span style={{
-            background: "linear-gradient(135deg, var(--accent), #fb923c)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent"
-          }}>
-            Private Academy Engineering
-          </span>
-        </h1>
-        <p style={{ fontSize: "1.15rem", color: "var(--text-secondary)", marginTop: "1rem", maxWidth: "680px", margin: "1rem auto 0", lineHeight: 1.6 }} id="projects-tagline">
-          Tailored project support for <strong>IT engineering students</strong>, covering every semester. Projects come with full source code and documentation.
-        </p>
-      </header>
 
-      {/* Stats Section */}
-      <section className="animate-fade" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }} id="projects-stats-section">
-        {[
-          { num: "8+", label: "Live demos" },
-          { num: "Every", label: "Semester-ready" },
-          { num: "Full", label: "Source + docs" }
-        ].map((stat, i) => (
-          <div key={i} className="stat-card" style={{ padding: "1.75rem", borderRadius: "var(--radius)", textAlign: "center" }}>
-            <div style={{ fontSize: "2.25rem", fontWeight: 900, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>{stat.num}</div>
-            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.35rem", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.05em" }}>{stat.label}</div>
-          </div>
-        ))}
-      </section>
-
-      {/* Focus Areas & What They Offer */}
-      <div className="animate-fade" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem" }}>
-        
-        {/* What They Offer */}
-        <section style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800 }}>What We Offer</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        {/* How to Get a Project (3-Step Guide) */}
+        <section id="projects-steps-section">
+          <h2 className="nb-section-title">How to Get a Project</h2>
+          <div className="nb-steps-grid">
             {[
-              "Micro and mini projects matched to your semester and syllabus",
-              "Full source code + documentation provided",
-              "Helps you learn, present, and extend the project confidently"
-            ].map((offer, i) => (
-              <div key={i} className="info-card" style={{ display: "flex", gap: "0.75rem", padding: "1rem", alignItems: "flex-start" }}>
-                <span style={{ color: "var(--accent)", marginTop: "0.15rem" }}>✓</span>
-                <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>{offer}</span>
+              {
+                step: "1",
+                title: "Contact them",
+                desc: "Share your branch, semester, and tech preferences via email or WhatsApp",
+              },
+              {
+                step: "2",
+                title: "Get matched",
+                desc: "They recommend a suitable micro or mini project fitting your syllabus and stack",
+              },
+              {
+                step: "3",
+                title: "Receive deliverables",
+                desc: "Source code + clear documentation to study and demonstrate",
+              },
+            ].map((item, i) => (
+              <div key={i} className="nb-step-card">
+                <div className="nb-step-num">{item.step}</div>
+                <h3 className="nb-step-title">{item.title}</h3>
+                <p className="nb-step-desc">{item.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Focus Areas */}
-        <section style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800 }}>Focus Areas</h2>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignContent: "flex-start" }}>
-            {["Web development", "Mobile development", "Python projects", "React & modern JS", "Other domains"].map((focus, i) => (
-              <span key={i} className="focus-badge">
-                {focus}
-              </span>
-            ))}
+        {/* Live Projects Grid */}
+        <section id="projects-listings-section">
+          <h2 className="nb-section-title">Live Demos Showcase</h2>
+
+          {projects.length === 0 ? (
+            <div className="nb-empty-box">
+              <h3>No projects available at this time.</h3>
+            </div>
+          ) : (
+            <main className="nb-projects-grid" id="projects-grid">
+              {projects.map((proj) => (
+                <article className="nb-project-card" key={proj.id} id={proj.id}>
+                  <div>
+                    <div className="nb-project-tags">
+                      {proj.techStack.map((tech) => (
+                        <span key={tech} className="nb-project-tag">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="nb-project-title">{proj.title}</h3>
+                    <p className="nb-project-desc">{proj.description}</p>
+                  </div>
+
+                  <a
+                    href={proj.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="nb-preview-btn"
+                    id={`btn-live-${proj.id}`}
+                  >
+                    Visit Live Demo
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </a>
+                </article>
+              ))}
+            </main>
+          )}
+        </section>
+
+        {/* Support / Contact Section */}
+        <section id="projects-contact-section">
+          <div className="nb-ticket">
+            <h2>Request a Project</h2>
+            <p>
+              Ready to get your project files? Reach out to us with your specifications and we will match you with the right build.
+            </p>
+
+            <div className="nb-cta-btn-group">
+              <a href="mailto:info@privateacademy.in" className="nb-mail-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                Email Support
+              </a>
+              <a
+                href="https://wa.me/919423930547"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nb-wa-btn"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                WhatsApp 1
+              </a>
+              <a
+                href="https://wa.me/918421955664"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nb-wa-btn"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                WhatsApp 2
+              </a>
+            </div>
           </div>
         </section>
       </div>
-
-      {/* How to Get a Project (3-Step Guide) */}
-      <section className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: "2rem" }} id="projects-steps-section">
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", textAlign: "center" }}>How to Get a Project</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.75rem", marginTop: "0.5rem" }}>
-          {[
-            {
-              step: "1",
-              title: "Contact them",
-              desc: "Share your branch, semester, and tech preferences via email or WhatsApp"
-            },
-            {
-              step: "2",
-              title: "Get matched",
-              desc: "They recommend a suitable micro or mini project fitting your syllabus and stack"
-            },
-            {
-              step: "3",
-              title: "Receive deliverables",
-              desc: "Source code + clear documentation to study and demonstrate"
-            }
-          ].map((item, i) => (
-            <div key={i} className="step-card" style={{ padding: "2rem 1.5rem 1.5rem", borderRadius: "var(--radius)" }}>
-              <div className="step-num">{item.step}</div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.5rem", marginTop: "0.5rem" }}>{item.title}</h3>
-              <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.6" }}>{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Live Projects Grid */}
-      <section className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }} id="projects-listings-section">
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "-0.02em", borderBottom: "1px solid var(--border)", paddingBottom: "0.75rem" }}>Live Demos Showcase</h2>
-
-        {projects.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "4rem 2rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", color: "var(--text-secondary)" }}>
-            <h3>No projects available at this time.</h3>
-          </div>
-        ) : (
-          <main style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }} id="projects-grid">
-            {projects.map((proj) => (
-              <article 
-                className="project-card" 
-                key={proj.id} 
-                id={proj.id}
-              >
-                <div>
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-                    {proj.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="project-tech-tag"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.5rem" }}>{proj.title}</h3>
-                  <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.6" }}>{proj.description}</p>
-                </div>
-                
-                <a
-                  href={proj.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="preview-btn"
-                  id={`btn-live-${proj.id}`}
-                  style={{ marginTop: "1rem" }}
-                >
-                  Visit Live Demo
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </a>
-              </article>
-            ))}
-          </main>
-        )}
-      </section>
-
-      {/* Support / Contact Section */}
-      <section className="animate-fade contact-cta" style={{ padding: "2.5rem", borderRadius: "var(--radius-lg)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }} id="projects-contact-section">
-        <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary)" }}>Request a Project</h3>
-        <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", maxWidth: "520px", lineHeight: "1.6" }}>
-          Ready to get your project files? Reach out to us with your specifications and we will match you with the right build.
-        </p>
-        
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
-          <a 
-            href="mailto:info@privateacademy.in" 
-            className="contact-btn email-btn"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,13 2,6" />
-            </svg>
-            Email Support
-          </a>
-          <a 
-            href="https://wa.me/919423930547" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="contact-btn wa-btn"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </svg>
-            WhatsApp 1
-          </a>
-          <a 
-            href="https://wa.me/918421955664" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="contact-btn wa-btn"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </svg>
-            WhatsApp 2
-          </a>
-        </div>
-      </section>
     </div>
   );
 }

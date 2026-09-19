@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Work_Sans, Caveat } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next"; 
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -12,11 +12,25 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 import styles from "./layout.module.css";
 
-// Inter loaded via next/font — self-hosted, zero FOUT, no blocking network request
+// Fonts loaded via next/font — self-hosted, zero FOUT
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+});
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-hand",
 });
 
 
@@ -76,56 +90,56 @@ const socialLinks = [
     url: 'https://t.me/mumcomputer',
     icon: FaTelegram,
     description: 'Join 2.5K+ members',
-    color: '#38bdf8',
-    bg: 'rgba(56, 189, 248, 0.08)'
+    color: '#0284c7',
+    bg: 'rgba(2, 132, 199, 0.12)'
   },
   {
     name: 'WhatsApp',
     url: 'https://chat.whatsapp.com/EYeOgxDw8qp6oRMlnTjlfI',
     icon: FaWhatsapp,
     description: 'Study group chat',
-    color: '#4ade80',
-    bg: 'rgba(74, 222, 128, 0.08)'
+    color: '#16a34a',
+    bg: 'rgba(22, 163, 74, 0.12)'
   },
   {
     name: 'YouTube',
     url: 'https://www.youtube.com/@pvtacademy',
     icon: FaYoutube,
     description: 'Video tutorials',
-    color: '#f87171',
-    bg: 'rgba(248, 113, 113, 0.08)'
+    color: '#dc2626',
+    bg: 'rgba(220, 38, 38, 0.12)'
   },
   {
     name: 'Instagram',
     url: 'https://www.instagram.com/privateacademy.in',
     icon: FaInstagram,
     description: 'Updates & posts',
-    color: '#f472b6',
-    bg: 'rgba(244, 114, 182, 0.08)'
+    color: '#db2777',
+    bg: 'rgba(219, 39, 119, 0.12)'
   },
   {
     name: 'LinkedIn',
     url: 'https://www.linkedin.com/company/privateacademy/',
     icon: FaLinkedin,
     description: 'Professional network',
-    color: '#60a5fa',
-    bg: 'rgba(96, 165, 250, 0.08)'
+    color: '#2563eb',
+    bg: 'rgba(37, 99, 235, 0.12)'
   },
   {
     name: 'X (Twitter)',
     url: 'https://x.com/PVTAcademyEdu',
     icon: FaTwitter,
     description: 'Latest updates',
-    color: '#e2e8f0',
-    bg: 'rgba(226, 232, 240, 0.06)'
+    color: '#1d3557',
+    bg: 'rgba(29, 53, 87, 0.1)'
   },
   {
     name: 'Peerlist',
     url: 'https://peerlist.io/company/privateacademy',
     icon: SiPeerlist,
     description: 'Professional community',
-    color: '#34d399',
-    bg: 'rgba(52, 211, 153, 0.08)'
+    color: '#059669',
+    bg: 'rgba(5, 150, 105, 0.12)'
   },
 ];
 
@@ -302,7 +316,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={`${inter.variable} ${workSans.variable} ${caveat.variable} ${inter.className}`}>
       <head>
         <script
           type="application/ld+json"
@@ -381,9 +395,9 @@ export default async function RootLayout({
                     <p className={styles.footerDesc}>
                       Empowering engineering students with comprehensive study materials, important questions, and video tutorials. Quality education accessible to all.
                     </p>
-                    <div className={styles.footerHideOnMobile} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
-                      <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16, 185, 129, 0.4)" }} />
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 500 }}>All Systems Operational</span>
+                    <div className={`${styles.footerHideOnMobile} ${styles.footerStatusBadge}`}>
+                      <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 6px rgba(16, 185, 129, 0.5)", display: "inline-block" }} />
+                      <span>All Systems Operational</span>
                     </div>
                   </div>
 
@@ -445,7 +459,7 @@ export default async function RootLayout({
                 </div>
 
                 <div className={styles.footerBottom}>
-                  <div>Made with ❤️ by <a href="https://www.karangholap.com/" target="_blank" rel="noopener noreferrer" className={styles.footerAuthorLink}>Karan Gholap</a></div>
+                  <div><span className={styles.footerMadeWith}>Made with ❤️ by</span> <a href="https://www.karangholap.com/" target="_blank" rel="noopener noreferrer" className={styles.footerAuthorLink}>Karan Gholap</a></div>
                   <div>© {new Date().getFullYear()} Private Academy. All rights reserved.</div>
                 </div>
               </div>

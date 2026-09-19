@@ -184,7 +184,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
                   {displayUsername && (
                     <Link
                       href={`/u/${displayUsername}`}
-                      style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent)", marginBottom: "0.2rem", textDecoration: "none", display: "block" }}
+                      style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--nb-ink, #1d3557)", marginBottom: "0.2rem", textDecoration: "none", display: "block" }}
                       onClick={() => setDropdownOpen(false)}
                     >@{displayUsername}</Link>
                   )}
@@ -202,7 +202,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
                   Profile & Settings
                 </Link>
                 {isUserAdmin && (
-                  <Link href="/admin" className={styles.dropdownItem} style={{ color: "var(--accent)" }} onClick={() => setDropdownOpen(false)}>
+                  <Link href="/admin" className={styles.dropdownItem} style={{ color: "var(--nb-ink, #1d3557)", fontWeight: 600 }} onClick={() => setDropdownOpen(false)}>
                     Admin Panel
                   </Link>
                 )}
@@ -313,7 +313,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
                 <Link
                   href="/admin"
                   className={`${styles.mobileNavLink} ${isActive("/admin") ? styles.mobileNavLinkActive : ""}`}
-                  style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
+                  style={{ color: "var(--nb-ink, #1d3557)", fontWeight: 600, borderColor: "var(--nb-card-line, #d9d2bd)" }}
                   onClick={() => setMenuOpen(false)}
                 >
                   ⚙ Admin Panel
@@ -338,7 +338,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
               <a
                 href="/api/auth/logout"
                 className={styles.mobileNavLink}
-                style={{ color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
+                style={{ color: "var(--nb-margin, #c94f4f)", borderColor: "rgba(201, 79, 79, 0.3)" }}
                 onClick={() => setMenuOpen(false)}
               >
                 Logout
@@ -368,7 +368,7 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
               <div className={styles.mobileUserInfo}>
                 {userName && <span className={styles.mobileUserName}>{userName}</span>}
                 {displayUsername && (
-                  <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--accent)" }}>@{displayUsername}</span>
+                  <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--nb-ink, #1d3557)" }}>@{displayUsername}</span>
                 )}
                 <span className={styles.mobileUserEmail}>{sessionEmail}</span>
               </div>

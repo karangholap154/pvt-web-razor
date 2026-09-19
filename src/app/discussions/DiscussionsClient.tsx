@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
+import { Work_Sans, Caveat } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -14,6 +15,18 @@ import { FaPlus, FaMagnifyingGlass, FaComments, FaFire, FaCircleQuestion, FaCirc
 import type { DiscussionPost } from "@/types/discussions";
 import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
 import BranchSelect from "@/components/ui/BranchSelect";
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+});
 
 export default function DiscussionsClient() {
   const router = useRouter();
@@ -154,66 +167,64 @@ export default function DiscussionsClient() {
 
   if (IS_DISCUSSIONS_COMING_SOON) {
     return (
-      <main className={styles.mainContainer}>
-        <div className={styles.comingSoonWrapper}>
-          <div className={styles.comingSoonCard}>
-            {/* Top Radial Yellow Glow */}
-            <div className={styles.comingSoonGlow} />
-
-            {/* Status Badge */}
-            <div className={styles.comingSoonBadge}>
-              <FaComments style={{ color: "#f59e0b" }} /> Community Discussions • Coming Soon 🚀
-            </div>
-
-            {/* Main Heading */}
-            <h1 className={styles.comingSoonTitle}>
-              Student Doubts & Peer Discussions
-            </h1>
-
-            {/* Subtitle */}
-            <p className={styles.comingSoonSubtitle}>
-              We are building an AI-moderated, ultra-fast peer discussion hub for engineering students to ask exam doubts, share pyq solutions, and collaborate with university peers.
-            </p>
-
-            {/* Teaser Feature Cards */}
-            <div className={styles.comingSoonGrid}>
-              <div className={styles.comingSoonTeaserCard}>
-                <div className={styles.comingSoonTeaserIcon}>🎓</div>
-                <h3 className={styles.comingSoonTeaserTitle}>University Doubts</h3>
-                <p className={styles.comingSoonTeaserText}>Ask & solve questions specific to your university and branch.</p>
+      <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+        <div className={styles.nbSpine} aria-hidden="true" />
+        <div className={styles.nbMarginRule} aria-hidden="true" />
+        <main className={styles.mainContainer}>
+          <div className={styles.comingSoonWrapper}>
+            <div className={styles.comingSoonCard}>
+              <div className={styles.comingSoonBadge}>
+                <FaComments style={{ color: "var(--nb-ink)" }} /> Community Discussions • Coming Soon 🚀
               </div>
 
-              <div className={styles.comingSoonTeaserCard}>
-                <div className={styles.comingSoonTeaserIcon}>🛡️</div>
-                <h3 className={styles.comingSoonTeaserTitle}>AI Moderated</h3>
-                <p className={styles.comingSoonTeaserText}>Multilingual safety protection keeping discussions respectful & helpful.</p>
+              <h1 className={styles.comingSoonTitle}>
+                Student Doubts & Peer Discussions
+              </h1>
+
+              <p className={styles.comingSoonSubtitle}>
+                We are building an AI-moderated, ultra-fast peer discussion hub for engineering students to ask exam doubts, share pyq solutions, and collaborate with university peers.
+              </p>
+
+              <div className={styles.comingSoonGrid}>
+                <div className={styles.comingSoonTeaserCard}>
+                  <div className={styles.comingSoonTeaserIcon}>🎓</div>
+                  <h3 className={styles.comingSoonTeaserTitle}>University Doubts</h3>
+                  <p className={styles.comingSoonTeaserText}>Ask & solve questions specific to your university and branch.</p>
+                </div>
+
+                <div className={styles.comingSoonTeaserCard}>
+                  <div className={styles.comingSoonTeaserIcon}>🛡️</div>
+                  <h3 className={styles.comingSoonTeaserTitle}>AI Moderated</h3>
+                  <p className={styles.comingSoonTeaserText}>Multilingual safety protection keeping discussions respectful & helpful.</p>
+                </div>
+
+                <div className={styles.comingSoonTeaserCard}>
+                  <div className={styles.comingSoonTeaserIcon}>📄</div>
+                  <h3 className={styles.comingSoonTeaserTitle}>Linked Notes</h3>
+                  <p className={styles.comingSoonTeaserText}>Attach study notes and PYQ solution PDFs directly to questions.</p>
+                </div>
               </div>
 
-              <div className={styles.comingSoonTeaserCard}>
-                <div className={styles.comingSoonTeaserIcon}>📄</div>
-                <h3 className={styles.comingSoonTeaserTitle}>Linked Notes</h3>
-                <p className={styles.comingSoonTeaserText}>Attach study notes and PYQ solution PDFs directly to questions.</p>
+              <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+                <Link href="/" className={styles.comingSoonBtn}>
+                  Explore Notes & Question Papers 📚
+                </Link>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-              <Link href="/" className={styles.comingSoonBtn}>
-                Explore Notes & Question Papers 📚
-              </Link>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   if (authState === "loading") {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ width: "36px", height: "36px", border: "3px solid rgba(255,255,255,0.08)", borderTopColor: "#a855f7", borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
-        <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Loading Community Hub...</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "75vh", flexDirection: "column", gap: "1rem" }}>
+          <div style={{ width: "36px", height: "36px", border: "3px solid #dbe6ef", borderTopColor: "#1d3557", borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
+          <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.92rem", fontWeight: 500 }}>Loading Community Hub...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
       </div>
     );
   }
@@ -224,163 +235,162 @@ export default function DiscussionsClient() {
   const isFiltered = selectedBranch !== "All branches" || selectedSemester !== "All semesters" || debouncedQuery !== "" || activeTab !== "all";
 
   return (
-    <main className={styles.mainContainer}>
-      {/* Banner */}
-      <section className={styles.banner}>
-        <div>
-          <h1 className={styles.bannerTitle}>
-            <FaComments style={{ color: "#c084fc" }} /> {userUniversity} Community Discussions
-          </h1>
-          <p className={styles.bannerSubtitle}>
-            Ask doubts, share exam strategies, discuss past papers, and help your peers excel.
-          </p>
-        </div>
+    <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+      <div className={styles.nbSpine} aria-hidden="true" />
+      <div className={styles.nbMarginRule} aria-hidden="true" />
 
-        <button className={styles.btnPrimary} onClick={handleAskClick}>
-          <FaPlus /> Ask a Doubt
-        </button>
-      </section>
-
-      {/* Controls & Filters */}
-      <div className={styles.controlsRow}>
-        <div className={styles.searchBarWrapper}>
-          <div className={styles.searchInputGroup}>
-            <FaMagnifyingGlass className={styles.searchIcon} />
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search discussions or questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      <main className={styles.mainContainer}>
+        {/* Banner */}
+        <section className={styles.banner}>
+          <div className={styles.bannerTextGroup}>
+            <div className={styles.bannerTab}>COMMUNITY DOUBTS & FORUM</div>
+            <h1 className={styles.bannerTitle}>
+              <FaComments /> {userUniversity || "Student"} Community Discussions
+            </h1>
+            <p className={styles.bannerSubtitle}>
+              Ask doubts, share exam strategies, discuss past papers, and help your peers excel.
+            </p>
           </div>
 
-          <BranchSelect
-            value={selectedBranch}
-            onChange={setSelectedBranch}
-            includeAllOption={true}
-            style={{ flex: "1 1 220px", minWidth: "180px" }}
-          />
+          <button className={styles.btnPrimary} onClick={handleAskClick}>
+            <FaPlus /> Ask a Doubt
+          </button>
+        </section>
 
-          <select
-            className={styles.filterSelect}
-            value={selectedSemester}
-            onChange={(e) => setSelectedSemester(e.target.value)}
-          >
-            <option value="All semesters">All Semesters</option>
-            <option value="Semester 1">Semester 1</option>
-            <option value="Semester 2">Semester 2</option>
-            <option value="Semester 3">Semester 3</option>
-            <option value="Semester 4">Semester 4</option>
-            <option value="Semester 5">Semester 5</option>
-            <option value="Semester 6">Semester 6</option>
-            <option value="Semester 7">Semester 7</option>
-            <option value="Semester 8">Semester 8</option>
-          </select>
+        {/* Controls & Filters */}
+        <div className={styles.controlsRow}>
+          <div className={styles.searchBarWrapper}>
+            <div className={styles.searchInputGroup}>
+              <FaMagnifyingGlass className={styles.searchIcon} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search discussions or questions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <BranchSelect
+              value={selectedBranch}
+              onChange={setSelectedBranch}
+              includeAllOption={true}
+              className={styles.notebookBranchSelect}
+              style={{ flex: "1 1 220px", minWidth: "180px" }}
+            />
+
+            <select
+              className={styles.filterSelect}
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(e.target.value)}
+            >
+              <option value="All semesters">All Semesters</option>
+              <option value="Semester 1">Semester 1</option>
+              <option value="Semester 2">Semester 2</option>
+              <option value="Semester 3">Semester 3</option>
+              <option value="Semester 4">Semester 4</option>
+              <option value="Semester 5">Semester 5</option>
+              <option value="Semester 6">Semester 6</option>
+              <option value="Semester 7">Semester 7</option>
+              <option value="Semester 8">Semester 8</option>
+            </select>
+          </div>
+
+          {/* Category Tabs */}
+          <div className={styles.tabsRow}>
+            <button
+              className={`${styles.tabBtn} ${activeTab === "all" ? styles.activeTabBtn : ""}`}
+              onClick={() => setActiveTab("all")}
+            >
+              All Discussions
+            </button>
+            <button
+              className={`${styles.tabBtn} ${activeTab === "trending" ? styles.activeTabBtn : ""}`}
+              onClick={() => setActiveTab("trending")}
+            >
+              <FaFire style={{ color: "#d97706", marginRight: "0.35rem" }} /> Trending
+            </button>
+            <button
+              className={`${styles.tabBtn} ${activeTab === "unanswered" ? styles.activeTabBtn : ""}`}
+              onClick={() => setActiveTab("unanswered")}
+            >
+              <FaCircleQuestion style={{ color: "#0284c7", marginRight: "0.35rem" }} /> Unanswered
+            </button>
+            <button
+              className={`${styles.tabBtn} ${activeTab === "solved" ? styles.activeTabBtn : ""}`}
+              onClick={() => setActiveTab("solved")}
+            >
+              <FaCircleCheck style={{ color: "#16a34a", marginRight: "0.35rem" }} /> Solved
+            </button>
+          </div>
         </div>
 
-        {/* Category Tabs */}
-        <div className={styles.tabsRow}>
-          <button
-            className={`${styles.tabBtn} ${activeTab === "all" ? styles.activeTabBtn : ""}`}
-            onClick={() => setActiveTab("all")}
-          >
-            All Discussions
-          </button>
-          <button
-            className={`${styles.tabBtn} ${activeTab === "trending" ? styles.activeTabBtn : ""}`}
-            onClick={() => setActiveTab("trending")}
-          >
-            <FaFire style={{ color: "#f59e0b", marginRight: "0.3rem" }} /> Trending
-          </button>
-          <button
-            className={`${styles.tabBtn} ${activeTab === "unanswered" ? styles.activeTabBtn : ""}`}
-            onClick={() => setActiveTab("unanswered")}
-          >
-            <FaCircleQuestion style={{ color: "#60a5fa", marginRight: "0.3rem" }} /> Unanswered
-          </button>
-          <button
-            className={`${styles.tabBtn} ${activeTab === "solved" ? styles.activeTabBtn : ""}`}
-            onClick={() => setActiveTab("solved")}
-          >
-            <FaCircleCheck style={{ color: "#4ade80", marginRight: "0.3rem" }} /> Solved
-          </button>
-        </div>
-      </div>
+        {/* Feed List */}
+        {isLoading && page === 1 ? (
+          <div style={{ textAlign: "center", padding: "4rem 2rem", color: "var(--nb-ink-dim, #5c7089)" }}>
+            <div style={{ width: "32px", height: "32px", border: "3px solid #dbe6ef", borderTopColor: "#1d3557", borderRadius: "50%", animation: "spin 0.9s linear infinite", margin: "0 auto 1rem" }} />
+            <p style={{ fontWeight: 500 }}>Loading discussions feed...</p>
+          </div>
+        ) : discussions.length === 0 ? (
+          <div className={styles.emptyStateCard}>
+            <FaComments style={{ fontSize: "2.5rem", color: "var(--nb-ink-dim, #5c7089)", marginBottom: "1rem" }} />
+            <h3 className={styles.emptyStateTitle}>
+              {isFiltered ? "No discussions match your current filters" : "No discussions found"}
+            </h3>
+            <p className={styles.emptyStateText}>
+              {isFiltered
+                ? "Try resetting your branch/semester filter or search query to see all community discussions."
+                : `Be the first student to ask a doubt or start a topic for ${userUniversity}!`}
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
+              {isFiltered && (
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className={styles.resetFiltersBtn}
+                >
+                  Show All Discussions
+                </button>
+              )}
+              <button className={styles.btnPrimary} onClick={handleAskClick}>
+                <FaPlus /> Ask a Doubt Now
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.feedList}>
+            {discussions.map((post) => (
+              <DiscussionCard
+                key={post.id}
+                post={post}
+                onDelete={(postId) =>
+                  setDiscussions((prev) => prev.filter((p) => p.id !== postId))
+                }
+              />
+            ))}
 
-      {/* Feed List */}
-      {isLoading && page === 1 ? (
-        <div style={{ textAlign: "center", padding: "4rem 2rem", color: "#94a3b8" }}>
-          <div style={{ width: "32px", height: "32px", border: "3px solid rgba(255,255,255,0.08)", borderTopColor: "#a855f7", borderRadius: "50%", animation: "spin 0.9s linear infinite", margin: "0 auto 1rem" }} />
-          <p>Loading discussions feed...</p>
-        </div>
-      ) : discussions.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "4rem 2rem", background: "rgba(15, 23, 42, 0.4)", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <FaComments style={{ fontSize: "2.5rem", color: "#64748b", marginBottom: "1rem" }} />
-          <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#f8fafc", margin: "0 0 0.5rem" }}>
-            {isFiltered ? "No discussions match your current filters" : "No discussions found"}
-          </h3>
-          <p style={{ color: "#94a3b8", fontSize: "0.9rem", margin: "0 0 1.5rem" }}>
-            {isFiltered
-              ? "Try resetting your branch/semester filter or search query to see all community discussions."
-              : `Be the first student to ask a doubt or start a topic for ${userUniversity}!`}
-          </p>
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            {isFiltered && (
+            {page < totalPages && (
               <button
-                type="button"
-                onClick={handleClearFilters}
-                style={{
-                  padding: "0.65rem 1.25rem",
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
-                  borderRadius: "10px",
-                  color: "#f8fafc",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
+                className={styles.loadMoreBtn}
+                onClick={() => loadMoreDiscussions(page + 1)}
+                disabled={isLoading}
               >
-                Show All Discussions
+                {isLoading ? "Loading..." : "Load More Discussions"}
               </button>
             )}
-            <button className={styles.btnPrimary} onClick={handleAskClick}>
-              <FaPlus /> Ask a Doubt Now
-            </button>
           </div>
-        </div>
-      ) : (
-        <div className={styles.feedList}>
-          {discussions.map((post) => (
-            <DiscussionCard
-              key={post.id}
-              post={post}
-              onDelete={(postId) =>
-                setDiscussions((prev) => prev.filter((p) => p.id !== postId))
-              }
-            />
-          ))}
+        )}
 
-          {page < totalPages && (
-            <button
-              className={styles.loadMoreBtn}
-              onClick={() => loadMoreDiscussions(page + 1)}
-              disabled={isLoading}
-            >
-              {isLoading ? "Loading..." : "Load More Discussions"}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Ask Question Modal */}
-      <AskQuestionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handlePostSuccess}
-        userUniversity={userUniversity || ""}
-        defaultBranch={defaultBranch || undefined}
-        defaultSemester={defaultSemester || undefined}
-      />
-    </main>
+        {/* Ask Question Modal */}
+        <AskQuestionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handlePostSuccess}
+          userUniversity={userUniversity || ""}
+          defaultBranch={defaultBranch || undefined}
+          defaultSemester={defaultSemester || undefined}
+        />
+      </main>
+    </div>
   );
 }

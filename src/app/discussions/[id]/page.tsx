@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { Work_Sans, Caveat } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -10,6 +11,18 @@ import { FaArrowLeft, FaThumbsUp, FaCheck, FaFilePdf, FaPaperPlane, FaMessage, F
 import type { DiscussionPost, DiscussionReply } from "@/types/discussions";
 import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-hand",
+});
 
 export default function DiscussionThreadPage({
   params,
@@ -263,33 +276,39 @@ export default function DiscussionThreadPage({
 
   if (IS_DISCUSSIONS_COMING_SOON) {
     return (
-      <main className={styles.mainContainer}>
-        <div className={styles.comingSoonWrapper}>
-          <div className={styles.comingSoonCard}>
-            <div className={styles.comingSoonGlow} />
-            <div className={styles.comingSoonBadge}>
-              <FaComments style={{ color: "#f59e0b" }} /> Community Discussions • Coming Soon 🚀
+      <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+        <div className={styles.nbSpine} aria-hidden="true" />
+        <div className={styles.nbMarginRule} aria-hidden="true" />
+        <main className={styles.mainContainer}>
+          <div className={styles.comingSoonWrapper}>
+            <div className={styles.comingSoonCard}>
+              <div className={styles.comingSoonBadge}>
+                <FaComments style={{ color: "var(--nb-ink)" }} /> Community Discussions • Coming Soon 🚀
+              </div>
+              <h1 className={styles.comingSoonTitle}>
+                Discussions Feature Under Maintenance
+              </h1>
+              <p className={styles.comingSoonSubtitle}>
+                This discussion thread is currently hidden while we upgrade our student community features.
+              </p>
+              <Link href="/discussions" className={styles.comingSoonBtn}>
+                Return to Discussions Home
+              </Link>
             </div>
-            <h1 className={styles.comingSoonTitle}>
-              Discussions Feature Under Maintenance
-            </h1>
-            <p className={styles.comingSoonSubtitle}>
-              This discussion thread is currently hidden while we upgrade our student community features.
-            </p>
-            <Link href="/discussions" className={styles.comingSoonBtn}>
-              Return to Discussions Home
-            </Link>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   if (authState === "loading" || isLoading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ width: "36px", height: "36px", border: "3px solid rgba(255,255,255,0.08)", borderTopColor: "#a855f7", borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
-        <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Loading discussion thread...</p>
+      <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "75vh", flexDirection: "column", gap: "1rem" }}>
+          <div style={{ width: "36px", height: "36px", border: "3px solid #dbe6ef", borderTopColor: "#1d3557", borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
+          <p style={{ color: "var(--nb-ink-dim, #5c7089)", fontSize: "0.92rem", fontWeight: 500 }}>Loading discussion thread...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
       </div>
     );
   }
@@ -299,297 +318,275 @@ export default function DiscussionThreadPage({
   const authorInitial = (discussion.author?.username || "S").charAt(0).toUpperCase();
 
   return (
-    <main className={styles.mainContainer}>
-      <button
-        onClick={() => router.push("/discussions")}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "transparent",
-          border: "none",
-          color: "#94a3b8",
-          fontWeight: 600,
-          fontSize: "0.9rem",
-          cursor: "pointer",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <FaArrowLeft /> Back to Discussions Feed
-      </button>
+    <div className={`${workSans.variable} ${caveat.variable} ${styles.notebookPageRoot}`}>
+      <div className={styles.nbSpine} aria-hidden="true" />
+      <div className={styles.nbMarginRule} aria-hidden="true" />
 
-      {/* Main Topic Twitter/X Card */}
-      <article className={styles.twitterCard} style={{ marginBottom: "2rem", borderColor: "rgba(168, 85, 247, 0.35)", cursor: "default" }}>
-        <div className={styles.avatarCircle}>
-          {authorInitial}
-        </div>
+      <main className={styles.mainContainer}>
+        <button
+          onClick={() => router.push("/discussions")}
+          className={styles.threadBackBtn}
+        >
+          <FaArrowLeft /> Back to Discussions Feed
+        </button>
 
-        <div className={styles.cardContent}>
-          <div className={styles.cardHeader}>
-            <div className={styles.authorMeta}>
-              <span className={styles.authorName}>
-                {discussion.author?.full_name || discussion.author?.username || "Student"}
-              </span>
-              <span className={styles.authorHandle}>
-                @{discussion.author?.username || "student"}
-              </span>
-              <span className={styles.badgePill}>{discussion.branch}</span>
-              <span className={styles.badgePill}>{discussion.semester}</span>
-              <span className={styles.metaTime}>{new Date(discussion.created_at).toLocaleDateString()}</span>
+        {/* Main Topic Card */}
+        <article className={`${styles.twitterCard} ${styles.mainTopicCard}`} style={{ cursor: "default" }}>
+          <div className={styles.avatarCircle}>
+            {authorInitial}
+          </div>
+
+          <div className={styles.cardContent}>
+            <div className={styles.cardHeader}>
+              <div className={styles.authorMeta}>
+                <span className={styles.authorName}>
+                  {discussion.author?.full_name || discussion.author?.username || "Student"}
+                </span>
+                <span className={styles.authorHandle}>
+                  @{discussion.author?.username || "student"}
+                </span>
+                <span className={styles.badgePill}>{discussion.branch}</span>
+                <span className={styles.badgePill}>{discussion.semester}</span>
+                <span className={styles.metaTime}>{new Date(discussion.created_at).toLocaleDateString()}</span>
+              </div>
+
+              {discussion.is_resolved && (
+                <span className={styles.solvedBadge}>
+                  <FaCheck /> Solved
+                </span>
+              )}
             </div>
 
-            {discussion.is_resolved && (
-              <span className={styles.solvedBadge}>
-                <FaCheck /> Solved
+            <h1 className={styles.cardTitle} style={{ fontSize: "1.35rem" }}>
+              {discussion.title}
+            </h1>
+
+            <div className={styles.topicBody}>
+              {discussion.content}
+            </div>
+
+            <div className={styles.tagsRow}>
+              {discussion.linked_note && (
+                <Link
+                  href={`/notes/${discussion.linked_note.id}`}
+                  className={styles.noteLinkPill}
+                  style={{ padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}
+                >
+                  <FaFilePdf /> View Linked Note: {discussion.linked_note.title}
+                </Link>
+              )}
+
+              {discussion.tags && discussion.tags.map((t, idx) => (
+                <span key={idx} className={styles.tagPill}>
+                  #{t}
+                </span>
+              ))}
+            </div>
+
+            {/* Action Bar */}
+            <div className={styles.twitterActionBar}>
+              <span className={`${styles.actionBtn} ${styles.actionComment}`} style={{ cursor: "default" }}>
+                <FaMessage style={{ fontSize: "0.85rem" }} />
+                <span>{discussion.replies_count || 0} replies</span>
               </span>
-            )}
-          </div>
 
-          <h1 className={styles.cardTitle} style={{ fontSize: "1.35rem" }}>
-            {discussion.title}
-          </h1>
-
-          <div style={{ fontSize: "0.95rem", color: "#f8fafc", lineHeight: "1.6", whiteSpace: "pre-wrap", margin: "0.85rem 0 1rem" }}>
-            {discussion.content}
-          </div>
-
-          <div className={styles.tagsRow}>
-            {discussion.linked_note && (
-              <Link
-                href={`/notes/${discussion.linked_note.id}`}
-                className={styles.noteLinkPill}
-                style={{ padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}
-              >
-                <FaFilePdf /> View Linked Note: {discussion.linked_note.title}
-              </Link>
-            )}
-
-            {discussion.tags && discussion.tags.map((t, idx) => (
-              <span key={idx} className={styles.tagPill}>
-                #{t}
-              </span>
-            ))}
-          </div>
-
-          {/* Twitter / X Style Action Bar */}
-          <div className={styles.twitterActionBar}>
-            <span className={`${styles.actionBtn} ${styles.actionComment}`} style={{ cursor: "default" }}>
-              <FaMessage style={{ fontSize: "0.85rem" }} />
-              <span>{discussion.replies_count || 0} replies</span>
-            </span>
-
-            <button
-              type="button"
-              className={`${styles.actionBtn} ${styles.actionUpvote} ${discussion.has_user_voted ? styles.actionUpvoted : ""}`}
-              onClick={handlePostVote}
-              title="Upvote discussion"
-            >
-              <FaThumbsUp style={{ fontSize: "0.85rem" }} />
-              <span>{discussion.upvotes_count}</span>
-            </button>
-
-            <button
-              type="button"
-              className={`${styles.actionBtn} ${styles.actionShare}`}
-              onClick={handleShare}
-              title="Share link"
-            >
-              <FaShareNodes style={{ fontSize: "0.85rem" }} />
-              <span>Share</span>
-            </button>
-
-            {isOriginalPoster && (
               <button
                 type="button"
-                className={`${styles.actionBtn} ${styles.actionDelete}`}
-                onClick={() => setShowDeletePostConfirm(true)}
-                disabled={isDeletingPost}
-                title="Delete your doubt"
+                className={`${styles.actionBtn} ${styles.actionUpvote} ${discussion.has_user_voted ? styles.actionUpvoted : ""}`}
+                onClick={handlePostVote}
+                title="Upvote discussion"
               >
-                <FaTrash style={{ fontSize: "0.85rem" }} />
-                <span>{isDeletingPost ? "Deleting..." : "Delete"}</span>
+                <FaThumbsUp style={{ fontSize: "0.85rem" }} />
+                <span>{discussion.upvotes_count}</span>
               </button>
-            )}
-          </div>
-        </div>
-      </article>
 
-      {/* Answers & Replies Section */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#f8fafc", marginBottom: "1.25rem" }}>
-          Answers & Peer Solutions ({replies.length})
-        </h2>
+              <button
+                type="button"
+                className={`${styles.actionBtn} ${styles.actionShare}`}
+                onClick={handleShare}
+                title="Share link"
+              >
+                <FaShareNodes style={{ fontSize: "0.85rem" }} />
+                <span>Share</span>
+              </button>
 
-        {replies.length === 0 ? (
-          <div style={{ padding: "2rem", background: "rgba(15, 23, 42, 0.4)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)", textAlign: "center", color: "#94a3b8" }}>
-            No answers posted yet. Be the first student to help!
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {replies.map((reply) => {
-              const replyInitial = (reply.author?.username || "S").charAt(0).toUpperCase();
-              const isReplyAuthor = Boolean(
-                username &&
-                  reply.author?.username &&
-                  username.toLowerCase() === reply.author.username.toLowerCase()
-              );
-              return (
-                <div
-                  key={reply.id}
-                  className={styles.twitterCard}
-                  style={{
-                    borderColor: reply.is_accepted_answer ? "rgba(34, 197, 94, 0.4)" : "rgba(255, 255, 255, 0.08)",
-                    background: reply.is_accepted_answer ? "rgba(34, 197, 94, 0.05)" : "rgba(15, 23, 42, 0.5)",
-                    cursor: "default",
-                  }}
+              {isOriginalPoster && (
+                <button
+                  type="button"
+                  className={`${styles.actionBtn} ${styles.actionDelete}`}
+                  onClick={() => setShowDeletePostConfirm(true)}
+                  disabled={isDeletingPost}
+                  title="Delete your doubt"
                 >
-                  <div className={styles.avatarCircle} style={{ width: "38px", height: "38px", fontSize: "0.95rem" }}>
-                    {replyInitial}
-                  </div>
+                  <FaTrash style={{ fontSize: "0.85rem" }} />
+                  <span>{isDeletingPost ? "Deleting..." : "Delete"}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </article>
 
-                  <div className={styles.cardContent}>
-                    <div className={styles.cardHeader}>
-                      <div className={styles.authorMeta}>
-                        <span className={styles.authorName}>
-                          {reply.author?.full_name || reply.author?.username || "Student"}
-                        </span>
-                        <span className={styles.authorHandle}>
-                          @{reply.author?.username || "student"}
-                        </span>
-                        <span className={styles.metaDot}>•</span>
-                        <span className={styles.metaTime}>{new Date(reply.created_at).toLocaleDateString()}</span>
+        {/* Answers & Replies Section */}
+        <section style={{ marginBottom: "2.5rem" }}>
+          <h2 className={styles.repliesSectionTitle}>
+            Answers & Peer Solutions ({replies.length})
+          </h2>
+
+          {replies.length === 0 ? (
+            <div className={styles.noRepliesCard}>
+              No answers posted yet. Be the first student to help!
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {replies.map((reply) => {
+                const replyInitial = (reply.author?.username || "S").charAt(0).toUpperCase();
+                const isReplyAuthor = Boolean(
+                  username &&
+                    reply.author?.username &&
+                    username.toLowerCase() === reply.author.username.toLowerCase()
+                );
+                return (
+                  <div
+                    key={reply.id}
+                    className={`${styles.twitterCard} ${styles.replyCard} ${reply.is_accepted_answer ? styles.replyAcceptedCard : ""}`}
+                    style={{ cursor: "default" }}
+                  >
+                    <div className={styles.avatarCircle} style={{ width: "38px", height: "38px", fontSize: "0.95rem" }}>
+                      {replyInitial}
+                    </div>
+
+                    <div className={styles.cardContent}>
+                      <div className={styles.cardHeader}>
+                        <div className={styles.authorMeta}>
+                          <span className={styles.authorName}>
+                            {reply.author?.full_name || reply.author?.username || "Student"}
+                          </span>
+                          <span className={styles.authorHandle}>
+                            @{reply.author?.username || "student"}
+                          </span>
+                          <span className={styles.metaDot}>•</span>
+                          <span className={styles.metaTime}>{new Date(reply.created_at).toLocaleDateString()}</span>
+                        </div>
+
+                        {reply.is_accepted_answer && (
+                          <span className={styles.solvedBadge}>
+                            <FaCheck /> Best Answer (Selected by OP)
+                          </span>
+                        )}
                       </div>
 
-                      {reply.is_accepted_answer && (
-                        <span className={styles.solvedBadge}>
-                          <FaCheck /> Best Answer (Selected by OP)
-                        </span>
-                      )}
-                    </div>
+                      <div className={styles.replyBody}>
+                        {reply.content}
+                      </div>
 
-                    <div style={{ fontSize: "0.9rem", color: "#e2e8f0", lineHeight: "1.55", whiteSpace: "pre-wrap", margin: "0.4rem 0 0.75rem" }}>
-                      {reply.content}
-                    </div>
-
-                    <div className={styles.twitterActionBar} style={{ borderTop: "none", paddingTop: 0, marginTop: "0.4rem" }}>
-                      <button
-                        type="button"
-                        className={`${styles.actionBtn} ${styles.actionUpvote} ${reply.has_user_voted ? styles.actionUpvoted : ""}`}
-                        onClick={() => handleReplyVote(reply.id)}
-                        title="Upvote answer"
-                      >
-                        <FaThumbsUp style={{ fontSize: "0.8rem" }} />
-                        <span>{reply.upvotes_count}</span>
-                      </button>
-
-                      {/* OP-Only Mark Best Answer Button */}
-                      {isOriginalPoster && !reply.is_accepted_answer && (
+                      <div className={styles.twitterActionBar} style={{ borderTop: "none", paddingTop: 0, marginTop: "0.4rem" }}>
                         <button
                           type="button"
-                          onClick={() => handleMarkSolved(reply.id)}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.35rem",
-                            background: "rgba(34, 197, 94, 0.12)",
-                            border: "1px solid rgba(34, 197, 94, 0.3)",
-                            color: "#4ade80",
-                            fontSize: "0.75rem",
-                            fontWeight: 700,
-                            padding: "0.3rem 0.65rem",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                          }}
+                          className={`${styles.actionBtn} ${styles.actionUpvote} ${reply.has_user_voted ? styles.actionUpvoted : ""}`}
+                          onClick={() => handleReplyVote(reply.id)}
+                          title="Upvote answer"
                         >
-                          <FaCheck /> Mark as Best Answer
+                          <FaThumbsUp style={{ fontSize: "0.8rem" }} />
+                          <span>{reply.upvotes_count}</span>
                         </button>
-                      )}
 
-                      {/* Delete Answer Action (Reply author only) */}
-                      {isReplyAuthor && (
-                        <button
-                          type="button"
-                          className={`${styles.actionBtn} ${styles.actionDelete}`}
-                          onClick={() => setReplyToDelete(reply.id)}
-                          disabled={deletingReplyId === reply.id}
-                          title="Delete your answer"
-                        >
-                          <FaTrash style={{ fontSize: "0.8rem" }} />
-                          <span>{deletingReplyId === reply.id ? "Deleting..." : "Delete"}</span>
-                        </button>
-                      )}
+                        {/* OP-Only Mark Best Answer Button */}
+                        {isOriginalPoster && !reply.is_accepted_answer && (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkSolved(reply.id)}
+                            className={styles.markBestBtn}
+                          >
+                            <FaCheck /> Mark as Best Answer
+                          </button>
+                        )}
+
+                        {/* Delete Answer Action (Reply author only) */}
+                        {isReplyAuthor && (
+                          <button
+                            type="button"
+                            className={`${styles.actionBtn} ${styles.actionDelete}`}
+                            onClick={() => setReplyToDelete(reply.id)}
+                            disabled={deletingReplyId === reply.id}
+                            title="Delete your answer"
+                          >
+                            <FaTrash style={{ fontSize: "0.8rem" }} />
+                            <span>{deletingReplyId === reply.id ? "Deleting..." : "Delete"}</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* Post a Text Reply Form or Sign-in Prompt */}
-      {authState === "ready" ? (
-        <section style={{ background: "rgba(15, 23, 42, 0.6)", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "1.5rem" }}>
-          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc", margin: "0 0 1rem" }}>
-            Your Answer / Solution
-          </h3>
-
-          <form onSubmit={handleSubmitReply} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <textarea
-              className={styles.formTextarea}
-              placeholder="Write your text or markdown solution here..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              required
-              style={{ minHeight: "100px" }}
-            />
-
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <button type="submit" className={styles.btnPrimary} disabled={isSubmittingReply}>
-                <FaPaperPlane /> {isSubmittingReply ? "Posting..." : "Post Answer"}
-              </button>
+                );
+              })}
             </div>
-          </form>
+          )}
         </section>
-      ) : (
-        <section style={{ background: "rgba(168, 85, 247, 0.08)", borderRadius: "14px", border: "1px solid rgba(168, 85, 247, 0.25)", padding: "1.75rem", textAlign: "center" }}>
-          <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "#f8fafc", margin: "0 0 0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-            <FaLock style={{ color: "#c084fc" }} /> Sign in to join the discussion
-          </h3>
-          <p style={{ color: "#94a3b8", fontSize: "0.9rem", margin: "0 0 1.25rem" }}>
-            Please sign in or create an account to post answers, help your peers, and upvote discussions.
-          </p>
-          <button onClick={() => router.push("/login")} className={styles.btnPrimary}>
-            Sign In to Reply
-          </button>
-        </section>
-      )}
 
-      {isOriginalPoster && (
+        {/* Post a Text Reply Form or Sign-in Prompt */}
+        {authState === "ready" ? (
+          <section className={styles.replyFormSection}>
+            <h3 className={styles.replyFormTitle}>
+              Your Answer / Solution
+            </h3>
+
+            <form onSubmit={handleSubmitReply} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <textarea
+                className={styles.formTextarea}
+                placeholder="Write your text or markdown solution here..."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                required
+                style={{ minHeight: "100px" }}
+              />
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button type="submit" className={styles.btnPrimary} disabled={isSubmittingReply}>
+                  <FaPaperPlane /> {isSubmittingReply ? "Posting..." : "Post Answer"}
+                </button>
+              </div>
+            </form>
+          </section>
+        ) : (
+          <section className={styles.replyLoginCard}>
+            <h3 className={styles.replyLoginTitle}>
+              <FaLock style={{ color: "var(--nb-margin)" }} /> Sign in to join the discussion
+            </h3>
+            <p className={styles.replyLoginText}>
+              Please sign in or create an account to post answers, help your peers, and upvote discussions.
+            </p>
+            <button onClick={() => router.push("/login")} className={styles.btnPrimary}>
+              Sign In to Reply
+            </button>
+          </section>
+        )}
+
+        {isOriginalPoster && (
+          <ConfirmDialog
+            isOpen={showDeletePostConfirm}
+            title="Delete this doubt?"
+            description="This will permanently delete this doubt and all of its answers. This action cannot be undone."
+            confirmText="Delete doubt"
+            cancelText="Cancel"
+            variant="danger"
+            isLoading={isDeletingPost}
+            onConfirm={handleConfirmDeletePost}
+            onClose={() => setShowDeletePostConfirm(false)}
+          />
+        )}
+
         <ConfirmDialog
-          isOpen={showDeletePostConfirm}
-          title="Delete this doubt?"
-          description="This will permanently delete this doubt and all of its answers. This action cannot be undone."
-          confirmText="Delete doubt"
+          isOpen={Boolean(replyToDelete)}
+          title="Delete this answer?"
+          description="Your answer will be permanently deleted from this discussion. This action cannot be undone."
+          confirmText="Delete answer"
           cancelText="Cancel"
           variant="danger"
-          isLoading={isDeletingPost}
-          onConfirm={handleConfirmDeletePost}
-          onClose={() => setShowDeletePostConfirm(false)}
+          isLoading={Boolean(deletingReplyId)}
+          onConfirm={handleConfirmDeleteReply}
+          onClose={() => setReplyToDelete(null)}
         />
-      )}
-
-      <ConfirmDialog
-        isOpen={Boolean(replyToDelete)}
-        title="Delete this answer?"
-        description="Your answer will be permanently deleted from this discussion. This action cannot be undone."
-        confirmText="Delete answer"
-        cancelText="Cancel"
-        variant="danger"
-        isLoading={Boolean(deletingReplyId)}
-        onConfirm={handleConfirmDeleteReply}
-        onClose={() => setReplyToDelete(null)}
-      />
-    </main>
+      </main>
+    </div>
   );
 }
