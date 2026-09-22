@@ -1,200 +1,68 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import styles from "@/components/legal/legal.module.css";
 
 export const metadata: Metadata = {
   title: "Cancellation & Refund Policy | Private Academy Engineering",
-  description: "Read the Cancellation & Refund Policy for Private Academy Engineering to understand refund eligibility, digital product delivery, duplicate charge resolutions, and Razorpay processing timelines.",
+  description: "Read the Cancellation and Refund Policy for digital study note purchases and transactions on Private Academy Engineering.",
   alternates: {
     canonical: "/refund-policy",
   },
   openGraph: {
     title: "Cancellation & Refund Policy | Private Academy Engineering",
-    description: "Read the Cancellation & Refund Policy for Private Academy Engineering.",
+    description: "Read the Cancellation and Refund Policy for digital study note purchases on Private Academy Engineering.",
     url: "/refund-policy",
   },
   twitter: {
     card: "summary_large_image",
     title: "Cancellation & Refund Policy | Private Academy Engineering",
-    description: "Read the Cancellation & Refund Policy for Private Academy Engineering.",
+    description: "Read the Cancellation and Refund Policy for digital study note purchases on Private Academy Engineering.",
   },
 };
 
 export default function RefundPolicyPage() {
   return (
-    <div style={{ 
-      width: "100%", 
-      maxWidth: "900px", 
-      margin: "0 auto", 
-      padding: "4rem 1.5rem", 
-      display: "flex", 
-      flexDirection: "column", 
-      gap: "3rem" 
-    }}>
-      <style>{`
-        @keyframes floatIn {
-          from { opacity: 0; transform: translateY(15px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade {
-          animation: floatIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .legal-section {
-          background: rgba(24, 24, 27, 0.15);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          padding: 2.25rem 2rem;
-          transition: var(--transition);
-        }
-        .legal-section:hover {
-          border-color: var(--accent);
-          background: rgba(251, 191, 36, 0.02);
-          box-shadow: 0 8px 24px -8px rgba(251, 191, 36, 0.12);
-        }
-        .legal-section h2 {
-          font-size: 1.3rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 1rem;
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-        }
-        .legal-section p {
-          font-size: 0.95rem;
-          color: var(--text-secondary);
-          line-height: 1.7;
-          margin-bottom: 1rem;
-        }
-        .legal-section p:last-child {
-          margin-bottom: 0;
-        }
-        .legal-section li {
-          font-size: 0.95rem;
-          color: var(--text-secondary);
-          line-height: 1.7;
-        }
-        .legal-section ul {
-          margin: 0.75rem 0 1rem 1.25rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .toc-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 0.75rem;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          padding: 1.5rem;
-          margin-bottom: 1rem;
-        }
-        .toc-link {
-          color: var(--text-secondary);
-          text-decoration: none;
-          font-size: 0.9rem;
-          font-weight: 500;
-          transition: var(--transition);
-          display: inline-flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-        .toc-link:hover {
-          color: var(--accent);
-          transform: translateX(4px);
-        }
-        .callout-box {
-          background: rgba(251, 191, 36, 0.05);
-          border-left: 4px solid var(--accent);
-          border-radius: 0 var(--radius) var(--radius) 0;
-          padding: 1.25rem 1.5rem;
-          margin-bottom: 1rem;
-        }
-        .callout-title {
-          font-size: 0.9rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          margin-bottom: 0.35rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-        .back-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          background-color: var(--card-bg);
-          color: var(--text-primary);
-          border: 1px solid var(--border);
-          padding: 0.75rem 1.5rem;
-          border-radius: var(--radius);
-          font-weight: 600;
-          font-size: 0.9rem;
-          transition: var(--transition);
-          cursor: pointer;
-          text-decoration: none;
-          align-self: flex-start;
-        }
-        .back-btn:hover {
-          background-color: var(--border);
-          transform: translateY(-2px);
-          border-color: var(--accent);
-        }
-      `}</style>
-
+    <div className={styles.container}>
       {/* Header */}
-      <header className="animate-fade" style={{ borderBottom: "1px solid var(--border)", paddingBottom: "2rem" }} id="refund-header">
-        <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "rgba(251, 191, 36, 0.1)",
-          border: "1px solid rgba(251, 191, 36, 0.25)",
-          borderRadius: "999px",
-          padding: "0.4rem 1rem",
-          fontSize: "0.78rem",
-          fontWeight: 600,
-          color: "#facc15",
-          marginBottom: "1rem",
-          letterSpacing: "0.02em",
-          textTransform: "uppercase"
-        }}>
+      <header className={`${styles.animateFade} ${styles.header}`} id="refund-header">
+        <div className={styles.badgePill}>
           Payment Terms
         </div>
-        <h1 style={{ fontSize: "clamp(2.25rem, 5vw, 3rem)", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1.1 }} id="refund-title">
+        <h1 className={styles.title} id="refund-title">
           Cancellation &amp; Refund Policy
         </h1>
-        <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
+        <p className={styles.subtitle}>
           Last Updated: August 18, 2026
         </p>
       </header>
 
       {/* Summary Callout */}
-      <div className="animate-fade callout-box">
-        <div className="callout-title">Policy Overview</div>
+      <div className={`${styles.animateFade} ${styles.calloutBox}`}>
+        <div className={styles.calloutTitle}>Policy Overview</div>
         <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
           At <strong>Private Academy Engineering</strong>, we strive to ensure a smooth purchase experience for all engineering study materials. Because our products consist of instant digital file downloads and access unlocks, please review our refund guidelines below.
         </p>
       </div>
 
       {/* Table of Contents */}
-      <div className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+      <div className={styles.animateFade} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>Table of Contents</h3>
-        <nav className="toc-grid">
-          <a href="#digital-nature" className="toc-link">1. Digital Products &amp; Non-Refundability</a>
-          <a href="#eligible-exceptions" className="toc-link">2. Eligible Refund Circumstances</a>
-          <a href="#failed-transactions" className="toc-link">3. Failed Debits &amp; Razorpay Status</a>
-          <a href="#timelines" className="toc-link">4. Refund Processing &amp; Payout Timelines</a>
-          <a href="#cancellation" className="toc-link">5. Order Cancellation Rules</a>
-          <a href="#support-contact" className="toc-link">6. Refund Support &amp; Grievances</a>
+        <nav className={styles.tocGrid}>
+          <a href="#digital-nature" className={styles.tocLink}>1. Digital Products &amp; Non-Refundability</a>
+          <a href="#eligible-exceptions" className={styles.tocLink}>2. Eligible Refund Circumstances</a>
+          <a href="#failed-transactions" className={styles.tocLink}>3. Failed Debits &amp; Razorpay Status</a>
+          <a href="#timelines" className={styles.tocLink}>4. Refund Processing &amp; Payout Timelines</a>
+          <a href="#cancellation" className={styles.tocLink}>5. Order Cancellation Rules</a>
+          <a href="#support-contact" className={styles.tocLink}>6. Refund Support &amp; Grievances</a>
         </nav>
       </div>
 
       {/* Main content grid */}
-      <main className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: "2rem" }} id="refund-body">
+      <main className={styles.animateFade} style={{ display: "flex", flexDirection: "column", gap: "2rem" }} id="refund-body">
         
         {/* Section 1 */}
-        <section id="digital-nature" className="legal-section">
+        <section id="digital-nature" className={styles.legalSection}>
           <h2>
             <span style={{ color: "var(--accent)" }}>01.</span> Digital Products &amp; Non-Refundability
           </h2>
@@ -209,7 +77,7 @@ export default function RefundPolicyPage() {
         </section>
 
         {/* Section 2 */}
-        <section id="eligible-exceptions" className="legal-section">
+        <section id="eligible-exceptions" className={styles.legalSection}>
           <h2>
             <span style={{ color: "var(--accent)" }}>02.</span> Eligible Refund Circumstances
           </h2>
@@ -224,7 +92,7 @@ export default function RefundPolicyPage() {
         </section>
 
         {/* Section 3 */}
-        <section id="failed-transactions" className="legal-section">
+        <section id="failed-transactions" className={styles.legalSection}>
           <h2>
             <span style={{ color: "var(--accent)" }}>03.</span> Failed Debits &amp; Razorpay Status
           </h2>
@@ -238,7 +106,7 @@ export default function RefundPolicyPage() {
         </section>
 
         {/* Section 4 */}
-        <section id="timelines" className="legal-section">
+        <section id="timelines" className={styles.legalSection}>
           <h2>
             <span style={{ color: "var(--accent)" }}>04.</span> Refund Processing &amp; Payout Timelines
           </h2>
@@ -252,7 +120,7 @@ export default function RefundPolicyPage() {
         </section>
 
         {/* Section 5 */}
-        <section id="cancellation" className="legal-section">
+        <section id="cancellation" className={styles.legalSection}>
           <h2>
             <span style={{ color: "var(--accent)" }}>05.</span> Order Cancellation Rules
           </h2>
@@ -266,7 +134,7 @@ export default function RefundPolicyPage() {
         </section>
 
         {/* Section 6 */}
-        <section id="support-contact" className="legal-section">
+        <section id="support-contact" className={styles.legalSection}>
           <h2>
             <span style={{ color: "var(--accent)" }}>06.</span> Refund Support &amp; Grievances
           </h2>
@@ -283,8 +151,8 @@ export default function RefundPolicyPage() {
       </main>
 
       {/* Footer Navigation */}
-      <footer style={{ borderTop: "1px solid var(--border)", paddingTop: "2rem", display: "flex", gap: "1rem" }}>
-        <Link href="/" className="back-btn">
+      <footer className={styles.footer}>
+        <Link href="/" className={styles.backBtn}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
