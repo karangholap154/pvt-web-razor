@@ -24,43 +24,33 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close menu and dropdowns whenever route changes
+  // Close menu and dropdown whenever route changes
   useEffect(() => {
     const timer = setTimeout(() => {
       setMenuOpen(false);
       setDropdownOpen(false);
-      setMoreDropdownOpen(false);
     }, 0);
     return () => clearTimeout(timer);
   }, [pathname]);
 
-  // Handle click outside dropdowns
+  // Handle click outside profile dropdown
   useEffect(() => {
-    if (!dropdownOpen && !moreDropdownOpen) return;
+    if (!dropdownOpen) return;
     const handleOutsideClick = () => {
       setDropdownOpen(false);
-      setMoreDropdownOpen(false);
     };
     document.addEventListener("click", handleOutsideClick);
     return () => document.removeEventListener("click", handleOutsideClick);
-  }, [dropdownOpen, moreDropdownOpen]);
+  }, [dropdownOpen]);
 
   const toggleDropdown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setMoreDropdownOpen(false);
     setDropdownOpen((prev) => !prev);
   };
 
-  const toggleMoreDropdown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDropdownOpen(false);
-    setMoreDropdownOpen((prev) => !prev);
-  };
-
-  // Lock body scroll when menu is open
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
@@ -76,33 +66,25 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
     if (href === "/") {
       return pathname === "/";
     }
+    if (href === "/notes") {
+      return pathname === "/notes" || pathname === "/";
+    }
     return pathname.startsWith(href);
   };
 
-  // Primary 4 tabs for main visibility across screens
-  const primaryNavLinks = [
+  // Streamlined 5 core tabs
+  const navLinks = [
     { href: "/notes", label: "Official Notes" },
     { href: "/community-notes", label: "Community Notes" },
     { href: "/discussions", label: "Discussions" },
+    { href: "/projects", label: "Projects" },
     { href: "/contribute", label: "Contribute" },
   ];
-
-  // Secondary tabs tucked into More dropdown on LG screens
-  const secondaryNavLinks = [
-    { href: "/projects", label: "Projects" },
-    { href: "/articles", label: "Articles" },
-    { href: "/about", label: "About" },
-    { href: "/careers", label: "Careers" },
-    { href: "/contact", label: "Contact" },
-  ];
-
-  const isSecondaryActive = secondaryNavLinks.some((link) => isActive(link.href));
 
   return (
     <>
       <nav className={styles.nav} id="desktop-nav" aria-label="Main navigation">
-        {/* Primary Main Links */}
-        {primaryNavLinks.map((link) => (
+        {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
@@ -112,49 +94,6 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
             {link.label}
           </Link>
         ))}
-
-        {/* Secondary Links (Expanded on XL screens) */}
-        <div className={styles.secondaryDesktopGroup}>
-          {secondaryNavLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
-              id={`nav-link-${link.label.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* "More ▾" Overflow Dropdown (Visible on LG screens: 900px - 1199px) */}
-        <div className={styles.moreDropdownContainer}>
-          <button
-            type="button"
-            className={`${styles.navLink} ${styles.moreBtn} ${isSecondaryActive ? styles.navLinkActive : ""}`}
-            onClick={toggleMoreDropdown}
-            aria-label="More navigation options"
-            aria-haspopup="true"
-            aria-expanded={moreDropdownOpen}
-          >
-            More <span className={`${styles.dropdownArrow} ${moreDropdownOpen ? styles.dropdownArrowOpen : ""}`}>▾</span>
-          </button>
-
-          {moreDropdownOpen && (
-            <div className={styles.moreDropdownMenu} onClick={(e) => e.stopPropagation()}>
-              {secondaryNavLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`${styles.moreDropdownItem} ${isActive(link.href) ? styles.moreDropdownItemActive : ""}`}
-                  onClick={() => setMoreDropdownOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
       </nav>
 
       {/* Header Actions Container (Visible on Desktop, Tablet & Mobile Header) */}
@@ -179,15 +118,17 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
             </button>
             
             {dropdownOpen && (
-              <div className={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.dropdownMenu}>
                 <div className={styles.dropdownHeader}>
-                  {userName && <div className={styles.dropdownName}>{userName}</div>}
+                  {userName && (
+                    <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--text-primary)" }}>
+                      {userName}
+                    </div>
+                  )}
                   {displayUsername && (
-                    <Link
-                      href={`/u/${displayUsername}`}
-                      style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent)", marginBottom: "0.2rem", textDecoration: "none", display: "block" }}
-                      onClick={() => setDropdownOpen(false)}
-                    >@{displayUsername}</Link>
+                    <div style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>
+                      @{displayUsername}
+                    </div>
                   )}
                   <div className={styles.dropdownEmail}>{sessionEmail}</div>
                 </div>
@@ -278,24 +219,8 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
         </div>
 
         <div className={styles.mobileNavLinks}>
-          {/* Section 1: Core Navigation */}
-          <div className={styles.drawerSectionLabel}>Main</div>
-          {primaryNavLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${styles.mobileNavLink} ${isActive(link.href) ? styles.mobileNavLinkActive : ""}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <div className={styles.drawerSectionDivider} />
-
-          {/* Section 2: Explore */}
-          <div className={styles.drawerSectionLabel}>Explore</div>
-          {secondaryNavLinks.map((link) => (
+          <div className={styles.drawerSectionLabel}>Menu</div>
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -351,31 +276,10 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
               className={styles.mobileNavLinkAuth}
               onClick={() => setMenuOpen(false)}
             >
-              Login / Sign Up
+              Login to Account
             </Link>
           )}
         </div>
-
-        {sessionEmail && (
-          <div className={styles.mobileDrawerFooter}>
-            <div className={styles.mobileUserContainer}>
-              {avatarUrl ? (
-                <Image src={avatarUrl} alt="Avatar" className={styles.mobileAvatarImg} referrerPolicy="no-referrer" width={42} height={42} unoptimized />
-              ) : (
-                <div className={styles.mobileAvatarFallback}>
-                  {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className={styles.mobileUserInfo}>
-                {userName && <span className={styles.mobileUserName}>{userName}</span>}
-                {displayUsername && (
-                  <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--accent)" }}>@{displayUsername}</span>
-                )}
-                <span className={styles.mobileUserEmail}>{sessionEmail}</span>
-              </div>
-            </div>
-          </div>
-        )}
       </nav>
     </>
   );

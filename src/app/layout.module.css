@@ -711,99 +711,16 @@
   align-items: center;
 }
 
-.moreDropdownContainer {
-  position: relative;
-  display: none;
-}
-
-.moreBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-family: inherit;
-}
-
-.dropdownArrow {
-  font-size: 0.7rem;
-  transition: transform 0.2s ease;
-  display: inline-block;
-}
-
-.dropdownArrowOpen {
-  transform: rotate(180deg);
-}
-
-.moreDropdownMenu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 0.5rem;
-  width: 170px;
-  background: rgba(9, 9, 11, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-lg);
-  padding: 0.4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  z-index: 250;
-  transform-origin: top left;
-  animation: scaleIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.moreDropdownItem {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.moreDropdownItem:hover {
-  color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.06);
-}
-
-.moreDropdownItemActive {
-  color: var(--accent) !important;
-  background-color: rgba(251, 191, 36, 0.08) !important;
-  font-weight: 600;
-}
-
 /* ─── Responsive Breakpoints ────────────────────────────────── */
 
-/* XL Desktop — display all primary + secondary links inline */
-@media (min-width: 1200px) {
-  .secondaryDesktopGroup {
-    display: flex;
-  }
-  .moreDropdownContainer {
-    display: none;
-  }
-}
-
-/* LG Laptop / Small Desktop (900px - 1199px) — show primary + More dropdown */
+/* LG Laptop / Small Desktop (900px - 1199px) — slightly tighter nav spacing */
 @media (max-width: 1199px) and (min-width: 900px) {
   .nav {
-    gap: 0.2rem;
-  }
-  .secondaryDesktopGroup {
-    display: none;
-  }
-  .moreDropdownContainer {
-    display: block;
+    gap: 0.15rem;
   }
   .navLink {
-    font-size: 0.85rem;
-    padding: 0.45rem 0.6rem;
+    font-size: 0.825rem;
+    padding: 0.4rem 0.55rem;
   }
 }
 
