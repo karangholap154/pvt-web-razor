@@ -81,14 +81,15 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
 
   // Primary 4 tabs for main visibility across screens
   const primaryNavLinks = [
-    { href: "/", label: "Home" },
+    { href: "/notes", label: "Official Notes" },
+    { href: "/community-notes", label: "Community Notes" },
     { href: "/discussions", label: "Discussions" },
     { href: "/contribute", label: "Contribute" },
-    { href: "/projects", label: "Projects" },
   ];
 
   // Secondary tabs tucked into More dropdown on LG screens
   const secondaryNavLinks = [
+    { href: "/projects", label: "Projects" },
     { href: "/articles", label: "Articles" },
     { href: "/about", label: "About" },
     { href: "/careers", label: "Careers" },

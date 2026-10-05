@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/utils/supabaseServer";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const source = searchParams.get("source"); // "official" | "community" | "all"
     const university = searchParams.get("university");
     const branch = searchParams.get("branch");
     const semester = searchParams.get("semester");
@@ -18,12 +19,23 @@ export async function GET(request: Request) {
     if (university && university !== "All universities") {
       metaQuery = metaQuery.eq("university", university);
     }
+    if (source === "official") {
+      metaQuery = metaQuery.or("is_community_contributed.is.null,is_community_contributed.eq.false");
+    } else if (source === "community") {
+      metaQuery = metaQuery.eq("is_community_contributed", true);
+    }
     const { data: allNotesMeta } = await metaQuery;
 
     // 2. Build filtered notes query with relational contributor join
     let query = supabase
       .from("notes")
       .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed, users:contributor_id(username, full_name)", { count: "exact" });
+
+    if (source === "official") {
+      query = query.or("is_community_contributed.is.null,is_community_contributed.eq.false");
+    } else if (source === "community") {
+      query = query.eq("is_community_contributed", true);
+    }
 
     if (university && university !== "All universities") {
       query = query.eq("university", university);

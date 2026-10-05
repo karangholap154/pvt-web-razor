@@ -31,9 +31,10 @@ interface RazorpayWindow extends Window {
 interface HomeContentProps {
   initialNotes?: Note[];
   initialMeta?: { id: string; title: string; branch: string; semester: string; university?: string }[];
+  catalogMode?: "official" | "community" | "all";
 }
 
-export default function HomeContent({ initialNotes = [], initialMeta = [] }: HomeContentProps) {
+export default function HomeContent({ initialNotes = [], initialMeta = [], catalogMode = "all" }: HomeContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
@@ -146,6 +147,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
         if (debouncedSearchQuery && debouncedSearchQuery.trim() !== "") {
           queryParams.set("q", debouncedSearchQuery.trim());
         }
+        if (catalogMode && catalogMode !== "all") {
+          queryParams.set("source", catalogMode);
+        }
 
         const res = await fetch(`/api/notes?${queryParams.toString()}`);
         if (!res.ok) {
@@ -196,7 +200,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
     }
 
     loadData();
-  }, [authState, userUniversity, selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta]);
+  }, [authState, userUniversity, selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta, catalogMode]);
 
   // Server pre-filters notes, so filteredNotes simply references state notes
   const filteredNotes = notes;
@@ -723,7 +727,27 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
           <section className={styles.notesSection} id="featured-notes-section">
           <div className={styles.catalogHeader}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+              {catalogMode === "community" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                  <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span>👥</span> Student & Community Notes
+                  </h2>
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                    Peer-contributed study materials, chapter summaries & revision sheets
+                  </span>
+                </div>
+              ) : catalogMode === "official" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                  <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span>🏛️</span> Official Study Notes
+                  </h2>
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                    Verified, authentic & syllabus-complete guides curated by Private Academy
+                  </span>
+                </div>
+              ) : (
+                <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+              )}
               <select
                 value={selectedUniv}
                 onChange={(e) => setSelectedUniv(e.target.value)}
@@ -809,6 +833,57 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                   autoFocus
                 />
               </div>
+            </div>
+          )}
+
+          {catalogMode === "community" && (
+            <div style={{
+              margin: "1rem 0 1.25rem",
+              padding: "0.9rem 1.25rem",
+              borderRadius: "10px",
+              background: "rgba(245, 158, 11, 0.08)",
+              border: "1px solid rgba(245, 158, 11, 0.25)",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "0.85rem",
+            }}>
+              <span style={{ fontSize: "1.35rem", lineHeight: 1 }}>ℹ️</span>
+              <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.55 }}>
+                <strong style={{ color: "var(--text-primary)" }}>Community Contributed Notes: </strong>
+                These study materials are submitted by student peers and contributors across universities. Most uploads cover specific chapters (e.g. Unit 1–2), class notes, or quick revision formulas and may not represent the full syllabus. Please inspect the preview before downloading or unlocking.
+                <div style={{ marginTop: "0.5rem", display: "flex", gap: "1.2rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <Link href="/notes" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
+                    Looking for verified, complete subject guides? Browse Official Notes →
+                  </Link>
+                  <Link href="/contribute" style={{ color: "#38bdf8", fontWeight: 700, textDecoration: "none" }}>
+                    Upload your notes & earn UPI payouts →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {catalogMode === "official" && (
+            <div style={{
+              margin: "1rem 0 1.25rem",
+              padding: "0.75rem 1.15rem",
+              borderRadius: "10px",
+              background: "rgba(59, 130, 246, 0.07)",
+              border: "1px solid rgba(59, 130, 246, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "0.75rem",
+              fontSize: "0.85rem",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-secondary)" }}>
+                <span>🛡️</span>
+                <span><strong style={{ color: "var(--text-primary)" }}>100% Syllabus Coverage:</strong> Curated and verified official engineering study notes.</span>
+              </div>
+              <Link href="/community-notes" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+                Looking for student chapter notes? Browse Community Notes →
+              </Link>
             </div>
           )}
 
@@ -1206,7 +1281,27 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
       <section className={styles.notesSection} id="featured-notes-section">
         <div className={styles.catalogHeader}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+            {catalogMode === "community" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span>👥</span> Student & Community Notes
+                </h2>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                  Peer-contributed study materials, chapter summaries & revision sheets
+                </span>
+              </div>
+            ) : catalogMode === "official" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span>🏛️</span> Official Study Notes
+                </h2>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                  Verified, authentic & syllabus-complete guides curated by Private Academy
+                </span>
+              </div>
+            ) : (
+              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Study notes catalog</h2>
+            )}
             {!userUniversity && (
               <select
                 value={selectedUniv}
@@ -1294,6 +1389,57 @@ export default function HomeContent({ initialNotes = [], initialMeta = [] }: Hom
                 autoFocus
               />
             </div>
+          </div>
+        )}
+
+        {catalogMode === "community" && (
+          <div style={{
+            margin: "1rem 0 1.25rem",
+            padding: "0.9rem 1.25rem",
+            borderRadius: "10px",
+            background: "rgba(245, 158, 11, 0.08)",
+            border: "1px solid rgba(245, 158, 11, 0.25)",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "0.85rem",
+          }}>
+            <span style={{ fontSize: "1.35rem", lineHeight: 1 }}>ℹ️</span>
+            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.55 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Community Contributed Notes: </strong>
+              These study materials are submitted by student peers and contributors across universities. Most uploads cover specific chapters (e.g. Unit 1–2), class notes, or quick revision formulas and may not represent the full syllabus. Please inspect the preview before downloading or unlocking.
+              <div style={{ marginTop: "0.5rem", display: "flex", gap: "1.2rem", flexWrap: "wrap", alignItems: "center" }}>
+                <Link href="/notes" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
+                  Looking for verified, complete subject guides? Browse Official Notes →
+                </Link>
+                <Link href="/contribute" style={{ color: "#38bdf8", fontWeight: 700, textDecoration: "none" }}>
+                  Upload your notes & earn UPI payouts →
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {catalogMode === "official" && (
+          <div style={{
+            margin: "1rem 0 1.25rem",
+            padding: "0.75rem 1.15rem",
+            borderRadius: "10px",
+            background: "rgba(59, 130, 246, 0.07)",
+            border: "1px solid rgba(59, 130, 246, 0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+            fontSize: "0.85rem",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-secondary)" }}>
+              <span>🛡️</span>
+              <span><strong style={{ color: "var(--text-primary)" }}>100% Syllabus Coverage:</strong> Curated and verified official engineering study notes.</span>
+            </div>
+            <Link href="/community-notes" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+              Looking for student chapter notes? Browse Community Notes →
+            </Link>
           </div>
         )}
 

@@ -371,12 +371,12 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   return (
     <div className={styles.container}>
       {/* Back Button */}
-      <Link href="/" className={styles.backLink} id="back-to-library-link">
+      <Link href={isStudentNote ? "/community-notes" : "/notes"} className={styles.backLink} id="back-to-library-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        Back to Library
+        {isStudentNote ? "Back to Community Notes" : "Back to Official Notes"}
       </Link>
 
       {/* Header Title Section */}
@@ -419,6 +419,43 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           )}
         </div>
         <h1 className={styles.title} id="note-details-title">{note.title}</h1>
+
+        {isStudentNote ? (
+          <div style={{
+            marginTop: "1rem",
+            padding: "0.85rem 1.15rem",
+            borderRadius: "10px",
+            background: "rgba(245, 158, 11, 0.08)",
+            border: "1px solid rgba(245, 158, 11, 0.25)",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "0.75rem",
+          }}>
+            <span style={{ fontSize: "1.25rem", lineHeight: 1 }}>ℹ️</span>
+            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Community Contributed Material:</strong>{" "}
+              This note was uploaded by a student peer. Most community submissions cover specific chapters or class summaries rather than the complete syllabus. Please check the PDF preview below to verify the chapters covered before unlocking.
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            marginTop: "1rem",
+            padding: "0.75rem 1.15rem",
+            borderRadius: "10px",
+            background: "rgba(16, 185, 129, 0.08)",
+            border: "1px solid rgba(16, 185, 129, 0.25)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.65rem",
+            fontSize: "0.85rem",
+            color: "var(--text-secondary)",
+          }}>
+            <span>🛡️</span>
+            <span>
+              <strong style={{ color: "var(--text-primary)" }}>Official Verified Note:</strong> Reviewed and published by Private Academy. Full syllabus coverage and aligned with university curriculum.
+            </span>
+          </div>
+        )}
       </section>
 
       {/* Main Grid Content */}

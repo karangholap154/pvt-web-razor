@@ -392,6 +392,8 @@ export default async function RootLayout({
                     <h3 className={styles.footerTitle}>Quick Links</h3>
                     <ul className={styles.footerLinks}>
                       <li><Link href="/" className={styles.footerLink}>Home</Link></li>
+                      <li><Link href="/notes" className={styles.footerLink}>Official Notes</Link></li>
+                      <li><Link href="/community-notes" className={styles.footerLink}>Community Notes</Link></li>
                       <li><Link href="/articles" className={styles.footerLink}>Articles</Link></li>
                       <li><Link href="/about" className={styles.footerLink}>About Us</Link></li>
                       <li><Link href="/projects" className={styles.footerLink}>Projects</Link></li>
