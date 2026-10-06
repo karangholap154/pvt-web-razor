@@ -23,9 +23,34 @@ export default function NoteCard({
   id,
 }: NoteCardProps) {
   const router = useRouter();
-  const isStudentNote = !!(note.is_community_contributed || note.contributor_id);
+  const isSupplementary =
+    note.resource_type === "supplementary_guide" ||
+    note.resource_type === "chapter_module" ||
+    note.resource_type === "cheatsheet" ||
+    note.resource_type === "question_bank" ||
+    note.resource_type === "lab_manual" ||
+    (note.is_community_contributed && note.resource_type !== "official_subject");
+
+  const isStudentNote = !!(note.is_community_contributed || note.contributor_id || isSupplementary);
   const hasVideo = !!note.videoUrl && !!onWatchVideo;
   const isPaid = typeof note.price === "number" && note.price > 0;
+
+  const getResourceTypeLabel = (type?: string | null) => {
+    switch (type) {
+      case "supplementary_guide":
+        return "Supplementary Guide";
+      case "chapter_module":
+        return "Chapter / Module Notes";
+      case "cheatsheet":
+        return "Quick Revision Sheet";
+      case "question_bank":
+        return "Question Bank / PYQs";
+      case "lab_manual":
+        return "Lab Manual";
+      default:
+        return "Supplementary Resource";
+    }
+  };
 
   const handleCardClick = () => {
     router.push(`/notes/${note.id}`);
@@ -56,18 +81,38 @@ export default function NoteCard({
       aria-label={note.title}
     >
       <div className={styles.cardHeader}>
-        <h3 className={styles.cardTitle}>
-          <Link
-            href={`/notes/${note.id}`}
-            className={styles.titleLink}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {note.title}
-          </Link>
-        </h3>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3 className={styles.cardTitle}>
+            <Link
+              href={`/notes/${note.id}`}
+              className={styles.titleLink}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {note.title}
+            </Link>
+          </h3>
+          {note.subject && note.subject !== note.title && (
+            <div style={{ fontSize: "0.78rem", color: "#f59e0b", marginTop: "0.3rem", fontWeight: 600 }}>
+              📚 Course: {note.subject}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.badgeRow}>
+        {isSupplementary && (
+          <span
+            className={styles.badge}
+            style={{
+              backgroundColor: "rgba(245, 158, 11, 0.15)",
+              color: "#fbbf24",
+              border: "1px solid rgba(245, 158, 11, 0.35)",
+            }}
+          >
+            💡 {getResourceTypeLabel(note.resource_type)}
+          </span>
+        )}
+
         <span
           className={`${styles.badge} ${
             isStudentNote ? styles.tagBranchStudent : styles.tagBranch
@@ -214,22 +259,27 @@ export default function NoteCard({
 
       <div className={styles.contributorRow}>
         {isStudentNote ? (
-          note.contributor_username ? (
-            <Link
-              href={`/u/${note.contributor_username}`}
-              onClick={(e) => e.stopPropagation()}
-              className={styles.contributorBadgeStudent}
-            >
-              By @{note.contributor_username}
-            </Link>
-          ) : (
-            <span className={styles.contributorBadgeStudent}>
-              Student Contribution
+          <div style={{ display: "flex", gap: "0.45rem", alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)", fontStyle: "italic" }}>
+              Supplementary Material
             </span>
-          )
+            {note.contributor_username ? (
+              <Link
+                href={`/u/${note.contributor_username}`}
+                onClick={(e) => e.stopPropagation()}
+                className={styles.contributorBadgeStudent}
+              >
+                By @{note.contributor_username}
+              </Link>
+            ) : (
+              <span className={styles.contributorBadgeStudent}>
+                Student Resource
+              </span>
+            )}
+          </div>
         ) : (
           <span className={styles.contributorBadgePlatform}>
-            Official Note
+            Official Subject Syllabus
           </span>
         )}
       </div>

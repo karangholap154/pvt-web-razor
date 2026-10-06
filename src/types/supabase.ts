@@ -169,6 +169,9 @@ export type Database = {
           title: string
           university: string | null
           video_url: string | null
+          subject?: string | null
+          resource_type?: string | null
+          coverage_scope?: string | null
           contributor_id?: string | null
           is_community_contributed?: boolean | null
           platform_commission_rate?: number | null
@@ -183,6 +186,9 @@ export type Database = {
           title: string
           university?: string | null
           video_url?: string | null
+          subject?: string | null
+          resource_type?: string | null
+          coverage_scope?: string | null
           contributor_id?: string | null
           is_community_contributed?: boolean | null
           platform_commission_rate?: number | null
@@ -197,6 +203,9 @@ export type Database = {
           title?: string
           university?: string | null
           video_url?: string | null
+          subject?: string | null
+          resource_type?: string | null
+          coverage_scope?: string | null
           contributor_id?: string | null
           is_community_contributed?: boolean | null
           platform_commission_rate?: number | null
@@ -217,6 +226,9 @@ export type Database = {
           university: string
           updated_at: string | null
           user_id: string
+          subject?: string | null
+          resource_type?: string | null
+          is_supplementary?: boolean | null
         }
         Insert: {
           admin_feedback?: string | null
@@ -231,6 +243,9 @@ export type Database = {
           university: string
           updated_at?: string | null
           user_id: string
+          subject?: string | null
+          resource_type?: string | null
+          is_supplementary?: boolean | null
         }
         Update: {
           admin_feedback?: string | null
@@ -245,6 +260,9 @@ export type Database = {
           university?: string
           updated_at?: string | null
           user_id?: string
+          subject?: string | null
+          resource_type?: string | null
+          is_supplementary?: boolean | null
         }
         Relationships: []
       }

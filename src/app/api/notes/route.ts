@@ -15,26 +15,26 @@ export async function GET(request: Request) {
     const supabase = await createSupabaseServerClient();
 
     // 1. Fetch metadata (lightweight branch/semester note summaries for folder tree & counts)
-    let metaQuery = supabase.from("notes").select("id, title, branch, semester, university");
+    let metaQuery = supabase.from("notes").select("id, title, branch, semester, university, subject, resource_type");
     if (university && university !== "All universities") {
       metaQuery = metaQuery.eq("university", university);
     }
     if (source === "official") {
-      metaQuery = metaQuery.or("is_community_contributed.is.null,is_community_contributed.eq.false");
+      metaQuery = metaQuery.or("resource_type.eq.official_subject,and(is_community_contributed.is.null,resource_type.is.null),and(is_community_contributed.eq.false,resource_type.is.null)");
     } else if (source === "community") {
-      metaQuery = metaQuery.eq("is_community_contributed", true);
+      metaQuery = metaQuery.or("resource_type.neq.official_subject,is_community_contributed.eq.true");
     }
     const { data: allNotesMeta } = await metaQuery;
 
     // 2. Build filtered notes query with relational contributor join
     let query = supabase
       .from("notes")
-      .select("id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed, users:contributor_id(username, full_name)", { count: "exact" });
+      .select("id, title, branch, semester, download_url, video_url, price, university, subject, resource_type, coverage_scope, contributor_id, is_community_contributed, users:contributor_id(username, full_name)", { count: "exact" });
 
     if (source === "official") {
-      query = query.or("is_community_contributed.is.null,is_community_contributed.eq.false");
+      query = query.or("resource_type.eq.official_subject,and(is_community_contributed.is.null,resource_type.is.null),and(is_community_contributed.eq.false,resource_type.is.null)");
     } else if (source === "community") {
-      query = query.eq("is_community_contributed", true);
+      query = query.or("resource_type.neq.official_subject,is_community_contributed.eq.true");
     }
 
     if (university && university !== "All universities") {
@@ -87,6 +87,9 @@ export async function GET(request: Request) {
         title: item.title,
         branch: item.branch,
         semester: item.semester,
+        subject: item.subject || item.title,
+        resource_type: item.resource_type || (item.is_community_contributed ? "supplementary_guide" : "official_subject"),
+        coverage_scope: item.coverage_scope || null,
         video_url: item.video_url,
         price: item.price,
         university: item.university,

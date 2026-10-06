@@ -28,6 +28,14 @@ export const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"] as const;
 export type Branch = typeof BRANCHES[number];
 export type Semester = typeof SEMESTERS[number];
 
+export type ResourceType =
+  | "official_subject"
+  | "supplementary_guide"
+  | "chapter_module"
+  | "cheatsheet"
+  | "question_bank"
+  | "lab_manual";
+
 export interface Note {
   id: string;
   title: string;
@@ -38,6 +46,9 @@ export interface Note {
   videoUrl: string;
   price?: number;
   university?: string;
+  subject?: string | null;
+  resource_type?: ResourceType | string | null;
+  coverage_scope?: string | null;
   is_community_contributed?: boolean | null;
   contributor_id?: string | null;
   contributor_username?: string | null;

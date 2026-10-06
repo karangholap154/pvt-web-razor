@@ -26,6 +26,9 @@ export default function ContributeModal({
 
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
+  const [subject, setSubject] = useState("");
+  const [resourceType, setResourceType] = useState("supplementary_guide");
+  const [isSupplementaryConfirmed, setIsSupplementaryConfirmed] = useState(true);
   const [university, setUniversity] = useState<string>(defaultUniversity || UNIVERSITIES[0].value);
   const [branch, setBranch] = useState<string>(defaultBranch || BRANCHES[0]);
   const [semester, setSemester] = useState<string>(SEMESTERS[0]);
@@ -105,6 +108,8 @@ export default function ContributeModal({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", title.trim());
+      formData.append("subject", subject.trim());
+      formData.append("resourceType", resourceType);
       formData.append("university", university);
       formData.append("branch", branch);
       formData.append("semester", semester);
@@ -279,7 +284,7 @@ export default function ContributeModal({
             <input
               id="note-title-input"
               type="text"
-              placeholder="e.g. Data Structures & Algorithms Revision Notes"
+              placeholder="e.g. AWS Security for Beginners: Practical Guide to IAM & MFA"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -293,6 +298,63 @@ export default function ContributeModal({
                 fontSize: "0.9rem",
               }}
             />
+          </div>
+
+          {/* Related Subject & Material Classification */}
+          <div className="cm-grid-2col">
+            <div>
+              <label htmlFor="contribute-subject-input" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
+                Related Subject / Course <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>(Optional)</span>
+              </label>
+              <input
+                id="contribute-subject-input"
+                type="text"
+                placeholder="e.g. Amazon Web Services (AWS) Certification"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
+                  backgroundColor: "rgba(0, 0, 0, 0.2)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.85rem",
+                }}
+              />
+              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginTop: "0.2rem", display: "block" }}>
+                Which university course does this supplement?
+              </span>
+            </div>
+
+            <div>
+              <label htmlFor="contribute-resource-type" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
+                Material Classification
+              </label>
+              <select
+                id="contribute-resource-type"
+                value={resourceType}
+                onChange={(e) => setResourceType(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
+                  backgroundColor: "rgba(0, 0, 0, 0.4)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <option value="supplementary_guide">Supplementary Topic Guide / Practical Reference</option>
+                <option value="chapter_module">Chapter / Unit Notes (Unit 1–2, etc.)</option>
+                <option value="cheatsheet">Quick Revision / Formula Sheet</option>
+                <option value="question_bank">Question Bank & PYQ Solutions</option>
+                <option value="lab_manual">Lab Manual / Practical Code Guide</option>
+              </select>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginTop: "0.2rem", display: "block" }}>
+                Categorizes how your note appears to students
+              </span>
+            </div>
           </div>
 
           {/* University & Branch */}
@@ -383,6 +445,29 @@ export default function ContributeModal({
               </div>
             </div>
           </div>
+
+          <label style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "0.6rem",
+            fontSize: "0.8rem",
+            color: "var(--text-secondary)",
+            cursor: "pointer",
+            padding: "0.65rem 0.85rem",
+            background: "rgba(255, 255, 255, 0.02)",
+            border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
+            borderRadius: "8px",
+          }}>
+            <input
+              type="checkbox"
+              checked={isSupplementaryConfirmed}
+              onChange={(e) => setIsSupplementaryConfirmed(e.target.checked)}
+              style={{ marginTop: "0.2rem", accentColor: "var(--accent)" }}
+            />
+            <span>
+              I confirm this is a <strong>self-prepared supplementary learning resource</strong> created to assist students, and does not misrepresent itself as an official university syllabus note.
+            </span>
+          </label>
 
           <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0 }}>
             💡 You will earn <strong>80% of net sales</strong> directly to your saved UPI ID upon admin approval.

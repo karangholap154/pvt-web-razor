@@ -41,6 +41,8 @@ export async function POST(request: Request) {
     const university = (formData.get("university") as string || "").trim();
     const branch = (formData.get("branch") as string || "").trim();
     const semester = (formData.get("semester") as string || "").trim();
+    const subject = (formData.get("subject") as string || "").trim() || null;
+    const resourceType = (formData.get("resourceType") as string || "").trim() || "supplementary_guide";
     const rawPrice = Number(formData.get("suggestedPrice")) || 0;
 
     if (!file) {
@@ -127,6 +129,9 @@ export async function POST(request: Request) {
         university,
         branch,
         semester,
+        subject,
+        resource_type: resourceType,
+        is_supplementary: resourceType !== "official_subject",
         suggested_price: price,
         file_url: fileUrl,
         status: "pending",

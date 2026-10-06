@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { submissionId, action, finalPrice, adminFeedback } = body;
+    const { submissionId, action, finalPrice, adminFeedback, finalSubject, finalResourceType } = body;
 
     if (!submissionId || !action || !["approve", "reject", "delete"].includes(action)) {
       return NextResponse.json({ error: "Invalid submission parameters" }, { status: 400 });
@@ -279,11 +279,17 @@ export async function POST(request: Request) {
     const titleSlug = slugify(submission.title) || "study-note";
     const randSuffix = Math.random().toString(36).substring(2, 6);
     const noteId = `${titleSlug}-${randSuffix}`;
+    const assignedSubject = (finalSubject || submission.subject || submission.title || "General").trim();
+    const assignedResourceType = (finalResourceType || submission.resource_type || "supplementary_guide").trim();
+
     const { data: publishedNote, error: noteInsertError } = await supabaseAdmin
       .from("notes")
       .insert({
         id: noteId,
         title: submission.title,
+        subject: assignedSubject,
+        resource_type: assignedResourceType,
+        coverage_scope: assignedResourceType === "official_subject" ? "Full Syllabus" : "Supplementary Material",
         university: submission.university,
         branch: submission.branch,
         semester: submission.semester,
@@ -306,6 +312,8 @@ export async function POST(request: Request) {
       .from("note_submissions")
       .update({
         status: "approved",
+        subject: assignedSubject,
+        resource_type: assignedResourceType,
         admin_feedback: adminFeedback || null,
         updated_at: new Date().toISOString(),
       })

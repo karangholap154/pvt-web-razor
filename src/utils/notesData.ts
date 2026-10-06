@@ -10,6 +10,8 @@ export interface PublicNotesResult {
     branch: string;
     semester: string;
     university?: string;
+    subject?: string;
+    resource_type?: string;
   }[];
 }
 
@@ -29,15 +31,15 @@ export async function getPublicNotesData(
     let query = supabase
       .from("notes")
       .select(
-        "id, title, branch, semester, download_url, video_url, price, university, contributor_id, is_community_contributed"
+        "id, title, branch, semester, download_url, video_url, price, university, subject, resource_type, coverage_scope, contributor_id, is_community_contributed"
       )
       .order("title", { ascending: true })
       .limit(100);
 
     if (source === "official") {
-      query = query.or("is_community_contributed.is.null,is_community_contributed.eq.false");
+      query = query.or("resource_type.eq.official_subject,and(is_community_contributed.is.null,resource_type.is.null),and(is_community_contributed.eq.false,resource_type.is.null)");
     } else if (source === "community") {
-      query = query.eq("is_community_contributed", true);
+      query = query.or("resource_type.neq.official_subject,is_community_contributed.eq.true");
     }
 
     const { data: rawNotes } = await query;
@@ -48,6 +50,8 @@ export async function getPublicNotesData(
       branch: n.branch,
       semester: n.semester,
       university: n.university || undefined,
+      subject: n.subject || n.title,
+      resource_type: n.resource_type || (n.is_community_contributed ? "supplementary_guide" : "official_subject"),
     }));
 
     const contributorIds = Array.from(
@@ -86,6 +90,9 @@ export async function getPublicNotesData(
       videoUrl: item.video_url || "",
       price: item.price ? Number(item.price) : 0,
       university: item.university || undefined,
+      subject: item.subject || item.title,
+      resource_type: item.resource_type || (item.is_community_contributed ? "supplementary_guide" : "official_subject"),
+      coverage_scope: item.coverage_scope || null,
       is_community_contributed: item.is_community_contributed,
       contributor_id: item.contributor_id,
       contributor_username: item.contributor_id

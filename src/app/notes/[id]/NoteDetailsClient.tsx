@@ -406,9 +406,24 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           ) : (
             <span className={styles.tagBranch}>{note.branch}</span>
           )}
-          <span className={styles.badgeSemester}>{note.semester}</span>
+          <span className={styles.badgeSemester}>Sem {note.semester}</span>
           {note.university && (
             <span className={styles.badgeUniversity}>{note.university}</span>
+          )}
+          {note.resource_type && note.resource_type !== "official_subject" && (
+            <span
+              style={{
+                backgroundColor: "rgba(245, 158, 11, 0.15)",
+                color: "#fbbf24",
+                border: "1px solid rgba(245, 158, 11, 0.35)",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                padding: "0.25rem 0.65rem",
+                borderRadius: "6px",
+              }}
+            >
+              💡 Supplementary Guide
+            </span>
           )}
           {isPremium ? (
             <span className={isStudentNote ? styles.badgePriceStudent : styles.badgePricePaid}>
@@ -419,6 +434,11 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
           )}
         </div>
         <h1 className={styles.title} id="note-details-title">{note.title}</h1>
+        {note.subject && note.subject !== note.title && (
+          <div style={{ fontSize: "0.925rem", color: "#fbbf24", marginTop: "0.45rem", fontWeight: 600 }}>
+            📚 Related Course / Subject: <strong>{note.subject}</strong>
+          </div>
+        )}
 
         {isStudentNote ? (
           <div style={{
@@ -431,10 +451,15 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
             alignItems: "flex-start",
             gap: "0.75rem",
           }}>
-            <span style={{ fontSize: "1.25rem", lineHeight: 1 }}>ℹ️</span>
+            <span style={{ fontSize: "1.25rem", lineHeight: 1 }}>💡</span>
             <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-              <strong style={{ color: "var(--text-primary)" }}>Community Contributed Material:</strong>{" "}
-              This note was uploaded by a student peer. Most community submissions cover specific chapters or class summaries rather than the complete syllabus. Please check the PDF preview below to verify the chapters covered before unlocking.
+              <strong style={{ color: "#fbbf24" }}>Supplementary Study Resource:</strong>{" "}
+              {note.subject && note.subject !== note.title ? (
+                <>This document is a focused, student-prepared learning resource supplementary to <strong>{note.subject}</strong> ({note.university || "University"}). </>
+              ) : (
+                <>This document is a student-prepared supplementary learning resource. </>
+              )}
+              It is <strong>NOT an official university syllabus note</strong> and covers specific topics or practical exercises rather than the entire course curriculum. Please inspect the PDF preview below before unlocking.
             </div>
           </div>
         ) : (

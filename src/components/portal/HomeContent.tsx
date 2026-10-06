@@ -167,6 +167,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
           video_url?: string;
           price?: number | string;
           university?: string;
+          subject?: string;
+          resource_type?: string;
+          coverage_scope?: string;
           is_community_contributed?: boolean;
           contributor_id?: string;
           contributor_username?: string;
@@ -181,6 +184,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
           videoUrl: item.video_url || "",
           price: item.price ? Number(item.price) : 0,
           university: item.university || undefined,
+          subject: item.subject || item.title,
+          resource_type: item.resource_type || (item.is_community_contributed ? "supplementary_guide" : "official_subject"),
+          coverage_scope: item.coverage_scope || null,
           is_community_contributed: item.is_community_contributed,
           contributor_id: item.contributor_id,
           contributor_username: item.contributor_username,
@@ -1155,19 +1161,86 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
                 </div>
               ) : (
                 /* Level 3: Notes Grid for selected branch & semester */
-                <div className={styles.grid}>
-                  {filteredNotes.map((note) => (
-                    <NoteCard
-                      key={note.id}
-                      id={`unauth-grid-note-${note.id}`}
-                      note={note}
-                      variant="unauth"
-                      onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
-                      onAction={(n) => router.push(`/notes/${n.id}`)}
-                      actionLabel="Preview & details"
-                    />
-                  ))}
-                </div>
+                (() => {
+                  const officialNotes = filteredNotes.filter((n) => n.resource_type === "official_subject" || (!n.resource_type && !n.is_community_contributed));
+                  const supplementaryNotes = filteredNotes.filter((n) => (n.resource_type && n.resource_type !== "official_subject") || n.is_community_contributed);
+
+                  if (filteredNotes.length === 0) {
+                    return (
+                      <div className={styles.noResults}>
+                        <h3>No study sheets found</h3>
+                        <p>No notes currently uploaded for {selectedBranch} Semester {selectedSemester}.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+                      {officialNotes.length > 0 && (
+                        <div>
+                          <div style={{ marginBottom: "1rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <span style={{ fontSize: "1.1rem" }}>📚</span>
+                              <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
+                                Official Subject Curriculum ({officialNotes.length})
+                              </h3>
+                            </div>
+                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                              Verified, full-syllabus engineering study notes aligned with university curriculum.
+                            </p>
+                          </div>
+                          <div className={styles.grid}>
+                            {officialNotes.map((note) => (
+                              <NoteCard
+                                key={note.id}
+                                id={`unauth-grid-note-${note.id}`}
+                                note={note}
+                                variant="unauth"
+                                onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                                onAction={(n) => router.push(`/notes/${n.id}`)}
+                                actionLabel="Preview & details"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {supplementaryNotes.length > 0 && (
+                        <div style={{
+                          padding: "1.25rem",
+                          borderRadius: "14px",
+                          background: "rgba(245, 158, 11, 0.03)",
+                          border: "1px solid rgba(245, 158, 11, 0.15)",
+                        }}>
+                          <div style={{ marginBottom: "1rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <span style={{ fontSize: "1.1rem" }}>💡</span>
+                              <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "#fbbf24" }}>
+                                Supplementary & Student Learning Resources ({supplementaryNotes.length})
+                              </h3>
+                            </div>
+                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                              Focused topic guides, module notes, and practical reference handbooks contributed by students. Explicitly supplementary — not official syllabus notes.
+                            </p>
+                          </div>
+                          <div className={styles.grid}>
+                            {supplementaryNotes.map((note) => (
+                              <NoteCard
+                                key={note.id}
+                                id={`unauth-grid-note-${note.id}`}
+                                note={note}
+                                variant="unauth"
+                                onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                                onAction={(n) => router.push(`/notes/${n.id}`)}
+                                actionLabel="Preview & details"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
               )}
             </div>
           )}
@@ -1727,25 +1800,85 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
               )
             ) : (
               /* Level 3: Notes Grid for selected branch & semester */
-              filteredNotes.length > 0 ? (
-                <div className={styles.grid}>
-                  {filteredNotes.map((note) => (
-                    <NoteCard
-                      key={note.id}
-                      id={note.id}
-                      note={note}
-                      variant="catalog"
-                      onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
-                      onAction={(n) => handleDownloadClick(n)}
-                      actionLabel={note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.noResults}>
-                  <p>No study sheets found inside {selectedBranch} Engineering {selectedSemester}.</p>
-                </div>
-              )
+              (() => {
+                const officialNotes = filteredNotes.filter((n) => n.resource_type === "official_subject" || (!n.resource_type && !n.is_community_contributed));
+                const supplementaryNotes = filteredNotes.filter((n) => (n.resource_type && n.resource_type !== "official_subject") || n.is_community_contributed);
+
+                if (filteredNotes.length === 0) {
+                  return (
+                    <div className={styles.noResults}>
+                      <p>No study sheets found inside {selectedBranch} Engineering {selectedSemester}.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+                    {officialNotes.length > 0 && (
+                      <div>
+                        <div style={{ marginBottom: "1rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span style={{ fontSize: "1.1rem" }}>📚</span>
+                            <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
+                              Official Subject Curriculum ({officialNotes.length})
+                            </h3>
+                          </div>
+                          <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                            Verified, full-syllabus engineering study notes aligned with university curriculum.
+                          </p>
+                        </div>
+                        <div className={styles.grid}>
+                          {officialNotes.map((note) => (
+                            <NoteCard
+                              key={note.id}
+                              id={note.id}
+                              note={note}
+                              variant="catalog"
+                              onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                              onAction={(n) => handleDownloadClick(n)}
+                              actionLabel={note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {supplementaryNotes.length > 0 && (
+                      <div style={{
+                        padding: "1.25rem",
+                        borderRadius: "14px",
+                        background: "rgba(245, 158, 11, 0.03)",
+                        border: "1px solid rgba(245, 158, 11, 0.15)",
+                      }}>
+                        <div style={{ marginBottom: "1rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span style={{ fontSize: "1.1rem" }}>💡</span>
+                            <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "#fbbf24" }}>
+                              Supplementary & Student Learning Resources ({supplementaryNotes.length})
+                            </h3>
+                          </div>
+                          <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                            Focused topic guides, module notes, and practical reference handbooks contributed by students. Explicitly supplementary — not official syllabus notes.
+                          </p>
+                        </div>
+                        <div className={styles.grid}>
+                          {supplementaryNotes.map((note) => (
+                            <NoteCard
+                              key={note.id}
+                              id={note.id}
+                              note={note}
+                              variant="catalog"
+                              onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                              onAction={(n) => handleDownloadClick(n)}
+                              actionLabel={note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
             )}
           </div>
         )}

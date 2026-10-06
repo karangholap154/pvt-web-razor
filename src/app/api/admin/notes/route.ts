@@ -24,8 +24,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { title, branch, semester, downloadUrl, videoUrl, price, university } =
-      await request.json();
+    const {
+      title,
+      branch,
+      semester,
+      downloadUrl,
+      videoUrl,
+      price,
+      university,
+      subject,
+      resourceType,
+      coverageScope,
+    } = await request.json();
 
     if (!title || !branch || !semester) {
       return NextResponse.json(
@@ -43,6 +53,9 @@ export async function POST(request: Request) {
       .insert({
         id,
         title,
+        subject: (subject || title).trim(),
+        resource_type: resourceType || "official_subject",
+        coverage_scope: coverageScope || null,
         branch,
         semester,
         download_url: downloadUrl || "",
@@ -75,8 +88,19 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { id, title, branch, semester, downloadUrl, videoUrl, price, university } =
-      await request.json();
+    const {
+      id,
+      title,
+      branch,
+      semester,
+      downloadUrl,
+      videoUrl,
+      price,
+      university,
+      subject,
+      resourceType,
+      coverageScope,
+    } = await request.json();
 
     if (!id || !title || !branch || !semester) {
       return NextResponse.json(
@@ -89,6 +113,9 @@ export async function PUT(request: Request) {
       .from("notes")
       .update({
         title,
+        subject: subject !== undefined ? (subject || title).trim() : undefined,
+        resource_type: resourceType !== undefined ? resourceType : undefined,
+        coverage_scope: coverageScope !== undefined ? coverageScope : undefined,
         branch,
         semester,
         download_url: downloadUrl || "",
