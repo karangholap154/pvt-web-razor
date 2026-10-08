@@ -2,24 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 import { isAdmin } from "../../../../utils/auth";
-
-// Helper to slugify title
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
-}
-
-// Helper to calculate read time
-function calculateReadTime(content: string): string {
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 200));
-  return `${minutes} min read`;
-}
+import { slugify, calculateReadTime } from "@/utils/text";
 
 // Helper to auto-generate summary
 function generateSummary(content: string): string {

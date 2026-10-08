@@ -9,6 +9,7 @@ import pageStyles from "../page.module.css";
 import { Note } from "../../data/mockData";
 import ContributeModal from "@/components/contribute/ContributeModalDynamic";
 import { useToast } from "@/components/providers/ToastProvider";
+import { downloadNotePdf } from "@/utils/download";
 import { 
   FaBookOpen, 
   FaCloudArrowUp, 
@@ -243,22 +244,7 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
     if (!noteId) return;
     setDownloadingPdf(true);
     try {
-      const response = await fetch(`/api/proxy-pdf?id=${noteId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to download PDF: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `${title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error("PDF download fetch failed, fallback opening in tab:", err);
-      window.open(`/api/proxy-pdf?id=${noteId}`, "_blank");
+      await downloadNotePdf(noteId, title);
     } finally {
       setDownloadingPdf(false);
       closeModal();

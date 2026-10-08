@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { isAdmin } from "@/utils/auth";
 import { calculateBadgeTier, getPlatformCommissionRate } from "@/utils/badgeUtils";
 import { sendContributionStatusUpdateEmail } from "@/utils/resend";
+import { slugify } from "@/utils/text";
 
 export async function GET(request: Request) {
   try {
@@ -64,16 +65,6 @@ async function deleteStorageFileByUrl(fileUrl: string) {
       console.error("Error removing file from storage:", err);
     }
   }
-}
-
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
 }
 
 export async function POST(request: Request) {

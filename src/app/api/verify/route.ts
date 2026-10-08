@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
 import { getRazorpayServerInstance } from "../../../utils/razorpayServer";
-import { syncContributorBadgeTier } from "@/utils/badgeUtils";
-import { sendOrderReceiptEmail } from "@/utils/resend";
+import { fulfillPurchase } from "@/utils/orderFulfillment";
 
 export async function POST(request: Request) {
   try {
@@ -137,61 +136,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate contributor earnings split if community-contributed
+    // 5. Complete purchase fulfillment & ledger registration
     const grossAmount = Number(expectedAmountPaise) / 100;
-    let contributorId: string | null = null;
-    let contributorEarnings = 0;
-    let platformCommission = grossAmount;
+    const fulfillmentResult = await fulfillPurchase({
+      supabaseAdmin,
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      email: cleanEmail,
+      noteId,
+      grossAmount,
+      noteTitleFallback: note.title,
+    });
 
-    if (note.is_community_contributed && note.contributor_id) {
-      contributorId = note.contributor_id;
-      const { commissionRate } = await syncContributorBadgeTier(supabaseAdmin, contributorId);
-      platformCommission = Number((grossAmount * commissionRate).toFixed(2));
-      contributorEarnings = Number((grossAmount - platformCommission).toFixed(2));
-    }
-
-    // Check if purchase was already recorded by webhook/verify to prevent duplicate receipt emails
-    const { data: existingPurchase } = await supabaseAdmin
-      .from("purchases")
-      .select("id")
-      .eq("razorpay_order_id", razorpay_order_id)
-      .eq("status", "success")
-      .maybeSingle();
-
-    const isAlreadyRecorded = !!existingPurchase;
-
-    // 5. Register/Upsert transaction in Supabase Purchases ledger using supabaseAdmin
-    const { error: insertError } = await supabaseAdmin.from("purchases").upsert(
-      {
-        email: cleanEmail,
-        note_id: noteId,
-        razorpay_order_id,
-        razorpay_payment_id,
-        amount: grossAmount, // Log in Rupee units
-        contributor_id: contributorId,
-        contributor_earnings: contributorEarnings,
-        platform_commission: platformCommission,
-        status: "success",
-      },
-      { onConflict: "razorpay_order_id" }
-    );
-
-    if (insertError) {
-      console.error("Failed to upsert purchase record in Supabase:", insertError);
+    if (!fulfillmentResult.success) {
       return NextResponse.json(
-        { error: "Database transaction logging failed" },
+        { error: fulfillmentResult.error || "Database transaction logging failed" },
         { status: 500 }
       );
-    }
-
-    // Trigger purchase receipt email via Resend ONLY if not previously sent for this order
-    if (!isAlreadyRecorded) {
-      sendOrderReceiptEmail({
-        to: cleanEmail,
-        orderId: razorpay_order_id,
-        noteTitle: note.title || "Study Notes",
-        amount: grossAmount,
-      }).catch((err) => console.error("Error triggering receipt email:", err));
     }
 
     return NextResponse.json({

@@ -2,17 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
 import { isAdmin } from "../../../../utils/auth";
-
-// Helper to slugify title
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
-}
+import { slugify } from "@/utils/text";
 
 // Helper to parse tech stack to array of strings
 function parseTechStack(input: unknown): string[] {

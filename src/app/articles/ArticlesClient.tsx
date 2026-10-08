@@ -6,12 +6,7 @@ import { useRouter } from "next/navigation";
 import styles from "./articles.module.css";
 import { Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
-
-function calculateReadTime(content: string): string {
-  const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 200));
-  return `${minutes} min read`;
-}
+import { calculateReadTime } from "@/utils/text";
 
 interface ArticlesClientProps {
   initialArticles?: Article[];

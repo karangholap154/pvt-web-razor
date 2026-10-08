@@ -3,15 +3,10 @@ import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import ArticleDetailsClient from "./ArticleDetailsClient";
 import { Article } from "../../../data/mockData";
+import { calculateReadTime } from "@/utils/text";
 
 interface ArticlePageProps {
   params: Promise<{ id: string }>;
-}
-
-function calculateReadTime(content: string): string {
-  const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 200));
-  return `${minutes} min read`;
 }
 
 const getArticle = cache(async (id: string) => {

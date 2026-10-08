@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import ArticlesClient from "./ArticlesClient";
 import { Article } from "../../data/mockData";
+import { calculateReadTime } from "@/utils/text";
 
 export const revalidate = 300; // Cache page static output for 5 minutes with Next.js ISR
 
@@ -22,12 +23,6 @@ export const metadata: Metadata = {
     description: "Explore deep-dives into engineering concepts, exam preparation roadmaps, and final year project ideas.",
   },
 };
-
-function calculateReadTime(content: string): string {
-  const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 200));
-  return `${minutes} min read`;
-}
 
 async function getArticles(): Promise<Article[]> {
   try {

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { Note } from "@/data/mockData";
 import type { Database } from "@/types/supabase";
+import { mapDbRowToNote } from "@/utils/noteMapper";
 
 export interface PublicNotesResult {
   notes: Note[];
@@ -80,28 +81,13 @@ export async function getPublicNotesData(
       }
     }
 
-    const formattedNotes: Note[] = (rawNotes || []).map((item) => ({
-      id: item.id,
-      title: item.title,
-      branch: item.branch as Note["branch"],
-      semester: item.semester as Note["semester"],
-      description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-      downloadUrl: item.price && Number(item.price) > 0 ? "" : item.download_url || "",
-      videoUrl: item.video_url || "",
-      price: item.price ? Number(item.price) : 0,
-      university: item.university || undefined,
-      subject: item.subject || item.title,
-      resource_type: item.resource_type || (item.is_community_contributed ? "supplementary_guide" : "official_subject"),
-      coverage_scope: item.coverage_scope || null,
-      is_community_contributed: item.is_community_contributed,
-      contributor_id: item.contributor_id,
-      contributor_username: item.contributor_id
-        ? userMap[item.contributor_id]?.username
-        : null,
-      contributor_name: item.contributor_id
-        ? userMap[item.contributor_id]?.full_name
-        : null,
-    }));
+    const formattedNotes: Note[] = (rawNotes || []).map((item) =>
+      mapDbRowToNote(
+        item,
+        item.contributor_id ? userMap[item.contributor_id] : undefined,
+        { hidePaidDownloadUrl: true }
+      )
+    );
 
     return { notes: formattedNotes, meta };
   } catch (err) {

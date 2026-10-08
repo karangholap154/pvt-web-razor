@@ -2,6 +2,8 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import type { Metadata } from "next";
+import { Note } from "@/data/mockData";
+import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
 import UserProfileClient from "./UserProfileClient";
 
 interface PageProps {
@@ -69,18 +71,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-interface Note {
-  id: string;
-  title: string;
-  branch: string;
-  semester: string;
-  description: string;
-  price: number;
-  videoUrl: string;
-  downloadUrl: string;
-  university: string;
-}
-
 export default async function UserProfilePage({ params }: PageProps) {
   const { username } = await params;
   const profile = await getProfileByUsername(username);
@@ -118,19 +108,12 @@ export default async function UserProfilePage({ params }: PageProps) {
   const { data: dbNotes } = await notesQuery;
 
   if (dbNotes) {
-    notes = dbNotes.map((item) => ({
-      id: item.id,
-      title: item.title,
-      branch: item.branch,
-      semester: item.semester,
-      description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-      price: item.price ? Number(item.price) : 0,
-      videoUrl: item.video_url || "",
-      downloadUrl: item.download_url || "",
-      university: item.university || "",
-      is_community_contributed: item.is_community_contributed,
-      contributor_id: item.contributor_id,
-    }));
+    notes = (dbNotes as RawNoteRow[]).map((item) =>
+      mapDbRowToNote(item, {
+        username: profile.username,
+        full_name: profile.full_name,
+      })
+    );
   }
 
   const jsonLd = {

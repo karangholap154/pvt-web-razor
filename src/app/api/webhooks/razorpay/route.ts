@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabaseAdmin } from "../../../../utils/supabaseAdmin";
-import { syncContributorBadgeTier } from "@/utils/badgeUtils";
-import { sendOrderReceiptEmail } from "@/utils/resend";
+import { fulfillPurchase } from "@/utils/orderFulfillment";
 
 export async function POST(request: Request) {
   try {
@@ -68,67 +67,23 @@ export async function POST(request: Request) {
 
       console.log(`Webhook processing successful payment for Order: ${razorpay_order_id}, Email: ${email}, Note: ${noteId}`);
 
-      // 3. Fetch note details to calculate earnings split
-      const grossAmount = Number(amountPaise) / 100;
-      let contributorId: string | null = null;
-      let contributorEarnings = 0;
-      let platformCommission = grossAmount;
+      const grossAmount = Number(amountPaise || 0) / 100;
 
-      const { data: noteItem } = await supabaseAdmin
-        .from("notes")
-        .select("title, is_community_contributed, contributor_id, platform_commission_rate")
-        .eq("id", noteId)
-        .maybeSingle();
+      // 3. Fulfill purchase and sync records
+      const fulfillmentResult = await fulfillPurchase({
+        supabaseAdmin,
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        email,
+        noteId,
+        grossAmount,
+      });
 
-      if (noteItem?.is_community_contributed && noteItem.contributor_id) {
-        contributorId = noteItem.contributor_id;
-        const { commissionRate } = await syncContributorBadgeTier(supabaseAdmin, contributorId);
-        platformCommission = Number((grossAmount * commissionRate).toFixed(2));
-        contributorEarnings = Number((grossAmount - platformCommission).toFixed(2));
-      }
-
-      // Check if purchase was already recorded by verify endpoint to prevent duplicate receipt emails
-      const { data: existingPurchase } = await supabaseAdmin
-        .from("purchases")
-        .select("id")
-        .eq("razorpay_order_id", razorpay_order_id)
-        .eq("status", "success")
-        .maybeSingle();
-
-      const isAlreadyRecorded = !!existingPurchase;
-
-      // Insert or update the purchase record in Supabase using admin client
-      const { error: upsertError } = await supabaseAdmin.from("purchases").upsert(
-        {
-          email,
-          note_id: noteId,
-          razorpay_order_id,
-          razorpay_payment_id,
-          amount: grossAmount,
-          contributor_id: contributorId,
-          contributor_earnings: contributorEarnings,
-          platform_commission: platformCommission,
-          status: "success",
-        },
-        { onConflict: "razorpay_order_id" }
-      );
-
-      if (upsertError) {
-        console.error("Webhook failed to record purchase in Supabase:", upsertError);
+      if (!fulfillmentResult.success) {
         return NextResponse.json(
-          { error: "Database transaction logging failed" },
+          { error: fulfillmentResult.error || "Database transaction logging failed" },
           { status: 500 }
         );
-      }
-
-      // Trigger purchase receipt email via Resend ONLY if not previously sent for this order
-      if (!isAlreadyRecorded) {
-        sendOrderReceiptEmail({
-          to: email,
-          orderId: razorpay_order_id,
-          noteTitle: noteItem?.title || "Study Notes",
-          amount: grossAmount,
-        }).catch((err) => console.error("Webhook error triggering receipt email:", err));
       }
 
       console.log(`Webhook successfully recorded purchase for ${email} / Note: ${noteId}`);

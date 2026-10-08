@@ -5,28 +5,17 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useToast } from "@/components/providers/ToastProvider";
 import styles from "../../app/page.module.css";
 import { Note } from "../../data/mockData";
-import { supabase } from "../../utils/supabaseClient";
-import { loadRazorpayScript } from "../../utils/razorpay";
+import { downloadNotePdf } from "@/utils/download";
+import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
+import { useRazorpayCheckout } from "@/hooks/useRazorpayCheckout";
 import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
 import BannedGate from "../landing/BannedGate";
 import NoteCard from "../cards/NoteCard";
 import { FaFolderOpen, FaRegFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
-
-// Define Razorpay window type interfaces
-interface RazorpayResponse {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-}
-
-interface RazorpayWindow extends Window {
-  Razorpay?: new (options: unknown) => { open: () => void };
-}
 
 interface HomeContentProps {
   initialNotes?: Note[];
@@ -37,7 +26,6 @@ interface HomeContentProps {
 export default function HomeContent({ initialNotes = [], initialMeta = [], catalogMode = "all" }: HomeContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const toast = useToast();
   const unlockNoteId = searchParams.get("unlock");
 
   // Consume global authentication state
@@ -83,9 +71,21 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
   const [showCheckoutPrompt, setShowCheckoutPrompt] = useState(false);
   const [checkoutNote, setCheckoutNote] = useState<Note | null>(null);
   const [checkoutEmail, setCheckoutEmail] = useState("");
-  const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "verifying" | "paying" | "success" | "error">("idle");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+
+  const {
+    checkoutStatus,
+    setCheckoutStatus,
+    activeOrderId,
+    startCheckout,
+    syncPayment,
+  } = useRazorpayCheckout({
+    onSuccess: (noteId) => {
+      setShowCheckoutPrompt(false);
+      const target = checkoutNote || notes.find((n) => n.id === noteId);
+      if (target) openModal(target, "pdf");
+    },
+  });
 
   // Sync URL search params into filter state on load if present
   useEffect(() => {
@@ -158,40 +158,9 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
 
         const data = await res.json();
 
-        const formattedNotes: Note[] = (data.notes || []).map((item: {
-          id: string;
-          title: string;
-          branch: string;
-          semester: string;
-          download_url?: string;
-          video_url?: string;
-          price?: number | string;
-          university?: string;
-          subject?: string;
-          resource_type?: string;
-          coverage_scope?: string;
-          is_community_contributed?: boolean;
-          contributor_id?: string;
-          contributor_username?: string;
-          contributor_name?: string;
-        }) => ({
-          id: item.id,
-          title: item.title,
-          branch: item.branch as Note["branch"],
-          semester: item.semester as Note["semester"],
-          description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-          downloadUrl: item.download_url || "",
-          videoUrl: item.video_url || "",
-          price: item.price ? Number(item.price) : 0,
-          university: item.university || undefined,
-          subject: item.subject || item.title,
-          resource_type: item.resource_type || (item.is_community_contributed ? "supplementary_guide" : "official_subject"),
-          coverage_scope: item.coverage_scope || null,
-          is_community_contributed: item.is_community_contributed,
-          contributor_id: item.contributor_id,
-          contributor_username: item.contributor_username,
-          contributor_name: item.contributor_name,
-        }));
+        const formattedNotes: Note[] = (data.notes || []).map((item: RawNoteRow) =>
+          mapDbRowToNote(item)
+        );
 
         setNotes(formattedNotes);
         if (data.meta) {
@@ -333,22 +302,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     if (!noteId) return;
     setDownloadingPdf(true);
     try {
-      const response = await fetch(`/api/proxy-pdf?id=${noteId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to download PDF: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `${title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error("PDF download fetch failed, fallback opening in tab:", err);
-      window.open(`/api/proxy-pdf?id=${noteId}`, "_blank");
+      await downloadNotePdf(noteId, title);
     } finally {
       setDownloadingPdf(false);
       closeModal();
@@ -364,7 +318,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     } else {
       openModal(note, "pdf");
     }
-  }, [userEmail, openModal]);
+  }, [userEmail, openModal, setCheckoutStatus]);
 
   // Automatic purchase recovery on redirect
   useEffect(() => {
@@ -385,151 +339,17 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkoutEmail.trim() || !checkoutNote) return;
-
-    setCheckoutStatus("verifying");
-
-    try {
-      const cleanEmail = checkoutEmail.trim().toLowerCase();
-
-      const { data: purchase } = await supabase
-        .from("purchases")
-        .select("id")
-        .eq("email", cleanEmail)
-        .eq("note_id", checkoutNote.id)
-        .eq("status", "success")
-        .maybeSingle();
-
-      if (purchase) {
-        setCheckoutStatus("success");
-        setShowCheckoutPrompt(false);
-        openModal(checkoutNote, "pdf");
-        return;
-      }
-
-      setCheckoutStatus("paying");
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noteId: checkoutNote.id, email: cleanEmail }),
-      });
-
-      const orderData = await res.json();
-      if (orderData.error) {
-        toast.error(`Checkout order creation error: ${orderData.error}`);
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      setActiveOrderId(orderData.orderId);
-
-      // Load Razorpay script dynamically
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        toast.error("Failed to load Razorpay payment gateway. Please check your internet connection.");
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      const rpayWindow = window as RazorpayWindow;
-      if (!rpayWindow.Razorpay) {
-        toast.warning("Razorpay payment checkout script failed to load. Please refresh the page.");
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-      if (!razorpayKey) {
-        toast.error("Payment Service is currently unavailable. Please try again later or contact support.");
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      const options = {
-        key: razorpayKey,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Private Academy",
-        description: `Unlock Note: ${checkoutNote.title}`,
-        order_id: orderData.orderId,
-        prefill: {
-          email: cleanEmail,
-        },
-        handler: async function (response: RazorpayResponse) {
-          setCheckoutStatus("verifying");
-          try {
-            const verifyRes = await fetch("/api/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                noteId: checkoutNote.id,
-                email: cleanEmail,
-                amount: orderData.amount,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (verifyData.success) {
-              setCheckoutStatus("success");
-              setShowCheckoutPrompt(false);
-              openModal(checkoutNote, "pdf");
-              toast.success("Payment verified successfully! Access granted.");
-            } else {
-              toast.error(verifyData.error || "Payment verification failed.");
-              setCheckoutStatus("idle");
-            }
-          } catch (err) {
-            console.error("Verification endpoint post failed:", err);
-            toast.error("Connection error during verification. Try syncing your payment.");
-            setCheckoutStatus("idle");
-          }
-        },
-        modal: { ondismiss: function () { setCheckoutStatus("idle"); } },
-        theme: {
-          color: "#fbbf24",
-        },
-      };
-
-      const paymentObject = new rpayWindow.Razorpay(options);
-      paymentObject.open();
-    } catch (err) {
-      console.error("Checkout submission failed:", err);
-      toast.error("Error starting checkout process.");
-      setCheckoutStatus("idle");
-    }
+    await startCheckout(checkoutNote, checkoutEmail);
   };
 
-  // Synchronize payment status manually (fallback if client gets out of sync)
   const handleSyncPayment = async () => {
-    if (!activeOrderId) return;
-    
-    setCheckoutStatus("verifying");
-    try {
-      const res = await fetch("/api/verify-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: activeOrderId }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Payment sync successful! Access granted.");
-        setCheckoutStatus("success");
-        setShowCheckoutPrompt(false);
-        if (checkoutNote) {
-          openModal(checkoutNote, "pdf");
-        }
-      } else {
-        toast.warning(data.message || "Payment sync failed. No successful transaction found yet.");
-        setCheckoutStatus("idle");
-      }
-    } catch (err) {
-      console.error("Manual sync failed:", err);
-      toast.error("Error checking payment status.");
-      setCheckoutStatus("idle");
+    const success = await syncPayment();
+    if (success && checkoutNote) {
+      setShowCheckoutPrompt(false);
+      openModal(checkoutNote, "pdf");
     }
   };
+
 
   if (authState === "loading") {
     return (

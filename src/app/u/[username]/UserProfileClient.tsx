@@ -5,19 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import styles from "./UserProfile.module.css";
 
-interface Note {
-  id: string;
-  title: string;
-  branch: string;
-  semester: string;
-  description: string;
-  price: number;
-  videoUrl: string;
-  downloadUrl: string;
-  university: string;
-  is_community_contributed?: boolean | null;
-  contributor_id?: string | null;
-}
+import { Note } from "@/data/mockData";
 
 interface UserProfileClientProps {
   username: string;

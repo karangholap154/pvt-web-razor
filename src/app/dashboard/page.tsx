@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 };
 import DashboardClient from "./DashboardClient";
 import { Note } from "../../data/mockData";
+import { mapDbRowToNote } from "@/utils/noteMapper";
 
 interface PurchasedItem {
   notes: {
@@ -62,19 +63,7 @@ export default async function DashboardPage() {
     } else if (dbPurchases) {
       purchasedNotes = (dbPurchases as unknown as PurchasedItem[])
         .filter((item) => item.notes !== null)
-        .map((item) => {
-          const noteData = item.notes!;
-          return {
-            id: noteData.id,
-            title: noteData.title,
-            branch: noteData.branch,
-            semester: noteData.semester as Note["semester"],
-            description: `${noteData.title} - ${noteData.branch} Engineering, ${noteData.semester} | ${noteData.university || ""}`,
-            downloadUrl: noteData.download_url || "",
-            videoUrl: noteData.video_url || "",
-            price: noteData.price ? Number(noteData.price) : 0,
-          };
-        });
+        .map((item) => mapDbRowToNote(item.notes!));
     }
   } catch (err) {
     console.error("Failed to query purchases:", err);

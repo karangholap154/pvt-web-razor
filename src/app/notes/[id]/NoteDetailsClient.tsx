@@ -6,8 +6,8 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Note } from "../../../data/mockData";
 import { supabase } from "../../../utils/supabaseClient";
-import { useToast } from "@/components/providers/ToastProvider";
-import { loadRazorpayScript } from "@/utils/razorpay";
+import { downloadNotePdf } from "@/utils/download";
+import { useRazorpayCheckout } from "@/hooks/useRazorpayCheckout";
 import styles from "./notes.module.css";
 import NoteViewerDynamic from "@/components/NoteViewerDynamic";
 import NoteCard from "@/components/cards/NoteCard";
@@ -29,7 +29,6 @@ interface NoteDetailsClientProps {
 export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   // Consume global authentication state
   const { authState: contextAuthState, email: contextEmail } = useAuth();
-  const toast = useToast();
   
   const authState = (contextAuthState === "ready" || contextAuthState === "no-university")
     ? "authenticated"
@@ -43,10 +42,17 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   
   // Checkout & Download states
   const [checkoutEmail, setCheckoutEmail] = useState("");
-  const [checkoutStatus, setCheckoutStatus] = useState<"idle" | "verifying" | "paying" | "success" | "error">("idle");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+
+  const {
+    checkoutStatus,
+    activeOrderId,
+    startCheckout,
+    syncPayment,
+  } = useRazorpayCheckout({
+    onSuccess: () => setHasPurchased(true),
+  });
   const [recommendedNotes, setRecommendedNotes] = useState<Note[]>([]);
   const [loadingRecommendedNotes, setLoadingRecommendedNotes] = useState(true);
   const [isInlineFullscreen, setIsInlineFullscreen] = useState(false);
@@ -191,22 +197,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
     if (!note.downloadUrl) return;
     setDownloadingPdf(true);
     try {
-      const response = await fetch(`/api/proxy-pdf?id=${note.id}`);
-      if (!response.ok) {
-        throw new Error(`Failed to download PDF: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `${note.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error("PDF download fetch failed, opening in new tab fallback:", err);
-      window.open(`/api/proxy-pdf?id=${note.id}`, "_blank");
+      await downloadNotePdf(note.id, note.title);
     } finally {
       setDownloadingPdf(false);
     }
@@ -216,146 +207,12 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkoutEmail.trim()) return;
-
-    setCheckoutStatus("verifying");
-    try {
-      const cleanEmail = checkoutEmail.trim().toLowerCase();
-      
-      // Double check database logs for past purchase before charging
-      const { data: purchase } = await supabase
-        .from("purchases")
-        .select("id")
-        .eq("email", cleanEmail)
-        .eq("note_id", note.id)
-        .eq("status", "success")
-        .maybeSingle();
-
-      if (purchase) {
-        setHasPurchased(true);
-        setCheckoutStatus("success");
-        return;
-      }
-
-      setCheckoutStatus("paying");
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noteId: note.id, email: cleanEmail }),
-      });
-
-      const orderData = await res.json();
-      if (orderData.error) {
-        toast.error(`Checkout order error: ${orderData.error}`);
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      setActiveOrderId(orderData.orderId);
-
-      // Load Razorpay script dynamically
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        toast.error("Failed to load Razorpay payment gateway. Please check your internet connection.");
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      interface RazorpayResponse {
-        razorpay_order_id: string;
-        razorpay_payment_id: string;
-        razorpay_signature: string;
-      }
-
-      interface RazorpayWindow extends Window {
-        Razorpay?: new (options: unknown) => { open: () => void };
-      }
-
-      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-      if (!razorpayKey) {
-        toast.error("Payment Service is currently unavailable. Please try again later or contact support.");
-        setCheckoutStatus("idle");
-        return;
-      }
-
-      const options = {
-        key: razorpayKey,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Private Academy",
-        description: `Unlock ${note.title}`,
-        order_id: orderData.orderId,
-        prefill: { email: cleanEmail },
-        handler: async function (response: RazorpayResponse) {
-          try {
-            setCheckoutStatus("verifying");
-            const verifyRes = await fetch("/api/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                noteId: note.id,
-                email: cleanEmail,
-                amount: orderData.amount,
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (verifyData.success) {
-              toast.success("Payment verified successfully! Access granted.");
-              setHasPurchased(true);
-              setCheckoutStatus("success");
-            } else {
-              toast.error(`Verification failed: ${verifyData.error}`);
-              setCheckoutStatus("idle");
-            }
-          } catch (err) {
-            console.error("Verification callback failed:", err);
-            toast.error("Verification check failed.");
-            setCheckoutStatus("idle");
-          }
-        },
-        modal: { ondismiss: function () { setCheckoutStatus("idle"); } },
-        theme: { color: "#fbbf24" },
-      };
-
-      const rzpWindow = window as unknown as RazorpayWindow;
-      if (rzpWindow.Razorpay) {
-        const rzp = new rzpWindow.Razorpay(options);
-        rzp.open();
-      }
-    } catch (err) {
-      console.error("Checkout flow failed:", err);
-      toast.error("Error starting checkout process.");
-      setCheckoutStatus("idle");
-    }
+    await startCheckout(note, checkoutEmail);
   };
 
   // Synchronize payment status manually (fallback if client gets out of sync)
   const handleSyncPayment = async () => {
-    if (!activeOrderId) return;
-    
-    setCheckoutStatus("verifying");
-    try {
-      const res = await fetch("/api/verify-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: activeOrderId }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Payment sync successful! Access granted.");
-        setHasPurchased(true);
-        setCheckoutStatus("success");
-      } else {
-        toast.warning(data.message || "Payment sync failed. No successful transaction found yet.");
-        setCheckoutStatus("idle");
-      }
-    } catch (err) {
-      console.error("Manual sync failed:", err);
-      toast.error("Error checking payment status.");
-      setCheckoutStatus("idle");
-    }
+    await syncPayment();
   };
 
   // Copy shareable link to clipboard

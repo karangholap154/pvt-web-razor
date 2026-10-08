@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Note, BRANCHES, SEMESTERS } from "@/data/mockData";
 import { UNIVERSITIES } from "@/utils/constants";
+import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
 import NoteCard from "@/components/cards/NoteCard";
 import styles from "./CommunityNotes.module.css";
 import {
@@ -126,24 +127,9 @@ export default function CommunityNotesClient({
         const data = await res.json();
         if (isSubscribed) {
           const rawNotes = data.notes || [];
-          const formatted: Note[] = rawNotes.map((item: Record<string, unknown>) => ({
-            id: String(item.id),
-            title: String(item.title),
-            branch: item.branch as Note["branch"],
-            semester: item.semester as Note["semester"],
-            subject: (item.subject as string) || (item.title as string),
-            resource_type: (item.resource_type as string) || "supplementary_guide",
-            coverage_scope: (item.coverage_scope as string) || null,
-            description: `${item.title} - ${item.branch}, Sem ${item.semester} | ${item.university || "Community"}`,
-            downloadUrl: (item.download_url as string) || (item.downloadUrl as string) || "",
-            videoUrl: (item.video_url as string) || (item.videoUrl as string) || "",
-            price: item.price ? Number(item.price) : 0,
-            university: (item.university as string) || undefined,
-            is_community_contributed: true,
-            contributor_id: (item.contributor_id as string) || null,
-            contributor_username: (item.contributor_username as string) || null,
-            contributor_name: (item.contributor_name as string) || null,
-          }));
+          const formatted: Note[] = rawNotes.map((item: RawNoteRow) =>
+            mapDbRowToNote(item)
+          );
 
           setNotes(formatted);
           if (data.meta) {
