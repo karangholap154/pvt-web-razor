@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import styles from "./profile.module.css";
 import { SEMESTERS } from "@/data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
@@ -351,8 +352,14 @@ export default function ProfileClient({
         <div className={styles.profileBannerContent}>
           <div className={styles.avatarWrapper}>
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={fullName || "User Avatar"} className={styles.avatarImage} />
+              <Image
+                src={avatarUrl}
+                alt={fullName || "User Avatar"}
+                fill
+                sizes="96px"
+                unoptimized
+                className={styles.avatarImage}
+              />
             ) : (
               <div className={styles.avatarInitials}>
                 {getInitials(fullName, email)}

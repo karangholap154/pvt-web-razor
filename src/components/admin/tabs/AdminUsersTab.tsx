@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import styles from "@/app/admin/admin.module.css";
 import { User } from "@/types/admin";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -181,13 +182,13 @@ export default function AdminUsersTab({
                 <td>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                     {user.avatar_url ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
+                      <Image
                         src={user.avatar_url}
                         alt={user.full_name || "User Avatar"}
+                        width={32}
+                        height={32}
+                        unoptimized
                         style={{
-                          width: "32px",
-                          height: "32px",
                           borderRadius: "50%",
                           objectFit: "cover",
                           border: "1px solid var(--border)",

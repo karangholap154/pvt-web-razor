@@ -8,7 +8,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import UsernameGate from "@/components/landing/UsernameGate";
 import UniversityGate from "@/components/landing/UniversityGate";
 import DiscussionCard from "@/components/discussions/DiscussionCard";
-import AskQuestionModal from "@/components/discussions/AskQuestionModal";
+import AskQuestionModalDynamic from "@/components/discussions/AskQuestionModalDynamic";
 import styles from "./discussions.module.css";
 import { FaPlus, FaMagnifyingGlass, FaComments, FaFire, FaCircleQuestion, FaCircleCheck } from "react-icons/fa6";
 import type { DiscussionPost } from "@/types/discussions";
@@ -373,7 +373,7 @@ export default function DiscussionsClient() {
       )}
 
       {/* Ask Question Modal */}
-      <AskQuestionModal
+      <AskQuestionModalDynamic
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handlePostSuccess}

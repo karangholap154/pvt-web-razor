@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/components/providers/ToastProvider";
 import styles from "./admin.module.css";
 import { Note, Article } from "../../data/mockData";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import ConfirmDialogDynamic from "@/components/ui/ConfirmDialogDynamic";
 import { Project, User, AdminSubmission, AdminPayoutRequest, AdminConsoleProps } from "@/types/admin";
 import AdminAnalyticsTab from "@/components/admin/tabs/AdminAnalyticsTab";
 import AdminNotesTab from "@/components/admin/tabs/AdminNotesTab";
@@ -14,7 +14,7 @@ import AdminProjectsTab from "@/components/admin/tabs/AdminProjectsTab";
 import AdminUsersTab from "@/components/admin/tabs/AdminUsersTab";
 import AdminSubmissionsTab from "@/components/admin/tabs/AdminSubmissionsTab";
 import AdminPayoutsTab from "@/components/admin/tabs/AdminPayoutsTab";
-import AdminResourceModal from "@/components/admin/tabs/AdminResourceModal";
+import AdminResourceModalDynamic from "@/components/admin/tabs/AdminResourceModalDynamic";
 
 export default function AdminConsole({
   initialNotes,
@@ -643,7 +643,7 @@ export default function AdminConsole({
       )}
 
       {/* POPUP MODAL OVERLAY */}
-      <AdminResourceModal
+      <AdminResourceModalDynamic
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         activeTab={activeTab === "notes" || activeTab === "articles" || activeTab === "projects" ? activeTab : "notes"}
@@ -689,7 +689,7 @@ export default function AdminConsole({
         setProjectDesc={setProjectDesc}
       />
 
-      <ConfirmDialog
+      <ConfirmDialogDynamic
         isOpen={confirmDialog.isOpen}
         title={confirmDialog.title}
         description={confirmDialog.message}
