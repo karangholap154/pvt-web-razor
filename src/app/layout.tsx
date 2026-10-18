@@ -50,6 +50,9 @@ export const metadata: Metadata = {
   publisher: "Private Academy Engineering",
   alternates: {
     canonical: "./",
+    types: {
+      "application/rss+xml": `${siteUrl}/rss.xml`,
+    },
   },
   icons: {
     icon: [

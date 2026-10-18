@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: "Browse verified, authentic, and complete syllabus study notes, semester question guides, and tutorials for Mumbai University, SPPU, DBATU, and more.",
   alternates: {
     canonical: "/notes",
+    types: {
+      "application/rss+xml": "/notes/rss.xml",
+    },
   },
   openGraph: {
     title: "Official Engineering Study Notes & Guides | Private Academy",

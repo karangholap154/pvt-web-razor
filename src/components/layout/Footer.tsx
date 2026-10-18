@@ -183,6 +183,11 @@ export default function Footer() {
               <li><Link href="/projects" className={styles.footerLink}>Projects</Link></li>
               <li><Link href="/careers" className={styles.footerLink}>Careers</Link></li>
               <li><Link href="/contact" className={styles.footerLink}>Contact</Link></li>
+              <li>
+                <a href="/rss.xml" target="_blank" rel="noopener noreferrer" className={styles.footerLink} title="Subscribe to RSS Feed">
+                  RSS Feed
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -234,6 +239,10 @@ export default function Footer() {
             Made with ❤️ by{" "}
             <a href="https://www.karangholap.com/" target="_blank" rel="noopener noreferrer" className={styles.footerAuthorLink}>
               Karan Gholap
+            </a>
+            {" • "}
+            <a href="/rss.xml" target="_blank" rel="noopener noreferrer" className={styles.footerAuthorLink} title="RSS 2.0 Feed">
+              RSS Feed
             </a>
           </div>
           <div>© {new Date().getFullYear()} Private Academy. All rights reserved.</div>

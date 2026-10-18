@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: "Explore deep-dives into engineering concepts, exam preparation roadmaps, study techniques, and final year project ideas written by engineering experts.",
   alternates: {
     canonical: "/articles",
+    types: {
+      "application/rss+xml": "/articles/rss.xml",
+    },
   },
   openGraph: {
     title: "Educational Articles & Exam Guides | Private Academy",
