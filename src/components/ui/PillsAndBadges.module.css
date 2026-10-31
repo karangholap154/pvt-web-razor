@@ -1,0 +1,171 @@
+/* --- Filter Pill --- */
+.filterPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--line-300, #CDD4E2);
+  background-color: var(--white, #FFFFFF);
+  color: var(--ink-900, #0B1020);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 150ms ease-out;
+}
+
+.filterPill:hover:not(.filterPillSelected) {
+  border-color: var(--ink-900, #0B1020);
+}
+
+.filterPillSelected {
+  background-color: var(--blue-100, #E6EBFF);
+  border-color: var(--blue-500, #2447F5);
+  color: var(--blue-500, #2447F5);
+}
+
+.filterPill:focus-visible {
+  outline: 2px solid var(--blue-500, #2447F5);
+  outline-offset: 2px;
+}
+
+/* --- Non-Interactive Tag --- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background-color: var(--line-200, #E3E8F1);
+  color: var(--ink-900, #0B1020);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tagInk {
+  background-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+}
+
+.tagBlue {
+  background-color: var(--blue-100, #E6EBFF);
+  color: var(--blue-500, #2447F5);
+}
+
+.tagYellow {
+  background-color: var(--hl-100, #FFF8D1);
+  color: var(--ink-900, #0B1020);
+}
+
+/* --- Price Chip --- */
+.priceChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.priceFree {
+  background-color: var(--hl-100, #FFF8D1);
+  color: var(--ink-900, #0B1020);
+}
+
+.pricePaid {
+  background-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+}
+
+/* --- Contributor Tier Badges --- */
+.tierBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tierVerified {
+  border: 1px solid var(--ink-900, #0B1020);
+  background-color: transparent;
+  color: var(--ink-900, #0B1020);
+}
+
+.tierRising {
+  background-color: var(--blue-100, #E6EBFF);
+  color: var(--blue-500, #2447F5);
+}
+
+.tierTop {
+  background-color: var(--blue-500, #2447F5);
+  color: #FFFFFF;
+}
+
+.tierLegend {
+  background-color: var(--hl-400, #FFE14D);
+  color: var(--ink-900, #0B1020);
+}
+
+/* --- Status Badges --- */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusDraft {
+  background-color: var(--line-200, #E3E8F1);
+  color: var(--slate-600, #4A5468);
+}
+
+.statusInReview {
+  background-color: var(--hl-100, #FFF8D1);
+  color: var(--ink-900, #0B1020);
+}
+
+.statusSuccess {
+  background-color: var(--success-bg, #E4F5EC);
+  color: var(--success, #0F7B4F);
+}
+
+.statusError {
+  background-color: var(--error-bg, #FDE8EA);
+  color: var(--error, #C42B3A);
+}
+
+.statusInfo {
+  background-color: var(--blue-100, #E6EBFF);
+  color: var(--blue-500, #2447F5);
+}
