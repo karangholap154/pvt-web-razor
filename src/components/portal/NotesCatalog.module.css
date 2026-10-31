@@ -5,6 +5,9 @@
 
 .catalogSection {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -18,6 +21,8 @@
   flex-wrap: wrap;
   gap: 16px;
   padding-bottom: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .headerTitleGroup {
@@ -58,6 +63,15 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
+}
+
+@media (max-width: 639px) {
+  .headerControls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .selectUniv {
@@ -73,6 +87,14 @@
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(11, 16, 32, 0.04);
   transition: border-color 150ms ease;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 639px) {
+  .selectUniv {
+    width: 100%;
+  }
 }
 
 .selectUniv:hover {
@@ -227,6 +249,17 @@
   border-radius: var(--radius-sm, 8px);
   padding: 10px 16px;
   box-shadow: 0 1px 2px rgba(11, 16, 32, 0.03);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 639px) {
+  .breadcrumbsContainer {
+    padding: 8px 12px;
+    gap: 8px;
+  }
 }
 
 .breadcrumbs {
@@ -295,6 +328,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
+  width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 640px) {
@@ -322,6 +357,9 @@
   flex-direction: column;
   gap: 14px;
   box-shadow: 0 1px 3px rgba(11, 16, 32, 0.04);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .folderCard:hover {
@@ -452,6 +490,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
+  width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 640px) {
