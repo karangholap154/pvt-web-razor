@@ -4,8 +4,18 @@ import { useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Note } from "@/data/mockData";
 import NoteCard from "@/components/cards/NoteCard";
-import styles from "../../app/page.module.css";
-import { FaFolderOpen, FaRegFolderOpen, FaGraduationCap, FaChevronRight, FaArrowLeft } from "react-icons/fa6";
+import styles from "./NotesCatalog.module.css";
+import {
+  LuFolder,
+  LuFolderOpen,
+  LuGraduationCap,
+  LuChevronRight,
+  LuArrowLeft,
+  LuSearch,
+  LuX,
+  LuShieldCheck,
+  LuSparkles,
+} from "react-icons/lu";
 
 export interface NotesCatalogProps {
   notes: Note[];
@@ -118,38 +128,15 @@ export default function NotesCatalog({
     return map;
   }, [metaNotes]);
 
-  const getBranchFolderClass = useCallback((branch: string) => {
-    switch (branch) {
-      case "Computer Engineering":
-      case "Computer Science & Engineering (CSE)":
-        return styles.folderComputer;
-      case "Information Technology":
-      case "Information Technology (IT)":
-      case "Software Engineering":
-        return styles.folderIT;
-      case "AIML":
-      case "Artificial Intelligence & Machine Learning (AIML)":
-      case "Artificial Intelligence & Data Science (AIDS)":
-      case "Data Science & Analytics":
-      case "Cyber Security & Forensic Science":
-        return styles.folderAIML;
-      case "Mechanical":
-      case "Mechanical Engineering":
-      case "Mechatronics Engineering":
-      case "Robotics & Automation":
-      case "Automobile Engineering":
-      case "Aerospace & Aeronautical Engineering":
-      case "Production & Industrial Engineering":
-        return styles.folderMechanical;
-      case "Chemical":
-      case "Chemical Engineering":
-      case "Biomedical Engineering":
-      case "Biotechnology & Bioengineering":
-      case "Environmental Engineering":
-        return styles.folderChemical;
-      default:
-        return styles.folderDefault;
-    }
+  const getDisciplineClass = useCallback((branch: string) => {
+    const b = branch.toUpperCase();
+    if (b.includes("COMPUTER") || b.includes("CSE")) return styles.disciplineComputer;
+    if (b.includes("INFORMATION") || b.includes("IT")) return styles.disciplineIT;
+    if (b.includes("AIML") || b.includes("AIDS") || b.includes("DATA SCIENCE")) return styles.disciplineAIML;
+    if (b.includes("MECHANICAL") || b.includes("AUTOMOBILE") || b.includes("ROBOTICS")) return styles.disciplineMechanical;
+    if (b.includes("CHEMICAL") || b.includes("CIVIL") || b.includes("ENVIRONMENTAL")) return styles.disciplineChemical;
+    if (b.includes("ELECTRICAL") || b.includes("EXTC") || b.includes("ELECTRONICS")) return styles.disciplineElectrical;
+    return styles.disciplineDefault;
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
@@ -162,210 +149,182 @@ export default function NotesCatalog({
   const idSuffix = searchIdPrefix ? `-${searchIdPrefix}` : "";
 
   return (
-    <section className={styles.notesSection} id={`featured-notes-section${idSuffix}`}>
+    <section className={styles.catalogSection} id={`featured-notes-section${idSuffix}`}>
+      {/* 1. Header & Controls */}
       <div className={styles.catalogHeader}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
-          {catalogMode === "community" ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span>👥</span> Student & Community Notes
-              </h2>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                Peer-contributed study materials, chapter summaries & revision sheets
-              </span>
-            </div>
-          ) : catalogMode === "official" ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span>🏛️</span> Official Study Notes
-              </h2>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                Verified, authentic & syllabus-complete guides curated by Private Academy
-              </span>
-            </div>
-          ) : (
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>
-              Study notes catalog
-            </h2>
-          )}
+        <div className={styles.headerTitleGroup}>
+          <span className={styles.eyebrow}>
+            {catalogMode === "community"
+              ? "PEER-REVIEWED ARCHIVE · CHAPTER GUIDES"
+              : catalogMode === "official"
+              ? "OFFICIAL SYLLABUS · VERIFIED CURRICULUM"
+              : "ACADEMIC ARCHIVE · NOTEBOOK DOSSIERS"}
+          </span>
+          <h2 className={styles.catalogTitle}>
+            {catalogMode === "community" ? (
+              <>Community <span className="hl">Student Notes</span></>
+            ) : catalogMode === "official" ? (
+              <>Official <span className="hl">Study Notes</span></>
+            ) : (
+              <>Engineering <span className="hl">Study Notes</span></>
+            )}
+          </h2>
+          <p className={styles.catalogSubtitle}>
+            {catalogMode === "community"
+              ? "Student-submitted chapter summaries, revision formulas, and subject guides."
+              : catalogMode === "official"
+              ? "Verified, syllabus-aligned engineering guides curated by Private Academy."
+              : "Search or browse notes by university, branch, and semester."}
+          </p>
+        </div>
 
+        {/* Right Header Controls */}
+        <div className={styles.headerControls}>
           {(!userUniversity || variant === "unauth") && (
             <select
               value={selectedUniv}
               onChange={(e) => onSelectUniv(e.target.value)}
-              style={{
-                padding: "0.5rem 2.6rem 0.5rem 0.85rem",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-              }}
+              className={styles.selectUniv}
               id={`select-university-filter${idSuffix}`}
+              aria-label="Filter by university"
             >
-              <option value="All universities">🎓 All Universities</option>
+              <option value="All universities">All Universities</option>
               {availableUniversities.map((u) => (
                 <option key={u} value={u}>{u}</option>
               ))}
             </select>
           )}
-        </div>
 
-        {/* Desktop: inline search */}
-        <div className={styles.catalogSearchDesktop}>
-          <div className={styles.inputGroup} style={{ minWidth: "260px" }}>
-            <svg className={styles.inputIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input
-              type="text"
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className={styles.searchInput}
-              id={`search-notes-input${idSuffix}`}
-              style={{ fontSize: "0.875rem", padding: "0.65rem 1rem 0.65rem 2.5rem" }}
-            />
+          {/* Desktop Search */}
+          <div className={styles.searchDesktop}>
+            <div className={styles.inputGroup}>
+              <LuSearch className={styles.inputIcon} size={16} />
+              <input
+                type="text"
+                placeholder="Search notes or subjects..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className={styles.searchInput}
+                id={`search-notes-input${idSuffix}`}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={onClearFilters}
+                  className={styles.btnClearMinimal}
+                  aria-label="Clear search"
+                >
+                  <LuX size={14} />
+                </button>
+              )}
+            </div>
           </div>
-          {searchQuery && (
-            <button onClick={onClearFilters} className={styles.btnClearMinimal} aria-label="Clear search">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          )}
-        </div>
 
-        {/* Mobile: icon toggle */}
-        <div className={styles.catalogSearchMobile}>
-          <button
-            className={styles.searchIconBtn}
-            onClick={onToggleSearchOpen}
-            aria-label={searchOpen ? "Close search" : "Open search"}
-            id={`btn-toggle-search${idSuffix}`}
-          >
-            {searchOpen ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            )}
-          </button>
+          {/* Mobile Search Toggle */}
+          <div className={styles.searchMobile}>
+            <button
+              type="button"
+              className={styles.searchIconBtn}
+              onClick={onToggleSearchOpen}
+              aria-label={searchOpen ? "Close search" : "Open search"}
+              id={`btn-toggle-search${idSuffix}`}
+            >
+              {searchOpen ? <LuX size={18} /> : <LuSearch size={18} />}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Mobile expanded search input */}
+      {/* Mobile Expanded Search */}
       {searchOpen && (
         <div className={styles.mobileSearchExpanded} id={`mobile-search-expanded${idSuffix}`}>
           <div className={styles.inputGroup}>
-            <svg className={styles.inputIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <LuSearch className={styles.inputIcon} size={16} />
             <input
               type="text"
-              placeholder="Search notes..."
+              placeholder="Search notes or subjects..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className={styles.searchInput}
               id={`search-notes-input-mobile${idSuffix}`}
               autoFocus
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className={styles.btnClearMinimal}
+                aria-label="Clear search"
+              >
+                <LuX size={14} />
+              </button>
+            )}
           </div>
         </div>
       )}
 
+      {/* 2. Editorial Banners */}
       {catalogMode === "community" && (
-        <div style={{
-          margin: "1rem 0 1.25rem",
-          padding: "0.9rem 1.25rem",
-          borderRadius: "10px",
-          background: "rgba(245, 158, 11, 0.08)",
-          border: "1px solid rgba(245, 158, 11, 0.25)",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "0.85rem",
-        }}>
-          <span style={{ fontSize: "1.35rem", lineHeight: 1 }}>ℹ️</span>
-          <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.55 }}>
-            <strong style={{ color: "var(--text-primary)" }}>Community Contributed Notes: </strong>
-            These study materials are submitted by student peers and contributors across universities. Most uploads cover specific chapters (e.g. Unit 1–2), class notes, or quick revision formulas and may not represent the full syllabus. Please inspect the preview before downloading or unlocking.
-            <div style={{ marginTop: "0.5rem", display: "flex", gap: "1.2rem", flexWrap: "wrap", alignItems: "center" }}>
-              <Link href="/notes" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
-                Looking for verified, complete subject guides? Browse Official Notes →
-              </Link>
-              <Link href="/contribute" style={{ color: "#38bdf8", fontWeight: 700, textDecoration: "none" }}>
-                Upload your notes & earn UPI payouts →
-              </Link>
-            </div>
+        <div className={styles.bannerCommunity}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <LuSparkles size={16} style={{ color: "var(--ink-900)" }} />
+            <strong style={{ color: "var(--ink-900)" }}>Community Notes Archive</strong>
+          </div>
+          <p style={{ margin: 0, color: "var(--slate-600)", lineHeight: 1.55 }}>
+            Contributed by engineering peers and scholars. Submissions typically cover specific units, formulas, or revision summaries. Inspect the preview before unlocking.
+          </p>
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginTop: "4px" }}>
+            <Link href="/notes" className={styles.bannerLink}>
+              Looking for verified full-subject syllabus? Browse Official Notes →
+            </Link>
+            <Link href="/contribute" className={styles.bannerLink} style={{ color: "var(--ink-900)" }}>
+              Upload your notes & earn UPI payouts →
+            </Link>
           </div>
         </div>
       )}
 
       {catalogMode === "official" && (
-        <div style={{
-          margin: "1rem 0 1.25rem",
-          padding: "0.75rem 1.15rem",
-          borderRadius: "10px",
-          background: "rgba(59, 130, 246, 0.07)",
-          border: "1px solid rgba(59, 130, 246, 0.2)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "0.75rem",
-          fontSize: "0.85rem",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-secondary)" }}>
-            <span>🛡️</span>
-            <span><strong style={{ color: "var(--text-primary)" }}>100% Syllabus Coverage:</strong> Curated and verified official engineering study notes.</span>
+        <div className={styles.bannerOfficial}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <LuShieldCheck size={18} style={{ color: "var(--blue-500)" }} />
+            <span>
+              <strong style={{ color: "var(--ink-900)" }}>100% Syllabus Coverage:</strong> Curated and verified official study notes aligned with university curriculum.
+            </span>
           </div>
-          <Link href="/community-notes" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
-            Looking for student chapter notes? Browse Community Notes →
+          <Link href="/community-notes" className={styles.bannerLink}>
+            Browse Student Chapter Notes →
           </Link>
         </div>
       )}
 
+      {/* 3. Loading Skeletons */}
       {isLoading ? (
-        <div className={styles.grid} style={{ marginTop: "1rem" }}>
+        <div className={styles.grid}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
               style={{
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius)",
-                padding: "1.25rem",
+                background: "#FFFFFF",
+                border: "1px solid #D5DBE8",
+                borderRadius: "14px",
+                height: "280px",
+                padding: "20px",
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.85rem",
-                minHeight: "220px",
+                gap: "12px",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem" }}>
-                <div className={styles.skeletonShimmer} style={{ height: "20px", width: "70%" }} />
-                <div className={styles.skeletonShimmer} style={{ height: "20px", width: "45px" }} />
-              </div>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <div className={styles.skeletonShimmer} style={{ height: "22px", width: "70px" }} />
-                <div className={styles.skeletonShimmer} style={{ height: "22px", width: "50px" }} />
-              </div>
-              <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.25rem" }} />
-              <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
-                <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
-                <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
-              </div>
+              <div style={{ height: "140px", backgroundColor: "var(--paper)", borderRadius: "8px", border: "1px solid var(--line-200)" }} />
+              <div style={{ height: "12px", width: "40%", backgroundColor: "var(--line-200)", borderRadius: "4px" }} />
+              <div style={{ height: "20px", width: "80%", backgroundColor: "var(--line-200)", borderRadius: "4px" }} />
             </div>
           ))}
         </div>
       ) : debouncedSearchQuery !== "" || (selectedBranch === "All branches" && selectedSemester !== "All semesters") ? (
-        /* Flat list mode for Search or Semester-only filtering */
+        /* Flat List Mode for Search or Semester-Only Filter */
         <div>
+          {/* Spec Breadcrumb Bar */}
           <div className={styles.breadcrumbsContainer}>
             <div className={styles.breadcrumbs}>
               <span
@@ -376,17 +335,19 @@ export default function NotesCatalog({
                 }}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => handleKeyDown(e, () => {
-                  onSelectBranch("All branches");
-                  onSelectSemester("All semesters");
-                })}
+                onKeyDown={(e) =>
+                  handleKeyDown(e, () => {
+                    onSelectBranch("All branches");
+                    onSelectSemester("All semesters");
+                  })
+                }
               >
-                <FaGraduationCap style={{ fontSize: "1.1rem" }} /> Library
+                <LuGraduationCap size={15} /> LIBRARY
               </span>
 
               {selectedBranch !== "All branches" && (
                 <>
-                  <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                  <span className={styles.breadcrumbSeparator}>/</span>
                   <span
                     className={selectedSemester === "All semesters" ? styles.breadcrumbActive : styles.breadcrumbLink}
                     onClick={() => {
@@ -402,9 +363,9 @@ export default function NotesCatalog({
 
               {selectedSemester !== "All semesters" && (
                 <>
-                  <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                  <span className={styles.breadcrumbSeparator}>/</span>
                   <span className={styles.breadcrumbActive}>
-                    {selectedSemester}
+                    SEM {selectedSemester}
                   </span>
                 </>
               )}
@@ -412,6 +373,7 @@ export default function NotesCatalog({
 
             {(selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
               <button
+                type="button"
                 className={styles.btnBreadcrumbBack}
                 onClick={() => {
                   if (selectedSemester !== "All semesters") {
@@ -421,26 +383,26 @@ export default function NotesCatalog({
                   }
                 }}
               >
-                <FaArrowLeft /> Back
+                <LuArrowLeft size={13} /> Back
               </button>
             )}
           </div>
 
           {debouncedSearchQuery !== "" && variant === "catalog" && (
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
-              Search Results for &quot;{debouncedSearchQuery}&quot;
-              {selectedBranch !== "All branches" && ` in ${selectedBranch}`}
-              {selectedSemester !== "All semesters" && ` (Semester ${selectedSemester})`}
-            </h3>
-          )}
-          {selectedBranch === "All branches" && selectedSemester !== "All semesters" && debouncedSearchQuery === "" && variant === "catalog" && (
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)" }}>
-              Showing all {selectedSemester} notes
-            </h3>
+            <div style={{ margin: "16px 0 20px" }}>
+              <span className="label-mono" style={{ color: "var(--slate-600)" }}>
+                SEARCH RESULTS ({notes.length})
+              </span>
+              <h3 style={{ fontSize: "18px", fontWeight: 800, marginTop: "2px", color: "var(--ink-900)" }}>
+                &quot;{debouncedSearchQuery}&quot;
+                {selectedBranch !== "All branches" && ` in ${selectedBranch}`}
+                {selectedSemester !== "All semesters" && ` (Sem ${selectedSemester})`}
+              </h3>
+            </div>
           )}
 
           {notes.length > 0 ? (
-            <div className={styles.grid}>
+            <div className={styles.grid} style={{ marginTop: "16px" }}>
               {notes.map((note) => (
                 <NoteCard
                   key={note.id}
@@ -449,52 +411,56 @@ export default function NotesCatalog({
                   variant={variant}
                   onWatchVideo={note.videoUrl ? (n) => onOpenVideoModal(n) : undefined}
                   onAction={(n) => onNoteAction(n)}
-                  actionLabel={actionLabel ? actionLabel(note) : variant === "unauth" ? "Preview & details" : note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                  actionLabel={
+                    actionLabel
+                      ? actionLabel(note)
+                      : variant === "unauth"
+                      ? "Preview & details"
+                      : note.price && note.price > 0
+                      ? "Unlock PDF"
+                      : "Free PDF"
+                  }
                 />
               ))}
             </div>
           ) : (
             <div className={styles.noResults} id="no-results-alert">
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                background: "rgba(255, 255, 255, 0.04)",
-                border: "1px solid var(--border)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--text-secondary)",
-                marginBottom: "0.25rem"
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  <line x1="8" y1="11" x2="14" y2="11" />
-                </svg>
+              <div className={styles.noResultsIconWrapper}>
+                <LuSearch size={22} />
               </div>
               <h3 className={styles.noResultsTitle}>
-                {userUniversity && variant === "catalog" ? `No study notes found for ${userUniversity}` : "No results for this filter"}
+                {userUniversity && variant === "catalog"
+                  ? `No study sheets found for ${userUniversity}`
+                  : "No study sheets match this filter"}
               </h3>
               <p className={styles.noResultsDesc}>
                 {userUniversity && variant === "catalog"
                   ? "Our contributors have not uploaded notes for this specific branch filter yet. Try adjusting or clearing search parameters."
-                  : "No study notes match your current search and filters. Reset filters to browse all resources."}
+                  : "Try clearing your search query or selecting a different branch."}
               </p>
               <button
                 type="button"
                 onClick={onClearFilters}
-                className={styles.btnPrimary}
-                style={{ padding: "0.6rem 1.25rem", fontSize: "0.85rem", marginTop: "0.25rem" }}
+                className="label-mono"
+                style={{
+                  marginTop: "8px",
+                  padding: "10px 18px",
+                  backgroundColor: "var(--ink-900)",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
               >
-                Clear filters
+                Clear all filters
               </button>
             </div>
           )}
         </div>
       ) : (
-        /* Folder navigation mode */
+        /* Folder Navigation Mode */
         <div>
+          {/* Spec Breadcrumb Bar */}
           <div className={styles.breadcrumbsContainer}>
             <div className={styles.breadcrumbs}>
               <span
@@ -505,17 +471,19 @@ export default function NotesCatalog({
                 }}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => handleKeyDown(e, () => {
-                  onSelectBranch("All branches");
-                  onSelectSemester("All semesters");
-                })}
+                onKeyDown={(e) =>
+                  handleKeyDown(e, () => {
+                    onSelectBranch("All branches");
+                    onSelectSemester("All semesters");
+                  })
+                }
               >
-                <FaGraduationCap style={{ fontSize: "1.1rem" }} /> Library
+                <LuGraduationCap size={15} /> LIBRARY
               </span>
 
               {selectedBranch !== "All branches" && (
                 <>
-                  <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                  <span className={styles.breadcrumbSeparator}>/</span>
                   <span
                     className={selectedSemester === "All semesters" ? styles.breadcrumbActive : styles.breadcrumbLink}
                     onClick={() => {
@@ -531,9 +499,9 @@ export default function NotesCatalog({
 
               {selectedSemester !== "All semesters" && (
                 <>
-                  <span className={styles.breadcrumbSeparator}><FaChevronRight style={{ fontSize: "0.7rem" }} /></span>
+                  <span className={styles.breadcrumbSeparator}>/</span>
                   <span className={styles.breadcrumbActive}>
-                    {selectedSemester}
+                    SEM {selectedSemester}
                   </span>
                 </>
               )}
@@ -541,6 +509,7 @@ export default function NotesCatalog({
 
             {(selectedBranch !== "All branches" || selectedSemester !== "All semesters") && (
               <button
+                type="button"
                 className={styles.btnBreadcrumbBack}
                 onClick={() => {
                   if (selectedSemester !== "All semesters") {
@@ -550,47 +519,78 @@ export default function NotesCatalog({
                   }
                 }}
               >
-                <FaArrowLeft /> Back
+                <LuArrowLeft size={13} /> Back
               </button>
             )}
           </div>
 
           {notes.length === 0 ? (
-            <div className={styles.noResults} id="no-results-alert">
-              <h3>{userUniversity && variant === "catalog" ? `No study notes found for ${userUniversity}` : "No study notes found"}</h3>
-              <p>
+            <div className={styles.noResults} id="no-results-alert" style={{ marginTop: "24px" }}>
+              <div className={styles.noResultsIconWrapper}>
+                <LuFolder size={22} />
+              </div>
+              <h3 className={styles.noResultsTitle}>
+                {userUniversity && variant === "catalog"
+                  ? `No study sheets found for ${userUniversity}`
+                  : "No study notes found"}
+              </h3>
+              <p className={styles.noResultsDesc}>
                 {userUniversity && variant === "catalog"
                   ? "Our contributors have not uploaded notes for this specific branch filter yet. Try adjusting or clearing search parameters."
-                  : "Try selecting another university filter or adjusting your search."}
+                  : "Try selecting another university filter or resetting the branch filter."}
               </p>
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className="label-mono"
+                style={{
+                  marginTop: "8px",
+                  padding: "10px 18px",
+                  backgroundColor: "var(--ink-900)",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                Clear all filters
+              </button>
             </div>
           ) : selectedBranch === "All branches" ? (
             /* Level 1: Branch Folders */
             activeBranches.length > 0 ? (
-              <div className={styles.folderGrid}>
+              <div className={styles.folderGrid} style={{ marginTop: "20px" }}>
                 {activeBranches.map((branch) => {
                   const semesters = branchSemestersMap[branch] || [];
                   const count = branchNotesCount[branch] || 0;
                   return (
                     <div
                       key={branch}
-                      className={`${styles.folderCard} ${getBranchFolderClass(branch)}`}
+                      className={styles.folderCard}
                       onClick={() => onSelectBranch(branch)}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, () => onSelectBranch(branch))}
                     >
-                      <div className={styles.folderIconContainer}>
-                        <FaRegFolderOpen className={styles.folderClosedIcon} />
-                        <FaFolderOpen className={styles.folderOpenedIcon} />
+                      {/* Top discipline tab line */}
+                      <div className={`${styles.folderTopBar} ${getDisciplineClass(branch)}`} />
+
+                      <div className={styles.folderHeader}>
+                        <div className={styles.folderIconWrapper}>
+                          <LuFolder size={20} />
+                        </div>
+                        <span className={styles.folderStats}>
+                          {count} {count === 1 ? "SHEET" : "SHEETS"}
+                        </span>
                       </div>
-                      <div className={styles.folderHeaderInfo}>
-                        <h3 className={styles.folderTitle}>{branch}</h3>
-                        <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} available</span>
-                      </div>
+
+                      <h3 className={styles.folderTitle}>{branch}</h3>
+
                       <div className={styles.folderBadges}>
                         {semesters.map((sem) => (
-                          <span key={sem} className={styles.folderMiniBadge}>{sem}</span>
+                          <span key={sem} className={styles.folderMiniBadge}>
+                            Sem {sem}
+                          </span>
                         ))}
                       </div>
                     </div>
@@ -598,14 +598,14 @@ export default function NotesCatalog({
                 })}
               </div>
             ) : (
-              <div className={styles.noResults}>
+              <div className={styles.noResults} style={{ marginTop: "24px" }}>
                 <p>No active folders found.</p>
               </div>
             )
           ) : selectedSemester === "All semesters" ? (
             /* Level 2: Semester Folders */
             (branchSemestersMap[selectedBranch] || []).length > 0 ? (
-              <div className={styles.folderGrid}>
+              <div className={styles.folderGrid} style={{ marginTop: "20px" }}>
                 {(branchSemestersMap[selectedBranch] || []).map((sem) => {
                   const key = `${selectedBranch}-${sem}`;
                   const count = semesterNotesCount[key] || 0;
@@ -613,24 +613,33 @@ export default function NotesCatalog({
                   return (
                     <div
                       key={sem}
-                      className={`${styles.folderCard} ${getBranchFolderClass(selectedBranch)}`}
+                      className={styles.folderCard}
                       onClick={() => onSelectSemester(sem)}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, () => onSelectSemester(sem))}
                     >
-                      <div className={styles.folderIconContainer}>
-                        <FaRegFolderOpen className={styles.folderClosedIcon} />
-                        <FaFolderOpen className={styles.folderOpenedIcon} />
+                      {/* Top discipline tab line */}
+                      <div className={`${styles.folderTopBar} ${getDisciplineClass(selectedBranch)}`} />
+
+                      <div className={styles.folderHeader}>
+                        <div className={styles.folderIconWrapper}>
+                          <LuFolderOpen size={20} />
+                        </div>
+                        <span className={styles.folderStats}>
+                          {count} {count === 1 ? "SHEET" : "SHEETS"}
+                        </span>
                       </div>
-                      <div className={styles.folderHeaderInfo}>
-                        <h3 className={styles.folderTitle}>{sem} Folder</h3>
-                        <span className={styles.folderStats}>{count} study {count === 1 ? "sheet" : "sheets"} inside</span>
-                      </div>
+
+                      <h3 className={styles.folderTitle}>Semester {sem} Folder</h3>
+
                       {previews.length > 0 && (
                         <ul className={styles.folderPreviewList}>
                           {previews.map((title, idx) => (
-                            <li key={idx}>{title}</li>
+                            <li key={idx} className={styles.folderPreviewItem}>
+                              <span className={styles.folderPreviewDot} />
+                              <span>{title}</span>
+                            </li>
                           ))}
                         </ul>
                       )}
@@ -639,38 +648,47 @@ export default function NotesCatalog({
                 })}
               </div>
             ) : (
-              <div className={styles.noResults}>
-                <p>No semesters active under {selectedBranch} Engineering.</p>
+              <div className={styles.noResults} style={{ marginTop: "24px" }}>
+                <p>No semesters active under {selectedBranch}.</p>
               </div>
             )
           ) : (
-            /* Level 3: Notes Grid for selected branch & semester */
+            /* Level 3: Notes Grid for Selected Branch & Semester */
             (() => {
-              const officialNotes = notes.filter((n) => n.resource_type === "official_subject" || (!n.resource_type && !n.is_community_contributed));
-              const supplementaryNotes = notes.filter((n) => (n.resource_type && n.resource_type !== "official_subject") || n.is_community_contributed);
+              const officialNotes = notes.filter(
+                (n) => n.resource_type === "official_subject" || (!n.resource_type && !n.is_community_contributed)
+              );
+              const supplementaryNotes = notes.filter(
+                (n) => (n.resource_type && n.resource_type !== "official_subject") || n.is_community_contributed
+              );
 
               if (notes.length === 0) {
                 return (
-                  <div className={styles.noResults}>
-                    <h3>No study sheets found</h3>
-                    <p>No notes currently uploaded for {selectedBranch} {selectedSemester}.</p>
+                  <div className={styles.noResults} style={{ marginTop: "24px" }}>
+                    <div className={styles.noResultsIconWrapper}>
+                      <LuFolder size={22} />
+                    </div>
+                    <h3 className={styles.noResultsTitle}>No study sheets found</h3>
+                    <p className={styles.noResultsDesc}>
+                      No notes currently uploaded for {selectedBranch} Semester {selectedSemester}.
+                    </p>
                   </div>
                 );
               }
 
               return (
-                <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "36px", marginTop: "24px" }}>
                   {officialNotes.length > 0 && (
-                    <div>
-                      <div style={{ marginBottom: "1rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                          <span style={{ fontSize: "1.1rem" }}>📚</span>
-                          <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>
-                            Official Subject Curriculum ({officialNotes.length})
-                          </h3>
-                        </div>
-                        <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                          Verified, full-syllabus engineering study notes aligned with university curriculum.
+                    <div className={styles.curriculumSection}>
+                      <div className={styles.curriculumHeader}>
+                        <span className="label-mono" style={{ color: "var(--blue-500)" }}>
+                          OFFICIAL CURRICULUM ({officialNotes.length})
+                        </span>
+                        <h3 className={styles.curriculumTitle}>
+                          Verified Subject Study Guides
+                        </h3>
+                        <p className={styles.curriculumDesc}>
+                          Full syllabus engineering notes aligned with your university curriculum.
                         </p>
                       </div>
                       <div className={styles.grid}>
@@ -682,7 +700,15 @@ export default function NotesCatalog({
                             variant={variant}
                             onWatchVideo={note.videoUrl ? (n) => onOpenVideoModal(n) : undefined}
                             onAction={(n) => onNoteAction(n)}
-                            actionLabel={actionLabel ? actionLabel(note) : variant === "unauth" ? "Preview & details" : note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                            actionLabel={
+                              actionLabel
+                                ? actionLabel(note)
+                                : variant === "unauth"
+                                ? "Preview & details"
+                                : note.price && note.price > 0
+                                ? "Unlock PDF"
+                                : "Free PDF"
+                            }
                           />
                         ))}
                       </div>
@@ -690,21 +716,16 @@ export default function NotesCatalog({
                   )}
 
                   {supplementaryNotes.length > 0 && (
-                    <div style={{
-                      padding: "1.25rem",
-                      borderRadius: "14px",
-                      background: "rgba(245, 158, 11, 0.03)",
-                      border: "1px solid rgba(245, 158, 11, 0.15)",
-                    }}>
-                      <div style={{ marginBottom: "1rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                          <span style={{ fontSize: "1.1rem" }}>💡</span>
-                          <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "#fbbf24" }}>
-                            Supplementary & Student Learning Resources ({supplementaryNotes.length})
-                          </h3>
-                        </div>
-                        <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                          Focused topic guides, module notes, and practical reference handbooks contributed by students. Explicitly supplementary — not official syllabus notes.
+                    <div className={styles.curriculumSection}>
+                      <div className={styles.curriculumHeader}>
+                        <span className="label-mono" style={{ color: "var(--ink-900)" }}>
+                          SUPPLEMENTARY LEARNING RESOURCES ({supplementaryNotes.length})
+                        </span>
+                        <h3 className={styles.curriculumTitle}>
+                          Student Module Summaries & Topic Notes
+                        </h3>
+                        <p className={styles.curriculumDesc}>
+                          Chapter summaries, formula sheets, and practical revision notes contributed by student peers.
                         </p>
                       </div>
                       <div className={styles.grid}>
@@ -716,7 +737,15 @@ export default function NotesCatalog({
                             variant={variant}
                             onWatchVideo={note.videoUrl ? (n) => onOpenVideoModal(n) : undefined}
                             onAction={(n) => onNoteAction(n)}
-                            actionLabel={actionLabel ? actionLabel(note) : variant === "unauth" ? "Preview & details" : note.price && note.price > 0 ? "Unlock PDF" : "Free PDF"}
+                            actionLabel={
+                              actionLabel
+                                ? actionLabel(note)
+                                : variant === "unauth"
+                                ? "Preview & details"
+                                : note.price && note.price > 0
+                                ? "Unlock PDF"
+                                : "Free PDF"
+                            }
                           />
                         ))}
                       </div>
