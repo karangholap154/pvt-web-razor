@@ -2,10 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import styles from "./layout.module.css";
+import { useAuth } from "@/components/providers/AuthProvider";
+import Logo from "@/components/brand/Logo";
+import Button from "@/components/ui/Button";
+import UniversityChips from "@/components/ui/UniversityChips";
+import { LuMenu, LuX, LuLogOut, LuLayoutDashboard, LuUser, LuShield } from "react-icons/lu";
+import styles from "@/components/layout/Navbar.module.css";
 
 interface NavbarProps {
   sessionEmail?: string;
@@ -14,9 +18,19 @@ interface NavbarProps {
   userName?: string;
 }
 
-export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initialIsAdmin, avatarUrl, userName }: NavbarProps) {
-  const { email: contextEmail, username: contextUsername, isAdmin: contextIsAdmin, authState } = useAuth();
-  
+export default function Navbar({
+  sessionEmail: initialEmail,
+  isUserAdmin: initialIsAdmin,
+  avatarUrl,
+  userName,
+}: NavbarProps) {
+  const {
+    email: contextEmail,
+    username: contextUsername,
+    isAdmin: contextIsAdmin,
+    authState,
+  } = useAuth();
+
   const isLoaded = authState !== "loading";
   const sessionEmail = isLoaded ? contextEmail ?? undefined : initialEmail;
   const isUserAdmin = isLoaded ? contextIsAdmin : initialIsAdmin;
@@ -24,31 +38,34 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [currentUni, setCurrentUni] = useState("MU");
 
-  // Close menu and dropdown whenever route changes
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Scroll detection for navbar shadow/border
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMenuOpen(false);
-      setDropdownOpen(false);
-    }, 0);
-    return () => clearTimeout(timer);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close menus on route change
+  useEffect(() => {
+    setMenuOpen(false);
+    setDropdownOpen(false);
   }, [pathname]);
 
-  // Handle click outside profile dropdown
+  // Handle outside click for dropdown
   useEffect(() => {
     if (!dropdownOpen) return;
-    const handleOutsideClick = () => {
-      setDropdownOpen(false);
-    };
+    const handleOutsideClick = () => setDropdownOpen(false);
     document.addEventListener("click", handleOutsideClick);
     return () => document.removeEventListener("click", handleOutsideClick);
   }, [dropdownOpen]);
-
-  const toggleDropdown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDropdownOpen((prev) => !prev);
-  };
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -62,18 +79,34 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
     };
   }, [menuOpen]);
 
+  // Read cookie or query for selected university if present
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|; )selected_university=([^;]*)/);
+      if (match && match[1]) {
+        setCurrentUni(decodeURIComponent(match[1]));
+      }
+    }
+  }, []);
+
+  const handleUniversityChange = (uni: string) => {
+    setCurrentUni(uni);
+    if (typeof document !== "undefined") {
+      document.cookie = `selected_university=${encodeURIComponent(uni)}; path=/; max-age=31536000`;
+    }
+    // If on catalog, update route
+    if (pathname === "/notes" || pathname === "/community-notes") {
+      router.push(`${pathname}?university=${uni}`);
+    }
+  };
+
   const isActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
-    if (href === "/notes") {
-      return pathname === "/notes" || pathname === "/";
-    }
+    if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
 
-  // Streamlined 5 core tabs
-  const navLinks = [
+  // 5 primary navigation tabs per DESIGN.md Section 3.5
+  const primaryLinks = [
     { href: "/notes", label: "Official Notes" },
     { href: "/community-notes", label: "Community Notes" },
     { href: "/discussions", label: "Discussions" },
@@ -81,113 +114,130 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
     { href: "/contribute", label: "Contribute" },
   ];
 
-  return (
-    <>
-      <nav className={styles.nav} id="desktop-nav" aria-label="Main navigation">
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
-            id={`nav-link-${link.label.toLowerCase().replace(/[^a-z0-9]/g, "")}`}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+  // Secondary links for mobile drawer
+  const secondaryLinks = [
+    { href: "/articles", label: "Articles" },
+    { href: "/about", label: "About" },
+    { href: "/careers", label: "Careers" },
+    { href: "/contact", label: "Contact" },
+  ];
 
-      {/* Header Actions Container (Visible on Desktop, Tablet & Mobile Header) */}
-      <div className={styles.headerActions}>
-        {sessionEmail ? (
-          <div className={styles.profileContainer}>
-            <button 
-              type="button"
-              className={styles.avatarBtn} 
-              onClick={toggleDropdown}
-              aria-label="User menu"
-              aria-haspopup="true"
-              aria-expanded={dropdownOpen}
+  return (
+    <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`} id="main-header">
+      <div className={styles.container}>
+        {/* Left: Brand mark + wordmark */}
+        <Logo />
+
+        {/* Center: Desktop Navigation Links */}
+        <nav className={styles.desktopNav} aria-label="Main navigation">
+          {primaryLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
             >
-              {avatarUrl ? (
-                <Image src={avatarUrl} alt="Avatar" className={styles.avatarImg} referrerPolicy="no-referrer" width={38} height={38} unoptimized />
-              ) : (
-                <div className={styles.avatarFallback}>
-                  {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Right: Actions (Login / Avatar + Hamburger) */}
+        <div className={styles.headerActions}>
+          {sessionEmail ? (
+            <div className={styles.profileContainer}>
+              <button
+                type="button"
+                className={styles.avatarBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropdownOpen((prev) => !prev);
+                }}
+                aria-label="User account menu"
+                aria-haspopup="true"
+                aria-expanded={dropdownOpen}
+              >
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className={styles.avatarImg}
+                    referrerPolicy="no-referrer"
+                    width={38}
+                    height={38}
+                    unoptimized
+                  />
+                ) : (
+                  <div className={styles.avatarFallback}>
+                    {(userName || sessionEmail || "U").charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </button>
+
+              {dropdownOpen && (
+                <div className={styles.dropdownMenu}>
+                  <div className={styles.dropdownHeader}>
+                    {userName && <div className={styles.dropdownUserName}>{userName}</div>}
+                    {displayUsername && (
+                      <div className={styles.dropdownHandle}>@{displayUsername}</div>
+                    )}
+                    <div className={styles.dropdownEmail}>{sessionEmail}</div>
+                  </div>
+                  <div className={styles.dropdownDivider} />
+                  <Link
+                    href="/dashboard"
+                    className={styles.dropdownItem}
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <LuLayoutDashboard size={16} aria-hidden="true" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    href={displayUsername ? `/u/${displayUsername}/profile` : "/profile"}
+                    className={styles.dropdownItem}
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <LuUser size={16} aria-hidden="true" />
+                    <span>Profile & Settings</span>
+                  </Link>
+                  {isUserAdmin && (
+                    <Link
+                      href="/admin"
+                      className={styles.dropdownItem}
+                      style={{ color: "var(--blue-500)" }}
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <LuShield size={16} aria-hidden="true" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  )}
+                  <div className={styles.dropdownDivider} />
+                  <a href="/api/auth/logout" className={`${styles.dropdownItem} ${styles.dropdownItemLogout}`}>
+                    <LuLogOut size={16} aria-hidden="true" />
+                    <span>Log out</span>
+                  </a>
                 </div>
               )}
-            </button>
-            
-            {dropdownOpen && (
-              <div className={styles.dropdownMenu}>
-                <div className={styles.dropdownHeader}>
-                  {userName && (
-                    <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--text-primary)" }}>
-                      {userName}
-                    </div>
-                  )}
-                  {displayUsername && (
-                    <div style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>
-                      @{displayUsername}
-                    </div>
-                  )}
-                  <div className={styles.dropdownEmail}>{sessionEmail}</div>
-                </div>
-                <div className={styles.dropdownDivider} />
-                <Link href="/dashboard" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
-                  Dashboard
-                </Link>
-                <Link 
-                  href={displayUsername ? `/u/${displayUsername}/profile` : "/profile"} 
-                  className={styles.dropdownItem} 
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Profile & Settings
-                </Link>
-                {isUserAdmin && (
-                  <Link href="/admin" className={styles.dropdownItem} style={{ color: "var(--accent)" }} onClick={() => setDropdownOpen(false)}>
-                    Admin Panel
-                  </Link>
-                )}
-                <div className={styles.dropdownDivider} />
-                <a href="/api/auth/logout" className={styles.dropdownItemLogout}>
-                  Logout
-                </a>
-              </div>
-            )}
-          </div>
-        ) : (
-          <Link href="/login" className={styles.navLinkAuth} id="nav-link-login">
-            Login
-          </Link>
-        )}
-
-        {/* Hamburger Button */}
-        <button
-          className={styles.mobileMenuBtn}
-          id="btn-mobile-menu"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-nav-drawer"
-          onClick={() => setMenuOpen((prev) => !prev)}
-        >
-          {menuOpen ? (
-            /* X icon */
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            </div>
           ) : (
-            /* Hamburger icon */
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="4" y1="6" x2="20" y2="6" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="18" x2="20" y2="18" />
-            </svg>
+            <Button href="/login" variant="dark" size="sm">
+              Log in
+            </Button>
           )}
-        </button>
+
+          {/* Mobile Hamburger Trigger */}
+          <button
+            type="button"
+            className={styles.mobileMenuBtn}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((prev) => !prev)}
+          >
+            {menuOpen ? <LuX size={22} /> : <LuMenu size={22} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Backdrop */}
+      {/* Mobile Drawer Backdrop */}
       {menuOpen && (
         <div
           className={styles.mobileBackdrop}
@@ -196,91 +246,93 @@ export default function Navbar({ sessionEmail: initialEmail, isUserAdmin: initia
         />
       )}
 
-      {/* Mobile Drawer */}
-      <nav
-        id="mobile-nav-drawer"
-        className={`${styles.mobileDrawer} ${menuOpen ? styles.mobileDrawerOpen : ""}`}
-        aria-label="Mobile navigation"
-      >
-        <div className={styles.mobileDrawerHeader}>
-          <Link href="/" className={styles.logo} id="mobile-nav-logo" onClick={() => setMenuOpen(false)}>
-            Private<span className={styles.logoAccent}>Academy</span>
-          </Link>
-          <button
-            className={styles.mobileCloseBtn}
-            aria-label="Close menu"
-            onClick={() => setMenuOpen(false)}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <div className={styles.mobileNavLinks}>
-          <div className={styles.drawerSectionLabel}>Menu</div>
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${styles.mobileNavLink} ${isActive(link.href) ? styles.mobileNavLinkActive : ""}`}
+      {/* Full-Screen Mobile Drawer */}
+      {menuOpen && (
+        <aside
+          className={styles.mobileDrawer}
+          id="mobile-nav-drawer"
+          aria-label="Mobile Navigation"
+        >
+          <div className={styles.mobileDrawerHeader}>
+            <Logo onClick={() => setMenuOpen(false)} />
+            <button
+              type="button"
+              className={styles.mobileCloseBtn}
+              aria-label="Close menu"
               onClick={() => setMenuOpen(false)}
             >
-              {link.label}
-            </Link>
-          ))}
+              <LuX size={22} />
+            </button>
+          </div>
 
-          {sessionEmail ? (
-            <>
-              <div className={styles.drawerSectionDivider} />
-              <div className={styles.drawerSectionLabel}>Account</div>
-              {isUserAdmin && (
+          <div className={styles.mobileDrawerBody}>
+            {/* University quick selector */}
+            <div className={styles.mobileUniSection}>
+              <div className={styles.mobileUniLabel}>Your University</div>
+              <UniversityChips value={currentUni} onChange={handleUniversityChange} />
+            </div>
+
+            {/* Primary Large Links (26px Display Font) */}
+            <nav className={styles.mobileNavGroup} aria-label="Mobile links">
+              {primaryLinks.map((link) => (
                 <Link
-                  href="/admin"
-                  className={`${styles.mobileNavLink} ${isActive("/admin") ? styles.mobileNavLinkActive : ""}`}
-                  style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
+                  key={link.href}
+                  href={link.href}
+                  className={`${styles.mobileNavLink} ${isActive(link.href) ? styles.mobileNavLinkActive : ""}`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  ⚙ Admin Panel
+                  {link.label}
                 </Link>
-              )}
-              <Link
-                href="/dashboard"
-                className={`${styles.mobileNavLink} ${isActive("/dashboard") ? styles.mobileNavLinkActive : ""}`}
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href={displayUsername ? `/u/${displayUsername}/profile` : "/profile"}
-                className={`${styles.mobileNavLink} ${
-                  pathname.endsWith("/profile") ? styles.mobileNavLinkActive : ""
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                Profile & Settings
-              </Link>
+              ))}
+            </nav>
+
+            {/* Secondary Links Below Divider */}
+            <div className={styles.mobileSubLinks}>
+              {secondaryLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={styles.mobileSubLink}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
               <a
-                href="/api/auth/logout"
-                className={styles.mobileNavLink}
-                style={{ color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
-                onClick={() => setMenuOpen(false)}
+                href="/rss.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mobileSubLink}
               >
-                Logout
+                RSS Feed
               </a>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              className={styles.mobileNavLinkAuth}
-              onClick={() => setMenuOpen(false)}
-            >
-              Login to Account
-            </Link>
-          )}
-        </div>
-      </nav>
-    </>
+            </div>
+          </div>
+
+          {/* Drawer Footer Actions */}
+          <div className={styles.mobileDrawerFooter}>
+            {sessionEmail ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <Button href="/dashboard" variant="secondary" size="md" onClick={() => setMenuOpen(false)}>
+                  Dashboard
+                </Button>
+                {isUserAdmin && (
+                  <Button href="/admin" variant="ghost" size="md" onClick={() => setMenuOpen(false)}>
+                    Admin Panel
+                  </Button>
+                )}
+                <Button href="/api/auth/logout" variant="ghost" size="md" style={{ color: "var(--error)" }}>
+                  Log out
+                </Button>
+              </div>
+            ) : (
+              <Button href="/login" variant="dark" size="lg" style={{ width: "100%" }} onClick={() => setMenuOpen(false)}>
+                Log in / Sign up
+              </Button>
+            )}
+          </div>
+        </aside>
+      )}
+    </header>
   );
 }

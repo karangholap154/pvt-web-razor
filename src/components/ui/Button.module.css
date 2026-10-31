@@ -1,0 +1,126 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-md, 10px);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out;
+  border: 1.5px solid transparent;
+  user-select: none;
+  white-space: nowrap;
+  min-width: 44px;
+}
+
+/* --- Sizes --- */
+.sizeSm {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.sizeMd {
+  min-height: 48px;
+  padding: 0 22px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.sizeLg {
+  min-height: 56px;
+  padding: 0 28px;
+  font-size: 17px;
+  line-height: 26px;
+}
+
+/* --- Variants --- */
+.variantPrimary {
+  background-color: var(--blue-500, #2447F5);
+  color: #FFFFFF;
+}
+.variantPrimary:hover:not(:disabled) {
+  background-color: var(--blue-600, #1B38D1);
+}
+
+.variantDark {
+  background-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+}
+.variantDark:hover:not(:disabled) {
+  background-color: var(--ink-700, #1B2540);
+}
+
+.variantHighlighter {
+  background-color: var(--hl-400, #FFE14D);
+  color: var(--ink-900, #0B1020);
+}
+.variantHighlighter:hover:not(:disabled) {
+  background-color: var(--hl-300, #FFEC85);
+}
+
+.variantSecondary {
+  background-color: #FFFFFF;
+  color: var(--ink-900, #0B1020);
+  border-color: var(--line-300, #CDD4E2);
+}
+.variantSecondary:hover:not(:disabled) {
+  border-color: var(--ink-900, #0B1020);
+}
+
+.variantGhost {
+  background-color: transparent;
+  color: var(--ink-900, #0B1020);
+}
+.variantGhost:hover:not(:disabled) {
+  background-color: var(--line-200, #E3E8F1);
+}
+
+.variantDanger {
+  background-color: var(--error, #C42B3A);
+  color: #FFFFFF;
+}
+.variantDanger:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+/* --- States --- */
+.button:focus-visible {
+  outline: 2px solid var(--blue-500, #2447F5);
+  outline-offset: 2px;
+}
+
+.onDark .button:focus-visible,
+.variantHighlighter:focus-visible {
+  outline-color: var(--hl-400, #FFE14D);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
