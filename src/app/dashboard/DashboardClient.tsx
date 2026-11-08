@@ -5,21 +5,23 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
-import pageStyles from "../page.module.css";
 import { Note } from "../../data/mockData";
 import ContributeModal from "@/components/contribute/ContributeModalDynamic";
 import { useToast } from "@/components/providers/ToastProvider";
 import { downloadNotePdf } from "@/utils/download";
 import { 
-  FaBookOpen, 
-  FaCloudArrowUp, 
-  FaWallet, 
-  FaClock, 
-  FaCircleCheck, 
-  FaCircleXmark, 
-  FaTrashCan,
-  FaArrowRightFromBracket 
-} from "react-icons/fa6";
+  LuBookOpen, 
+  LuCloudUpload, 
+  LuWallet, 
+  LuClock, 
+  LuCircleCheck, 
+  LuCircleX, 
+  LuTrash2, 
+  LuLogOut, 
+  LuSearch, 
+  LuBanknote,
+  LuX
+} from "react-icons/lu";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import NoteCard from "@/components/cards/NoteCard";
 
@@ -227,13 +229,6 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
     setModalType(null);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      action();
-    }
-  };
-
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredNotes = notes.filter((note) => {
     if (!normalizedQuery) return true;
@@ -252,422 +247,518 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
   };
 
   return (
-    <div className={styles.container}>
-      {/* Header Area */}
-      <div className={styles.headerArea}>
-        <div>
-          <h1 className={styles.welcomeTitle}>
-            Welcome back, <span className={styles.username}>{username}</span> 👋
-          </h1>
-          <p className={styles.welcomeSubtitle}>
-            Manage your unlocked notes, track your note submissions, and collect earnings.
-          </p>
-        </div>
-        <div className={styles.headerActions}>
-          <button
-            onClick={() => setIsContributeOpen(true)}
-            className={styles.btnContribute}
-            id="btn-dashboard-contribute"
-          >
-            <FaCloudArrowUp style={{ fontSize: "1rem" }} />
-            <span>Contribute Note</span>
-          </button>
-          <a href="/api/auth/logout" className={styles.btnLogout} id="btn-dashboard-logout">
-            <FaArrowRightFromBracket style={{ fontSize: "0.85rem" }} />
-            <span>Sign Out</span>
-          </a>
-        </div>
-      </div>
-
-      {/* Quick Metrics Summary Bar */}
-      <div className={styles.metricsGrid}>
-        <div className={styles.metricCard}>
-          <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>Unlocked Resources</span>
-            <FaBookOpen className={styles.metricIcon} />
-          </div>
-          <div className={styles.metricValue}>{notes.length}</div>
-          <div className={styles.metricDesc}>Study guides ready for offline download</div>
-        </div>
-
-        <div className={styles.metricCard}>
-          <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>Notes Contributed</span>
-            <FaCloudArrowUp className={styles.metricIcon} />
-          </div>
-          <div className={styles.metricValue}>{submissions.length}</div>
-          <div className={styles.metricDesc}>
-            {submissions.filter((s) => s.status === "approved").length} approved &amp; live
-          </div>
-        </div>
-
-        <div className={styles.metricCard}>
-          <div className={styles.metricHeader}>
-            <span className={styles.metricLabel}>Wallet Balance</span>
-            <FaWallet className={styles.metricIcon} />
-          </div>
-          <div className={`${styles.metricValue} ${walletData.availableBalance > 0 ? styles.walletStatValueAmber : ""}`}>
-            ₹{walletData.availableBalance.toFixed(0)}
-          </div>
-          <div className={styles.metricDesc}>Available for direct UPI payout</div>
-        </div>
-      </div>
-
-      {/* Segmented Tabs Navigation */}
-      <div className={styles.tabsNav} role="tablist" aria-label="Dashboard sections">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "library"}
-          onClick={() => setActiveTab("library")}
-          className={`${styles.tabBtn} ${activeTab === "library" ? styles.tabBtnActive : ""}`}
-          id="tab-btn-library"
-        >
-          <span>Unlocked Library</span>
-          <span className={styles.tabBadge}>{notes.length}</span>
-        </button>
-
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "submissions"}
-          onClick={() => setActiveTab("submissions")}
-          className={`${styles.tabBtn} ${activeTab === "submissions" ? styles.tabBtnActive : ""}`}
-          id="tab-btn-submissions"
-        >
-          <span>My Submissions</span>
-          {submissions.length > 0 && (
-            <span className={styles.tabBadge}>{submissions.length}</span>
-          )}
-        </button>
-
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "earnings"}
-          onClick={() => setActiveTab("earnings")}
-          className={`${styles.tabBtn} ${activeTab === "earnings" ? styles.tabBtnActive : ""}`}
-          id="tab-btn-earnings"
-        >
-          <span>Earnings &amp; Wallet</span>
-          {walletData.availableBalance >= 100 && (
-            <span className={styles.tabBadge} style={{ color: "#22c55e", background: "rgba(34, 197, 94, 0.15)" }}>
-              Ready
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* ── TAB 1: UNLOCKED LIBRARY ───────────────────────────────────── */}
-      {activeTab === "library" && (
-        <div>
-          <div className={styles.sectionHeaderRow}>
-            <h2 className={styles.sectionHeading}>Your Unlocked Library</h2>
-            <div className={styles.searchDesktopWrap} role="search">
-              <div className={styles.searchInputGroup}>
-                <span className={styles.searchInputIcon}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </span>
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search notes"
-                  className={styles.searchInput}
-                  aria-label="Search unlocked notes"
-                />
-              </div>
-            </div>
-          </div>
-
-          {filteredNotes.length > 0 ? (
-            <div className={styles.grid}>
-              {filteredNotes.map((note) => (
-                <NoteCard
-                  key={note.id}
-                  id={`purchased-${note.id}`}
-                  note={note}
-                  variant="purchased"
-                  onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
-                  onAction={(n) => openModal(n, "pdf")}
-                  actionLabel="Download PDF"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className={styles.emptyState}>
-              <h3 className={styles.emptyTitle}>Your library is empty</h3>
-              <p className={styles.emptyText}>Explore the main catalog to unlock premium study notes.</p>
-              <Link href="/" className={styles.btnExplore}>Browse Notes</Link>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── TAB 2: MY SUBMISSIONS ────────────────────────────────────── */}
-      {activeTab === "submissions" && (
-        <div>
-          <div className={styles.sectionHeaderRow}>
-            <div>
-              <h2 className={styles.sectionHeading}>My Contributed Notes</h2>
-              <p className={styles.sectionSubtitle}>
-                Track the approval status and admin feedback for your uploaded study materials.
-              </p>
-            </div>
-            <button
-              onClick={() => setIsContributeOpen(true)}
-              className={styles.btnContribute}
-            >
-              <FaCloudArrowUp /> Submit New Note
-            </button>
-          </div>
-
-          {loadingSubmissions ? (
-            <div className={styles.loadingContainer}>
-              <div className={styles.spinner} />
-              <p>Loading your submissions...</p>
-            </div>
-          ) : submissions.length > 0 ? (
-            <div className={styles.submissionsList}>
-              {submissions.map((sub) => (
-                <div key={sub.id} className={styles.submissionCard}>
-                  <div className={styles.submissionHeader}>
-                    <div className={styles.submissionTitleWrap}>
-                      <div className={styles.titleRow}>
-                        <h3 className={styles.submissionTitle}>{sub.title}</h3>
-                        <span className={styles.tagStudentNote}>
-                          Contributed by You
-                        </span>
-                      </div>
-                      <div className={styles.submissionMeta}>
-                        <span>{sub.university}</span>
-                        <span>•</span>
-                        <span>{sub.branch}</span>
-                        <span>•</span>
-                        <span>{sub.semester}</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      {sub.status === "pending" && (
-                        <span className={`${styles.statusBadge} ${styles.statusPending}`}>
-                          <FaClock /> Pending Admin Review
-                        </span>
-                      )}
-                      {sub.status === "approved" && (
-                        <span className={`${styles.statusBadge} ${styles.statusApproved}`}>
-                          <FaCircleCheck /> Published Live (₹{sub.suggested_price})
-                        </span>
-                      )}
-                      {sub.status === "rejected" && (
-                        <span className={`${styles.statusBadge} ${styles.statusRejected}`}>
-                          <FaCircleXmark /> Submission Rejected
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {sub.admin_feedback && (
-                    <div className={styles.adminFeedbackBox}>
-                      <strong>Admin Feedback:</strong> {sub.admin_feedback}
-                    </div>
-                  )}
-
-                  <div className={styles.submissionFooter}>
-                    <span className={styles.submissionDate}>
-                      Submitted on {new Date(sub.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                    </span>
-                    <button
-                      onClick={() => setSubmissionToDelete({ id: sub.id, title: sub.title })}
-                      className={styles.btnDeleteSubmission}
-                      title="Delete this submission and file"
-                    >
-                      <FaTrashCan /> Delete Submission
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={styles.emptyState}>
-              <h3 className={styles.emptyTitle}>No notes submitted yet</h3>
-              <p className={styles.emptyText}>Share your study notes with peers & earn 80% revenue per sale!</p>
+    <div className={styles.pageWrapper}>
+      <div className={styles.container}>
+        <div className={styles.dashboardLayout}>
+          {/* ================================================================
+              240px STICKY SIDEBAR (DESKTOP)
+              ================================================================ */}
+          <aside className={styles.sidebar}>
+            <div className={styles.sidebarTitle}>Workspace</div>
+            <nav className={styles.navGroup} role="tablist" aria-label="Dashboard sections">
               <button
-                onClick={() => setIsContributeOpen(true)}
-                className={styles.btnExplore}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "library"}
+                onClick={() => setActiveTab("library")}
+                className={`${styles.navBtn} ${activeTab === "library" ? styles.navBtnActive : ""}`}
+                id="tab-btn-library"
               >
-                Submit Your First Note
+                <span className={styles.navBtnContent}>
+                  <LuBookOpen size={16} />
+                  <span>Library</span>
+                </span>
+                <span className={styles.navBadge}>{notes.length}</span>
               </button>
-            </div>
-          )}
-        </div>
-      )}
 
-      {/* ── TAB 3: EARNINGS & UPI WALLET ─────────────────────────────── */}
-      {activeTab === "earnings" && (
-        <div>
-          <div className={styles.sectionHeaderRow}>
-            <div>
-              <h2 className={styles.sectionHeading}>Contributor Earnings & UPI Wallet</h2>
-              <p className={styles.sectionSubtitle}>
-                Request instant payouts directly to your UPI ID once you reach the ₹100 threshold.
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "submissions"}
+                onClick={() => setActiveTab("submissions")}
+                className={`${styles.navBtn} ${activeTab === "submissions" ? styles.navBtnActive : ""}`}
+                id="tab-btn-submissions"
+              >
+                <span className={styles.navBtnContent}>
+                  <LuCloudUpload size={16} />
+                  <span>Submissions</span>
+                </span>
+                {submissions.length > 0 && (
+                  <span className={styles.navBadge}>{submissions.length}</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "earnings"}
+                onClick={() => setActiveTab("earnings")}
+                className={`${styles.navBtn} ${activeTab === "earnings" ? styles.navBtnActive : ""}`}
+                id="tab-btn-earnings"
+              >
+                <span className={styles.navBtnContent}>
+                  <LuWallet size={16} />
+                  <span>Earnings</span>
+                </span>
+                {walletData.availableBalance >= 100 ? (
+                  <span className={`${styles.navBadge} ${styles.navBadgeReady}`}>Ready</span>
+                ) : (
+                  <span className={styles.navBadge}>₹{walletData.availableBalance.toFixed(0)}</span>
+                )}
+              </button>
+            </nav>
+
+            <div className={styles.sidebarDivider} />
+
+            <button
+              type="button"
+              onClick={() => setIsContributeOpen(true)}
+              className={styles.btnContributeSidebar}
+              id="btn-dashboard-contribute"
+            >
+              <LuCloudUpload size={16} />
+              <span>Contribute Note</span>
+            </button>
+
+            <div className={styles.sidebarProfile}>
+              <div className={styles.userDossier}>
+                <div className={styles.userAvatar}>
+                  {username ? username.charAt(0).toUpperCase() : "U"}
+                </div>
+                <div className={styles.userHandle} title={`@${username}`}>
+                  @{username}
+                </div>
+              </div>
+              <a
+                href="/api/auth/logout"
+                className={styles.btnLogoutSidebar}
+                title="Sign out"
+                id="btn-dashboard-logout"
+              >
+                <LuLogOut size={16} />
+              </a>
+            </div>
+          </aside>
+
+          {/* ================================================================
+              MAIN CONTENT WORKSPACE
+              ================================================================ */}
+          <main className={styles.mainContent}>
+            {/* Welcome Banner */}
+            <div className={styles.welcomeHeader}>
+              <h1 className={styles.welcomeTitle}>
+                Welcome back, <span className={styles.usernameHighlight}>{username}</span> 👋
+              </h1>
+              <p className={styles.welcomeSubtitle}>
+                Manage your unlocked study library, track contributor peer submissions, and collect earnings.
               </p>
             </div>
-          </div>
 
-          {loadingWallet ? (
-            <div className={styles.loadingContainer}>
-              <div className={styles.spinner} />
-              <p>Loading earnings wallet...</p>
+            {/* 4-Stat Bento Grid */}
+            <div className={styles.bentoGrid}>
+              <div className={styles.bentoCard}>
+                <div className={styles.bentoHeader}>
+                  <span className={styles.bentoLabel}>Unlocked Library</span>
+                  <LuBookOpen className={styles.bentoIcon} size={18} />
+                </div>
+                <div className={styles.bentoValue}>{notes.length}</div>
+                <div className={styles.bentoDesc}>Verified study notes ready for download</div>
+              </div>
+
+              <div className={styles.bentoCard}>
+                <div className={styles.bentoHeader}>
+                  <span className={styles.bentoLabel}>Notes Contributed</span>
+                  <LuCloudUpload className={styles.bentoIcon} size={18} />
+                </div>
+                <div className={styles.bentoValue}>{submissions.length}</div>
+                <div className={styles.bentoDesc}>
+                  {submissions.filter((s) => s.status === "approved").length} approved &amp; live in catalog
+                </div>
+              </div>
+
+              <div className={styles.bentoCard}>
+                <div className={styles.bentoHeader}>
+                  <span className={styles.bentoLabel}>Total Sales</span>
+                  <LuBanknote className={styles.bentoIcon} size={18} />
+                </div>
+                <div className={styles.bentoValue}>{walletData.totalSalesCount}</div>
+                <div className={styles.bentoDesc}>Copies unlocked by peer students</div>
+              </div>
+
+              <div className={styles.bentoCard}>
+                <div className={styles.bentoHeader}>
+                  <span className={styles.bentoLabel}>Available Balance</span>
+                  <LuWallet className={styles.bentoIcon} size={18} />
+                </div>
+                <div className={`${styles.bentoValue} ${walletData.availableBalance > 0 ? styles.bentoValueGreen : ""}`}>
+                  ₹{walletData.availableBalance.toFixed(0)}
+                </div>
+                <div className={styles.bentoDesc}>
+                  {walletData.availableBalance >= 100 ? "Ready for direct UPI payout" : "Min ₹100 threshold"}
+                </div>
+              </div>
             </div>
-          ) : (
-            <div>
-              {/* Stat Cards Grid */}
-              <div className={styles.walletStatsGrid}>
-                <div className={styles.walletStatCard}>
-                  <div className={styles.walletStatLabel}>Total Sales Count</div>
-                  <div className={styles.walletStatValue}>{walletData.totalSalesCount} sales</div>
-                </div>
 
-                <div className={styles.walletStatCard}>
-                  <div className={styles.walletStatLabel}>Gross Note Sales</div>
-                  <div className={styles.walletStatValue}>₹{walletData.grossSales.toFixed(2)}</div>
-                </div>
-
-                <div className={styles.walletStatCard}>
-                  <div className={styles.walletStatLabel}>Net Contributor Share (80%)</div>
-                  <div className={`${styles.walletStatValue} ${styles.walletStatValueGreen}`}>₹{walletData.netEarnings.toFixed(2)}</div>
-                </div>
-
-                <div className={`${styles.walletStatCard} ${styles.walletStatCardHighlight}`}>
-                  <div className={styles.walletStatLabel}>Available Balance</div>
-                  <div className={`${styles.walletStatValue} ${styles.walletStatValueAmber}`}>₹{walletData.availableBalance.toFixed(2)}</div>
-                </div>
-              </div>
-
-              {/* UPI Payout Request Form */}
-              <div className={styles.payoutCard}>
-                <h3 className={styles.payoutTitle}>Request Payout to UPI</h3>
-                <p className={styles.payoutDesc}>
-                  Payouts are transferred directly via Google Pay / PhonePe / Paytm to your UPI ID (Min threshold: ₹100).
-                </p>
-
-                <form onSubmit={handleRequestPayoutSubmit} className={styles.payoutForm}>
-                  <div className={styles.formField}>
-                    <label className={styles.formLabel}>
-                      UPI ID <span style={{ color: "#ef4444" }}>*</span>
-                    </label>
+            {/* ── TAB 1: UNLOCKED LIBRARY ───────────────────────────────── */}
+            {activeTab === "library" && (
+              <div className={styles.panelCard}>
+                <div className={styles.sectionHeaderRow}>
+                  <div>
+                    <h2 className={styles.sectionHeading}>Unlocked Study Library</h2>
+                    <p className={styles.sectionSubtitle}>
+                      Instant access to verified semester materials unlocked by you.
+                    </p>
+                  </div>
+                  <div className={styles.searchWrap} role="search">
+                    <LuSearch className={styles.searchIcon} size={16} />
                     <input
-                      type="text"
-                      placeholder="e.g. username@upi or 9876543210@ybl"
-                      value={upiInput}
-                      onChange={(e) => setUpiInput(e.target.value)}
-                      required
-                      className={styles.formInput}
+                      type="search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Filter by title..."
+                      className={styles.searchInput}
+                      aria-label="Search unlocked notes"
                     />
                   </div>
+                </div>
 
-                  <div className={styles.formField}>
-                    <label className={styles.formLabel}>
-                      Payout Amount (₹)
-                    </label>
-                    <input
-                      type="number"
-                      min="100"
-                      max={walletData.availableBalance}
-                      placeholder={`Max ₹${walletData.availableBalance.toFixed(0)}`}
-                      value={payoutAmountInput}
-                      onChange={(e) => setPayoutAmountInput(e.target.value)}
-                      className={styles.formInput}
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={payoutLoading || walletData.availableBalance < 100}
-                    className={styles.btnSubmitPayout}
-                  >
-                    {payoutLoading ? "Submitting..." : "Submit Payout Request"}
-                  </button>
-                </form>
-              </div>
-
-              {/* Payout History Table */}
-              <div>
-                <h3 className={styles.sectionHeading} style={{ marginBottom: "1rem" }}>Payout History</h3>
-                {walletData.payoutRequests.length > 0 ? (
-                  <div className={styles.payoutTableContainer}>
-                    <table className={styles.payoutTable}>
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Amount</th>
-                          <th>UPI ID</th>
-                          <th>Status</th>
-                          <th>UTR Ref</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {walletData.payoutRequests.map((p) => (
-                          <tr key={p.id}>
-                            <td>
-                              {new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                            </td>
-                            <td style={{ fontWeight: 700, color: "var(--text-primary)" }}>₹{p.amount}</td>
-                            <td style={{ color: "var(--text-secondary)" }}>{p.upi_id}</td>
-                            <td>
-                              <span className={`${styles.statusBadge} ${p.status === "completed" ? styles.statusApproved : styles.statusPending}`}>
-                                {p.status.toUpperCase()}
-                              </span>
-                            </td>
-                            <td style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
-                              {p.utr_reference || "Pending"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                {filteredNotes.length > 0 ? (
+                  <div className={styles.libraryGrid}>
+                    {filteredNotes.map((note) => (
+                      <NoteCard
+                        key={note.id}
+                        id={`purchased-${note.id}`}
+                        note={note}
+                        variant="purchased"
+                        onWatchVideo={note.videoUrl ? (n) => openModal(n, "video") : undefined}
+                        onAction={(n) => openModal(n, "pdf")}
+                        actionLabel="Download PDF"
+                      />
+                    ))}
                   </div>
                 ) : (
-                  <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>No payout requests logged yet.</p>
+                  <div className={styles.emptyState}>
+                    <h3 className={styles.emptyTitle}>Your library is empty</h3>
+                    <p className={styles.emptyText}>
+                      Explore the catalog to unlock peer-reviewed notes, practical sheets, and semester blueprints.
+                    </p>
+                    <Link href="/" className={styles.btnExplore}>Browse Notes</Link>
+                  </div>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
 
-      {/* Video / PDF Modals */}
+            {/* ── TAB 2: MY SUBMISSIONS ────────────────────────────────── */}
+            {activeTab === "submissions" && (
+              <div className={styles.panelCard}>
+                <div className={styles.sectionHeaderRow}>
+                  <div>
+                    <h2 className={styles.sectionHeading}>My Contributed Notes</h2>
+                    <p className={styles.sectionSubtitle}>
+                      Track moderation status, editorial feedback, and live catalog performance for your uploads.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsContributeOpen(true)}
+                    className={styles.btnExplore}
+                    style={{ margin: 0 }}
+                  >
+                    <LuCloudUpload size={16} style={{ marginRight: 6 }} />
+                    <span>Upload New Note</span>
+                  </button>
+                </div>
+
+                {loadingSubmissions ? (
+                  <div className={styles.loadingContainer}>
+                    <div className={styles.spinner} />
+                    <p>Loading your submissions ledger...</p>
+                  </div>
+                ) : submissions.length > 0 ? (
+                  <div className={styles.submissionsList}>
+                    {submissions.map((sub) => (
+                      <div key={sub.id} className={styles.submissionCard}>
+                        <div className={styles.submissionHeader}>
+                          <div className={styles.submissionTitleWrap}>
+                            <h3 className={styles.submissionTitle}>{sub.title}</h3>
+                            <div className={styles.submissionMeta}>
+                              <span>{sub.university}</span>
+                              <span>•</span>
+                              <span>{sub.branch}</span>
+                              <span>•</span>
+                              <span>{sub.semester}</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            {sub.status === "pending" && (
+                              <span className={`${styles.statusBadge} ${styles.statusPending}`}>
+                                <LuClock size={12} /> Pending Moderation
+                              </span>
+                            )}
+                            {sub.status === "approved" && (
+                              <span className={`${styles.statusBadge} ${styles.statusApproved}`}>
+                                <LuCircleCheck size={12} /> Published Live (₹{sub.suggested_price})
+                              </span>
+                            )}
+                            {sub.status === "rejected" && (
+                              <span className={`${styles.statusBadge} ${styles.statusRejected}`}>
+                                <LuCircleX size={12} /> Needs Revision
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {sub.admin_feedback && (
+                          <div className={styles.adminFeedbackBox}>
+                            <strong>Editorial Feedback:</strong> {sub.admin_feedback}
+                          </div>
+                        )}
+
+                        <div className={styles.submissionFooter}>
+                          <span>
+                            Uploaded on {new Date(sub.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setSubmissionToDelete({ id: sub.id, title: sub.title })}
+                            className={styles.btnDeleteSubmission}
+                            title="Delete this submission and file"
+                          >
+                            <LuTrash2 size={13} />
+                            <span>Delete Submission</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    <h3 className={styles.emptyTitle}>No notes submitted yet</h3>
+                    <p className={styles.emptyText}>
+                      Help engineering peers ace their exams while earning 80% revenue share on every unlock!
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsContributeOpen(true)}
+                      className={styles.btnExplore}
+                    >
+                      Contribute Your First Note
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── TAB 3: EARNINGS & UPI WALLET ─────────────────────────── */}
+            {activeTab === "earnings" && (
+              <div className={styles.panelCard}>
+                <div className={styles.sectionHeaderRow}>
+                  <div>
+                    <h2 className={styles.sectionHeading}>Contributor Earnings &amp; UPI Wallet</h2>
+                    <p className={styles.sectionSubtitle}>
+                      Direct payouts via Google Pay, PhonePe, or Paytm once your balance reaches the ₹100 threshold.
+                    </p>
+                  </div>
+                </div>
+
+                {loadingWallet ? (
+                  <div className={styles.loadingContainer}>
+                    <div className={styles.spinner} />
+                    <p>Loading earnings &amp; wallet ledger...</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className={styles.walletStatsGrid}>
+                      <div className={styles.walletStatCard}>
+                        <div className={styles.walletStatLabel}>Total Sales Count</div>
+                        <div className={styles.walletStatValue}>{walletData.totalSalesCount} units</div>
+                      </div>
+
+                      <div className={styles.walletStatCard}>
+                        <div className={styles.walletStatLabel}>Gross Note Sales</div>
+                        <div className={styles.walletStatValue}>₹{walletData.grossSales.toFixed(2)}</div>
+                      </div>
+
+                      <div className={styles.walletStatCard}>
+                        <div className={styles.walletStatLabel}>Net Contributor Share (80%)</div>
+                        <div className={styles.walletStatValue} style={{ color: "#0F7B4F" }}>
+                          ₹{walletData.netEarnings.toFixed(2)}
+                        </div>
+                      </div>
+
+                      <div className={styles.walletStatCard}>
+                        <div className={styles.walletStatLabel}>Available Balance</div>
+                        <div className={`${styles.walletStatValue} ${styles.walletStatValueHighlight}`}>
+                          ₹{walletData.availableBalance.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* UPI Payout Request Form */}
+                    <div className={styles.payoutCard}>
+                      <h3 className={styles.payoutTitle}>Request Direct UPI Payout</h3>
+                      <p className={styles.payoutDesc}>
+                        Transfers are initiated directly to your UPI VPA handle. Payout requests are verified and credited within 24-48 business hours.
+                      </p>
+
+                      <form onSubmit={handleRequestPayoutSubmit} className={styles.payoutForm}>
+                        <div className={styles.formField}>
+                          <label className={styles.formLabel}>
+                            UPI ID / VPA <span style={{ color: "#ef4444" }}>*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. scholar@okaxis or 9876543210@ybl"
+                            value={upiInput}
+                            onChange={(e) => setUpiInput(e.target.value)}
+                            required
+                            className={styles.formInput}
+                          />
+                        </div>
+
+                        <div className={styles.formField}>
+                          <label className={styles.formLabel}>
+                            Payout Amount (₹)
+                          </label>
+                          <input
+                            type="number"
+                            min="100"
+                            max={walletData.availableBalance}
+                            placeholder={`Max ₹${walletData.availableBalance.toFixed(0)}`}
+                            value={payoutAmountInput}
+                            onChange={(e) => setPayoutAmountInput(e.target.value)}
+                            className={styles.formInput}
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={payoutLoading || walletData.availableBalance < 100}
+                          className={styles.btnSubmitPayout}
+                        >
+                          {payoutLoading ? "Submitting..." : walletData.availableBalance < 100 ? "Min ₹100 Required" : "Request Payout"}
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* Payout History Ledger */}
+                    <div>
+                      <h3 className={styles.sectionHeading} style={{ marginBottom: "1rem", fontSize: 16 }}>
+                        Payout History
+                      </h3>
+                      {walletData.payoutRequests.length > 0 ? (
+                        <div className={styles.payoutTableContainer}>
+                          <table className={styles.payoutTable}>
+                            <thead>
+                              <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>UPI Handle</th>
+                                <th>Status</th>
+                                <th>UTR Reference</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {walletData.payoutRequests.map((p) => (
+                                <tr key={p.id}>
+                                  <td>
+                                    {new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                  </td>
+                                  <td style={{ fontWeight: 700, fontFamily: "var(--font-jetbrains), monospace" }}>
+                                    ₹{p.amount}
+                                  </td>
+                                  <td style={{ fontFamily: "var(--font-jetbrains), monospace", color: "var(--slate-600)" }}>
+                                    {p.upi_id}
+                                  </td>
+                                  <td>
+                                    <span className={`${styles.statusBadge} ${p.status === "completed" ? styles.statusApproved : styles.statusPending}`}>
+                                      {p.status.toUpperCase()}
+                                    </span>
+                                  </td>
+                                  <td style={{ fontFamily: "var(--font-jetbrains), monospace", color: "var(--slate-600)" }}>
+                                    {p.utr_reference || "Processing"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <p style={{ fontSize: "0.875rem", color: "var(--slate-600, #4A5468)", margin: 0 }}>
+                          No payout disbursements recorded yet.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+
+        {/* ================================================================
+            MOBILE BOTTOM NAVIGATION BAR (< 1024px)
+            ================================================================ */}
+        <nav className={styles.mobileTabBar} aria-label="Mobile navigation">
+          <button
+            type="button"
+            className={`${styles.mobileTabItem} ${activeTab === "library" ? styles.mobileTabItemActive : ""}`}
+            onClick={() => setActiveTab("library")}
+          >
+            <LuBookOpen size={18} />
+            <span>Library</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.mobileTabItem} ${activeTab === "submissions" ? styles.mobileTabItemActive : ""}`}
+            onClick={() => setActiveTab("submissions")}
+          >
+            <LuCloudUpload size={18} />
+            <span>Submissions</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.mobileTabItem} ${activeTab === "earnings" ? styles.mobileTabItemActive : ""}`}
+            onClick={() => setActiveTab("earnings")}
+          >
+            <LuWallet size={18} />
+            <span>Earnings</span>
+          </button>
+        </nav>
+      </div>
+
+      {/* ================================================================
+          MODALS & OVERLAYS
+          ================================================================ */}
       {modalType && selectedNote && (
-        <div className={pageStyles.modalBackdrop} onClick={closeModal} id="dashboard-modal-backdrop">
-          <div className={pageStyles.modalContent} onClick={(e) => e.stopPropagation()} id="dashboard-modal-content">
-            <div className={pageStyles.modalHeader}>
-              <h3 className={pageStyles.modalTitle}>
+        <div className={styles.modalBackdrop} onClick={closeModal} id="dashboard-modal-backdrop">
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="dashboard-modal-content">
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
                 {modalType === "video" && "Video Tutorial"}
-                {modalType === "pdf" && "PDF Download Link"}
+                {modalType === "pdf" && "Download Study Note PDF"}
               </h3>
-              <button onClick={closeModal} className={pageStyles.modalCloseBtn} id="btn-dashboard-close-modal">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+              <button onClick={closeModal} className={styles.modalCloseBtn} id="btn-dashboard-close-modal" aria-label="Close modal">
+                <LuX size={18} />
               </button>
             </div>
 
-            <div className={pageStyles.modalBody}>
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
+            <div className={styles.modalBody}>
+              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
                 <span className={styles.tagBranch}>{selectedNote.branch}</span>
                 <span className={styles.badgeSemester}>{selectedNote.semester}</span>
               </div>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 700 }}>{selectedNote.title}</h4>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>{selectedNote.description}</p>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "var(--ink-900, #0B1020)" }}>
+                {selectedNote.title}
+              </h4>
+              <p style={{ color: "var(--slate-600, #4A5468)", fontSize: "0.9rem", margin: 0, lineHeight: 1.5 }}>
+                {selectedNote.description}
+              </p>
 
               {modalType === "video" && (
                 selectedNote.videoUrl ? (
-                  <div className={pageStyles.videoWrapper} id="dashboard-video-iframe-wrap">
+                  <div className={styles.videoWrapper} id="dashboard-video-iframe-wrap">
                     <iframe
                       src={selectedNote.videoUrl}
                       title={`${selectedNote.title} Video Tutorial`}
@@ -680,10 +771,10 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
                   <div style={{
                     textAlign: "center",
                     padding: "2.5rem 1rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.03)",
-                    borderRadius: "8px",
-                    border: "1px dashed var(--border)",
-                    color: "var(--text-secondary)",
+                    backgroundColor: "var(--paper, #F7F8FB)",
+                    borderRadius: "10px",
+                    border: "1px dashed var(--line-300, #CDD4E2)",
+                    color: "var(--slate-600, #4A5468)",
                     fontSize: "0.9rem"
                   }}>
                     <p style={{ margin: 0 }}>No video lecture URL is attached to this note yet.</p>
@@ -692,22 +783,30 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
               )}
 
               {modalType === "pdf" && (
-                <div style={{ textAlign: "center", padding: "2rem 1rem", backgroundColor: "var(--background)", borderRadius: "8px", border: "1px dashed var(--border)" }} id="dashboard-pdf-pane">
-                  <h5>{selectedNote.title}.pdf</h5>
+                <div style={{
+                  textAlign: "center",
+                  padding: "2rem 1rem",
+                  backgroundColor: "var(--paper, #F7F8FB)",
+                  borderRadius: "10px",
+                  border: "1px dashed var(--line-300, #CDD4E2)"
+                }} id="dashboard-pdf-pane">
+                  <h5 style={{ margin: "0 0 1rem 0", fontSize: "14px", fontFamily: "var(--font-jetbrains), monospace" }}>
+                    {selectedNote.title}.pdf
+                  </h5>
                   <button
                     onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
-                    className={pageStyles.btnPrimary}
-                    style={{ marginTop: "1.5rem", width: "100%", justifyContent: "center" }}
+                    className={styles.btnExplore}
+                    style={{ margin: "0 auto", width: "100%", maxWidth: "260px" }}
                     disabled={downloadingPdf}
                   >
-                    {downloadingPdf ? "Downloading..." : "Confirm Download"}
+                    {downloadingPdf ? "Downloading..." : "Confirm & Download PDF"}
                   </button>
                 </div>
               )}
             </div>
 
-            <div className={pageStyles.modalFooter}>
-              <button onClick={closeModal} className={pageStyles.btnSecondary}>
+            <div className={styles.modalFooter}>
+              <button onClick={closeModal} className={styles.btnModalSecondary}>
                 Close
               </button>
             </div>
