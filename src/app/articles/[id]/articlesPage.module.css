@@ -1,158 +1,521 @@
+/* ==========================================================================
+   articlesPage.module.css — Private Academy Article Details Reader
+   Design System: "Engineer's Notebook" (DESIGN.md Section 4.10)
+   ========================================================================== */
+
+.pageRoot {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--paper, #F7F8FB);
+  color: var(--ink-900, #0B1020);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+}
+
+.graphPaperGrid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background-image: 
+    linear-gradient(var(--grid-line, #E1E6F0) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line, #E1E6F0) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 30%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 30%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .container {
   width: 100%;
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem 6rem 1.5rem;
+  padding: 36px 24px;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 32px;
+}
+
+/* --------------------------------------------------------------------------
+   1. NAVIGATION & BREADCRUMBS
+   -------------------------------------------------------------------------- */
+.topNavRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .backLink {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: var(--transition);
-  align-self: flex-start;
+  gap: 8px;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-600, #4A5468);
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm, 8px);
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
 .backLink:hover {
-  color: var(--accent);
-  transform: translateX(-4px);
+  border-color: var(--ink-900, #0B1020);
+  color: var(--ink-900, #0B1020);
+  transform: translateX(-2px);
 }
 
+.breadcrumbChip {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  color: var(--slate-400, #94A3B8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --------------------------------------------------------------------------
+   2. MAIN ARTICLE CARD (READING COLUMN 680px)
+   -------------------------------------------------------------------------- */
+.articleCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-xl, 18px);
+  padding: 44px 48px;
+  box-shadow: 0 16px 40px -16px rgba(11, 16, 32, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
+}
+
+/* Header Section */
 .headerSection {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 2rem;
+  gap: 16px;
+  border-bottom: 1px solid var(--line-200, #E3E8F1);
+  padding-bottom: 28px;
+}
+
+.metaTopRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .categoryTag {
-  font-size: 0.8rem;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  align-self: flex-start;
+  letter-spacing: 0.05em;
+  color: var(--blue-500, #2447F5);
+  background-color: var(--blue-100, #E6EBFF);
+  border: 1px solid rgba(36, 71, 245, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
 }
 
-.title {
-  font-size: clamp(2rem, 5vw, 2.75rem);
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-  margin-top: 0.25rem;
-}
-
-.metaRow {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+.readTimeBadge {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--slate-600, #4A5468);
+  display: inline-flex;
   align-items: center;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-top: 0.5rem;
+  gap: 4px;
 }
 
-.divider {
-  color: var(--border);
+.articleTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  line-height: 1.15;
+  margin: 0;
 }
 
-.articleCard {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 2.5rem;
-  box-shadow: var(--shadow-lg);
+.highlighter {
+  background: linear-gradient(transparent 56%, #FFE14D 56% 94%, transparent 94%);
+  padding: 0 0.08em;
+  border-radius: 2px;
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.authorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--blue-100, #E6EBFF);
+  color: var(--blue-500, #2447F5);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(36, 71, 245, 0.2);
+}
+
+.authorInfo {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
 }
 
+.authorName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+}
+
+.authorRole {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 10.5px;
+  color: var(--slate-400, #94A3B8);
+  text-transform: uppercase;
+}
+
+/* Article Body Typography (DESIGN.MD SECTION 4.10) */
 .articleBody {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #e2e8f0;
-  white-space: pre-line;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink-700, #1B2540);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .articleBody h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink-900, #0B1020);
+  margin-top: 24px;
+  margin-bottom: 4px;
+  line-height: 1.25;
 }
 
 .articleBody h3 {
-  font-size: 1.25rem;
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 20px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
+  color: var(--ink-900, #0B1020);
+  margin-top: 18px;
+  margin-bottom: 2px;
 }
 
-.shareSection {
-  border-top: 1px solid var(--border);
-  padding-top: 1.5rem;
+.articleBody p {
+  margin: 0;
+}
+
+.articleBody blockquote {
+  border-left: 4px solid var(--blue-300, #C3CEF8);
+  background-color: #FAFCFF;
+  padding: 16px 20px;
+  border-radius: 0 var(--radius-md, 10px) var(--radius-md, 10px) 0;
+  margin: 8px 0;
+  font-style: italic;
+  color: var(--slate-600, #4A5468);
+}
+
+.articleBody pre,
+.articleBody code {
+  font-family: var(--font-jetbrains), monospace;
+}
+
+.articleBody pre {
+  background-color: var(--ink-900, #0B1020);
+  color: #F8FAFC;
+  padding: 18px 20px;
+  border-radius: var(--radius-md, 10px);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.6;
+  border: 1px solid #2A3550;
+  margin: 12px 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. SHARE & ENGAGEMENT ACTIONS
+   -------------------------------------------------------------------------- */
+.shareBar {
+  border-top: 1px solid var(--line-200, #E3E8F1);
+  padding-top: 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.btnSecondary {
-  background-color: transparent;
-  color: var(--text-primary);
-  font-weight: 600;
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius);
-  transition: var(--transition);
-  border: 1px solid var(--border);
-  cursor: pointer;
+.shareLabel {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-400, #94A3B8);
+}
+
+.shareActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.shareBtn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  gap: 6px;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  color: var(--ink-900, #0B1020);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.btnSecondary:hover {
-  background-color: var(--border);
+.shareBtn:hover {
+  border-color: var(--ink-900, #0B1020);
+  background-color: var(--paper, #F7F8FB);
+  transform: translateY(-1px);
+}
+
+.shareBtnActive {
+  background-color: #E4F5EC;
+  border-color: #A7E3C7;
+  color: #0F7B4F;
+}
+
+/* --------------------------------------------------------------------------
+   4. RELATED ARTICLES & COMMUNITY BANNER (SECTION 4.10)
+   -------------------------------------------------------------------------- */
+.relatedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionEyebrow {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--blue-500, #2447F5);
+}
+
+.sectionTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.relatedCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 20px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.relatedCard:hover {
   transform: translateY(-2px);
+  border-color: #BAC7DE;
+  box-shadow: 0 10px 24px -10px rgba(11, 16, 32, 0.08);
 }
 
-@media (max-width: 600px) {
-  .container {
-    padding: 1.75rem 1rem 4rem 1rem;
-    gap: 1.75rem;
+.relatedTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.relatedReadTime {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 10.5px;
+  color: var(--slate-400, #94A3B8);
+}
+
+/* Community / Discussion Callout Banner (DESIGN.MD SECTION 3.14) */
+.communityBanner {
+  background-color: #FFFDF0;
+  border: 1px solid #FFE14D;
+  border-radius: var(--radius-xl, 18px);
+  padding: 32px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.bannerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 520px;
+}
+
+.bannerTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.bannerDesc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--slate-600, #4A5468);
+  margin: 0;
+}
+
+.bannerActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bannerPrimaryBtn {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+  padding: 10px 18px;
+  border-radius: var(--radius-md, 10px);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.bannerPrimaryBtn:hover {
+  background-color: var(--ink-700, #1B2540);
+}
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVE BREAKPOINTS (DESIGN.MD SECTION 5)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .articleCard {
+    padding: 28px 20px;
+    gap: 24px;
   }
 
-  .articleCard {
-    padding: 1.5rem 1.25rem;
+  .relatedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .communityBanner {
+    padding: 24px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bannerActions {
+    width: 100%;
+  }
+
+  .bannerPrimaryBtn {
+    width: 100%;
+    text-align: center;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    padding: 1.25rem 0.75rem 3rem 0.75rem;
-    gap: 1.25rem;
-  }
-
-  .title {
-    font-size: clamp(1.6rem, 6vw, 2.25rem);
+    padding: 24px 14px;
+    gap: 24px;
   }
 
   .articleCard {
-    padding: 1.1rem 0.85rem;
-    gap: 1.25rem;
+    padding: 20px 14px;
+  }
+
+  .articleTitle {
+    font-size: 24px;
   }
 
   .articleBody {
-    font-size: 0.98rem;
+    font-size: 15.5px;
     line-height: 1.65;
+  }
+
+  .shareBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .shareActionsRow {
+    width: 100%;
+  }
+
+  .shareBtn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backLink,
+  .shareBtn,
+  .relatedCard {
+    transition: none !important;
+    transform: none !important;
   }
 }
