@@ -81,8 +81,13 @@
 
 /* 3. DESKTOP STICKY TABLE OF CONTENTS (§4.17) */
 .tocSidebar {
+  position: -webkit-sticky;
   position: sticky;
-  top: 96px;
+  top: 92px;
+  align-self: start;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  z-index: 20;
   background: var(--white, #FFFFFF);
   border: 1px solid var(--line-300, #CDD4E2);
   border-radius: var(--radius-lg, 14px);
@@ -410,23 +415,39 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (min-width: 768px) {
   .layoutGrid {
-    grid-template-columns: 1fr;
-    gap: 32px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 28px;
   }
 
   .tocSidebar {
-    position: static;
-    top: auto;
+    padding: 16px 14px;
+  }
+}
+
+@media (max-width: 767px) {
+  .layoutGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .tocSidebar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 76px; /* Sticks right below top navbar */
+    z-index: 30;
+    max-height: 220px;
+    padding: 14px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 18px rgba(11, 16, 32, 0.08);
   }
 
   .readingColumn {
     max-width: 100%;
   }
-}
 
-@media (max-width: 640px) {
   .pageWrapper {
     padding: 32px 16px 64px 16px;
   }

@@ -132,67 +132,67 @@ export default function LegalLayout({
 
             {/* Legal Clauses & Content */}
             {children}
+
+            {/* Section 3.11 Hairline Cross-Links Index Table (§4.17) */}
+            <section className={styles.crossLinksDesk} aria-labelledby="cross-links-heading">
+              <div className={styles.crossLinksHeader}>
+                <span id="cross-links-heading" className={styles.crossLinksEyebrow}>
+                  ACADEMIC COMPLIANCE FRAMEWORK // SIBLING DIRECTIVES
+                </span>
+                <span className={styles.crossLinksEyebrow}>INDEX: 05 POLICIES</span>
+              </div>
+
+              <div className={styles.crossLinksList}>
+                {LEGAL_DIRECTIVES.map((directive) => {
+                  const isCurrent = currentRoute === directive.path;
+                  return (
+                    <Link
+                      key={directive.path}
+                      href={directive.path}
+                      className={`${styles.crossLinkRow} ${isCurrent ? styles.crossLinkRowActive : ""}`}
+                      aria-current={isCurrent ? "page" : undefined}
+                    >
+                      <div className={styles.crossLinkContent}>
+                        <span className={styles.crossLinkCode}>{directive.code}</span>
+                        <span className={styles.crossLinkTitle}>{directive.title}</span>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <span
+                          className={`${styles.crossLinkTag} ${
+                            isCurrent ? styles.crossLinkTagActive : ""
+                          }`}
+                        >
+                          {isCurrent ? "ACTIVE SPEC" : directive.category}
+                        </span>
+                        {!isCurrent && <LuArrowRight size={15} color="var(--slate-600)" />}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Support & Contact Desk Link (§4.17) */}
+            <section className={styles.supportDesk} aria-labelledby="support-desk-heading">
+              <div className={styles.supportDeskText}>
+                <div id="support-desk-heading" style={{ fontWeight: 700, color: "var(--ink-900)" }}>
+                  Have questions regarding our legal guidelines or academic terms?
+                </div>
+                <div>
+                  Our compliance team reviews student inquiries, copyright verification, and billing clarifications within 24–48 hours.
+                </div>
+              </div>
+
+              <Link
+                href="/contact?subject=Legal+Policy+Inquiry"
+                className={styles.contactBtn}
+              >
+                <LuLifeBuoy size={15} /> Contact Support Desk
+              </Link>
+            </section>
           </main>
         </div>
-
-        {/* Section 3.11 Hairline Cross-Links Index Table (§4.17) */}
-        <section className={styles.crossLinksDesk} aria-labelledby="cross-links-heading">
-          <div className={styles.crossLinksHeader}>
-            <span id="cross-links-heading" className={styles.crossLinksEyebrow}>
-              ACADEMIC COMPLIANCE FRAMEWORK // SIBLING DIRECTIVES
-            </span>
-            <span className={styles.crossLinksEyebrow}>INDEX: 05 POLICIES</span>
-          </div>
-
-          <div className={styles.crossLinksList}>
-            {LEGAL_DIRECTIVES.map((directive) => {
-              const isCurrent = currentRoute === directive.path;
-              return (
-                <Link
-                  key={directive.path}
-                  href={directive.path}
-                  className={`${styles.crossLinkRow} ${isCurrent ? styles.crossLinkRowActive : ""}`}
-                  aria-current={isCurrent ? "page" : undefined}
-                >
-                  <div className={styles.crossLinkContent}>
-                    <span className={styles.crossLinkCode}>{directive.code}</span>
-                    <span className={styles.crossLinkTitle}>{directive.title}</span>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span
-                      className={`${styles.crossLinkTag} ${
-                        isCurrent ? styles.crossLinkTagActive : ""
-                      }`}
-                    >
-                      {isCurrent ? "ACTIVE SPEC" : directive.category}
-                    </span>
-                    {!isCurrent && <LuArrowRight size={15} color="var(--slate-600)" />}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Support & Contact Desk Link (§4.17) */}
-        <section className={styles.supportDesk} aria-labelledby="support-desk-heading">
-          <div className={styles.supportDeskText}>
-            <div id="support-desk-heading" style={{ fontWeight: 700, color: "var(--ink-900)" }}>
-              Have questions regarding our legal guidelines or academic terms?
-            </div>
-            <div>
-              Our compliance team reviews student inquiries, copyright verification, and billing clarifications within 24–48 hours.
-            </div>
-          </div>
-
-          <Link
-            href="/contact?subject=Legal+Policy+Inquiry"
-            className={styles.contactBtn}
-          >
-            <LuLifeBuoy size={15} /> Contact Support Desk
-          </Link>
-        </section>
       </div>
     </div>
   );
