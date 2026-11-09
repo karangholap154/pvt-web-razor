@@ -378,7 +378,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background-color: var(--ink-900, #0B1020);
+  background-color: var(--paper, #F7F8FB);
 }
 
 /* Page Lock Overlay (Covers pages 4+ in preview mode) */
