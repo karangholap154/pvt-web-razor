@@ -125,9 +125,10 @@ export default function AdminSubmissionsTab({
       <table className={styles.table}>
         <thead>
           <tr>
-            <th className={styles.th}>Title</th>
+            <th className={styles.th}>Submitted Time</th>
+            <th className={styles.th}>Title & Classification</th>
             <th className={styles.th}>Contributor</th>
-            <th className={styles.th}>Univ / Branch / Sem</th>
+            <th className={styles.th}>University & Branch</th>
             <th className={styles.th}>Price</th>
             <th className={styles.th}>Status</th>
             <th className={styles.th} style={{ textAlign: "right" }}>Actions</th>
@@ -137,58 +138,167 @@ export default function AdminSubmissionsTab({
           {adminSubmissions.length > 0 ? (
             adminSubmissions.map((sub) => (
               <tr key={sub.id} className={styles.tr}>
-                <td className={styles.td} style={{ fontWeight: 600 }}>{sub.title}</td>
+                {/* Submitted Time in Mono */}
                 <td className={styles.td}>
-                  @{sub.user_profile?.username || "student"}
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{sub.user_profile?.email}</div>
+                  <span className={styles.tagMono}>
+                    {sub.created_at
+                      ? new Date(sub.created_at).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—"}
+                  </span>
                 </td>
-                <td className={styles.td}>
-                  {sub.university}
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{sub.branch} • {sub.semester}</div>
+
+                {/* Title & Classification */}
+                <td className={styles.td} style={{ maxWidth: "260px" }}>
+                  <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{sub.title}</div>
+                  <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.2rem", flexWrap: "wrap" }}>
+                    <span
+                      className={styles.badge}
+                      style={{
+                        fontSize: "0.68rem",
+                        backgroundColor:
+                          sub.resource_type === "official_subject"
+                            ? "#ECFDF5"
+                            : "var(--accent-light, #E6EBFF)",
+                        color:
+                          sub.resource_type === "official_subject" ? "#059669" : "var(--accent, #2447F5)",
+                        border:
+                          sub.resource_type === "official_subject"
+                            ? "1px solid rgba(5, 150, 105, 0.25)"
+                            : "1px solid rgba(36, 71, 245, 0.25)",
+                      }}
+                    >
+                      {sub.resource_type === "official_subject" ? "Official Course" : "Supplementary Guide"}
+                    </span>
+                    {sub.subject && (
+                      <span className={styles.tagMono} style={{ fontSize: "0.68rem" }}>
+                        {sub.subject}
+                      </span>
+                    )}
+                  </div>
+                  {/* Audit Trail Line */}
+                  {sub.status !== "pending" && (
+                    <div className={styles.auditTrailLine}>
+                      <span
+                        className={styles.auditBadge}
+                        style={{
+                          backgroundColor:
+                            sub.status === "approved" ? "#ECFDF5" : "#FEF2F2",
+                          color: sub.status === "approved" ? "#059669" : "#DC2626",
+                        }}
+                      >
+                        {sub.status}
+                      </span>
+                      {sub.admin_feedback ? `"${sub.admin_feedback.slice(0, 45)}..."` : "Audit logged"}
+                    </div>
+                  )}
                 </td>
-                <td className={styles.td}>₹{sub.suggested_price}</td>
+
+                {/* Contributor */}
                 <td className={styles.td}>
-                  <span style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    padding: "0.25rem 0.55rem",
-                    borderRadius: "4px",
-                    backgroundColor: sub.status === "approved" ? "rgba(34, 197, 94, 0.15)" : sub.status === "rejected" ? "rgba(239, 68, 68, 0.15)" : "rgba(245, 158, 11, 0.15)",
-                    color: sub.status === "approved" ? "#22c55e" : sub.status === "rejected" ? "#ef4444" : "#f59e0b",
-                  }}>
+                  <span style={{ fontWeight: 600 }}>@{sub.user_profile?.username || "student"}</span>
+                  <div style={{ fontSize: "0.725rem", color: "var(--text-secondary)" }}>
+                    {sub.user_profile?.email || "No email"}
+                  </div>
+                </td>
+
+                {/* University & Branch */}
+                <td className={styles.td}>
+                  <div style={{ fontWeight: 500, fontSize: "0.825rem" }}>
+                    {sub.university
+                      ? sub.university
+                          .replace("University", "Univ.")
+                          .replace("Savitribai Phule Pune", "SPPU")
+                          .replace("Dr. Babasaheb Ambedkar Technological", "DBATU")
+                      : "—"}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.15rem" }}>
+                    <span className={`${styles.badge} ${styles.tagBranch}`} style={{ fontSize: "0.68rem" }}>
+                      {sub.branch}
+                    </span>
+                    <span className={`${styles.badge} ${styles.tagSemester}`} style={{ fontSize: "0.68rem" }}>
+                      Sem {sub.semester}
+                    </span>
+                  </div>
+                </td>
+
+                {/* Price in Mono */}
+                <td className={styles.td}>
+                  <span className={`${styles.badge} ${styles.tagPrice}`}>
+                    ₹{sub.suggested_price}
+                  </span>
+                </td>
+
+                {/* Status Tag */}
+                <td className={styles.td}>
+                  <span
+                    className={
+                      sub.status === "approved"
+                        ? styles.tagStatusApproved
+                        : sub.status === "rejected"
+                        ? styles.tagStatusRejected
+                        : styles.tagStatusPending
+                    }
+                    style={{ fontSize: "0.725rem", padding: "0.2rem 0.5rem", borderRadius: "4px" }}
+                  >
                     {sub.status.toUpperCase()}
                   </span>
                 </td>
+
+                {/* Actions */}
                 <td className={styles.td} style={{ textAlign: "right" }}>
-                  <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                  <div className={styles.actionsCell} style={{ justifyContent: "flex-end" }}>
                     <button
                       onClick={() => window.open(sub.file_url, "_blank")}
                       className={styles.btnSecondary}
-                      style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem" }}
+                      title="Open source PDF in browser"
                     >
-                      View PDF
+                      PDF ↗
                     </button>
-                    {sub.status === "pending" && (
+                    {sub.status === "pending" ? (
                       <button
-                        onClick={() => setReviewModal({
-                          open: true,
-                          sub,
-                          approvedPrice: sub.suggested_price,
-                          feedback: "",
-                          subject: sub.subject || "",
-                          resourceType: sub.resource_type || "supplementary_guide",
-                        })}
+                        onClick={() =>
+                          setReviewModal({
+                            open: true,
+                            sub,
+                            approvedPrice: sub.suggested_price,
+                            feedback: "",
+                            subject: sub.subject || "",
+                            resourceType: sub.resource_type || "supplementary_guide",
+                          })
+                        }
                         className={styles.btnCreate}
-                        style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem" }}
+                        style={{ padding: "0.4rem 0.75rem", fontSize: "0.8rem" }}
                       >
-                        Review & Action
+                        Review Inspector
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          setReviewModal({
+                            open: true,
+                            sub,
+                            approvedPrice: sub.suggested_price,
+                            feedback: sub.admin_feedback || "",
+                            subject: sub.subject || "",
+                            resourceType: sub.resource_type || "supplementary_guide",
+                          })
+                        }
+                        className={styles.btnAction}
+                        title="Re-inspect past decision"
+                      >
+                        Inspect
                       </button>
                     )}
                     <button
                       onClick={() => handleDeleteSubmission(sub.id, sub.title)}
-                      className={styles.btnSecondary}
-                      style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem", color: "#ef4444", borderColor: "rgba(239, 68, 68, 0.4)" }}
-                      title="Permanently delete submission and purge PDF file"
+                      className={`${styles.btnAction} ${styles.btnDelete}`}
+                      title="Permanently delete submission"
                     >
                       Delete
                     </button>
@@ -198,7 +308,7 @@ export default function AdminSubmissionsTab({
             ))
           ) : (
             <tr>
-              <td colSpan={6} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
+              <td colSpan={7} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2.5rem" }}>
                 No student submissions found in queue.
               </td>
             </tr>
@@ -215,14 +325,25 @@ export default function AdminSubmissionsTab({
           feedback={reviewModal.feedback}
           subject={reviewModal.subject}
           resourceType={reviewModal.resourceType}
-          onClose={() => setReviewModal({ open: false, sub: null, approvedPrice: 0, feedback: "", subject: "", resourceType: "supplementary_guide" })}
+          onClose={() =>
+            setReviewModal({
+              open: false,
+              sub: null,
+              approvedPrice: 0,
+              feedback: "",
+              subject: "",
+              resourceType: "supplementary_guide",
+            })
+          }
           onApprovedPriceChange={(price) => setReviewModal((prev) => ({ ...prev, approvedPrice: price }))}
           onFeedbackChange={(feedback) => setReviewModal((prev) => ({ ...prev, feedback }))}
           onSubjectChange={(subject) => setReviewModal((prev) => ({ ...prev, subject }))}
           onResourceTypeChange={(resourceType) => setReviewModal((prev) => ({ ...prev, resourceType }))}
           onDelete={(id, title) => handleDeleteSubmission(id, title)}
           onReject={(id, feedback) => handleRejectSubmissionSubmit(id, feedback)}
-          onApprove={(id, price, feedback, subject, resourceType) => handleApproveSubmissionSubmit(id, price, feedback, subject, resourceType)}
+          onApprove={(id, price, feedback, subject, resourceType) =>
+            handleApproveSubmissionSubmit(id, price, feedback, subject, resourceType)
+          }
         />
       )}
     </>

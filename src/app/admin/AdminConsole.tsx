@@ -491,12 +491,53 @@ export default function AdminConsole({
     });
   };
 
+  useEffect(() => {
+    fetchAdminSubmissions();
+    fetchAdminPayouts();
+  }, []);
+
+  const pendingSubmissionsCount = adminSubmissions.filter((s) => s.status === "pending").length;
+  const pendingPayoutsCount = adminPayouts.filter((p) => p.status === "pending").length;
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div>
+        <div className={styles.headerLeft}>
+          <div className={styles.systemBadgeRow}>
+            <span className={styles.systemBadge}>CONSOLE / MODERATION</span>
+            <span className={styles.liveBadge}>
+              <span className={styles.liveDot} />
+              SYSTEM ACTIVE
+            </span>
+          </div>
           <h1 className={styles.title}>Admin Control Center</h1>
-          <p className={styles.subtitle}>Superuser management console for Study Portal resources and student access.</p>
+          <p className={styles.subtitle}>Superuser management console for Study Portal resources, submissions & payouts.</p>
+        </div>
+
+        <div className={styles.quickStatsRibbon}>
+          <div className={styles.quickStatItem}>
+            <span>Catalog:</span>
+            <strong>{notes.length} notes</strong>
+          </div>
+          <div className={styles.quickStatDivider} />
+          <div className={styles.quickStatItem}>
+            <span>Submissions:</span>
+            <strong style={{ color: pendingSubmissionsCount > 0 ? "var(--accent, #f59e0b)" : "inherit" }}>
+              {pendingSubmissionsCount} pending
+            </strong>
+          </div>
+          <div className={styles.quickStatDivider} />
+          <div className={styles.quickStatItem}>
+            <span>Payouts:</span>
+            <strong style={{ color: pendingPayoutsCount > 0 ? "var(--accent, #f59e0b)" : "inherit" }}>
+              {pendingPayoutsCount} pending
+            </strong>
+          </div>
+          <div className={styles.quickStatDivider} />
+          <div className={styles.quickStatItem}>
+            <span>Users:</span>
+            <strong>{initialUsers.length}</strong>
+          </div>
         </div>
       </header>
 
@@ -512,37 +553,47 @@ export default function AdminConsole({
           className={`${styles.tabBtn} ${activeTab === "notes" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("notes")}
         >
-          Notes ({notes.length})
+          Notes <span className={styles.tabBadge}>{notes.length}</span>
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === "submissions" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("submissions")}
         >
           Review Submissions
+          {pendingSubmissionsCount > 0 ? (
+            <span className={`${styles.tabBadge} ${styles.tabBadgeAlert}`}>{pendingSubmissionsCount} pending</span>
+          ) : (
+            <span className={styles.tabBadge}>{adminSubmissions.length}</span>
+          )}
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === "payouts" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("payouts")}
         >
           Payouts Manager
+          {pendingPayoutsCount > 0 ? (
+            <span className={`${styles.tabBadge} ${styles.tabBadgeAlert}`}>{pendingPayoutsCount} pending</span>
+          ) : (
+            <span className={styles.tabBadge}>{adminPayouts.length}</span>
+          )}
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === "articles" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("articles")}
         >
-          Articles ({articles.length})
+          Articles <span className={styles.tabBadge}>{articles.length}</span>
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === "projects" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("projects")}
         >
-          Projects ({projects.length})
+          Projects <span className={styles.tabBadge}>{projects.length}</span>
         </button>
         <button
           className={`${styles.tabBtn} ${activeTab === "users" ? styles.activeTabBtn : ""}`}
           onClick={() => setActiveTab("users")}
         >
-          Users ({initialUsers.length})
+          Users <span className={styles.tabBadge}>{initialUsers.length}</span>
         </button>
       </div>
 
@@ -558,19 +609,10 @@ export default function AdminConsole({
           {activeTab === "users" ? (
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Search by name, email, or username..."
               value={userSearchQuery}
               onChange={(e) => setUserSearchQuery(e.target.value)}
-              className={styles.select}
-              style={{
-                maxWidth: "240px",
-                background: "rgba(9, 9, 11, 0.4)",
-                color: "var(--text-primary)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)",
-                padding: "0.55rem 0.75rem",
-                fontSize: "0.9rem",
-              }}
+              className={styles.searchBox}
             />
           ) : (
             <button className={styles.btnCreate} onClick={openCreateModal}>

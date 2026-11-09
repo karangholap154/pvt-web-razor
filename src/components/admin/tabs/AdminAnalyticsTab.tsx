@@ -231,6 +231,7 @@ export default function AdminAnalyticsTab({
             value={analyticsBranch}
             onChange={setAnalyticsBranch}
             includeAllOption={true}
+            variant="light"
           />
         </div>
       </div>
@@ -240,22 +241,22 @@ export default function AdminAnalyticsTab({
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
             <span className={styles.metricLabel}>Total Revenue</span>
-            <span className={styles.metricIconWrapper} style={{ color: "var(--accent)", backgroundColor: "rgba(251, 191, 36, 0.1)" }}>
+            <span className={styles.metricIconWrapper} style={{ color: "var(--accent, #2447F5)", backgroundColor: "var(--accent-light, #E6EBFF)" }}>
               ₹
             </span>
           </div>
-          <div className={styles.metricValue}>₹{metrics.totalRev}</div>
+          <div className={styles.metricValue}>₹{metrics.totalRev.toLocaleString("en-IN")}</div>
           <div className={styles.metricSubtext}>Earnings from successful purchases</div>
         </div>
 
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
             <span className={styles.metricLabel}>Successful Sales</span>
-            <span className={styles.metricIconWrapper} style={{ color: "#38bdf8", backgroundColor: "rgba(56, 189, 248, 0.1)" }}>
+            <span className={styles.metricIconWrapper} style={{ color: "var(--text-primary, #0B1020)", backgroundColor: "#F1F3F7" }}>
               🛒
             </span>
           </div>
-          <div className={styles.metricValue}>{metrics.totalSales}</div>
+          <div className={styles.metricValue}>{metrics.totalSales.toLocaleString("en-IN")}</div>
           <div className={styles.metricSubtext}>Completed orders volume</div>
         </div>
 
@@ -264,11 +265,11 @@ export default function AdminAnalyticsTab({
             <span className={styles.metricLabel}>
               {analyticsDateRange === "alltime" ? "Enrolled Students" : "New Registrations"}
             </span>
-            <span className={styles.metricIconWrapper} style={{ color: "#4ade80", backgroundColor: "rgba(74, 222, 128, 0.1)" }}>
+            <span className={styles.metricIconWrapper} style={{ color: "#059669", backgroundColor: "#ECFDF5" }}>
               👥
             </span>
           </div>
-          <div className={styles.metricValue}>{metrics.totalUsers}</div>
+          <div className={styles.metricValue}>{metrics.totalUsers.toLocaleString("en-IN")}</div>
           <div className={styles.metricSubtext}>
             {analyticsDateRange === "alltime" ? "Registered user profiles" : `Signups in ${analyticsDateRange === "7days" ? "last 7 days" : "last 30 days"}`}
           </div>
@@ -277,7 +278,7 @@ export default function AdminAnalyticsTab({
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
             <span className={styles.metricLabel}>Avg. Order Value</span>
-            <span className={styles.metricIconWrapper} style={{ color: "#f472b6", backgroundColor: "rgba(244, 114, 182, 0.1)" }}>
+            <span className={styles.metricIconWrapper} style={{ color: "#D97706", backgroundColor: "#FFFBEB" }}>
               📈
             </span>
           </div>
@@ -313,7 +314,7 @@ export default function AdminAnalyticsTab({
                         className={styles.barItemFill}
                         style={{
                           width: `${widthPercent}%`,
-                          background: "linear-gradient(90deg, var(--accent), #fb923c)"
+                          backgroundColor: "var(--accent, #2447F5)",
                         }}
                       />
                     </div>
@@ -347,7 +348,7 @@ export default function AdminAnalyticsTab({
                         className={styles.barItemFill}
                         style={{
                           width: `${univ.percentage}%`,
-                          background: "linear-gradient(90deg, #38bdf8, #60a5fa)"
+                          backgroundColor: "var(--text-primary, #0B1020)",
                         }}
                       />
                     </div>
@@ -371,12 +372,12 @@ export default function AdminAnalyticsTab({
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Email</th>
-                <th>Note Resource</th>
-                <th>Razorpay Payment ID</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th>Status</th>
+                <th className={styles.th}>Email</th>
+                <th className={styles.th}>Note Resource</th>
+                <th className={styles.th}>Payment ID</th>
+                <th className={styles.th}>Amount</th>
+                <th className={styles.th}>Date & Time</th>
+                <th className={styles.th}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -384,28 +385,40 @@ export default function AdminAnalyticsTab({
                 filteredPurchasesForAnalytics.map((purchase) => {
                   const matchingNote = notes.find((n) => n.id === purchase.note_id);
                   return (
-                    <tr key={purchase.id}>
-                      <td style={{ fontWeight: 600 }}>{purchase.email}</td>
-                      <td>{matchingNote ? matchingNote.title : purchase.note_id || "Unknown note"}</td>
-                      <td style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                        {purchase.razorpay_payment_id || "—"}
+                    <tr key={purchase.id} className={styles.tr}>
+                      <td className={styles.td} style={{ fontWeight: 600 }}>{purchase.email}</td>
+                      <td className={styles.td}>{matchingNote ? matchingNote.title : purchase.note_id || "Unknown note"}</td>
+                      <td className={styles.td}>
+                        <span className={styles.tagMono} style={{ fontSize: "0.72rem" }}>
+                          {purchase.razorpay_payment_id || "—"}
+                        </span>
                       </td>
-                      <td style={{ fontWeight: 700, color: purchase.status === "success" ? "#4ade80" : "inherit" }}>
-                        ₹{purchase.amount}
+                      <td className={styles.td}>
+                        <span className={`${styles.badge} ${styles.tagPrice}`}>
+                          ₹{purchase.amount}
+                        </span>
                       </td>
-                      <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                        {purchase.created_at ? new Date(purchase.created_at).toLocaleString() : "—"}
+                      <td className={styles.td}>
+                        <span className={styles.tagMono} style={{ fontSize: "0.72rem" }}>
+                          {purchase.created_at ? new Date(purchase.created_at).toLocaleString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }) : "—"}
+                        </span>
                       </td>
-                      <td>
+                      <td className={styles.td}>
                         <span
-                          className={styles.badge}
-                          style={{
-                            backgroundColor: purchase.status === "success" ? "rgba(34, 197, 94, 0.12)" : "rgba(239, 68, 68, 0.12)",
-                            color: purchase.status === "success" ? "#22c55e" : "#ef4444",
-                            border: purchase.status === "success" ? "1px solid rgba(34, 197, 94, 0.2)" : "1px solid rgba(239, 68, 68, 0.2)",
-                          }}
+                          className={
+                            purchase.status === "success"
+                              ? styles.tagStatusCompleted
+                              : styles.tagStatusRejected
+                          }
+                          style={{ fontSize: "0.7rem", padding: "0.15rem 0.45rem", borderRadius: "3px" }}
                         >
-                          {purchase.status}
+                          {purchase.status.toUpperCase()}
                         </span>
                       </td>
                     </tr>
@@ -413,7 +426,7 @@ export default function AdminAnalyticsTab({
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: "center", color: "var(--text-secondary)" }}>
+                  <td colSpan={6} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2.5rem" }}>
                     No transactions recorded in the logs.
                   </td>
                 </tr>

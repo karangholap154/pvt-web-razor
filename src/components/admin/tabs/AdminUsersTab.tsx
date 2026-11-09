@@ -164,29 +164,29 @@ export default function AdminUsersTab({
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>User Profile</th>
-            <th>Username</th>
-            <th>Email Address</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>University</th>
-            <th>Academic Focus</th>
-            <th>Joined Date</th>
-            <th>Actions</th>
+            <th className={styles.th}>User Profile</th>
+            <th className={styles.th}>Username</th>
+            <th className={styles.th}>Email Address</th>
+            <th className={styles.th}>Role</th>
+            <th className={styles.th}>Status</th>
+            <th className={styles.th}>University</th>
+            <th className={styles.th}>Academic Focus</th>
+            <th className={styles.th}>Joined Date</th>
+            <th className={styles.th} style={{ textAlign: "right" }}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
-              <tr key={user.id}>
-                <td>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <tr key={user.id} className={styles.tr}>
+                <td className={styles.td}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                     {user.avatar_url ? (
                       <Image
                         src={user.avatar_url}
                         alt={user.full_name || "User Avatar"}
-                        width={32}
-                        height={32}
+                        width={28}
+                        height={28}
                         unoptimized
                         style={{
                           borderRadius: "50%",
@@ -197,17 +197,17 @@ export default function AdminUsersTab({
                     ) : (
                       <div
                         style={{
-                          width: "32px",
-                          height: "32px",
+                          width: "28px",
+                          height: "28px",
                           borderRadius: "50%",
-                          backgroundColor: "var(--accent-light)",
-                          color: "var(--accent)",
+                          backgroundColor: "rgba(245, 158, 11, 0.12)",
+                          color: "var(--accent, #f59e0b)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          border: "1px solid rgba(251, 191, 36, 0.2)",
+                          fontSize: "0.75rem",
+                          border: "1px solid rgba(245, 158, 11, 0.25)",
                         }}
                       >
                         {(user.full_name || user.username || user.email || "?").charAt(0).toUpperCase()}
@@ -216,147 +216,125 @@ export default function AdminUsersTab({
                     <span style={{ fontWeight: 600 }}>{user.full_name || "—"}</span>
                   </div>
                 </td>
-                <td style={{ color: "var(--accent)", fontWeight: 600 }}>
+                <td className={styles.td} style={{ color: "var(--accent, #f59e0b)", fontWeight: 600 }}>
                   {user.username ? `@${user.username}` : "—"}
                 </td>
-                <td>{user.email}</td>
-                <td>
+                <td className={styles.td} style={{ fontSize: "0.825rem", color: "var(--text-secondary)" }}>
+                  {user.email}
+                </td>
+                <td className={styles.td}>
                   <select
                     value={user.role || "user"}
                     onChange={(e) => handleUserRoleChange(user.id, e.target.value)}
                     disabled={updatingUserRoleId === user.id}
+                    className={styles.select}
                     style={{
+                      padding: "0.2rem 1.6rem 0.2rem 0.45rem",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      width: "auto",
                       backgroundColor:
                         (user.role || "user") === "admin"
-                          ? "rgba(239, 68, 68, 0.15)"
+                          ? "rgba(239, 68, 68, 0.12)"
                           : (user.role || "user") === "contributor"
-                          ? "rgba(251, 191, 36, 0.15)"
-                          : "rgba(56, 189, 248, 0.15)",
+                          ? "rgba(245, 158, 11, 0.12)"
+                          : "rgba(56, 189, 248, 0.12)",
                       color:
                         (user.role || "user") === "admin"
                           ? "#f87171"
                           : (user.role || "user") === "contributor"
-                          ? "#fde047"
+                          ? "#f59e0b"
                           : "#38bdf8",
-                      border:
+                      borderColor:
                         (user.role || "user") === "admin"
-                          ? "1px solid rgba(239, 68, 68, 0.3)"
+                          ? "rgba(239, 68, 68, 0.3)"
                           : (user.role || "user") === "contributor"
-                          ? "1px solid rgba(251, 191, 36, 0.3)"
-                          : "1px solid rgba(56, 189, 248, 0.3)",
-                      borderRadius: "6px",
-                      padding: "0.25rem 0.55rem",
-                      fontSize: "0.75rem",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      outline: "none",
+                          ? "rgba(245, 158, 11, 0.3)"
+                          : "rgba(56, 189, 248, 0.3)",
                     }}
                   >
-                    <option value="user" style={{ background: "#18181b", color: "#fff" }}>User</option>
-                    <option value="contributor" style={{ background: "#18181b", color: "#fff" }}>Contributor</option>
-                    <option value="admin" style={{ background: "#18181b", color: "#fff" }}>Admin</option>
+                    <option value="user">User</option>
+                    <option value="contributor">Contributor</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </td>
-                <td>
+                <td className={styles.td}>
                   <select
                     value={user.status || "active"}
                     onChange={(e) => handleUserStatusChange(user.id, e.target.value)}
                     disabled={updatingUserStatusId === user.id}
+                    className={styles.select}
                     style={{
+                      padding: "0.2rem 1.6rem 0.2rem 0.45rem",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      width: "auto",
                       backgroundColor:
                         (user.status || "active") === "banned"
-                          ? "rgba(239, 68, 68, 0.15)"
+                          ? "rgba(239, 68, 68, 0.12)"
                           : (user.status || "active") === "suspended"
-                          ? "rgba(251, 191, 36, 0.15)"
-                          : "rgba(34, 197, 94, 0.15)",
+                          ? "rgba(245, 158, 11, 0.12)"
+                          : "rgba(34, 197, 94, 0.12)",
                       color:
                         (user.status || "active") === "banned"
                           ? "#f87171"
                           : (user.status || "active") === "suspended"
-                          ? "#fde047"
-                          : "#4ade80",
-                      border:
+                          ? "#f59e0b"
+                          : "#22c55e",
+                      borderColor:
                         (user.status || "active") === "banned"
-                          ? "1px solid rgba(239, 68, 68, 0.3)"
+                          ? "rgba(239, 68, 68, 0.3)"
                           : (user.status || "active") === "suspended"
-                          ? "1px solid rgba(251, 191, 36, 0.3)"
-                          : "1px solid rgba(34, 197, 94, 0.3)",
-                      borderRadius: "6px",
-                      padding: "0.25rem 0.55rem",
-                      fontSize: "0.75rem",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      outline: "none",
+                          ? "rgba(245, 158, 11, 0.3)"
+                          : "rgba(34, 197, 94, 0.3)",
                     }}
                   >
-                    <option value="active" style={{ background: "#18181b", color: "#4ade80" }}>Active</option>
-                    <option value="suspended" style={{ background: "#18181b", color: "#fde047" }}>Suspended</option>
-                    <option value="banned" style={{ background: "#18181b", color: "#f87171" }}>Banned</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="banned">Banned</option>
                   </select>
                 </td>
-                <td>
-                  <span
-                    className={styles.badge}
-                    style={{
-                      backgroundColor: "rgba(251, 191, 36, 0.12)",
-                      color: "#fde047",
-                      border: "1px solid rgba(251, 191, 36, 0.25)",
-                      fontSize: "0.72rem",
-                    }}
-                  >
-                    {user.university || "—"}
+                <td className={styles.td}>
+                  <span className={styles.tagMono} style={{ fontSize: "0.72rem" }}>
+                    {user.university
+                      ? user.university
+                          .replace("University", "Univ.")
+                          .replace("Savitribai Phule Pune", "SPPU")
+                          .replace("Dr. Babasaheb Ambedkar Technological", "DBATU")
+                      : "—"}
                   </span>
                 </td>
-                <td>
+                <td className={styles.td}>
                   {user.default_branch || user.default_semester ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                    <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
                       {user.default_branch && (
-                        <span
-                          className={styles.badge}
-                          style={{
-                            backgroundColor: "rgba(56, 189, 248, 0.12)",
-                            color: "#38bdf8",
-                            border: "1px solid rgba(56, 189, 248, 0.2)",
-                            fontSize: "0.7rem",
-                            display: "inline-block",
-                            width: "fit-content",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
+                        <span className={`${styles.badge} ${styles.tagBranch}`} style={{ fontSize: "0.68rem" }}>
                           {user.default_branch}
                         </span>
                       )}
                       {user.default_semester && (
-                        <span
-                          className={styles.badge}
-                          style={{
-                            backgroundColor: "rgba(255, 255, 255, 0.05)",
-                            color: "var(--text-secondary)",
-                            border: "1px solid var(--border)",
-                            fontSize: "0.7rem",
-                            display: "inline-block",
-                            width: "fit-content",
-                          }}
-                        >
-                          Semester {user.default_semester}
+                        <span className={`${styles.badge} ${styles.tagSemester}`} style={{ fontSize: "0.68rem" }}>
+                          Sem {user.default_semester}
                         </span>
                       )}
                     </div>
                   ) : (
-                    "—"
+                    <span style={{ color: "var(--text-secondary)", fontSize: "0.75rem" }}>—</span>
                   )}
                 </td>
-                <td>
-                  {user.created_at
-                    ? new Date(user.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "—"}
+                <td className={styles.td}>
+                  <span className={styles.tagMono}>
+                    {user.created_at
+                      ? new Date(user.created_at).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "2-digit",
+                        })
+                      : "—"}
+                  </span>
                 </td>
-                <td>
-                  <div className={styles.actionsCell} style={{ display: "flex", gap: "0.5rem" }}>
+                <td className={styles.td} style={{ textAlign: "right" }}>
+                  <div className={styles.actionsCell} style={{ justifyContent: "flex-end" }}>
                     <button
                       className={`${styles.btnAction} ${styles.btnEdit}`}
                       onClick={() => {
@@ -365,24 +343,20 @@ export default function AdminUsersTab({
                         setConfirmNewPassword("");
                         setResetError(null);
                       }}
-                      title="Change Password"
-                      style={{
-                        backgroundColor: "rgba(251, 191, 36, 0.15)",
-                        color: "var(--accent)",
-                        border: "1px solid rgba(251, 191, 36, 0.2)",
-                      }}
+                      title="Reset User Password"
                     >
                       Password
                     </button>
                     <button
                       className={`${styles.btnAction} ${styles.btnDelete}`}
-                      onClick={() => setDeleteUserModal({ id: user.id, email: user.email, name: user.full_name || user.username || undefined })}
+                      onClick={() =>
+                        setDeleteUserModal({
+                          id: user.id,
+                          email: user.email,
+                          name: user.full_name || user.username || undefined,
+                        })
+                      }
                       title="Delete User Account"
-                      style={{
-                        backgroundColor: "rgba(239, 68, 68, 0.15)",
-                        color: "#f87171",
-                        border: "1px solid rgba(239, 68, 68, 0.2)",
-                      }}
                     >
                       Delete
                     </button>
@@ -392,8 +366,8 @@ export default function AdminUsersTab({
             ))
           ) : (
             <tr>
-              <td colSpan={9} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
-                No matching users found.
+              <td colSpan={9} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2.5rem" }}>
+                No users found matching query.
               </td>
             </tr>
           )}
@@ -410,24 +384,43 @@ export default function AdminUsersTab({
         }}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "450px" }}>
             <div className={styles.modalHeader}>
-              <h3>Reset User Password</h3>
-              <button className={styles.btnClose} onClick={() => {
-                setResetPasswordUser(null);
-                setNewPassword("");
-                setConfirmNewPassword("");
-                setResetError(null);
-              }}>✕</button>
+              <h3 className={styles.modalTitle}>Reset User Password</h3>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => {
+                  setResetPasswordUser(null);
+                  setNewPassword("");
+                  setConfirmNewPassword("");
+                  setResetError(null);
+                }}
+                aria-label="Close dialog"
+              >
+                ✕
+              </button>
             </div>
 
             <form onSubmit={handlePasswordResetSubmit}>
               <div className={styles.modalBody}>
-                <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>
                   Set a new password for account <strong style={{ color: "var(--text-primary)" }}>{resetPasswordUser.email}</strong>:
                 </p>
 
-                {resetError && <div className={styles.errorAlert} style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", padding: "0.75rem 1rem", borderRadius: "8px", fontSize: "0.85rem", marginBottom: "1rem" }}>{resetError}</div>}
+                {resetError && (
+                  <div
+                    style={{
+                      background: "#FEF2F2",
+                      border: "1px solid rgba(220, 38, 38, 0.3)",
+                      color: "#DC2626",
+                      padding: "0.75rem 1rem",
+                      borderRadius: "6px",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    {resetError}
+                  </div>
+                )}
 
-                <div className={styles.inputGroup} style={{ marginBottom: "1rem" }}>
+                <div className={styles.inputGroup}>
                   <label className={styles.label}>New Password</label>
                   <input
                     type="password"
@@ -486,21 +479,36 @@ export default function AdminUsersTab({
         <div className={styles.modalBackdrop} onClick={() => setDeleteUserModal(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "480px" }}>
             <div className={styles.modalHeader}>
-              <h3 style={{ color: "#f87171" }}>Delete User Account</h3>
-              <button className={styles.btnClose} onClick={() => setDeleteUserModal(null)}>✕</button>
+              <h3 className={styles.modalTitle} style={{ color: "#DC2626" }}>Delete User Account</h3>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => setDeleteUserModal(null)}
+                aria-label="Close dialog"
+              >
+                ✕
+              </button>
             </div>
 
             <form onSubmit={handleDeleteUserSubmit}>
               <div className={styles.modalBody} style={{ gap: "1rem" }}>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: "1.5" }}>
-                  Are you sure you want to permanently delete user account <strong style={{ color: "#fff" }}>{deleteUserModal.email}</strong>?
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: "1.5" }}>
+                  Are you sure you want to permanently delete user account <strong style={{ color: "var(--text-primary)" }}>{deleteUserModal.email}</strong>?
                 </p>
-                <p style={{ color: "#f87171", fontSize: "0.82rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", padding: "0.75rem", borderRadius: "8px" }}>
-                  ⚠️ This action cannot be undone. It will remove the user from Supabase Auth and database records.
+                <p
+                  style={{
+                    color: "#DC2626",
+                    fontSize: "0.825rem",
+                    background: "#FEF2F2",
+                    border: "1px solid rgba(220, 38, 38, 0.25)",
+                    padding: "0.75rem",
+                    borderRadius: "6px",
+                  }}
+                >
+                  ⚠️ This action cannot be undone. It will remove the user from Supabase Auth and all database records.
                 </p>
               </div>
 
-              <div className={styles.modalFooter} style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "1.5rem" }}>
+              <div className={styles.modalFooter}>
                 <button
                   type="button"
                   onClick={() => setDeleteUserModal(null)}
@@ -512,13 +520,13 @@ export default function AdminUsersTab({
                 <button
                   type="submit"
                   style={{
-                    backgroundColor: "#ef4444",
-                    color: "#ffffff",
+                    backgroundColor: "#DC2626",
+                    color: "#FFFFFF",
                     border: "none",
-                    borderRadius: "8px",
-                    padding: "0.6rem 1.25rem",
-                    fontWeight: 600,
-                    fontSize: "0.875rem",
+                    borderRadius: "6px",
+                    padding: "0.55rem 1.25rem",
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
                     cursor: deletingUser ? "not-allowed" : "pointer",
                     opacity: deletingUser ? 0.7 : 1,
                   }}
