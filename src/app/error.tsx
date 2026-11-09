@@ -1,7 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import styles from "./utility.module.css";
+import {
+  LuRefreshCw,
+  LuHouse,
+  LuLifeBuoy,
+  LuCopy,
+  LuCheck,
+  LuTriangleAlert,
+} from "react-icons/lu";
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -9,148 +18,118 @@ interface ErrorPageProps {
 }
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
-    // Log the error to error reporting service
+    // Log the error to console and error reporting
     console.error("Unhandled App Error:", error);
   }, [error]);
 
+  const handleCopyDigest = async () => {
+    const traceInfo = `Error: ${error.message || "Unknown Application Fault"}${
+      error.digest ? `\nDigest: ${error.digest}` : ""
+    }`;
+    try {
+      await navigator.clipboard.writeText(traceInfo);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "calc(80vh - 120px)",
-        padding: "3rem 1.5rem",
-        textAlign: "center",
-      }}
-    >
-      <div
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          padding: "0.4rem 1rem",
-          borderRadius: "9999px",
-          background: "rgba(239, 68, 68, 0.15)",
-          border: "1px solid rgba(239, 68, 68, 0.3)",
-          color: "#ef4444",
-          fontSize: "0.875rem",
-          fontWeight: 600,
-          marginBottom: "1.5rem",
-        }}
-      >
-        <span style={{ fontSize: "1rem" }}>⚡</span> Something went wrong
-      </div>
+    <main className={styles.pageWrapper}>
+      <div className={styles.container}>
+        {/* Engineered Note Sheet with Diagnostic Fault Styling (§4.18) */}
+        <section className={styles.sheet} aria-labelledby="error-heading">
+          {/* Top-Right Dog-Ear / Torn Corner */}
+          <div className={styles.tornCorner} aria-hidden="true">
+            <div className={styles.tornCornerFold} />
+          </div>
 
-      <h1
-        style={{
-          fontSize: "clamp(2rem, 4vw, 3.25rem)",
-          fontWeight: 800,
-          letterSpacing: "-0.03em",
-          lineHeight: 1.15,
-          marginBottom: "1rem",
-          color: "var(--text-primary, #f8fafc)",
-        }}
-      >
-        An unexpected error occurred
-      </h1>
+          {/* Technical Spec Eyebrow */}
+          <div className={styles.specHeader}>
+            <div className={styles.specEyebrow}>
+              <span
+                className={`${styles.statusIndicator} ${styles.statusIndicatorFault}`}
+                aria-hidden="true"
+              />
+              <span>DIAGNOSTIC FAULT // RUNTIME_EXCEPTION</span>
+            </div>
+            <div className={styles.errorChip}>STATUS: 500 SERVER_FAULT</div>
+          </div>
 
-      <p
-        style={{
-          fontSize: "1.05rem",
-          color: "var(--text-secondary, #cbd5e1)",
-          maxWidth: "520px",
-          lineHeight: 1.6,
-          marginBottom: "2rem",
-        }}
-      >
-        We ran into a problem loading this page. You can try refreshing or returning to the homepage.
-      </p>
-
-      {error.digest && (
-        <code
-          style={{
-            display: "inline-block",
-            fontSize: "0.8rem",
-            color: "#94a3b8",
-            background: "#18181b",
-            border: "1px solid #27272a",
-            padding: "0.3rem 0.75rem",
-            borderRadius: "6px",
-            marginBottom: "2rem",
-            fontFamily: "monospace",
-          }}
-        >
-          Error Digest: {error.digest}
-        </code>
-      )}
-
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "1rem",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => reset()}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.75rem 1.75rem",
-            borderRadius: "var(--radius, 12px)",
-            background: "var(--accent, #fbbf24)",
-            color: "#09090b",
-            fontWeight: 700,
-            fontSize: "0.95rem",
-            border: "none",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            boxShadow: "0 4px 14px rgba(251, 191, 36, 0.3)",
-          }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          {/* Large Monospace Error Numeral in Fault Red */}
+          <span
+            className={`${styles.errorCode} ${styles.errorCodeFault}`}
+            aria-hidden="true"
           >
-            <polyline points="23 4 23 10 17 10" />
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-          </svg>
-          Try Again
-        </button>
+            500
+          </span>
 
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.75rem 1.5rem",
-            borderRadius: "var(--radius, 12px)",
-            background: "var(--card-bg, #18181b)",
-            border: "1px solid var(--border, #27272a)",
-            color: "var(--text-primary, #f8fafc)",
-            fontWeight: 600,
-            fontSize: "0.95rem",
-            textDecoration: "none",
-            transition: "all 0.2s ease",
-          }}
-        >
-          Back to Home
-        </Link>
+          {/* Display Headline with Highlighter */}
+          <h1 id="error-heading" className={styles.title}>
+            Something went wrong on{" "}
+            <span className={styles.highlighter}>our side</span>.
+          </h1>
+
+          <p className={styles.description}>
+            We ran into an unexpected problem while executing this resource.
+            Our technical telemetry has captured this event for inspection.
+          </p>
+
+          {/* Diagnostic Trace Box */}
+          <div className={styles.diagnosticBox} role="region" aria-label="Diagnostic error details">
+            <div className={styles.diagnosticHeader}>
+              <span className={styles.diagnosticLabel}>
+                <LuTriangleAlert size={12} style={{ display: "inline", marginRight: "4px" }} />
+                SYSTEM DIAGNOSTIC TRACE
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyDigest}
+                className={styles.copyDigestBtn}
+                title="Copy error trace to clipboard"
+                aria-label="Copy error trace"
+              >
+                {copied ? (
+                  <>
+                    <LuCheck size={12} color="#10B981" /> Copied Trace
+                  </>
+                ) : (
+                  <>
+                    <LuCopy size={12} /> Copy Trace
+                  </>
+                )}
+              </button>
+            </div>
+            <code className={styles.digestCode}>
+              {error.digest ? `Digest: ${error.digest}` : error.message || "An unexpected error occurred during execution."}
+            </code>
+          </div>
+
+          {/* Action Row (§4.18) */}
+          <div className={styles.actionsRow}>
+            <button
+              type="button"
+              onClick={() => reset()}
+              className={styles.primaryBtn}
+            >
+              <LuRefreshCw size={15} /> Try Again
+            </button>
+            <Link href="/" className={styles.secondaryBtn}>
+              <LuHouse size={15} /> Return to Home
+            </Link>
+            <Link
+              href="/contact?subject=Runtime+Error+Report"
+              className={styles.secondaryBtn}
+            >
+              <LuLifeBuoy size={15} /> Report Issue
+            </Link>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
