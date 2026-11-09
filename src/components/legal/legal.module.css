@@ -1,186 +1,446 @@
-@keyframes floatIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ==========================================================================
+   LEGAL & ACADEMIC POLICY MODULE — THE ENGINEER'S NOTEBOOK (DESIGN.md §4.17)
+   ========================================================================== */
+
+.pageWrapper {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--paper, #F7F8FB);
+  color: var(--ink-900, #0B1020);
+  padding: 56px 24px 96px 24px;
+  box-sizing: border-box;
 }
 
 .container {
   width: 100%;
-  max-width: 900px;
+  max-width: 1060px;
   margin: 0 auto;
-  padding: 4rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
 }
 
-.animateFade {
-  animation: floatIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
+/* 1. DOCUMENT SPEC HEADER (§4.17) */
 .header {
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--ink-900, #0B1020);
+  padding-bottom: 24px;
+  margin-bottom: 40px;
 }
 
-.badgePill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 999px;
-  padding: 0.4rem 1rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #facc15;
-  margin-bottom: 1rem;
-  letter-spacing: 0.02em;
+.specEyebrow {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--slate-600, #4B5565);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.badgePillDanger {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.25);
-  color: #f87171;
+.specIndicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--blue-500, #2447F5);
 }
 
 .title {
-  font-size: clamp(2.25rem, 5vw, 3rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-size: clamp(32px, 5vw, 44px);
+  font-weight: 800;
   line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--ink-900, #0B1020);
+  margin: 0 0 10px 0;
 }
 
-.subtitle {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  margin-top: 0.5rem;
+/* Monospace "LAST UPDATED [DATE]" directly under title (§4.17) */
+.lastUpdated {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4B5565);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
+/* 2. TWO-COLUMN LAYOUT: STICKY TOC DESK + 680PX READING COLUMN (§4.17) */
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 680px);
+  gap: 56px;
+  align-items: start;
+}
+
+/* 3. DESKTOP STICKY TABLE OF CONTENTS (§4.17) */
+.tocSidebar {
+  position: sticky;
+  top: 96px;
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 20px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px -2px rgba(11, 16, 32, 0.04);
+}
+
+.tocHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-300, #CDD4E2);
+}
+
+.tocTitle {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-900, #0B1020);
+}
+
+.tocNav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tocItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--slate-600, #4B5565);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.tocItem:hover {
+  background: var(--paper, #F7F8FB);
+  color: var(--blue-500, #2447F5);
+  transform: translateX(2px);
+}
+
+.tocItemActive {
+  background: rgba(36, 71, 245, 0.06);
+  color: var(--blue-500, #2447F5);
+  font-weight: 600;
+}
+
+.tocNum {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--slate-600, #4B5565);
+  min-width: 20px;
+}
+
+.tocItem:hover .tocNum,
+.tocItemActive .tocNum {
+  color: var(--blue-500, #2447F5);
+}
+
+/* 4. 680PX READING COLUMN (§4.17) */
+.readingColumn {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Professional Summary Callout */
+.calloutBox {
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-left: 4px solid var(--blue-500, #2447F5);
+  border-radius: var(--radius-sm, 8px);
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+
+.calloutTitle {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue-500, #2447F5);
+  margin-bottom: 8px;
+}
+
+.calloutText {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+/* Section styling: h2 at 28px, body at 16/1.7 (§4.17) */
 .legalSection {
-  background: rgba(24, 24, 27, 0.15);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2.25rem 2rem;
-  transition: var(--transition);
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 32px;
+  box-sizing: border-box;
+  scroll-margin-top: 104px;
+  transition: border-color 0.15s ease;
 }
 
-.legalSection:hover {
-  border-color: var(--accent);
-  background: rgba(251, 191, 36, 0.02);
-  box-shadow: 0 8px 24px -8px rgba(251, 191, 36, 0.12);
+.legalSection:target {
+  border-color: var(--blue-500, #2447F5);
+  box-shadow: 0 0 0 2px rgba(36, 71, 245, 0.15);
 }
 
 .legalSection h2 {
-  font-size: 1.3rem;
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-size: 24px; /* 28px on desktop breakpoint */
   font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  margin: 0 0 16px 0;
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.sectionNum {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--blue-500, #2447F5);
 }
 
 .legalSection p {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+  font-size: 16px;
   line-height: 1.7;
-  margin-bottom: 1rem;
+  color: #334155; /* slate-700 for high legibility */
+  margin: 0 0 14px 0;
 }
 
 .legalSection p:last-child {
   margin-bottom: 0;
 }
 
-.legalSection li {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-
 .legalSection ul {
-  margin: 0.75rem 0 1rem 1.25rem;
+  margin: 12px 0 16px 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
-.tocGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+.legalSection li {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #334155;
 }
 
-.tocLink {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: var(--transition);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
+.legalSection li strong {
+  color: var(--ink-900, #0B1020);
 }
 
-.tocLink:hover {
-  color: var(--accent);
-  transform: translateX(4px);
+.legalSection code {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 13px;
+  background: var(--paper, #F7F8FB);
+  border: 1px solid var(--line-300, #CDD4E2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--ink-900, #0B1020);
 }
 
-.calloutBox {
-  background: rgba(251, 191, 36, 0.05);
-  border-left: 4px solid var(--accent);
-  border-radius: 0 var(--radius) var(--radius) 0;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
+/* 5. CROSS-LINKS DIRECTORY LEDGER (SECTION 3.11 INDEX TABLE, §4.17) */
+.crossLinksDesk {
+  width: 100%;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink-900, #0B1020);
 }
 
-.calloutTitle {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.35rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.backBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--card-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius);
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: var(--transition);
-  cursor: pointer;
-  text-decoration: none;
-  align-self: flex-start;
-}
-
-.backBtn:hover {
-  background-color: var(--border);
-  transform: translateY(-2px);
-  border-color: var(--accent);
-}
-
-.footer {
-  border-top: 1px solid var(--border);
-  padding-top: 2rem;
+.crossLinksHeader {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.crossLinksEyebrow {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4B5565);
+}
+
+.crossLinksList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.crossLinkRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line-300, #CDD4E2);
+  text-decoration: none;
+  color: var(--ink-900, #0B1020);
+  background: var(--white, #FFFFFF);
+  transition: all 0.15s ease-out;
+}
+
+.crossLinkRow:hover {
+  background: var(--paper, #F7F8FB);
+  transform: translateX(4px);
+  color: var(--blue-500, #2447F5);
+}
+
+.crossLinkRowActive {
+  background: rgba(36, 71, 245, 0.03);
+  border-left: 3px solid var(--blue-500, #2447F5);
+}
+
+.crossLinkContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.crossLinkCode {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--slate-600, #4B5565);
+  min-width: 60px;
+}
+
+.crossLinkTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.crossLinkTag {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--paper, #F7F8FB);
+  border: 1px solid var(--line-300, #CDD4E2);
+  color: var(--slate-600, #4B5565);
+}
+
+.crossLinkTagActive {
+  background: var(--ink-900, #0B1020);
+  border-color: var(--ink-900, #0B1020);
+  color: var(--white, #FFFFFF);
+}
+
+/* 6. SUPPORT & CONTACT DESK LINK (§4.17) */
+.supportDesk {
+  margin-top: 32px;
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.supportDeskText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--slate-600, #4B5565);
+}
+
+.supportDeskText strong {
+  color: var(--ink-900, #0B1020);
+}
+
+.contactBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  background: var(--ink-900, #0B1020);
+  border: 1px solid var(--ink-900, #0B1020);
+  border-radius: var(--radius-sm, 8px);
+  color: var(--white, #FFFFFF);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.contactBtn:hover {
+  background: var(--blue-500, #2447F5);
+  border-color: var(--blue-500, #2447F5);
+}
+
+/* 7. RESPONSIVE BREAKPOINTS */
+@media (min-width: 768px) {
+  .legalSection h2 {
+    font-size: 28px; /* Strict 28px spec from §4.17 */
+  }
+}
+
+@media (max-width: 1024px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .tocSidebar {
+    position: static;
+    top: auto;
+  }
+
+  .readingColumn {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageWrapper {
+    padding: 32px 16px 64px 16px;
+  }
+
+  .legalSection {
+    padding: 24px 18px;
+  }
+
+  .supportDesk {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contactBtn {
+    justify-content: center;
+  }
 }
