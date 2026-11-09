@@ -2,6 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import styles from "./UsernameGate.module.css";
+import {
+  LuUser,
+  LuCheck,
+  LuX,
+  LuCircleAlert,
+  LuShieldCheck,
+  LuMail,
+} from "react-icons/lu";
 
 interface UsernameGateProps {
   email: string | null;
@@ -84,10 +92,10 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
   };
 
   const getStatusIcon = () => {
-    if (checkState === "checking") return <span className={styles.spinner} />;
-    if (checkState === "available") return <span className={styles.iconAvailable}>✓</span>;
-    if (checkState === "taken") return <span className={styles.iconTaken}>✗</span>;
-    if (checkState === "invalid") return <span className={styles.iconTaken}>!</span>;
+    if (checkState === "checking") return <span className={styles.inputSpinner} />;
+    if (checkState === "available") return <span className={styles.iconAvailable}><LuCheck size={16} strokeWidth={3} /></span>;
+    if (checkState === "taken") return <span className={styles.iconTaken}><LuX size={16} strokeWidth={2.5} /></span>;
+    if (checkState === "invalid") return <span className={styles.iconTaken}><LuCircleAlert size={16} /></span>;
     return null;
   };
 
@@ -102,26 +110,29 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
 
   return (
     <div className={styles.overlay}>
-      {/* Ambient glow blobs */}
-      <div className={styles.glowTop} />
-      <div className={styles.glowBottom} />
-
       <div className={styles.card}>
-        {/* Icon badge */}
-        <div className={styles.iconBadge}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </div>
-
+        {/* Header */}
         <div className={styles.header}>
-          <h1 className={styles.title}>Choose your username</h1>
+          <div className={styles.eyebrowTag}>
+            <LuShieldCheck size={14} />
+            <span>STUDENT IDENTITY • UNIQUE HANDLE</span>
+          </div>
+
+          <div className={styles.iconBadge}>
+            <LuUser size={28} />
+          </div>
+
+          <h1 className={styles.title}>Claim Your Student Handle</h1>
+
           <p className={styles.subtitle}>
-            Pick a unique handle for your Private Academy profile. You&apos;ll use it across the platform for notes, contributions, and reviews.
+            Pick a unique handle for your Private Academy profile. You&apos;ll use it across the platform for notes, discussions, and contributor reviews.
           </p>
+
           {email && (
-            <span className={styles.emailBadge}>{email}</span>
+            <span className={styles.emailBadge}>
+              <LuMail size={13} />
+              <span>{email}</span>
+            </span>
           )}
         </div>
 
@@ -131,7 +142,7 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
             <input
               type="text"
               className={`${styles.input} ${checkState === "available" ? styles.inputValid : checkState === "taken" || checkState === "invalid" ? styles.inputError : ""}`}
-              placeholder="your_username"
+              placeholder="username"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
               maxLength={15}
@@ -149,11 +160,21 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
           {error && <p className={styles.errorMsg}>{error}</p>}
 
           <div className={styles.rules}>
-            <span className={username.length >= 3 ? styles.ruleMet : styles.rulePending}>✓ Min 3 characters</span>
-            <span className={username.length <= 15 ? styles.ruleMet : styles.rulePending}>✓ Max 15 characters</span>
-            <span className={/^[a-z0-9_]/.test(username) ? styles.ruleMet : styles.rulePending}>✓ Start with letter/number/_</span>
-            <span className={/[a-z0-9_]$/.test(username) || username.length < 2 ? styles.ruleMet : styles.rulePending}>✓ End with letter/number/_</span>
-            <span className={!username.includes('..') ? styles.ruleMet : styles.rulePending}>✓ No consecutive dots</span>
+            <span className={username.length >= 3 ? styles.ruleMet : styles.rulePending}>
+              {username.length >= 3 ? "✓" : "•"} Min 3 characters
+            </span>
+            <span className={username.length <= 15 && username.length > 0 ? styles.ruleMet : styles.rulePending}>
+              {username.length <= 15 && username.length > 0 ? "✓" : "•"} Max 15 characters
+            </span>
+            <span className={/^[a-z0-9_]/.test(username) ? styles.ruleMet : styles.rulePending}>
+              {/^[a-z0-9_]/.test(username) ? "✓" : "•"} Starts with a-z/0-9/_
+            </span>
+            <span className={(/[a-z0-9_]$/.test(username) && username.length >= 2) ? styles.ruleMet : styles.rulePending}>
+              {(/[a-z0-9_]$/.test(username) && username.length >= 2) ? "✓" : "•"} Ends with a-z/0-9/_
+            </span>
+            <span className={(!username.includes("..") && username.length > 0) ? styles.ruleMet : styles.rulePending}>
+              {(!username.includes("..") && username.length > 0) ? "✓" : "•"} No consecutive dots
+            </span>
           </div>
 
           <button
@@ -165,14 +186,12 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
             {saving ? (
               <>
                 <span className={styles.spinner} />
-                Saving...
+                <span>Saving Handle...</span>
               </>
             ) : (
               <>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                Confirm Username
+                <LuCheck size={18} strokeWidth={2.5} />
+                <span>Confirm Student Handle</span>
               </>
             )}
           </button>
@@ -180,7 +199,7 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
 
         <p className={styles.footer}>
           You can change your username anytime from your{" "}
-          <strong style={{ color: "var(--accent)" }}>Profile &amp; Settings</strong> page.
+          <strong className={styles.footerLink}>Profile &amp; Settings</strong> desk.
         </p>
       </div>
     </div>
