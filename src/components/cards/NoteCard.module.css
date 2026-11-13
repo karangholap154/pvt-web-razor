@@ -1,287 +1,242 @@
-.noteCard {
-  background-color: var(--card-bg, #18181b);
-  border: 1px solid var(--border, #27272a);
-  border-radius: var(--radius, 12px);
-  padding: 1.25rem;
+.card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.2s ease,
-              box-shadow 0.2s ease;
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.2));
-  position: relative;
-  cursor: pointer;
+  background-color: #FFFFFF;
+  border: 1px solid #D5DBE8;
+  border-radius: var(--radius-lg, 14px);
   text-decoration: none;
-  color: inherit;
-  outline: none;
+  color: var(--ink-900, #0B1020);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(11, 16, 32, 0.04);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.noteCard:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--line-300, #CDD4E2);
 }
 
-.noteCard:focus-visible {
-  outline: 2px solid var(--accent, #fbbf24);
+.card:focus-visible {
+  outline: 2px solid var(--blue-500, #2447F5);
   outline-offset: 2px;
 }
 
-/* Community / Student Contributed Note Theme */
-.studentCard {
-  border-color: rgba(168, 85, 247, 0.28);
-}
-
-.studentCard:hover {
-  border-color: #c084fc;
-  box-shadow: 0 12px 24px -8px rgba(168, 85, 247, 0.25);
-}
-
-.studentCard:focus-visible {
-  outline: 2px solid #c084fc;
-  outline-offset: 2px;
-}
-
-.cardHeader {
+/* --- Compact Proportional Note Preview Canvas (170px height) --- */
+.previewCanvas {
+  position: relative;
+  width: 100%;
+  height: 170px;
+  background-color: var(--paper, #F7F8FB);
+  border-bottom: 1px solid var(--line-200, #E3E8F1);
+  overflow: hidden;
+  padding: 16px 16px 16px 36px;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.75rem;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.cardTitle {
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--text-primary, #f8fafc);
-  margin: 0;
+/* Notebook Ruled Background */
+.ruledPattern {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 23px,
+    var(--line-200, #E3E8F1) 24px
+  );
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Notebook Margin Line in Blue-300 */
+.marginLine {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--blue-300, #C3CEF8);
+  pointer-events: none;
+}
+
+/* Note preview snippet content */
+.previewContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.previewTopic {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4A5468);
+  font-weight: 600;
+}
+
+.previewHeader {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--ink-900, #0B1020);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.previewHighlight {
+  background: linear-gradient(transparent 56%, var(--hl-400, #FFE14D) 56% 94%, transparent 94%);
+  padding: 0 3px;
+}
+
+/* Simulated Note Derivation Line */
+.derivationLine {
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--line-300, #CDD4E2);
+  margin-top: 2px;
+}
+
+/* Top-Left Overlay Tags */
+.overlayTags {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  z-index: 2;
+}
+
+/* Video Chip Badge */
+.videoChip {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 8px);
+  background-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.videoChip:hover {
+  background-color: var(--ink-700, #1B2540);
+}
+
+/* --- Card Body --- */
+.body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.metaRow {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 15px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4A5468);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.titleLink {
-  text-decoration: none;
-  color: inherit;
-  transition: color 0.18s ease;
-}
-
-.noteCard:hover .titleLink {
-  color: var(--accent, #fbbf24);
-}
-
-.studentCard:hover .titleLink {
-  color: #c084fc;
-}
-
-/* Badge Rows */
-.badgeRow {
-  display: flex;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.badge {
-  font-size: 0.725rem;
-  font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-sm, 6px);
+.title {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 18px;
   line-height: 1.3;
-  display: inline-flex;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--slate-600, #4A5468);
+  margin-top: 4px;
+  display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 6px;
+}
+
+/* Purchased action button */
+.actionBtnWrapper {
+  margin-top: 12px;
+}
+
+/* --- Footer Row --- */
+.footer {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--line-200, #E3E8F1);
+}
+
+.contributorInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.contributorHandle {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.tagBranch {
-  background-color: rgba(251, 191, 36, 0.1);
-  color: var(--accent, #fbbf24);
-  border: 1px solid rgba(251, 191, 36, 0.22);
+.contributorHandle:hover {
+  color: var(--blue-500, #2447F5);
 }
 
-.tagBranchStudent {
-  background-color: rgba(168, 85, 247, 0.12);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.28);
-}
-
-.badgeSemester {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary, #cbd5e1);
-  border: 1px solid var(--border, #27272a);
+.officialLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
   font-weight: 600;
+  color: var(--slate-600, #4A5468);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
-
-.badgePricePaid {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  font-variant-numeric: tabular-nums;
-}
-
-.badgePricePaidStudent {
-  background-color: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  font-variant-numeric: tabular-nums;
-}
-
-.badgePriceFree {
-  background-color: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.25);
-}
-
-.badgeUnlocked {
-  background-color: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.28);
-}
-
-/* Description */
-.cardDesc {
-  font-size: 0.875rem;
-  color: var(--text-secondary, #cbd5e1);
-  line-height: 1.5;
-  margin: 0;
-  flex-grow: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Actions */
-.cardActions {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--border, #27272a);
-}
-
-.cardActionsWithVideo {
-  grid-template-columns: 1fr 1fr;
-}
-
-.btnAction {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.85rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  font-family: inherit;
-  border-radius: var(--radius-sm, 6px);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
-  text-decoration: none;
-  border: 1px solid transparent;
-  min-height: 38px;
-}
-
-.btnAction:active {
-  transform: scale(0.97);
-}
-
-.btnWatch {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary, #f8fafc);
-  border-color: var(--border, #27272a);
-}
-
-.btnWatch:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.btnDownloadFree {
-  background: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.25);
-}
-
-.btnDownloadFree:hover {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.4);
-}
-
-.btnUnlock {
-  background: var(--accent, #fbbf24);
-  color: #09090b;
-  border-color: var(--accent, #fbbf24);
-}
-
-.btnUnlock:hover {
-  background: var(--accent-hover, #d97706);
-  border-color: var(--accent-hover, #d97706);
-}
-
-.btnUnlockStudent {
-  background: rgba(168, 85, 247, 0.18);
-  color: #c084fc;
-  border-color: rgba(168, 85, 247, 0.35);
-}
-
-.btnUnlockStudent:hover {
-  background: rgba(168, 85, 247, 0.28);
-  border-color: #c084fc;
-}
-
-.btnSecondaryAction {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary, #f8fafc);
-  border-color: var(--border, #27272a);
-}
-
-.btnSecondaryAction:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.contributorRow {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.15rem;
-}
-
-.contributorBadgeStudent {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #c084fc;
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: all 0.15s ease;
-}
-
-.contributorBadgeStudent:hover {
-  background: rgba(168, 85, 247, 0.2);
-  border-color: #c084fc;
-}
-
-.contributorBadgePlatform {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-secondary, #cbd5e1);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border, #27272a);
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-

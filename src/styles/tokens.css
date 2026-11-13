@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Private Academy — Design System Tokens & Signature Utilities
+   Concept: "An Engineer's Notebook"
+   Specification: DESIGN.md (v1.0)
+   ========================================================================== */
+
+:root {
+  /* --- 2.1 Core Palette --- */
+  --ink-900: #0B1020;  /* Primary text, dark sections, primary dark buttons */
+  --ink-700: #1B2540;  /* Cards on dark sections */
+  --ink-600: #2A3550;  /* Borders on dark, tier bar 70% */
+  --ink-500: #3A4A74;  /* Tier bar 75% */
+  --slate-600: #4A5468;/* Secondary text on light (≈7:1 on paper) */
+  --slate-300: #B8C1D6;/* Secondary text on dark (≈10:1 on ink-900) */
+  --line-300: #CDD4E2; /* Input borders, dividers, table rules */
+  --line-200: #E3E8F1; /* Subtle dividers, skeleton bars */
+  --grid-line: #E1E6F0;/* Graph-paper grid lines in hero backgrounds */
+  --paper: #F7F8FB;    /* Page background */
+  --white: #FFFFFF;    /* Cards, sheets, inputs */
+
+  /* --- Brand Accents --- */
+  --blue-500: #2447F5; /* Primary action, links, focus ring, mono eyebrow labels */
+  --blue-600: #1B38D1; /* Primary hover / pressed */
+  --blue-400: #5468B8; /* Tier bar 82% */
+  --blue-300: #C3CEF8; /* Notebook margin line, subtle selection */
+  --blue-100: #E6EBFF; /* Tinted backgrounds (info, selected row) */
+
+  /* --- Highlighter Palette --- */
+  --hl-400: #FFE14D;   /* Key-word marks, Legend tier, promo banner, CTA on dark */
+  --hl-300: #FFEC85;   /* Highlighter hover */
+  --hl-100: #FFF8D1;   /* Soft highlight backgrounds (warnings, free tag) */
+
+  /* --- Semantic Colors --- */
+  --success: #0F7B4F;
+  --success-bg: #E4F5EC;
+  --error: #C42B3A;
+  --error-bg: #FDE8EA;
+  --warning: #0B1020;
+  --warning-bg: #FFF8D1;
+  --info: #2447F5;
+  --info-bg: #E6EBFF;
+
+  /* --- 2.4 Shape & Radii --- */
+  --radius-sm: 8px;     /* Chips, small buttons, tags, thumbnails */
+  --radius-md: 10px;    /* Buttons, inputs */
+  --radius-lg: 14px;    /* Note sheets, small cards, popovers */
+  --radius-xl: 18px;    /* Bento cells, large cards */
+  --radius-2xl: 24px;   /* Promo banners, modals */
+  --radius-full: 9999px;/* Pills, avatars */
+
+  /* --- Elevation & Shadows --- */
+  --shadow-sheet: 0 36px 60px -32px rgba(11, 16, 32, 0.4);
+  --shadow-lift: 0 20px 40px -24px rgba(11, 16, 32, 0.3);
+  --shadow-pop: 0 16px 40px -16px rgba(11, 16, 32, 0.35);
+
+  /* --- Layout & Typography Dimensions --- */
+  --max-container: 1200px;
+  --max-reading: 680px;
+}
+
+/* ==========================================================================
+   Signature Notebook Patterns & Utilities
+   ========================================================================== */
+
+/* 1. Yellow Highlighter Mark (use on 2-4 words per heading) */
+.hl {
+  background: linear-gradient(transparent 56%, var(--hl-400) 56% 94%, transparent 94%);
+  padding: 0 0.08em;
+  border-radius: 2px;
+}
+
+/* 2. Graph-Paper Background (Hero areas, fades out downward) */
+.bg-graph {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+}
+
+/* 3. Floating Note Sheet (Paper Card with Left Notebook Margin Line) */
+.sheet {
+  position: relative;
+  background: var(--white);
+  border: 1px solid #D5DBE8;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sheet);
+  padding: 26px 26px 30px 44px;
+}
+
+.sheet::before {
+  content: "";
+  position: absolute;
+  left: 32px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--blue-300);
+}
+
+/* Variant without margin line (e.g. for PDF preview canvas) */
+.sheet-clean::before {
+  display: none;
+}
+
+/* 4. Mono Spec Labels (Metadata, eyebrows, tags, table headers) */
+.label-mono {
+  font-family: var(--font-mono), ui-monospace, 'SF Mono', monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* 5. Tabular Figures for Counters, Stats, Prices */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Global Focus-Visible Ring */
+:focus-visible {
+  outline: 2px solid var(--blue-500) !important;
+  outline-offset: 2px !important;
+}
+
+.on-dark :focus-visible {
+  outline-color: var(--hl-400) !important;
+}
+
+/* Respect user's reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

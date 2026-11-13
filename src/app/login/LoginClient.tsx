@@ -1,12 +1,25 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./login.module.css";
 import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
 import { FcGoogle } from "react-icons/fc";
-import { FiMail, FiArrowLeft, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle, FiInfo } from "react-icons/fi";
+import { 
+  LuMail, 
+  LuArrowLeft, 
+  LuLock, 
+  LuEye, 
+  LuEyeOff, 
+  LuCircleAlert, 
+  LuCircleCheck, 
+  LuInfo, 
+  LuBookOpen,
+  LuCloudDownload,
+  LuShieldCheck
+} from "react-icons/lu";
 import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../components/providers/AuthProvider";
 
@@ -23,9 +36,8 @@ function LoginForm() {
   // Check for confirmation_failed or domain_restricted error from the callback route
   const callbackError = searchParams.get("error");
 
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [showRecoveryInfo, setShowRecoveryInfo] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  const [showRecoveryInfo, setShowRecoveryInfo] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,6 +45,7 @@ function LoginForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState<string | null>(
     callbackError === "confirmation_failed"
       ? "Email confirmation link is invalid or expired. Please sign up again."
@@ -156,7 +169,8 @@ function LoginForm() {
         }
       }
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      const errorMsg =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -164,120 +178,133 @@ function LoginForm() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.authCard}>
-        <div className={styles.titleArea}>
-          <h2 className={styles.title}>
-            Private<span className="gradient-text">Academy</span>
-          </h2>
-          <p className={styles.subtitle}>
-            {showRecoveryInfo
-              ? "Recover access to your account manually"
-              : !showEmailForm
-              ? "Sign in or register to access your dashboard and notes"
-              : activeTab === "login"
-              ? "Sign in to access your dashboard and notes"
-              : "Register to unlock and view your notes"}
-          </p>
+    <div className={styles.pageWrapper}>
+      <div className={styles.splitLayout}>
+
+        {/* ==================================================================
+            LEFT COLUMN: NOTEBOOK ARTWORK & BRAND PROMISE (DESKTOP)
+            ================================================================== */}
+        <div className={styles.artColumn}>
+          <div className={styles.artContent}>
+            <div>
+              <h1 className={styles.artHeadline}>
+                Your university, <span className={styles.artHighlight}>your notes.</span>
+              </h1>
+              <p className={styles.artSubtitle} style={{ marginTop: "12px" }}>
+                Verified engineering syllabus study guides, problem derivations, and offline PDF access curated by scholars.
+              </p>
+            </div>
+
+            {/* Rotated Signature Note Sheet */}
+            <div className={styles.artSheetContainer}>
+              <div className={styles.artSheet}>
+                <div className={styles.sheetHeader}>
+                  <span className={styles.sheetSpecTag}>ENGG // CURRICULUM</span>
+                  <span className={styles.sheetDate}>SEMESTER SCHEME</span>
+                </div>
+
+                <div className={styles.sheetBody}>
+                  <div className={styles.sheetLine} style={{ width: "85%" }} />
+                  <div className={`${styles.sheetLine} ${styles.sheetLineHighlight}`} style={{ width: "65%" }} />
+                  <div className={styles.sheetLine} style={{ width: "95%" }} />
+                  <div className={styles.sheetLine} style={{ width: "75%" }} />
+                </div>
+
+                <div className={styles.sheetStampsRow}>
+                  <span className={styles.stampBadge}>SPPU</span>
+                  <span className={styles.stampBadge}>MU</span>
+                  <span className={styles.stampBadge}>DBATU</span>
+                  <span className={styles.stampBadge}>SUK</span>
+                  <span className={styles.stampBadge}>NU</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature Perks */}
+            <ul className={styles.perksList}>
+              <li className={styles.perkItem}>
+                <span className={styles.perkIcon}>
+                  <LuCloudDownload size={16} />
+                </span>
+                <span>Instant offline PDF downloads with handwritten derivations</span>
+              </li>
+              <li className={styles.perkItem}>
+                <span className={styles.perkIcon}>
+                  <LuBookOpen size={16} />
+                </span>
+                <span>Synchronized cross-device library &amp; video walkthroughs</span>
+              </li>
+              <li className={styles.perkItem}>
+                <span className={styles.perkIcon}>
+                  <LuShieldCheck size={16} />
+                </span>
+                <span>Reviewed &amp; aligned with university syllabus curriculum</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        {error && (
-          <div className={styles.errorAlert} role="alert">
-            <FiAlertCircle size={18} style={{ flexShrink: 0, marginTop: "0.1rem" }} />
-            <span>{error}</span>
-          </div>
-        )}
-        {successMsg && (
-          <div className={styles.successAlert} role="status">
-            <FiCheckCircle size={18} style={{ flexShrink: 0, marginTop: "0.1rem" }} />
-            <span>{successMsg}</span>
-          </div>
-        )}
-        {infoMsg && (
-          <div className={styles.infoAlert} role="status">
-            <FiInfo size={18} style={{ flexShrink: 0, marginTop: "0.1rem" }} />
-            <span>{infoMsg}</span>
-          </div>
-        )}
+        {/* ==================================================================
+            RIGHT COLUMN: FOCUSED AUTH FORM CARD
+            ================================================================== */}
+        <div className={styles.formColumn}>
+          <div className={styles.authCard}>
 
-        {!showEmailForm ? (
-          <div className={styles.optionsContainer}>
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className={styles.googleBtn}
-              disabled={loading}
-            >
-              <FcGoogle className={styles.googleIcon} size={18} />
-              <span>Sign in with Google</span>
-            </button>
+            {/* Mobile Brand Header */}
+            <div className={styles.mobileBrandHeader}>
+              <div className={styles.brandMark}>
+                <div className={styles.brandBar} />
+              </div>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setShowEmailForm(true);
-                setError(null);
-                setSuccessMsg(null);
-                setInfoMsg(null);
-              }}
-              className={styles.emailBtn}
-              disabled={loading}
-            >
-              <FiMail className={styles.emailIcon} size={18} />
-              <span>Continue with Email</span>
-            </button>
+            {/* Eyebrow Header */}
+            <div className={styles.deskEyebrow}>
+              <span className={styles.deskEyebrowTag}>[PORTAL • AUTHENTICATION]</span>
+              <span className={styles.deskEyebrowStatus}>
+                <span className={styles.statusDot} />
+                SECURE GATE
+              </span>
+            </div>
 
-            <p className={styles.legalNotice}>
-              By continuing, you agree to our{" "}
-              <a
-                href="/terms-and-condition"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.legalLink}
-              >
-                Terms &amp; Conditions
-              </a>
-              ,{" "}
-              <a
-                href="/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.legalLink}
-              >
-                Privacy Policy
-              </a>
-              ,{" "}
-              <a
-                href="/refund-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.legalLink}
-              >
-                Refund Policy
-              </a>
-              ,{" "}
-              <a
-                href="/shipping-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.legalLink}
-              >
-                Shipping Policy
-              </a>
-              , and{" "}
-              <a
-                href="/disclaimer"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.legalLink}
-              >
-                Disclaimer
-              </a>
-              .
-            </p>
-          </div>
-        ) : (
-          <div className={styles.optionsContainer}>
+            {/* Title Area */}
+            <div className={styles.titleArea}>
+              <h2 className={styles.cardTitle}>
+                {showRecoveryInfo
+                  ? "Account Recovery"
+                  : activeTab === "login"
+                  ? "Sign in to Private Academy"
+                  : "Create student account"}
+              </h2>
+              <p className={styles.cardSubtitle}>
+                {showRecoveryInfo
+                  ? "Recover access to your account manually"
+                  : activeTab === "login"
+                  ? "Enter your credentials to access your notes library"
+                  : "Register to unlock and view your notes"}
+              </p>
+            </div>
+
+            {/* Status & Error Alerts */}
+            {error && (
+              <div className={styles.errorAlert} role="alert">
+                <LuCircleAlert size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <span>{error}</span>
+              </div>
+            )}
+            {successMsg && (
+              <div className={styles.successAlert} role="status">
+                <LuCircleCheck size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <span>{successMsg}</span>
+              </div>
+            )}
+            {infoMsg && (
+              <div className={styles.infoAlert} role="status">
+                <LuInfo size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <span>{infoMsg}</span>
+              </div>
+            )}
+
+            {/* Recovery Mode */}
             {showRecoveryInfo ? (
               <div className={styles.recoveryContainer}>
                 <button
@@ -291,26 +318,16 @@ function LoginForm() {
                   className={styles.backBtn}
                   disabled={loading}
                 >
-                  <FiArrowLeft size={16} />
-                  <span>Back to Login</span>
+                  <LuArrowLeft size={16} />
+                  <span>Back to Sign In</span>
                 </button>
 
                 <p className={styles.recoveryText}>
-                  Please contact support with your purchase transaction details to restore your account access.
+                  Please contact support with your purchase transaction details or registered email to restore your account access.
                 </p>
 
-                <div style={{
-                  padding: "0.85rem",
-                  backgroundColor: "rgba(251, 191, 36, 0.08)",
-                  border: "1px dashed rgba(251, 191, 36, 0.35)",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: "0.825rem",
-                  color: "var(--text-secondary)",
-                  lineHeight: "1.5",
-                  textAlign: "left",
-                  marginBottom: "0.5rem"
-                }}>
-                  <strong style={{ color: "var(--accent)" }}>💡 Pro-Tip:</strong> If your account email is a Gmail address, you can simply go back and choose <strong>Sign in with Google</strong> using that same Gmail to access your account instantly without needing a password.
+                <div className={styles.proTipBox}>
+                  <strong>💡 Pro-Tip:</strong> If your account email is a Gmail address, you can simply go back and choose <strong>Continue with Google</strong> using that same Gmail to access your account instantly without needing a password.
                 </div>
 
                 <a
@@ -318,7 +335,6 @@ function LoginForm() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.whatsappBtn}
-                  style={{ textDecoration: "none" }}
                 >
                   <FaWhatsapp size={20} />
                   <span>Recover via WhatsApp</span>
@@ -327,34 +343,20 @@ function LoginForm() {
                 <a
                   href="mailto:info@privateacademy.in?subject=Account%20Recovery%20Request&body=Hello%20Private%20Academy%20Support,%0A%0AI%20need%20help%20recovering%20access%20to%20my%20account.%20Here%20are%20my%20details:%0A-%20Email:%20%0A-%20Purchase%20Details/Transaction%20ID:%20"
                   className={styles.emailBtn}
-                  style={{ textDecoration: "none" }}
                 >
-                  <FiMail size={18} className={styles.emailIcon} />
+                  <LuMail size={18} />
                   <span>Email Support</span>
                 </a>
               </div>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEmailForm(false);
-                    setShowRecoveryInfo(false);
-                    setError(null);
-                    setSuccessMsg(null);
-                    setInfoMsg(null);
-                  }}
-                  className={styles.backBtn}
-                  disabled={loading}
-                >
-                  <FiArrowLeft size={16} />
-                  <span>Back to options</span>
-                </button>
-
-                <div className={styles.tabs} style={{ width: "100%" }}>
+                {/* Tabs: Sign In / Create Account */}
+                <div className={styles.tabsContainer} role="tablist">
                   <button
                     type="button"
-                    className={`${styles.tabBtn} ${activeTab === "login" ? styles.activeTabBtn : ""}`}
+                    role="tab"
+                    aria-selected={activeTab === "login"}
+                    className={`${styles.tabBtn} ${activeTab === "login" ? styles.tabBtnActive : ""}`}
                     onClick={() => {
                       setActiveTab("login");
                       setError(null);
@@ -362,11 +364,13 @@ function LoginForm() {
                       setInfoMsg(null);
                     }}
                   >
-                    Login
+                    Sign In
                   </button>
                   <button
                     type="button"
-                    className={`${styles.tabBtn} ${activeTab === "signup" ? styles.activeTabBtn : ""}`}
+                    role="tab"
+                    aria-selected={activeTab === "signup"}
+                    className={`${styles.tabBtn} ${activeTab === "signup" ? styles.tabBtnActive : ""}`}
                     onClick={() => {
                       setActiveTab("signup");
                       setError(null);
@@ -374,25 +378,44 @@ function LoginForm() {
                       setInfoMsg(null);
                     }}
                   >
-                    Sign Up
+                    Create Account
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className={styles.form} style={{ width: "100%" }}>
+                {/* Google OAuth Button */}
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  className={styles.googleBtn}
+                  disabled={loading}
+                >
+                  <FcGoogle size={18} />
+                  <span>Continue with Google</span>
+                </button>
+
+                {/* Divider */}
+                <div className={styles.divider}>
+                  <div className={styles.dividerLine} />
+                  <span className={styles.dividerText}>or continue with email</span>
+                  <div className={styles.dividerLine} />
+                </div>
+
+                {/* Form Fields */}
+                <form onSubmit={handleSubmit} className={styles.form}>
                   <div className={styles.inputGroup}>
                     <label htmlFor="email" className={styles.label}>
                       Email Address
                     </label>
                     <div className={styles.inputWrapper}>
                       <span className={styles.inputFieldIcon}>
-                        <FiMail size={16} />
+                        <LuMail size={16} />
                       </span>
                       <input
                         type="email"
                         id="email"
                         className={styles.inputWithIcon}
                         placeholder="student@gmail.com"
-                        required={showEmailForm && !showRecoveryInfo}
+                        required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={loading}
@@ -406,14 +429,14 @@ function LoginForm() {
                     </label>
                     <div className={styles.inputWrapper}>
                       <span className={styles.inputFieldIcon}>
-                        <FiLock size={16} />
+                        <LuLock size={16} />
                       </span>
                       <input
                         type={showPassword ? "text" : "password"}
                         id="password"
                         className={styles.inputWithIcon}
                         placeholder="••••••••"
-                        required={showEmailForm && !showRecoveryInfo}
+                        required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loading}
@@ -424,7 +447,7 @@ function LoginForm() {
                         onClick={() => setShowPassword((prev) => !prev)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                       >
-                        {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                        {showPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
                       </button>
                     </div>
                   </div>
@@ -437,14 +460,14 @@ function LoginForm() {
                         </label>
                         <div className={styles.inputWrapper}>
                           <span className={styles.inputFieldIcon}>
-                            <FiLock size={16} />
+                            <LuLock size={16} />
                           </span>
                           <input
                             type={showConfirmPassword ? "text" : "password"}
                             id="confirmPassword"
                             className={styles.inputWithIcon}
                             placeholder="••••••••"
-                            required={showEmailForm && activeTab === "signup" && !showRecoveryInfo}
+                            required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             disabled={loading}
@@ -455,7 +478,7 @@ function LoginForm() {
                             onClick={() => setShowConfirmPassword((prev) => !prev)}
                             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                           >
-                            {showConfirmPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                            {showConfirmPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
                           </button>
                         </div>
                       </div>
@@ -472,50 +495,25 @@ function LoginForm() {
                           />
                           <span className={styles.legalText}>
                             I agree to the{" "}
-                            <a
-                              href="/terms-and-condition"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.legalLink}
-                            >
+                            <Link href="/terms-and-condition" target="_blank" className={styles.legalLink}>
                               Terms &amp; Conditions
-                            </a>
+                            </Link>
                             ,{" "}
-                            <a
-                              href="/privacy-policy"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.legalLink}
-                            >
+                            <Link href="/privacy-policy" target="_blank" className={styles.legalLink}>
                               Privacy Policy
-                            </a>
+                            </Link>
                             ,{" "}
-                            <a
-                              href="/refund-policy"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.legalLink}
-                            >
+                            <Link href="/refund-policy" target="_blank" className={styles.legalLink}>
                               Refund Policy
-                            </a>
+                            </Link>
                             ,{" "}
-                            <a
-                              href="/shipping-policy"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.legalLink}
-                            >
+                            <Link href="/shipping-policy" target="_blank" className={styles.legalLink}>
                               Shipping Policy
-                            </a>
+                            </Link>
                             , and{" "}
-                            <a
-                              href="/disclaimer"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.legalLink}
-                            >
+                            <Link href="/disclaimer" target="_blank" className={styles.legalLink}>
                               Disclaimer
-                            </a>
+                            </Link>
                             .
                           </span>
                         </label>
@@ -529,82 +527,36 @@ function LoginForm() {
                     disabled={loading}
                   >
                     {loading ? (
-                      <div className={styles.loadingSpinner}></div>
+                      <div className={styles.spinner} />
                     ) : activeTab === "login" ? (
                       "Sign In"
                     ) : (
-                      "Register"
+                      "Create Account"
                     )}
                   </button>
-
-                  {activeTab === "login" && (
-                    <p className={styles.legalNotice}>
-                      By signing in, you agree to our{" "}
-                      <a
-                        href="/terms-and-condition"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.legalLink}
-                      >
-                        Terms &amp; Conditions
-                      </a>
-                      ,{" "}
-                      <a
-                        href="/privacy-policy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.legalLink}
-                      >
-                        Privacy Policy
-                      </a>
-                      ,{" "}
-                      <a
-                        href="/refund-policy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.legalLink}
-                      >
-                        Refund Policy
-                      </a>
-                      ,{" "}
-                      <a
-                        href="/shipping-policy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.legalLink}
-                      >
-                        Shipping Policy
-                      </a>
-                      , and{" "}
-                      <a
-                        href="/disclaimer"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.legalLink}
-                      >
-                        Disclaimer
-                      </a>
-                      .
-                    </p>
-                  )}
                 </form>
 
-                <button
-                  type="button"
-                  className={styles.forgotLink}
-                  onClick={() => {
-                    setShowRecoveryInfo(true);
-                    setError(null);
-                    setSuccessMsg(null);
-                    setInfoMsg(null);
-                  }}
-                >
-                  Forgot password or email? Get help
-                </button>
+                {/* Forgot Password / Recovery */}
+                {activeTab === "login" && (
+                  <button
+                    type="button"
+                    className={styles.forgotLink}
+                    onClick={() => {
+                      setShowRecoveryInfo(true);
+                      setError(null);
+                      setSuccessMsg(null);
+                      setInfoMsg(null);
+                    }}
+                  >
+                    Forgot password or email? Get help
+                  </button>
+                )}
               </>
             )}
+
           </div>
-        )}
+        </div>
+
       </div>
     </div>
   );
@@ -621,26 +573,22 @@ export default function LoginClient() {
             alignItems: "center",
             minHeight: "calc(100vh - 140px)",
             padding: "2rem",
-            color: "var(--text-secondary)",
+            color: "var(--slate-600, #4A5468)",
           }}
         >
-          <div
-            style={{
-              textAlign: "center",
-            }}
-          >
+          <div style={{ textAlign: "center" }}>
             <div
               style={{
                 width: "30px",
                 height: "30px",
-                border: "3px solid rgba(255,255,255,0.1)",
-                borderTopColor: "var(--accent)",
+                border: "3px solid #CDD4E2",
+                borderTopColor: "var(--blue-500, #2447F5)",
                 borderRadius: "50%",
-                animation: "spin 1s linear infinite",
+                animation: "spin 0.8s linear infinite",
                 margin: "0 auto 1rem auto",
               }}
-            ></div>
-            <h3>Loading...</h3>
+            />
+            <h3 style={{ fontSize: "15px", fontFamily: "var(--font-inter), sans-serif" }}>Loading...</h3>
           </div>
         </div>
       }

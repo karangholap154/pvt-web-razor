@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/providers/ToastProvider";
 import { BRANCHES, SEMESTERS } from "@/data/mockData";
 import { UNIVERSITIES } from "@/utils/constants";
-import { FaCloudArrowUp, FaFilePdf, FaXmark, FaCheck } from "react-icons/fa6";
 import BranchSelect from "@/components/ui/BranchSelect";
+import styles from "./ContributeModal.module.css";
+import {
+  LuCloudUpload,
+  LuFileText,
+  LuX,
+  LuCheck,
+  LuSparkles,
+} from "react-icons/lu";
 
 interface ContributeModalProps {
   isOpen: boolean;
@@ -36,6 +43,18 @@ export default function ContributeModal({
 
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  // Close modal on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -125,7 +144,7 @@ export default function ContributeModal({
         throw new Error(data.error || "Failed to submit study note.");
       }
 
-      toast.success("Study note submitted successfully! Pending admin approval.");
+      toast.success("Study note submitted successfully! Pending admin verification.");
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -136,114 +155,69 @@ export default function ContributeModal({
     }
   };
 
+  const authorNetEarnings = price === 0 ? 0 : Math.round(price * 0.8);
+
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(6px)",
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0.75rem",
-      }}
+      className={styles.backdrop}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="contribute-modal-title"
     >
-      <style>{`
-        .cm-modal-box {
-          padding: 1.75rem;
-        }
-        .cm-grid-2col {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-        }
-        .cm-action-btns {
-          display: flex;
-          justify-content: flex-end;
-          gap: 0.75rem;
-          margin-top: 0.5rem;
-        }
-        @media (max-width: 540px) {
-          .cm-modal-box {
-            padding: 1rem 0.85rem !important;
-            max-height: 94vh !important;
-            border-radius: 14px !important;
-          }
-          .cm-grid-2col {
-            grid-template-columns: 1fr !important;
-            gap: 0.75rem !important;
-          }
-          .cm-action-btns {
-            flex-direction: column-reverse !important;
-            gap: 0.6rem !important;
-          }
-          .cm-action-btns > button {
-            width: 100% !important;
-            justify-content: center !important;
-            min-height: 44px !important;
-          }
-        }
-      `}</style>
       <div
-        className="cm-modal-box"
-        style={{
-          background: "var(--bg-secondary, #121216)",
-          border: "1px solid var(--border, rgba(255, 255, 255, 0.12))",
-          borderRadius: "16px",
-          width: "100%",
-          maxWidth: "540px",
-          maxHeight: "90vh",
-          overflowY: "auto",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-          color: "var(--text-primary, #f9fafb)",
-        }}
+        className={styles.modalSheet}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        {/* Modal Header (§3.6) */}
+        <div className={styles.modalHeader}>
           <div>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 700, margin: 0 }}>Contribute Study Note</h2>
-            <p style={{ fontSize: "0.825rem", color: "var(--text-secondary, #9ca3af)", margin: "0.25rem 0 0" }}>
-              Share your high-quality PDF notes & earn up to 90% revenue!
-            </p>
+            <div className={styles.headerEyebrow}>
+              <LuSparkles size={13} aria-hidden="true" />
+              <span>THE SUPPLY ENGINE // NOTE SUBMISSION</span>
+            </div>
+            <h2 id="contribute-modal-title" className={styles.modalTitle}>
+              Upload Study Notes
+            </h2>
           </div>
+
           <button
+            type="button"
             onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-secondary, #9ca3af)",
-              cursor: "pointer",
-              fontSize: "1.2rem",
-            }}
+            className={styles.closeBtn}
+            aria-label="Close modal"
           >
-            <FaXmark />
+            <LuX size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        {/* Scrollable Form Body */}
+        <form onSubmit={handleSubmit} className={styles.modalBody}>
           {/* File Dropzone */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-              PDF Document <span style={{ color: "#ef4444" }}>*</span> (PDF only, Max 5MB)
-            </label>
+          <div className={styles.formGroup}>
+            <div className={styles.dropzoneLabel}>
+              <label className={styles.specLabel}>
+                PDF Document File <span className={styles.reqStar}>*</span>
+              </label>
+              <span className={styles.optionalTag}>MAX 5 MB • PDF ONLY</span>
+            </div>
+
             <div
-              onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragActive(true);
+              }}
               onDragLeave={() => setDragActive(false)}
               onDrop={handleDrop}
-              style={{
-                border: dragActive ? "2px dashed var(--accent, #f59e0b)" : "2px dashed var(--border, rgba(255, 255, 255, 0.15))",
-                borderRadius: "12px",
-                padding: "1.5rem",
-                textAlign: "center",
-                backgroundColor: dragActive ? "rgba(245, 158, 11, 0.05)" : "rgba(255, 255, 255, 0.02)",
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
+              className={`${styles.dropzone} ${dragActive ? styles.dropzoneActive : ""}`}
               onClick={() => document.getElementById("pdf-file-input")?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  document.getElementById("pdf-file-input")?.click();
+                }
+              }}
             >
               <input
                 type="file"
@@ -254,174 +228,153 @@ export default function ContributeModal({
               />
 
               {file ? (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", color: "#22c55e" }}>
-                  <FaFilePdf style={{ fontSize: "1.8rem" }} />
-                  <div style={{ textAlign: "left" }}>
-                    <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--text-primary)" }}>{file.name}</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
-                      {(file.size / (1024 * 1024)).toFixed(2)} MB • Ready to upload
+                <div className={styles.fileReadyCard}>
+                  <div className={styles.fileIconBox}>
+                    <LuFileText size={20} />
+                  </div>
+                  <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                    <div className={styles.fileName}>{file.name}</div>
+                    <div className={styles.fileMeta}>
+                      {(file.size / (1024 * 1024)).toFixed(2)} MB • READY FOR DISPATCH
                     </div>
                   </div>
-                  <FaCheck style={{ marginLeft: "auto" }} />
-                </div>
-              ) : (
-                <div>
-                  <FaCloudArrowUp style={{ fontSize: "2.2rem", color: "var(--accent, #f59e0b)", marginBottom: "0.5rem" }} />
-                  <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Drag & drop your PDF file here</div>
-                  <div style={{ fontSize: "0.775rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
-                    or click to browse files (Strictly PDF under 5 MB)
+                  <div className={styles.readyBadge}>
+                    <LuCheck size={12} /> Ready
                   </div>
                 </div>
+              ) : (
+                <>
+                  <div className={styles.dropzoneIconBox}>
+                    <LuCloudUpload size={24} />
+                  </div>
+                  <div className={styles.dropzonePrompt}>
+                    Drag &amp; drop your PDF study guide here
+                  </div>
+                  <div className={styles.dropzoneHint}>
+                    or click to browse local files (Strictly .pdf under 5 MB)
+                  </div>
+                </>
               )}
             </div>
           </div>
 
           {/* Note Title */}
-          <div>
-            <label htmlFor="note-title-input" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-              Note Title <span style={{ color: "#ef4444" }}>*</span>
+          <div className={styles.formGroup}>
+            <label htmlFor="note-title-input" className={styles.fieldLabel}>
+              <span>Note Title <span className={styles.reqStar}>*</span></span>
             </label>
             <input
               id="note-title-input"
               type="text"
-              placeholder="e.g. AWS Security for Beginners: Practical Guide to IAM & MFA"
+              placeholder="e.g. Distributed Computing Systems: Unit 1–3 Complete Derivations"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              style={{
-                width: "100%",
-                padding: "0.65rem 0.85rem",
-                borderRadius: "8px",
-                border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                color: "var(--text-primary)",
-                fontSize: "0.9rem",
-              }}
+              className={styles.textInput}
             />
           </div>
 
-          {/* Related Subject & Material Classification */}
-          <div className="cm-grid-2col">
-            <div>
-              <label htmlFor="contribute-subject-input" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                Related Subject / Course <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>(Optional)</span>
+          {/* Subject & Material Classification */}
+          <div className={styles.grid2Col}>
+            <div className={styles.formGroup}>
+              <label htmlFor="contribute-subject-input" className={styles.fieldLabel}>
+                <span>Related Subject</span>
+                <span className={styles.optionalTag}>(Optional)</span>
               </label>
               <input
                 id="contribute-subject-input"
                 type="text"
-                placeholder="e.g. Amazon Web Services (AWS) Certification"
+                placeholder="e.g. Computer Networks (CN)"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                  backgroundColor: "rgba(0, 0, 0, 0.2)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.85rem",
-                }}
+                className={styles.textInput}
               />
-              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginTop: "0.2rem", display: "block" }}>
-                Which university course does this supplement?
+              <span className={styles.inputHelper}>
+                Curriculum subject or course code
               </span>
             </div>
 
-            <div>
-              <label htmlFor="contribute-resource-type" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                Material Classification
+            <div className={styles.formGroup}>
+              <label htmlFor="contribute-resource-type" className={styles.fieldLabel}>
+                <span>Classification</span>
               </label>
               <select
                 id="contribute-resource-type"
                 value={resourceType}
                 onChange={(e) => setResourceType(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.85rem",
-                }}
+                className={styles.selectInput}
               >
                 <option value="supplementary_guide">Supplementary Topic Guide / Practical Reference</option>
                 <option value="chapter_module">Chapter / Unit Notes (Unit 1–2, etc.)</option>
                 <option value="cheatsheet">Quick Revision / Formula Sheet</option>
-                <option value="question_bank">Question Bank & PYQ Solutions</option>
+                <option value="question_bank">Question Bank &amp; PYQ Solutions</option>
                 <option value="lab_manual">Lab Manual / Practical Code Guide</option>
               </select>
-              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginTop: "0.2rem", display: "block" }}>
-                Categorizes how your note appears to students
+              <span className={styles.inputHelper}>
+                Defines display taxonomy for students
               </span>
             </div>
           </div>
 
           {/* University & Branch */}
-          <div className="cm-grid-2col">
-            <div>
-              <label htmlFor="contribute-univ-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                University
+          <div className={styles.grid2Col}>
+            <div className={styles.formGroup}>
+              <label htmlFor="contribute-univ-select" className={styles.fieldLabel}>
+                <span>University</span>
               </label>
               <select
                 id="contribute-univ-select"
                 value={university}
                 onChange={(e) => setUniversity(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.85rem",
-                }}
+                className={styles.selectInput}
               >
                 {UNIVERSITIES.map((u) => (
-                  <option key={u.value} value={u.value}>{u.value}</option>
+                  <option key={u.value} value={u.value}>
+                    {u.value} ({u.abbr})
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div>
-              <label htmlFor="contribute-branch-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                Branch
+            <div className={styles.formGroup}>
+              <label htmlFor="contribute-branch-select" className={styles.fieldLabel}>
+                <span>Engineering Branch</span>
               </label>
-              <BranchSelect id="contribute-branch-select" value={branch} onChange={setBranch} required />
+              <BranchSelect
+                id="contribute-branch-select"
+                value={branch}
+                onChange={setBranch}
+                variant="light"
+                required
+              />
             </div>
           </div>
 
           {/* Semester & Price */}
-          <div className="cm-grid-2col">
-            <div>
-              <label htmlFor="contribute-sem-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                Semester
+          <div className={styles.grid2Col}>
+            <div className={styles.formGroup}>
+              <label htmlFor="contribute-sem-select" className={styles.fieldLabel}>
+                <span>Semester</span>
               </label>
               <select
                 id="contribute-sem-select"
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.85rem",
-                }}
+                className={styles.selectInput}
               >
                 {SEMESTERS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div>
-              <label htmlFor="contribute-price-input" style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                Price (₹0 - Max ₹99)
+            <div className={styles.formGroup}>
+              <label htmlFor="contribute-price-input" className={styles.fieldLabel}>
+                <span>Unlock Price (₹0–₹99)</span>
               </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   id="contribute-price-input"
                   type="number"
@@ -429,86 +382,57 @@ export default function ContributeModal({
                   max="99"
                   value={price}
                   onChange={(e) => setPrice(Math.min(99, Math.max(0, Number(e.target.value) || 0)))}
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                    backgroundColor: "rgba(0, 0, 0, 0.2)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.9rem",
-                  }}
+                  className={styles.textInput}
                 />
-                <span style={{ fontSize: "0.8rem", color: price === 0 ? "#22c55e" : "var(--accent)", fontWeight: 700, minWidth: "45px" }}>
-                  {price === 0 ? "FREE" : `₹${price}`}
-                </span>
               </div>
             </div>
           </div>
 
-          <label style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "0.6rem",
-            fontSize: "0.8rem",
-            color: "var(--text-secondary)",
-            cursor: "pointer",
-            padding: "0.65rem 0.85rem",
-            background: "rgba(255, 255, 255, 0.02)",
-            border: "1px solid var(--border, rgba(255, 255, 255, 0.1))",
-            borderRadius: "8px",
-          }}>
+          {/* Dynamic Revenue Share Ledger Box */}
+          <div className={styles.revenueBox}>
+            <div className={styles.revenueText}>
+              <strong>Author Payout Ledger:</strong> You keep up to <strong>80%–90%</strong> net revenue directly to your UPI ID upon approval.
+            </div>
+            <div className={`${styles.revenueBadge} ${price === 0 ? styles.revenueBadgeFree : ""}`}>
+              {price === 0 ? "FREE COMMUNITY NOTE" : `₹${authorNetEarnings} NET PAYOUT / UNLOCK`}
+            </div>
+          </div>
+
+          {/* Supplementary Disclaimer Checkbox */}
+          <label className={styles.checkboxCard}>
             <input
               type="checkbox"
               checked={isSupplementaryConfirmed}
               onChange={(e) => setIsSupplementaryConfirmed(e.target.checked)}
-              style={{ marginTop: "0.2rem", accentColor: "var(--accent)" }}
+              className={styles.checkboxInput}
             />
-            <span>
-              I confirm this is a <strong>self-prepared supplementary learning resource</strong> created to assist students, and does not misrepresent itself as an official university syllabus note.
+            <span className={styles.checkboxText}>
+              I confirm this is a <strong>self-prepared supplementary study resource</strong> authored to assist engineering students, and does not misrepresent itself as an official university publication.
             </span>
           </label>
 
-          <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0 }}>
-            💡 You will earn <strong>80% of net sales</strong> directly to your saved UPI ID upon admin approval.
-          </p>
-
           {/* Action Buttons */}
-          <div className="cm-action-btns">
+          <div className={styles.modalActions}>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              style={{
-                padding: "0.65rem 1.25rem",
-                borderRadius: "8px",
-                border: "1px solid var(--border, rgba(255, 255, 255, 0.15))",
-                backgroundColor: "transparent",
-                color: "var(--text-primary)",
-                cursor: "pointer",
-                fontSize: "0.875rem",
-              }}
+              className={styles.cancelBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              style={{
-                padding: "0.65rem 1.5rem",
-                borderRadius: "8px",
-                border: "none",
-                backgroundColor: "var(--accent, #f59e0b)",
-                color: "#000",
-                fontWeight: 700,
-                cursor: loading ? "wait" : "pointer",
-                fontSize: "0.875rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
+              className={styles.submitBtn}
             >
-              {loading ? "Submitting..." : "Submit Note"}
+              {loading ? (
+                <>Transmitting Note...</>
+              ) : (
+                <>
+                  <LuCloudUpload size={16} /> Submit for Review
+                </>
+              )}
             </button>
           </div>
         </form>

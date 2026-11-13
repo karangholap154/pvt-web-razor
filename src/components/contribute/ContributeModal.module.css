@@ -1,0 +1,468 @@
+/* ==========================================================================
+   CONTRIBUTOR UPLOAD MODAL MODULE — THE ENGINEER'S NOTEBOOK (DESIGN.md §3.6 & §4.6)
+   ========================================================================== */
+
+/* 1. BACKDROP OVERLAY */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(11, 16, 32, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  animation: backdropFade 0.2s ease-out forwards;
+}
+
+@keyframes backdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 2. THE NOTE SHEET MODAL CARD (§2.5, §3.6) */
+.modalSheet {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  max-height: 92vh;
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 36px 60px -32px rgba(11, 16, 32, 0.4), 0 0 0 1px rgba(11, 16, 32, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: sheetRise 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-sizing: border-box;
+}
+
+@keyframes sheetRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 3. MODAL HEADER */
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 18px 28px;
+  border-bottom: 1px solid var(--line-300, #CDD4E2);
+  background: var(--paper, #F7F8FB);
+}
+
+.headerEyebrow {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue-500, #2447F5);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modalTitle {
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate-600, #4B5565);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: var(--white, #FFFFFF);
+  border-color: var(--ink-900, #0B1020);
+  color: var(--ink-900, #0B1020);
+}
+
+/* 4. SCROLLABLE FORM BODY */
+.modalBody {
+  padding: 24px 28px 28px 28px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* 5. SIGNATURE GRAPH-PAPER PDF DROPZONE (§4.6) */
+.dropzoneLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.specLabel {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-900, #0B1020);
+}
+
+.reqStar {
+  color: #EF4444;
+  margin-left: 2px;
+}
+
+.dropzone {
+  position: relative;
+  width: 100%;
+  padding: 24px 20px;
+  background-color: var(--paper, #F7F8FB);
+  background-image: 
+    linear-gradient(#E1E6F0 1px, transparent 1px), 
+    linear-gradient(90deg, #E1E6F0 1px, transparent 1px);
+  background-size: 24px 24px;
+  border: 2px dashed var(--line-300, #CDD4E2);
+  border-radius: var(--radius-sm, 10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dropzone:hover {
+  border-color: var(--blue-500, #2447F5);
+  background-color: #F0F4FF;
+}
+
+.dropzoneActive {
+  border-color: var(--blue-500, #2447F5);
+  background-color: #EEF2FF;
+  box-shadow: 0 0 0 3px rgba(36, 71, 245, 0.15);
+}
+
+.dropzoneIconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue-500, #2447F5);
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(11, 16, 32, 0.04);
+}
+
+.dropzonePrompt {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+  margin-bottom: 4px;
+}
+
+.dropzoneHint {
+  font-size: 12px;
+  color: var(--slate-600, #4B5565);
+}
+
+/* File Selected Preview State */
+.fileReadyCard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--white, #FFFFFF);
+  border: 1px solid #10B981;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.fileIconBox {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10B981;
+  flex-shrink: 0;
+}
+
+.fileName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileMeta {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  color: #10B981;
+  font-weight: 600;
+}
+
+.readyBadge {
+  margin-left: auto;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 4px;
+  color: #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 6. FORM FIELDS & SPEC INPUTS */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-900, #0B1020);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.optionalTag {
+  font-size: 10px;
+  color: var(--slate-600, #4B5565);
+  font-weight: 400;
+}
+
+.textInput, .selectInput {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 14px;
+  color: var(--ink-900, #0B1020);
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.textInput:focus, .selectInput:focus {
+  border-color: var(--blue-500, #2447F5);
+  box-shadow: 0 0 0 3px rgba(36, 71, 245, 0.12);
+}
+
+.inputHelper {
+  font-size: 11px;
+  color: var(--slate-600, #4B5565);
+  margin-top: 4px;
+}
+
+.grid2Col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* 7. DYNAMIC REVENUE SHARE INDICATOR */
+.revenueBox {
+  background: var(--paper, #F7F8FB);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-left: 3px solid var(--blue-500, #2447F5);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.revenueText {
+  font-size: 13px;
+  color: var(--ink-900, #0B1020);
+}
+
+.revenueBadge {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--white, #FFFFFF);
+  border: 1px solid var(--line-300, #CDD4E2);
+  color: var(--blue-500, #2447F5);
+  white-space: nowrap;
+}
+
+.revenueBadgeFree {
+  color: #10B981;
+  border-color: #10B981;
+}
+
+/* 8. SUPPLEMENTARY CONFIRMATION CHECKBOX */
+.checkboxCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--paper, #F7F8FB);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.checkboxInput {
+  margin-top: 2px;
+  accent-color: var(--blue-500, #2447F5);
+  cursor: pointer;
+}
+
+.checkboxText {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--slate-600, #4B5565);
+}
+
+.checkboxText strong {
+  color: var(--ink-900, #0B1020);
+}
+
+/* 9. MODAL ACTIONS */
+.modalActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-300, #CDD4E2);
+}
+
+.cancelBtn {
+  height: 42px;
+  padding: 0 18px;
+  background: var(--paper, #F7F8FB);
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-sm, 8px);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-900, #0B1020);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: var(--white, #FFFFFF);
+  border-color: var(--ink-900, #0B1020);
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 22px;
+  background: var(--ink-900, #0B1020);
+  border: 1px solid var(--ink-900, #0B1020);
+  border-radius: var(--radius-sm, 8px);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white, #FFFFFF);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--blue-500, #2447F5);
+  border-color: var(--blue-500, #2447F5);
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* 10. RESPONSIVE BREAKPOINT (<640px) */
+@media (max-width: 640px) {
+  .modalHeader {
+    padding: 18px 20px 14px 20px;
+  }
+
+  .modalBody {
+    padding: 18px 20px 24px 20px;
+  }
+
+  .grid2Col {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .cancelBtn, .submitBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}

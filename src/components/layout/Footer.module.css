@@ -1,0 +1,298 @@
+.footer {
+  width: 100%;
+  max-width: 100vw;
+  background-color: var(--paper, #F7F8FB);
+  border-top: 1px solid var(--line-300, #CDD4E2);
+  padding: 80px 0 40px 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-container, 1200px);
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+/* --- Social Channels Strip --- */
+.socialStrip {
+  margin-bottom: 56px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--line-300, #CDD4E2);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.socialLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4A5468);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.socialPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.socialPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--line-300, #CDD4E2);
+  background-color: var(--white, #FFFFFF);
+  color: var(--ink-900, #0B1020);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.socialPill:hover {
+  border-color: var(--ink-900, #0B1020);
+  transform: translateY(-1px);
+}
+
+.socialPillDark {
+  background-color: var(--ink-900, #0B1020);
+  border-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+}
+
+.socialPillDark:hover {
+  background-color: var(--ink-700, #1B2540);
+  border-color: var(--ink-700, #1B2540);
+}
+
+/* --- 3 Columns Grid --- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 32px;
+  margin-bottom: 64px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.brandCol {
+  grid-column: span 12;
+  min-width: 0;
+}
+
+.linksCol {
+  grid-column: span 6;
+  min-width: 0;
+}
+
+.linksColWide {
+  grid-column: span 12;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .brandCol {
+    grid-column: span 4;
+  }
+  .linksCol {
+    grid-column: span 2;
+  }
+  .linksColWide {
+    grid-column: span 4;
+  }
+}
+
+.colHeader {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-900, #0B1020);
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink-900, #0B1020);
+  display: inline-block;
+}
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.linkItem a {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 15px;
+  color: var(--slate-600, #4A5468);
+  text-decoration: none;
+  transition: color 150ms ease;
+  word-break: break-word;
+}
+
+.linkItem a:hover {
+  color: var(--blue-500, #2447F5);
+}
+
+.brandTagline {
+  font-size: 14px;
+  color: var(--slate-600, #4A5468);
+  line-height: 1.6;
+  margin-top: 14px;
+  max-width: 320px;
+}
+
+.statusRow {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--success, #0F7B4F);
+  box-shadow: 0 0 8px rgba(15, 123, 79, 0.45);
+  flex-shrink: 0;
+}
+
+.statusLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4A5468);
+}
+
+.supportEmail {
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+}
+
+.locationText {
+  color: var(--slate-600, #4A5468);
+  font-size: 14px;
+}
+
+.rssLink {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--blue-500, #2447F5);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.rssLink:hover {
+  color: var(--blue-600, #1B38D1);
+}
+
+/* --- Giant Wordmark (Cropped, Display 800, DESIGN.md §3.15) --- */
+.wordmarkWrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  margin-top: 48px;
+  margin-bottom: 24px;
+}
+
+.giantWordmark {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: 150px;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--line-200, #E3E8F1);
+  white-space: nowrap;
+  display: block;
+}
+
+/* --- Copyright Bottom Bar --- */
+.bottomBar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-300, #CDD4E2);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--slate-600, #4A5468);
+  word-break: break-word;
+}
+
+@media (min-width: 640px) {
+  .bottomBar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.bottomLink {
+  color: var(--ink-900, #0B1020);
+  text-decoration: none;
+}
+
+.bottomLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+  .giantWordmark {
+    font-size: clamp(80px, 12vw, 130px);
+  }
+}
+
+@media (max-width: 640px) {
+  .footer {
+    padding: 56px 0 32px 0;
+  }
+  .container {
+    padding: 0 16px;
+  }
+  .socialStrip {
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+  }
+  .socialPill {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .grid {
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  .giantWordmark {
+    font-size: 64px;
+    line-height: 1.0;
+    white-space: normal;
+    letter-spacing: -0.03em;
+  }
+}
+
+@media (max-width: 480px) {
+  .linksCol {
+    grid-column: span 12;
+  }
+}

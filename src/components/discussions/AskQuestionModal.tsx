@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaXmark } from "react-icons/fa6";
+import { LuX, LuSend } from "react-icons/lu";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
 import BranchSelect from "@/components/ui/BranchSelect";
@@ -34,6 +34,25 @@ export default function AskQuestionModal({
 
   // Available notes for dropdown
   const [availableNotes, setAvailableNotes] = useState<{ id: string; title: string }[]>([]);
+
+  // Close on Escape & Lock body scroll
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (isOpen && userUniversity) {
@@ -108,106 +127,181 @@ export default function AskQuestionModal({
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div
+      className={styles.modalBackdrop}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ask-question-title"
+    >
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Ask a Doubt / Start Discussion 💬</h2>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
-            <FaXmark />
+          <div className={styles.modalHeaderContent}>
+            <h2 id="ask-question-title" className={styles.modalTitle}>
+              <span>Ask a Question</span>
+              <span aria-hidden="true" style={{ fontSize: "16px" }}>💬</span>
+            </h2>
+            <p className={styles.modalSubtitle}>
+              Post a doubt, share code snippets, or start an academic discussion with peers.
+            </p>
+          </div>
+          <button
+            type="button"
+            className={styles.modalCloseBtn}
+            onClick={onClose}
+            aria-label="Close modal"
+          >
+            <LuX size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Question Title *</label>
-            <input
-              type="text"
-              className={styles.formInput}
-              placeholder="e.g., How to solve Page 12 Differential Equation in Data Structures?"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className={styles.formGridTwoCol}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Branch *</label>
-              <BranchSelect value={branch} onChange={setBranch} required />
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+          <div className={styles.modalBody}>
+            {/* Title */}
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <span>Question Title</span>
+                <span style={{ color: "#E02424" }}>*</span>
+              </label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="e.g., How to solve differential equations in Page 12 of notes?"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                autoFocus
+              />
+              <span className={styles.formHint}>
+                Keep it clear and specific so classmates can recognize the topic immediately.
+              </span>
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Semester *</label>
-              <select className={styles.formSelect} value={semester} onChange={(e) => setSemester(e.target.value)}>
-                <option value="Semester 1">Semester 1</option>
-                <option value="Semester 2">Semester 2</option>
-                <option value="Semester 3">Semester 3</option>
-                <option value="Semester 4">Semester 4</option>
-                <option value="Semester 5">Semester 5</option>
-                <option value="Semester 6">Semester 6</option>
-                <option value="Semester 7">Semester 7</option>
-                <option value="Semester 8">Semester 8</option>
+            {/* Branch & Semester */}
+            <div className={styles.formGridTwoCol}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <span>Branch</span>
+                  <span style={{ color: "#E02424" }}>*</span>
+                </label>
+                <BranchSelect
+                  value={branch}
+                  onChange={setBranch}
+                  variant="light"
+                  required
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <span>Semester</span>
+                  <span style={{ color: "#E02424" }}>*</span>
+                </label>
+                <select
+                  className={styles.formSelect}
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                  required
+                >
+                  <option value="Semester 1">Semester 1</option>
+                  <option value="Semester 2">Semester 2</option>
+                  <option value="Semester 3">Semester 3</option>
+                  <option value="Semester 4">Semester 4</option>
+                  <option value="Semester 5">Semester 5</option>
+                  <option value="Semester 6">Semester 6</option>
+                  <option value="Semester 7">Semester 7</option>
+                  <option value="Semester 8">Semester 8</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Content / Details */}
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <span>Doubt Details & Context</span>
+                <span style={{ color: "#E02424" }}>*</span>
+              </label>
+              <textarea
+                className={styles.formTextarea}
+                placeholder="Explain what concept, question, or step you need help with. You can include problem statements, what you've tried, or paste code snippets..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={4}
+                required
+              />
+              <span className={styles.formHint}>
+                Detailed context yields faster, higher quality answers from peers.
+              </span>
+            </div>
+
+            {/* Link Note (Optional) */}
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <span>Link Note from Library</span>
+                <span className={styles.formLabelOptional}>Optional</span>
+              </label>
+              <select
+                className={styles.formSelect}
+                value={selectedNoteId}
+                onChange={(e) => setSelectedNoteId(e.target.value)}
+              >
+                <option value="">-- No Note Linked --</option>
+                {availableNotes.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    📄 {n.title}
+                  </option>
+                ))}
               </select>
+              <span className={styles.formHint}>
+                Associates your question directly with a syllabus resource in your university.
+              </span>
+            </div>
+
+            {/* Tags */}
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <span>Tags</span>
+                <span className={styles.formLabelOptional}>Optional</span>
+              </label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="e.g. calculus, assignment, midterms, lab"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+              />
+              <span className={styles.formHint}>
+                Comma-separated keywords to help index your question in search filters.
+              </span>
             </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Doubt Details & Context (Text / Code) *</label>
-            <textarea
-              className={styles.formTextarea}
-              placeholder="Explain what concept or question you are stuck on. You can paste code snippets or math formulas..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Link a Note from Library (Optional)</label>
-            <select
-              className={styles.formSelect}
-              value={selectedNoteId}
-              onChange={(e) => setSelectedNoteId(e.target.value)}
-            >
-              <option value="">-- No Note Linked --</option>
-              {availableNotes.map((n) => (
-                <option key={n.id} value={n.id}>
-                  📄 {n.title}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Tags (Comma separated, optional)</label>
-            <input
-              type="text"
-              className={styles.formInput}
-              placeholder="e.g. pyq, exam, math, lab"
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "0.5rem" }}>
+          <div className={styles.modalFooter}>
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: "0.65rem 1.25rem",
-                background: "transparent",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: "8px",
-                color: "#94a3b8",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
+              className={styles.btnSecondary}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
 
-            <button type="submit" className={styles.btnPrimary} disabled={isSubmitting}>
-              {isSubmitting ? "Posting..." : "Post Discussion"}
+            <button
+              type="submit"
+              className={styles.btnPrimary}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className={styles.spinner} />
+                  <span>Posting...</span>
+                </>
+              ) : (
+                <>
+                  <LuSend size={14} />
+                  <span>Post Discussion</span>
+                </>
+              )}
             </button>
           </div>
         </form>

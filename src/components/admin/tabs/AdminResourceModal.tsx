@@ -199,7 +199,7 @@ export default function AdminResourceModal({
                 <div className={styles.formGrid}>
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Branch</label>
-                    <BranchSelect value={noteBranch} onChange={setNoteBranch} required />
+                    <BranchSelect value={noteBranch} onChange={setNoteBranch} variant="light" required />
                   </div>
 
                   <div className={styles.inputGroup}>
@@ -257,7 +257,7 @@ export default function AdminResourceModal({
                       <label
                         htmlFor="pdf-upload-file-input"
                         style={{
-                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          backgroundColor: "#F7F8FB",
                           border: "1px solid var(--border)",
                           borderRadius: "var(--radius-sm)",
                           color: "var(--text-primary)",
@@ -371,7 +371,7 @@ export default function AdminResourceModal({
                 <div className={styles.formGrid}>
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Branch</label>
-                    <BranchSelect value={projectBranch} onChange={setProjectBranch} required />
+                    <BranchSelect value={projectBranch} onChange={setProjectBranch} variant="light" required />
                   </div>
 
                   <div className={styles.inputGroup}>

@@ -1,0 +1,985 @@
+/* ==========================================================================
+   ABOUT PAGE — THE PLATFORM & FOUNDER STORY (DESIGN.md Section 4.11)
+   ========================================================================== */
+
+.pageWrapper {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--paper, #F7F8FB);
+  color: var(--ink-900, #0B1020);
+  padding: 40px 0 90px 0;
+  box-sizing: border-box;
+}
+
+.mainContainer {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+/* ==========================================================================
+   HERO SECTION
+   ========================================================================== */
+
+.heroSection {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.tagBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background-color: var(--blue-50, #EEF2FF);
+  color: var(--blue-500, #2447F5);
+  border: 1px solid var(--blue-300, #A3BFFA);
+  width: fit-content;
+}
+
+.heroTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: clamp(28px, 4.5vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.18;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+  max-width: 820px;
+}
+
+.titleHighlight {
+  background: linear-gradient(transparent 56%, #FFE14D 56% 94%, transparent 94%);
+  padding: 0 0.05em;
+}
+
+.heroSubtitle {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 15.5px;
+  color: var(--slate-600, #4A5468);
+  margin: 0;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   STATS STRIP
+   ========================================================================== */
+
+.statsStrip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-xl, 18px);
+  box-shadow: 0 4px 16px rgba(11, 16, 32, 0.04);
+  overflow: hidden;
+}
+
+.statCell {
+  padding: 24px 20px;
+  text-align: center;
+  border-right: 1px solid var(--line-200, #E3E8F1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statCell:last-child {
+  border-right: none;
+}
+
+.statNumber {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  line-height: 1.15;
+}
+
+.statLabel {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-600, #4A5468);
+}
+
+/* ==========================================================================
+   STORY SECTION (TWO COLUMNS WITH STACKED SHEETS)
+   ========================================================================== */
+
+.storySection {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.storyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eyebrowTag {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--blue-500, #2447F5);
+}
+
+.sectionTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.sectionDesc {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14.5px;
+  color: var(--slate-600, #4A5468);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* Stacked Notebook Sheets Graphic */
+.stackedSheetsContainer {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  perspective: 1000px;
+  cursor: pointer;
+  animation: containerFloat 7s ease-in-out infinite;
+  transition: transform 0.35s ease;
+}
+
+@keyframes containerFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.stackedSheetsContainer:hover {
+  animation-play-state: paused;
+}
+
+.sheetBack {
+  position: absolute;
+  inset: 0;
+  background-color: #EBF0FA;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  transform: rotate(-3.5deg) translate(-8px, -4px);
+  z-index: 1;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease, border-color 0.3s ease;
+  will-change: transform;
+}
+
+.sheetMiddle {
+  position: absolute;
+  inset: 0;
+  background-color: #F0F4FC;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  transform: rotate(2deg) translate(6px, 4px);
+  z-index: 2;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease, border-color 0.3s ease;
+  will-change: transform;
+}
+
+.sheetFront {
+  position: relative;
+  z-index: 3;
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 28px 24px;
+  box-shadow: 0 16px 36px -12px rgba(11, 16, 32, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease, border-color 0.3s ease;
+  will-change: transform, box-shadow;
+}
+
+/* Hover Fan-out & Elevation Lift */
+.stackedSheetsContainer:hover .sheetBack {
+  transform: rotate(-7deg) translate(-16px, -8px);
+  box-shadow: -6px 14px 28px -6px rgba(11, 16, 32, 0.08);
+  border-color: #BAC7DE;
+}
+
+.stackedSheetsContainer:hover .sheetMiddle {
+  transform: rotate(5.5deg) translate(16px, 8px);
+  box-shadow: 6px 14px 28px -6px rgba(11, 16, 32, 0.08);
+  border-color: #BAC7DE;
+}
+
+.stackedSheetsContainer:hover .sheetFront {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 24px 48px -12px rgba(11, 16, 32, 0.18), 0 0 0 1px var(--blue-500, #2447F5);
+}
+
+.stackedSheetsContainer:active .sheetFront {
+  transform: translateY(-2px) scale(0.995);
+  box-shadow: 0 12px 28px -8px rgba(11, 16, 32, 0.14);
+}
+
+.sheetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--line-200, #E3E8F1);
+  padding-bottom: 12px;
+}
+
+.sheetMonoMeta {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--slate-400, #94A3B8);
+  letter-spacing: 0.05em;
+}
+
+.sheetQuote {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.sheetHighlightBox {
+  padding: 12px 14px;
+  background-color: #FFFDF0;
+  border: 1px solid #FFE14D;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.stackedSheetsContainer:hover .sheetHighlightBox {
+  border-color: #F59E0B;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.18);
+  transform: translateY(-1px);
+}
+
+.sheetHighlightLabel {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #B45309;
+}
+
+.sheetHighlightText {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ==========================================================================
+   CORE VALUES (BENTO STYLE 4 CELLS)
+   ========================================================================== */
+
+.valuesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.valuesHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.valueCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 10px rgba(11, 16, 32, 0.02);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.valueCard:hover {
+  border-color: var(--slate-400, #94A3B8);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -10px rgba(11, 16, 32, 0.08);
+}
+
+.valueIconBadge {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.valueTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.valueDesc {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13.5px;
+  color: var(--slate-600, #4A5468);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ==========================================================================
+   ACADEMIC COVERAGE: UNIVERSITIES & BRANCHES
+   ========================================================================== */
+
+.coverageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.universitiesBlock,
+.branchesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.subSectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subSectionTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.subSectionSubtitle {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13.5px;
+  color: var(--slate-600, #4A5468);
+  margin: 0;
+}
+
+.universitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.uniCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-md, 10px);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 2px 6px rgba(11, 16, 32, 0.02);
+  transition: all 150ms ease;
+}
+
+.uniCard:hover {
+  border-color: var(--blue-500, #2447F5);
+  box-shadow: 0 4px 12px rgba(36, 71, 245, 0.06);
+}
+
+.uniInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.uniName {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uniRegion {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  color: var(--slate-400, #94A3B8);
+}
+
+.uniAbbrBadge {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background-color: var(--blue-50, #EEF2FF);
+  color: var(--blue-600, #1D39C4);
+  border: 1px solid var(--blue-300, #A3BFFA);
+  flex-shrink: 0;
+}
+
+.branchesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.branchPill {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  color: var(--slate-600, #4A5468);
+  text-decoration: none;
+  transition: all 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.branchPill:hover {
+  background-color: var(--blue-50, #EEF2FF);
+  border-color: var(--blue-500, #2447F5);
+  color: var(--blue-600, #1D39C4);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   KEY FEATURES & PLATFORM PILLARS
+   ========================================================================== */
+
+.featuresSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.featureRow {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-md, 10px);
+  padding: 18px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px rgba(11, 16, 32, 0.02);
+}
+
+.featureIconWrap {
+  color: var(--blue-500, #2447F5);
+  background-color: var(--blue-50, #EEF2FF);
+  border: 1px solid var(--blue-300, #A3BFFA);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.featureContent {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.featureTitle {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.featureDesc {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  color: var(--slate-600, #4A5468);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   FOUNDER DOSSIER CARD (DESIGN.md 4.11)
+   ========================================================================== */
+
+.founderSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.founderCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-xl, 18px);
+  padding: 32px;
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(11, 16, 32, 0.04);
+}
+
+.founderAvatarCircle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  border: 2px solid var(--blue-300, #A3BFFA);
+  color: var(--blue-600, #1D39C4);
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 8px 16px -4px rgba(36, 71, 245, 0.15);
+}
+
+.founderBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.founderHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.founderName {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.founderRole {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--blue-500, #2447F5);
+}
+
+.founderBio {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--slate-600, #4A5468);
+  margin: 0;
+}
+
+.founderSocialsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.socialPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-md, 10px);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  background-color: var(--paper, #F7F8FB);
+  border: 1px solid var(--line-300, #CDD4E2);
+  color: var(--ink-900, #0B1020);
+  text-decoration: none;
+  transition: all 150ms ease;
+}
+
+.socialPill:hover {
+  background-color: #FFFFFF;
+  border-color: var(--blue-500, #2447F5);
+  color: var(--blue-600, #1D39C4);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   FAQ ACCORDION
+   ========================================================================== */
+
+.faqSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-md, 10px);
+  overflow: hidden;
+  transition: border-color 150ms ease;
+}
+
+.faqItem:hover {
+  border-color: var(--slate-400, #94A3B8);
+}
+
+.faqQuestionBtn {
+  width: 100%;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink-900, #0B1020);
+}
+
+.faqChevron {
+  color: var(--slate-400, #94A3B8);
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+}
+
+.faqChevronOpen {
+  transform: rotate(180deg);
+  color: var(--blue-500, #2447F5);
+}
+
+.faqAnswerText {
+  padding: 0 20px 18px 20px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13.5px;
+  color: var(--slate-600, #4A5468);
+  line-height: 1.6;
+  margin: 0;
+  border-top: 1px solid var(--line-200, #E3E8F1);
+  padding-top: 12px;
+}
+
+/* ==========================================================================
+   CONTACT / SUPPORT CTA
+   ========================================================================== */
+
+.contactBanner {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-xl, 18px);
+  padding: 36px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(11, 16, 32, 0.03);
+}
+
+.contactTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: clamp(22px, 3.5vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink-900, #0B1020);
+  margin: 0;
+}
+
+.contactText {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  color: var(--slate-600, #4A5468);
+  max-width: 540px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.contactActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--ink-900, #0B1020);
+  color: #FFFFFF;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--ink-900, #0B1020);
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btnPrimary:hover {
+  background-color: #1A2338;
+  transform: translateY(-1px);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-md, 10px);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btnSecondary:hover {
+  background-color: var(--paper, #F7F8FB);
+  border-color: var(--slate-400, #94A3B8);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================================================== */
+
+@media (max-width: 860px) {
+  .storySection {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .stackedSheetsContainer {
+    max-width: 100%;
+  }
+
+  .valuesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .universitiesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pageWrapper {
+    padding: 24px 0 60px 0;
+  }
+
+  .mainContainer {
+    padding: 0 16px;
+    gap: 36px;
+  }
+
+  .heroTitle {
+    font-size: clamp(24px, 6vw, 28px);
+  }
+
+  .heroSubtitle {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .statsStrip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statCell {
+    padding: 16px 12px;
+  }
+
+  .statCell:nth-child(2) {
+    border-right: none;
+  }
+
+  .statCell:nth-child(1),
+  .statCell:nth-child(2) {
+    border-bottom: 1px solid var(--line-200, #E3E8F1);
+  }
+
+  .statNumber {
+    font-size: 26px;
+  }
+
+  .statLabel {
+    font-size: 10.5px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .universitiesGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .founderCard {
+    padding: 20px 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .founderHeader {
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .founderSocialsRow {
+    justify-content: center;
+  }
+
+  .contactBanner {
+    padding: 24px 16px;
+  }
+
+  .contactActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .mainContainer {
+    padding: 0 10px;
+  }
+
+  .sheetFront {
+    padding: 20px 14px;
+  }
+
+  .statCell {
+    padding: 12px 8px;
+  }
+
+  .statNumber {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stackedSheetsContainer {
+    animation: none !important;
+  }
+
+  .sheetBack,
+  .sheetMiddle,
+  .sheetFront,
+  .sheetHighlightBox {
+    transition: none !important;
+  }
+}
+

@@ -5,17 +5,31 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import styles from "../../app/page.module.css";
+import styles from "./HomeContent.module.css";
 import { Note } from "../../data/mockData";
 import { downloadNotePdf } from "@/utils/download";
 import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
 import { useRazorpayCheckout } from "@/hooks/useRazorpayCheckout";
-import LoginGate from "../landing/LoginGate";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
 import BannedGate from "../landing/BannedGate";
 import NotesCatalog from "./NotesCatalog";
-import { FaChevronRight } from "react-icons/fa6";
+import { 
+  LuSearch, 
+  LuArrowRight, 
+  LuPlay, 
+  LuFileText, 
+  LuDownload, 
+  LuSparkles, 
+  LuUsers, 
+  LuX, 
+  LuShieldCheck, 
+  LuZap, 
+  LuBookOpen,
+  LuLock,
+  LuCheck,
+  LuMessageSquare
+} from "react-icons/lu";
 
 interface HomeContentProps {
   initialNotes?: Note[];
@@ -23,13 +37,25 @@ interface HomeContentProps {
   catalogMode?: "official" | "community" | "all";
 }
 
-export default function HomeContent({ initialNotes = [], initialMeta = [], catalogMode = "all" }: HomeContentProps) {
+export default function HomeContent({ 
+  initialNotes = [], 
+  initialMeta = [], 
+  catalogMode = "all" 
+}: HomeContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const unlockNoteId = searchParams.get("unlock");
 
   // Consume global authentication state
-  const { authState, email: userEmail, username: userUsername, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
+  const { 
+    authState, 
+    email: userEmail, 
+    username: userUsername, 
+    university: userUniversity, 
+    defaultBranch, 
+    defaultSemester, 
+    refreshAuth 
+  } = useAuth();
 
   // Live database states
   const [metaNotes, setMetaNotes] = useState<{ id: string; title: string; branch: string; semester: string; university?: string }[]>(initialMeta);
@@ -48,7 +74,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     return Array.from(set).sort();
   }, [metaNotes]);
 
-  // Search state (initialized in useEffect based on preferences)
+  // Finder & Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
@@ -63,7 +89,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
   const [selectedSemester, setSelectedSemester] = useState("All semesters");
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Modal state
+  // Modal states
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [modalType, setModalType] = useState<"video" | "pdf" | null>(null);
 
@@ -102,7 +128,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     }
   }, [searchParams]);
 
-  // Set default filters when auth state is ready or preferences change (if not overridden by URL params)
+  // Set default filters when auth state is ready or preferences change
   useEffect(() => {
     if (authState === "ready") {
       if (defaultBranch && !searchParams.get("branch")) setSelectedBranch(defaultBranch);
@@ -112,7 +138,7 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
 
   // ── Fetch server-side filtered notes via /api/notes ─────────────────────
   useEffect(() => {
-    // For unauthenticated visitors on default initial load, use pre-rendered initialNotes to preserve Supabase free tier bandwidth
+    // For unauthenticated visitors on default initial load, use pre-rendered initialNotes to preserve Supabase bandwidth
     if (
       authState === "unauthenticated" &&
       selectedUniv === "All universities" &&
@@ -177,7 +203,6 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     loadData();
   }, [authState, userUniversity, selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta, catalogMode]);
 
-  // Server pre-filters notes, so filteredNotes simply references state notes
   const filteredNotes = notes;
 
   const handleClearFilters = () => {
@@ -187,11 +212,10 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     setSelectedSemester("All semesters");
   };
 
-
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      action();
+  const scrollToCatalog = () => {
+    const el = document.getElementById("notes-catalog");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -258,185 +282,218 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
   };
 
 
+  // Finder Card university selection options as per DESIGN.md Section 4.1
+  const finderUniversities = useMemo(() => {
+    return [
+      { label: "ALL", value: "All universities" },
+      { label: "MU", value: "Mumbai University" },
+      { label: "SPPU", value: "SPPU (Pune)" },
+      { label: "DBATU", value: "DBATU" },
+      { label: "RTMNU", value: "RTMNU (Nagpur)" },
+      { label: "AU", value: "Amravati University" },
+      { label: "SUK", value: "Shivaji University" },
+    ];
+  }, []);
+
+  // Auth gate fallbacks
   if (authState === "loading") {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ width: "36px", height: "36px", border: "3px solid rgba(255,255,255,0.08)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Loading Private Academy...</p>
+        <div style={{ width: "36px", height: "36px", border: "3px solid var(--line-300, #CDD4E2)", borderTopColor: "var(--blue-500, #2447F5)", borderRadius: "50%", animation: "spin 0.9s linear infinite" }} />
+        <p style={{ color: "var(--slate-600, #4A5468)", fontSize: "0.9rem", fontFamily: "var(--font-mono), monospace" }}>Loading Private Academy...</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
+  if (authState === "banned") {
+    return <BannedGate email={userEmail} onSignOut={async () => { await refreshAuth(); }} />;
+  }
+
+  if (authState === "no-username") {
+    return <UsernameGate email={userEmail} onComplete={async () => { await refreshAuth(); }} />;
+  }
+
+  if (authState === "no-university") {
+    return <UniversityGate onSelect={async () => { await refreshAuth(); }} />;
+  }
+
+  // Common Modals (Checkout & PDF / Video)
   const renderModals = () => (
     <>
       {/* Checkout Modal */}
       {showCheckoutPrompt && checkoutNote && (
-        <div className={styles.modalBackdrop} onClick={() => setShowCheckoutPrompt(false)} id="checkout-backdrop">
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="checkout-modal-content">
+        <div className={styles.modalBackdrop} onClick={() => setShowCheckoutPrompt(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle} style={{ maxWidth: "85%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                Unlock: {checkoutNote.title}
-              </h3>
-              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.modalCloseBtn} id="btn-close-checkout">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+              <h3 className={styles.modalTitle}>Unlock Study Note</h3>
+              <button 
+                onClick={() => setShowCheckoutPrompt(false)} 
+                className={styles.modalCloseBtn}
+                aria-label="Close unlock modal"
+              >
+                <LuX size={18} />
               </button>
             </div>
             <div className={styles.modalBody}>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{checkoutNote.title}</h4>
+              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--ink-900, #0B1020)", margin: 0 }}>
+                {checkoutNote.title}
+              </h4>
               {!userEmail ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
-                    Sign in with your account to purchase or access your unlocked study materials.
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <p style={{ color: "var(--slate-600, #4A5468)", fontSize: "14px", lineHeight: 1.5, margin: 0 }}>
+                    Sign in with your account to purchase and permanently access this note.
                   </p>
                   <Link
                     href={`/login?redirect=/?unlock=${checkoutNote.id}`}
-                    className={styles.btnPrimary}
+                    className={styles.btnBannerDark}
                     style={{ justifyContent: "center", textDecoration: "none" }}
-                    id="btn-login-to-purchase"
                   >
                     Sign in to unlock
                   </Link>
                 </div>
               ) : (
                 <>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                    This is a premium resource. Verify your past purchase or unlock instant access for <strong>₹{checkoutNote.price}</strong>.
+                  <p style={{ color: "var(--slate-600, #4A5468)", fontSize: "14px", margin: 0 }}>
+                    Instant unlock for <strong style={{ color: "var(--ink-900, #0B1020)" }}>₹{checkoutNote.price}</strong> via UPI or Card.
                   </p>
-                  <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "0.5rem" }} id="checkout-form">
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      <label htmlFor="checkout-email" style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>Account Profile Email</label>
+                  <form onSubmit={handleCheckoutSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label htmlFor="checkout-email" style={{ fontSize: "12px", fontFamily: "var(--font-mono), monospace", fontWeight: 600, textTransform: "uppercase", color: "var(--slate-600, #4A5468)" }}>
+                        Session Account Email
+                      </label>
                       <input
                         type="email"
                         id="checkout-email"
                         required
                         value={checkoutEmail}
-                        onChange={(e) => setCheckoutEmail(e.target.value)}
                         disabled={true}
-                        style={{ 
-                          width: "100%", 
-                          backgroundColor: "var(--background)", 
-                          border: "1px solid var(--border)", 
-                          borderRadius: "var(--radius-sm)", 
-                          color: "var(--text-primary)", 
-                          padding: "0.75rem 1rem", 
-                          fontFamily: "var(--font-sans)", 
-                          outline: "none", 
-                          opacity: 0.75 
+                        style={{
+                          width: "100%",
+                          backgroundColor: "var(--paper, #F7F8FB)",
+                          border: "1px solid var(--line-300, #CDD4E2)",
+                          borderRadius: "var(--radius-md, 10px)",
+                          color: "var(--ink-900, #0B1020)",
+                          padding: "10px 14px",
+                          fontFamily: "var(--font-sans), sans-serif",
+                          fontSize: "14px",
+                          outline: "none",
+                          opacity: 0.85
                         }}
                       />
-                      <span style={{ fontSize: "0.75rem", color: "var(--accent)", fontWeight: 600 }}>Logged in session email</span>
                     </div>
                     <button
                       type="submit"
-                      className={styles.btnPrimary}
+                      className={styles.btnBannerDark}
                       disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
-                      style={{ justifyContent: "center", marginTop: "0.25rem" }}
-                      id="btn-trigger-payment-flow"
+                      style={{ justifyContent: "center", marginTop: "4px" }}
                     >
-                      {checkoutStatus === "verifying" && "Checking your purchase..."}
-                      {checkoutStatus === "paying" && "Opening payment..."}
+                      {checkoutStatus === "verifying" && "Checking previous purchase..."}
+                      {checkoutStatus === "paying" && "Connecting to payment gateway..."}
                       {checkoutStatus === "idle" && `Unlock for ₹${checkoutNote.price}`}
                     </button>
                     {activeOrderId && (
-                      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <button
-                          type="button"
-                          onClick={handleSyncPayment}
-                          disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
-                          className={styles.btnSecondary}
-                          style={{ width: "100%", border: "1px dashed var(--accent)", justifyContent: "center" }}
-                          id="btn-sync-payment"
-                        >
-                          {checkoutStatus === "verifying" ? "Connecting..." : "Already paid? Recover access"}
-                        </button>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
-                          Paid but can&apos;t access? This will reconnect your payment.
-                        </span>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSyncPayment}
+                        disabled={checkoutStatus === "verifying" || checkoutStatus === "paying"}
+                        className={styles.btnBannerWhite}
+                        style={{ width: "100%", justifyContent: "center", fontSize: "13px" }}
+                      >
+                        {checkoutStatus === "verifying" ? "Connecting..." : "Already paid? Reconnect access"}
+                      </button>
                     )}
                   </form>
                 </>
               )}
             </div>
             <div className={styles.modalFooter}>
-              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.btnSecondary} id="btn-close-checkout-footer">Cancel</button>
+              <button onClick={() => setShowCheckoutPrompt(false)} className={styles.btnBannerWhite}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Video / PDF Modal */}
+      {/* Video / PDF Download Modal */}
       {modalType && selectedNote && (
-        <div className={styles.modalBackdrop} onClick={closeModal} id="modal-backdrop">
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} id="modal-content-container">
+        <div className={styles.modalBackdrop} onClick={closeModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3 className={styles.modalTitle}>
-                {modalType === "video" && "Video Walkthrough"}
-                {modalType === "pdf" && "Download PDF File"}
+                {modalType === "video" && "Video Tutorial Walkthrough"}
+                {modalType === "pdf" && "Download PDF Study Sheet"}
               </h3>
-              <button onClick={closeModal} className={styles.modalCloseBtn} id="btn-close-modal">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+              <button onClick={closeModal} className={styles.modalCloseBtn} aria-label="Close modal">
+                <LuX size={18} />
               </button>
             </div>
 
             <div className={styles.modalBody}>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <span className={styles.tagBranch}>{selectedNote.branch}</span>
-                <span className={styles.badgeSemester}>{selectedNote.semester}</span>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <span className={styles.bentoMiniTag}>{selectedNote.branch}</span>
+                <span className={styles.bentoMiniTag}>{selectedNote.semester}</span>
               </div>
-              <h4 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>{selectedNote.title}</h4>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.5 }}>{selectedNote.description}</p>
+              <h4 style={{ fontSize: "16px", fontWeight: 800, color: "var(--ink-900, #0B1020)", margin: 0 }}>
+                {selectedNote.title}
+              </h4>
 
-              {modalType === "video" && (
-                <div className={styles.videoWrapper} id="video-preview-iframe">
+              {modalType === "video" && selectedNote.videoUrl && (
+                <div className={styles.videoWrapper}>
                   <iframe
                     src={selectedNote.videoUrl}
                     title={`${selectedNote.title} Video Walkthrough`}
                     frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                  ></iframe>
+                  />
                 </div>
               )}
 
               {modalType === "pdf" && (
                 <div style={{ 
                   textAlign: "center", 
-                  padding: "2.5rem 1.5rem", 
-                  backgroundColor: "var(--background)", 
-                  borderRadius: "var(--radius)", 
-                  border: "1px dashed var(--border)" 
-                }} id="pdf-download-pane">
-                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" style={{ marginBottom: "1.25rem" }}>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                    <polyline points="9 15 12 18 15 15"></polyline>
-                  </svg>
-                  <h5 style={{ fontSize: "1rem", fontWeight: 700 }}>{selectedNote.title}.pdf</h5>
-                  <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>File extension: PDF | Instant CDN Delivery</p>
+                  padding: "32px 20px", 
+                  backgroundColor: "var(--paper, #F7F8FB)", 
+                  borderRadius: "var(--radius-lg, 14px)", 
+                  border: "1px dashed var(--line-300, #CDD4E2)" 
+                }}>
+                  <div style={{ 
+                    width: "48px", 
+                    height: "48px", 
+                    borderRadius: "12px", 
+                    backgroundColor: "#FFFFFF", 
+                    border: "1px solid var(--line-200, #E3E8F1)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--blue-500, #2447F5)",
+                    marginBottom: "12px"
+                  }}>
+                    <LuFileText size={24} />
+                  </div>
+                  <h5 style={{ fontSize: "15px", fontWeight: 700, margin: 0 }}>{selectedNote.title}.pdf</h5>
+                  <p style={{ fontSize: "13px", color: "var(--slate-600, #4A5468)", marginTop: "4px", marginBottom: "20px" }}>
+                    Verified PDF · Instant High-Speed CDN Delivery
+                  </p>
                   <button
                     onClick={() => handleDownload(selectedNote.id, selectedNote.title)}
-                    className={styles.btnPrimary}
-                    style={{ marginTop: "1.5rem", width: "100%", justifyContent: "center" }}
+                    className={styles.btnFinderSubmit}
+                    style={{ width: "100%", justifyContent: "center" }}
                     disabled={downloadingPdf}
-                    id="btn-trigger-pdf-download"
                   >
-                    {downloadingPdf ? "Downloading file..." : "Download PDF File"}
+                    <LuDownload size={16} />
+                    {downloadingPdf ? "Downloading note..." : "Download PDF File"}
                   </button>
                 </div>
               )}
             </div>
 
             <div className={styles.modalFooter}>
-              <button onClick={closeModal} className={styles.btnSecondary} id="btn-close-modal-footer">Close</button>
+              <button onClick={closeModal} className={styles.btnBannerWhite}>
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -444,23 +501,54 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
     </>
   );
 
-  if (authState === "unauthenticated") {
+  // Focused Experience for Logged-In Students (Zero Distraction, Pure Educational & Notes Focus)
+  if (authState === "ready") {
     return (
-      <>
-        <LoginGate
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedUniv={selectedUniv}
-          setSelectedUniv={setSelectedUniv}
-          availableUniversities={availableUniversities}
-          resultsCount={filteredNotes.length}
-        >
+      <div className={styles.pageWrapper}>
+        <div className={styles.container} style={{ paddingTop: "24px", paddingBottom: "72px" }}>
+          {/* Focused Student Portal Header */}
+          <div className={styles.userWelcomeBanner}>
+            <div className={styles.userWelcomeText}>
+              <span>Welcome back, <strong>{userUsername || "Student"}</strong> 👋</span>
+              {userUniversity && (
+                <span className={styles.userUnivPill}>🎓 {userUniversity}</span>
+              )}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+              <Link 
+                href="/dashboard" 
+                style={{ 
+                  color: "var(--ink-900, #0B1020)", 
+                  fontFamily: "var(--font-mono), monospace", 
+                  fontSize: "12px", 
+                  fontWeight: 600, 
+                  textDecoration: "none" 
+                }}
+              >
+                DASHBOARD
+              </Link>
+              <Link 
+                href="/contribute" 
+                style={{ 
+                  color: "var(--blue-500, #2447F5)", 
+                  fontFamily: "var(--font-mono), monospace", 
+                  fontSize: "12px", 
+                  fontWeight: 700, 
+                  textDecoration: "none" 
+                }}
+              >
+                CONTRIBUTE NOTES →
+              </Link>
+            </div>
+          </div>
 
+          {/* Centralized Notes Catalog — Direct, Uncluttered Study Focus */}
           <NotesCatalog
             notes={filteredNotes}
             metaNotes={metaNotes}
             isLoading={isLoading}
             catalogMode={catalogMode}
+            userUniversity={userUniversity}
             selectedUniv={selectedUniv}
             onSelectUniv={setSelectedUniv}
             availableUniversities={availableUniversities}
@@ -478,145 +566,468 @@ export default function HomeContent({ initialNotes = [], initialMeta = [], catal
             onSelectSemester={setSelectedSemester}
             onClearFilters={handleClearFilters}
             onOpenVideoModal={(n) => openModal(n, "video")}
-            onNoteAction={(n) => router.push(`/notes/${n.id}`)}
-            variant="unauth"
-            searchIdPrefix="unauth"
+            onNoteAction={(n) => handleDownloadClick(n)}
+            variant="catalog"
           />
+        </div>
 
-
-        {/* High Conversion Callout Banner */}
-        <section style={{
-          background: "linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 146, 60, 0.08) 100%)",
-          border: "1px solid rgba(251, 191, 36, 0.3)",
-          borderRadius: "16px",
-          padding: "1.75rem 2rem",
-          margin: "2.5rem 0 1rem",
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "1.5rem"
-        }}>
-          <div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.35rem" }}>
-              Found the study guide for your exam? 🎓
-            </h3>
-            <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0 }}>
-              Sign up in 15 seconds to download offline PDF copies, access visual video walkthroughs, and unlock full guides.
-            </p>
-          </div>
-          <Link href="/login" style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            backgroundColor: "var(--accent)",
-            color: "#000",
-            fontWeight: 800,
-            fontSize: "0.9rem",
-            padding: "0.75rem 1.75rem",
-            borderRadius: "10px",
-            textDecoration: "none",
-          }}>
-            Sign Up / Log In to Unlock <FaChevronRight style={{ fontSize: "0.75rem" }} />
-          </Link>
-        </section>
-      </LoginGate>
         {renderModals()}
-      </>
+      </div>
     );
   }
 
-  if (authState === "banned") {
-    return <BannedGate email={userEmail} onSignOut={async () => { await refreshAuth(); }} />;
-  }
-
-  if (authState === "no-username") {
-    return <UsernameGate email={userEmail} onComplete={async () => { await refreshAuth(); }} />;
-  }
-
-  if (authState === "no-university") {
-    return <UniversityGate onSelect={async () => { await refreshAuth(); }} />;
-  }
-
   return (
-    <main className={styles.main}>
-      {/* Compact Logged-In Student Header */}
-      <section style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "1rem",
-        flexWrap: "wrap",
-        marginBottom: "1.5rem",
-        padding: "1rem 1.25rem",
-        background: "var(--card-bg)",
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>
-            Welcome back, <span style={{ color: "var(--accent)" }}>{userUsername ?? "Student"}</span> 👋
-          </span>
-          <span style={{
-            fontSize: "0.775rem",
-            fontWeight: 700,
-            background: "rgba(251, 191, 36, 0.12)",
-            color: "var(--accent)",
-            padding: "0.25rem 0.65rem",
-            borderRadius: "999px",
-            border: "1px solid rgba(251, 191, 36, 0.25)"
-          }}>
-            🎓 {userUniversity}
-          </span>
-        </div>
+    <div className={styles.pageWrapper}>
+      {/* ====================================================================
+          1. HERO SECTION (Graph Paper + 2-Column Split + Finder Card)
+          ==================================================================== */}
+      <section className={styles.heroWrapper}>
+        <div className={styles.container}>
+          <div className={styles.heroGrid}>
+            
+            {/* Left: Headline & Finder Card */}
+            <div className={styles.heroLeft}>
+              <div className={styles.heroEyebrow}>
+                <span className={styles.heroEyebrowDot} />
+                Free &amp; Paid Notes · ₹0–₹99
+              </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Link
-            href="/contribute"
-            style={{
-              fontSize: "0.8rem",
-              fontWeight: 700,
-              color: "var(--text-secondary)",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem"
-            }}
-          >
-            Contribute study notes
-          </Link>
+              <h1 className={styles.heroTitle}>
+                Engineering notes aligned to <mark className="hl">your syllabus</mark>.
+              </h1>
+
+              <p className={styles.heroIntro}>
+                Mumbai University, SPPU, DBATU and more. Verified handwritten &amp; digital notes, solved semester question sets, and video tutorials.
+              </p>
+
+              {/* The Finder Card */}
+              <div className={styles.finderCard}>
+                <div className={styles.finderLabel}>
+                  <span>Select your university</span>
+                  <span style={{ color: "var(--blue-500, #2447F5)" }}>Step 1 of 2</span>
+                </div>
+
+                {/* University Chips */}
+                <div className={styles.finderChipsScroll}>
+                  {finderUniversities.map((uni) => {
+                    const isSelected = selectedUniv === uni.value || (uni.value === "All universities" && selectedUniv === "All universities");
+                    return (
+                      <button
+                        key={uni.label}
+                        type="button"
+                        onClick={() => {
+                          setSelectedUniv(uni.value);
+                          setTimeout(() => scrollToCatalog(), 100);
+                        }}
+                        className={`${styles.finderChip} ${isSelected ? styles.finderChipActive : ""}`}
+                      >
+                        {uni.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Search Input Row with Clear Button */}
+                <div className={styles.finderInputRow}>
+                  <div className={styles.finderInputWrapper}>
+                    <LuSearch className={styles.finderInputIcon} size={16} />
+                    <input
+                      type="text"
+                      placeholder="Search subject, module title, or topic..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          scrollToCatalog();
+                        }
+                      }}
+                      className={styles.finderSearchInput}
+                    />
+                    {searchQuery.trim() !== "" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery("");
+                          setDebouncedSearchQuery("");
+                        }}
+                        className={styles.finderClearBtn}
+                        aria-label="Clear search input"
+                      >
+                        <LuX size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={scrollToCatalog}
+                    className={styles.btnFinderSubmit}
+                  >
+                    <span>Find notes</span>
+                    <LuArrowRight size={16} />
+                  </button>
+                </div>
+
+                {/* Live Feedback */}
+                <div className={styles.finderFeedback}>
+                  <LuSparkles size={13} style={{ color: "var(--blue-500, #2447F5)" }} />
+                  <span>
+                    Showing <strong className={styles.finderFeedbackHighlight}>{filteredNotes.length}</strong> verified study sheets
+                    {selectedUniv !== "All universities" ? ` for ${selectedUniv}` : ""}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Stacked Note Sheets Art */}
+            <div className={styles.heroRight}>
+              <div className={styles.sheetsStack}>
+                {/* Floating "First 3 pages free" Pill */}
+                <div className={styles.previewPill}>
+                  First 3 pages free to preview
+                </div>
+
+                {/* Back Ruled Sheet */}
+                <div className={styles.sheetBack}>
+                  <div className={styles.sheetMarginLine} />
+                  <div className={styles.sheetRuledLines} />
+                </div>
+
+                {/* Front White Notebook Sheet */}
+                <div className={styles.sheetFront}>
+                  <div className={styles.sheetMarginLine} />
+                  <div className={styles.sheetHeaderLabel}>
+                    MU · SEM 4 · COMP / IT
+                  </div>
+                  <h3 className={styles.sheetSubjectTitle}>
+                    Engineering Mathematics IV: Module 3 Complex Integration
+                  </h3>
+
+                  {/* Skeleton Ruled Lines with Highlighter */}
+                  <div className={styles.skeletonLines}>
+                    <div className={styles.skeletonBar} style={{ width: "95%" }} />
+                    <div className={`${styles.skeletonBar} ${styles.skeletonBarHighlight}`} style={{ width: "75%" }} />
+                    <div className={styles.skeletonBar} style={{ width: "88%" }} />
+                    <div className={styles.skeletonBar} style={{ width: "65%" }} />
+                    <div className={styles.skeletonBar} style={{ width: "92%" }} />
+                    <div className={`${styles.skeletonBar} ${styles.skeletonBarHighlight}`} style={{ width: "80%" }} />
+                    <div className={styles.skeletonBar} style={{ width: "70%" }} />
+                    <div className={styles.skeletonBar} style={{ width: "84%" }} />
+                  </div>
+                </div>
+
+                {/* Floating Video Walkthrough Chip */}
+                <div className={styles.videoChip}>
+                  <div className={styles.playCircle}>
+                    <LuPlay />
+                  </div>
+                  <span>12m video walkthrough included</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* Featured Notes Catalog Section via centralized NotesCatalog */}
-      <NotesCatalog
-        notes={filteredNotes}
-        metaNotes={metaNotes}
-        isLoading={isLoading}
-        catalogMode={catalogMode}
-        userUniversity={userUniversity}
-        selectedUniv={selectedUniv}
-        onSelectUniv={setSelectedUniv}
-        availableUniversities={availableUniversities}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        debouncedSearchQuery={debouncedSearchQuery}
-        searchOpen={searchOpen}
-        onToggleSearchOpen={() => {
-          setSearchOpen((v) => !v);
-          if (searchOpen) setSearchQuery("");
-        }}
-        selectedBranch={selectedBranch}
-        onSelectBranch={setSelectedBranch}
-        selectedSemester={selectedSemester}
-        onSelectSemester={setSelectedSemester}
-        onClearFilters={handleClearFilters}
-        onOpenVideoModal={(n) => openModal(n, "video")}
-        onNoteAction={(n) => handleDownloadClick(n)}
-        variant="catalog"
-      />
 
+      {/* ====================================================================
+          3. INTERACTIVE NOTES CATALOG EXPLORER (Step 3 Preserved)
+          ==================================================================== */}
+      <section id="notes-catalog" className={styles.catalogSection}>
+        <div className={styles.container}>
+          
+          {/* Section Header for Catalog */}
+          <div className={styles.sectionHeader} style={{ marginBottom: "28px" }}>
+            <span className={styles.sectionEyebrow}>Syllabus Notes Catalog</span>
+            <h2 className={styles.sectionTitle}>Explore study sheets &amp; question banks.</h2>
+            <p className={styles.sectionSubtitle}>
+              Filter by university, branch, or semester to find instant PDF downloads and video solutions.
+            </p>
+          </div>
+
+
+          {/* Centralized Notes Catalog */}
+          <NotesCatalog
+            notes={filteredNotes}
+            metaNotes={metaNotes}
+            isLoading={isLoading}
+            catalogMode={catalogMode}
+            userUniversity={userUniversity}
+            selectedUniv={selectedUniv}
+            onSelectUniv={setSelectedUniv}
+            availableUniversities={availableUniversities}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            debouncedSearchQuery={debouncedSearchQuery}
+            searchOpen={searchOpen}
+            onToggleSearchOpen={() => {
+              setSearchOpen((v) => !v);
+              if (searchOpen) setSearchQuery("");
+            }}
+            selectedBranch={selectedBranch}
+            onSelectBranch={setSelectedBranch}
+            selectedSemester={selectedSemester}
+            onSelectSemester={setSelectedSemester}
+            onClearFilters={handleClearFilters}
+            onOpenVideoModal={(n) => openModal(n, "video")}
+            onNoteAction={(n) => {
+              if (authState === "unauthenticated") {
+                router.push(`/notes/${n.id}`);
+              } else {
+                handleDownloadClick(n);
+              }
+            }}
+            variant="catalog"
+          />
+
+          {/* Unauthenticated Visitor Conversion Banner */}
+          {authState === "unauthenticated" && (
+            <div className={styles.unauthCallout}>
+              <div className={styles.unauthCalloutText}>
+                <h3 className={styles.unauthCalloutTitle}>
+                  Found the notes for your upcoming semester exam? 🎓
+                </h3>
+                <p className={styles.unauthCalloutDesc}>
+                  Sign up in 15 seconds to download offline PDF copies, track your unlocked study materials, and access visual video walkthroughs.
+                </p>
+              </div>
+              <Link href="/login" className={styles.btnBannerDark}>
+                <span>Sign Up / Log In to Unlock</span>
+                <LuArrowRight size={16} />
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+
+      {/* ====================================================================
+          5. BUILT FOR EXAM WEEK (Bento Grid)
+          ==================================================================== */}
+      <section className={styles.bentoSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionEyebrow}>Why Private Academy</span>
+            <h2 className={styles.sectionTitle}>Built for the night before your exam.</h2>
+            <p className={styles.sectionSubtitle}>
+              No filler, no 500-page textbooks. Just syllabus-exact study notes and solved problem sets.
+            </p>
+          </div>
+
+          <div className={styles.bentoGrid}>
+            {/* Cell 1 (3-Col): Preview Before Unlock */}
+            <div className={`${styles.bentoCard} ${styles.bentoCardCol3}`}>
+              <div style={{ color: "var(--blue-500, #2447F5)" }}>
+                <LuBookOpen size={24} />
+              </div>
+              <h3 className={styles.bentoCardTitle}>Preview before unlock.</h3>
+              <p className={styles.bentoCardDesc}>
+                Never buy blind. Read the first 3 pages of any handwritten or digital study note completely free to verify handwriting, handwriting clarity, and module coverage.
+              </p>
+              
+              {/* Mini 3-Page Preview Mockup */}
+              <div className={styles.previewSheetsMock}>
+                <div className={styles.previewMiniSheet}>
+                  <span style={{ fontSize: "9px", fontFamily: "var(--font-mono), monospace", color: "var(--blue-500, #2447F5)", fontWeight: 700 }}>PG 1 · FREE</span>
+                  <div className={styles.skeletonBar} style={{ width: "90%", height: "5px" }} />
+                  <div className={styles.skeletonBar} style={{ width: "70%", height: "5px" }} />
+                </div>
+                <div className={styles.previewMiniSheet}>
+                  <span style={{ fontSize: "9px", fontFamily: "var(--font-mono), monospace", color: "var(--blue-500, #2447F5)", fontWeight: 700 }}>PG 2 · FREE</span>
+                  <div className={`${styles.skeletonBar} ${styles.skeletonBarHighlight}`} style={{ width: "85%", height: "5px" }} />
+                  <div className={styles.skeletonBar} style={{ width: "60%", height: "5px" }} />
+                </div>
+                <div className={styles.previewMiniSheet}>
+                  <span style={{ fontSize: "9px", fontFamily: "var(--font-mono), monospace", color: "var(--blue-500, #2447F5)", fontWeight: 700 }}>PG 3 · FREE</span>
+                  <div className={styles.skeletonBar} style={{ width: "75%", height: "5px" }} />
+                  <div className={styles.skeletonBar} style={{ width: "80%", height: "5px" }} />
+                </div>
+                <div className={styles.previewLockedSheet}>
+                  <LuLock size={14} />
+                  <span>PAGE 4+</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Cell 2 (3-Col): PDF + Video Walkthrough */}
+            <div className={`${styles.bentoCard} ${styles.bentoCardCol3}`}>
+              <div style={{ color: "var(--blue-500, #2447F5)" }}>
+                <LuPlay size={24} />
+              </div>
+              <h3 className={styles.bentoCardTitle}>PDF + Video on one screen.</h3>
+              <p className={styles.bentoCardDesc}>
+                Complex derivations and numerical solutions come paired with high-definition video walkthroughs explaining every single step.
+              </p>
+
+              {/* Split Video Mockup */}
+              <div className={styles.splitVideoMock}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div className={styles.playCircle} style={{ width: "22px", height: "22px" }}>
+                    <LuPlay size={9} />
+                  </div>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--ink-900, #0B1020)" }}>Module 3 Video Walkthrough</span>
+                </div>
+                <span className={styles.bentoMiniTag} style={{ marginLeft: "auto", fontSize: "10px" }}>1080p HD</span>
+              </div>
+            </div>
+
+            {/* Cell 3 (2-Col): Set University Once */}
+            <div className={`${styles.bentoCard} ${styles.bentoCardCol2}`}>
+              <div style={{ color: "var(--blue-500, #2447F5)" }}>
+                <LuSparkles size={22} />
+              </div>
+              <h3 className={styles.bentoCardTitle}>Set your university once.</h3>
+              <p className={styles.bentoCardDesc}>
+                Whether Mumbai University, SPPU, or DBATU, the catalog automatically aligns with your university credit scheme.
+              </p>
+              <div className={styles.bentoMockBox}>
+                <span className={styles.bentoMiniTag}>MU SCHEME</span>
+                <span className={styles.bentoMiniTag}>SPPU 2024</span>
+              </div>
+            </div>
+
+            {/* Cell 4 (2-Col): Reviewed Against Syllabus */}
+            <div className={`${styles.bentoCard} ${styles.bentoCardCol2}`}>
+              <div style={{ color: "var(--blue-500, #2447F5)" }}>
+                <LuShieldCheck size={22} />
+              </div>
+              <h3 className={styles.bentoCardTitle}>Reviewed against syllabus.</h3>
+              <p className={styles.bentoCardDesc}>
+                Every study guide is audited against official university question blueprints and past 5 years question papers.
+              </p>
+              <div className={styles.bentoMockBox}>
+                <span className={styles.bentoMiniTag} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <LuCheck size={12} color="#0F7B4F" /> BLUEPRINT AUDITED
+                </span>
+              </div>
+            </div>
+
+            {/* Cell 5 (2-Col): Instant UPI Download */}
+            <div className={`${styles.bentoCard} ${styles.bentoCardCol2}`}>
+              <div style={{ color: "var(--blue-500, #2447F5)" }}>
+                <LuZap size={22} />
+              </div>
+              <h3 className={styles.bentoCardTitle}>Instant UPI checkout.</h3>
+              <p className={styles.bentoCardDesc}>
+                Zero subscription traps. Pay seamlessly using Google Pay, PhonePe, or Paytm and download pristine PDFs directly to your device.
+              </p>
+              <div className={styles.bentoMockBox}>
+                <span className={styles.bentoMiniTag}>₹0 TO ₹99</span>
+                <span className={styles.bentoMiniTag}>INSTANT CDN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================================
+          6. CONTRIBUTOR NETWORK & EARNINGS STAIRCASE (Dark Section)
+          ==================================================================== */}
+      <section className={styles.darkSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <span className={`${styles.sectionEyebrow} ${styles.darkEyebrow}`}>Contributor Network</span>
+            <h2 className={`${styles.sectionTitle} ${styles.darkTitle}`}>
+              Turn your semester notes into <mark className="hl">recurring income</mark>.
+            </h2>
+            <p className={`${styles.sectionSubtitle} ${styles.darkSubtitle}`}>
+              Upload your clean handwritten or typed notes once. Earn up to 90% revenue share on every student unlock with direct UPI transfers.
+            </p>
+          </div>
+
+          <div className={styles.staircaseContainer}>
+            {/* The 4-Tier Visual Staircase */}
+            <div className={styles.staircaseGrid}>
+              
+              {/* Tier 1: 70% */}
+              <div className={styles.stairCol}>
+                <div className={`${styles.stairBar} ${styles.stairBar70}`}>
+                  <span className={styles.stairPercentage}>70%</span>
+                  <div className={styles.stairTierBadge}>Verified Contributor</div>
+                </div>
+                <div className={styles.stairReq}>1st Approved Note Published</div>
+              </div>
+
+              {/* Tier 2: 75% */}
+              <div className={styles.stairCol}>
+                <div className={`${styles.stairBar} ${styles.stairBar75}`}>
+                  <span className={styles.stairPercentage}>75%</span>
+                  <div className={styles.stairTierBadge}>Rising Scholar</div>
+                </div>
+                <div className={styles.stairReq}>3+ Notes &amp; 25 Unlocks</div>
+              </div>
+
+              {/* Tier 3: 82% */}
+              <div className={styles.stairCol}>
+                <div className={`${styles.stairBar} ${styles.stairBar82}`}>
+                  <span className={styles.stairPercentage}>82%</span>
+                  <div className={styles.stairTierBadge}>Top Author</div>
+                </div>
+                <div className={styles.stairReq}>5+ Notes &amp; 50 Unlocks</div>
+              </div>
+
+              {/* Tier 4: 90% (Highlighter Yellow) */}
+              <div className={styles.stairCol}>
+                <div className={`${styles.stairBar} ${styles.stairBar90}`}>
+                  <span className={styles.stairPercentage}>90%</span>
+                  <div className={styles.stairTierBadge}>Legend Author</div>
+                </div>
+                <div className={styles.stairReq}>10+ Notes &amp; 100 Unlocks</div>
+              </div>
+
+            </div>
+
+            {/* CTAs */}
+            <div className={styles.darkActions}>
+              <Link href="/contribute" className={styles.btnHighlighter}>
+                <span>Upload your first note</span>
+                <LuArrowRight size={16} />
+              </Link>
+              <Link href="/contribute" className={styles.btnDarkGhost}>
+                Calculate your earnings
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ====================================================================
+          8. COMMUNITY BANNER (Highlighter Yellow, Section 3.14)
+          ==================================================================== */}
+      <div className={styles.container}>
+        <div className={styles.communityBanner}>
+          <div className={styles.bannerLeft}>
+            <div className={styles.bannerNumber}>2,500+</div>
+            <div className={styles.bannerTextGroup}>
+              <h3 className={styles.bannerTitle}>Join the student community.</h3>
+              <p className={styles.bannerDesc}>
+                Get instant notifications when new question paper solutions, syllabus revisions, or community notes go live.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.bannerActions}>
+            <a 
+              href="https://t.me" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={styles.btnBannerDark}
+            >
+              <LuUsers size={16} />
+              <span>Join Telegram Group</span>
+            </a>
+            <Link href="/discussions" className={styles.btnBannerWhite}>
+              <LuMessageSquare size={16} />
+              <span>Explore Discussions</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Render modals */}
       {renderModals()}
-    </main>
+    </div>
   );
 }

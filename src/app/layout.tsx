@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
+import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next"; 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { checkIsAdmin } from "../utils/auth";
@@ -10,13 +9,28 @@ import FooterWrapper from "./FooterWrapper";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
-import styles from "./layout.module.css";
+import "@/styles/tokens.css";
 
-// Inter loaded via next/font — self-hosted, zero FOUT, no blocking network request
+// Notebook typography: Display (Bricolage), Body (Inter), Spec metadata (JetBrains Mono)
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["600", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
 const inter = Inter({
   subsets: ["latin"],
-  display: "swap",
+  weight: ["400", "500", "600"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["500"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 
@@ -198,7 +212,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en-IN" className={`${inter.variable} ${display.variable} ${mono.variable} ${inter.className}`}>
       <head>
         <script
           type="application/ld+json"
@@ -209,19 +223,12 @@ export default async function RootLayout({
         <AuthProvider>
           <ToastProvider>
             {/* Sticky Header / Navbar */}
-          <header className={styles.header} id="main-header">
-            <div className={styles.navContainer}>
-              <Link href="/" className={styles.logo} id="nav-logo">
-                Private<span className={styles.logoAccent}>Academy</span>
-              </Link>
-              <Navbar 
-                sessionEmail={sessionEmail} 
-                isUserAdmin={isUserAdmin} 
-                avatarUrl={avatarUrl}
-                userName={userName}
-              />
-            </div>
-          </header>
+            <Navbar 
+              sessionEmail={sessionEmail} 
+              isUserAdmin={isUserAdmin} 
+              avatarUrl={avatarUrl}
+              userName={userName}
+            />
 
           {/* Content Wrapper */}
           <div style={{ flex: 1, width: "100%" }}>{children}</div>

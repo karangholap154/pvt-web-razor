@@ -29,6 +29,11 @@ export default function AdminPayoutsTab({
     notes: "",
   });
 
+  const handleCopyUTR = (utr: string) => {
+    navigator.clipboard.writeText(utr);
+    toast.success("UTR Reference copied to clipboard!");
+  };
+
   const handleCompletePayoutSubmit = async (requestId: string, utrReference: string, adminNotes: string) => {
     if (!utrReference.trim()) {
       toast.error("UTR Transaction reference is required to mark payout as completed.");
@@ -67,10 +72,10 @@ export default function AdminPayoutsTab({
       <table className={styles.table}>
         <thead>
           <tr>
+            <th className={styles.th}>Date</th>
             <th className={styles.th}>Contributor</th>
             <th className={styles.th}>UPI ID</th>
             <th className={styles.th}>Amount</th>
-            <th className={styles.th}>Date</th>
             <th className={styles.th}>Status</th>
             <th className={styles.th}>UTR Reference</th>
             <th className={styles.th} style={{ textAlign: "right" }}>Actions</th>
@@ -80,46 +85,100 @@ export default function AdminPayoutsTab({
           {adminPayouts.length > 0 ? (
             adminPayouts.map((p) => (
               <tr key={p.id} className={styles.tr}>
-                <td className={styles.td} style={{ fontWeight: 600 }}>
-                  @{p.user_profile?.username || "student"}
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{p.user_profile?.email}</div>
-                </td>
-                <td className={styles.td} style={{ fontWeight: 600, color: "var(--accent)" }}>{p.upi_id}</td>
-                <td className={styles.td} style={{ fontWeight: 700, color: "#22c55e" }}>₹{p.amount}</td>
+                {/* Date */}
                 <td className={styles.td}>
-                  {new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  <span className={styles.tagMono}>
+                    {new Date(p.created_at).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "2-digit",
+                    })}
+                  </span>
                 </td>
+
+                {/* Contributor */}
                 <td className={styles.td}>
-                  <span style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    padding: "0.25rem 0.55rem",
-                    borderRadius: "4px",
-                    backgroundColor: p.status === "completed" ? "rgba(34, 197, 94, 0.15)" : "rgba(245, 158, 11, 0.15)",
-                    color: p.status === "completed" ? "#22c55e" : "#f59e0b",
-                  }}>
+                  <div style={{ fontWeight: 600 }}>@{p.user_profile?.username || "student"}</div>
+                  <div style={{ fontSize: "0.725rem", color: "var(--text-secondary)" }}>
+                    {p.user_profile?.email || "No email"}
+                  </div>
+                </td>
+
+                {/* UPI ID */}
+                <td className={styles.td}>
+                  <span className={styles.tagMono} style={{ color: "var(--accent, #f59e0b)", fontWeight: 600 }}>
+                    {p.upi_id}
+                  </span>
+                </td>
+
+                {/* Amount */}
+                <td className={styles.td}>
+                  <span className={`${styles.badge} ${styles.tagPrice}`} style={{ fontSize: "0.85rem" }}>
+                    ₹{p.amount}
+                  </span>
+                </td>
+
+                {/* Status */}
+                <td className={styles.td}>
+                  <span
+                    className={
+                      p.status === "completed"
+                        ? styles.tagStatusCompleted
+                        : p.status === "rejected"
+                        ? styles.tagStatusRejected
+                        : styles.tagStatusPending
+                    }
+                    style={{ fontSize: "0.725rem", padding: "0.2rem 0.5rem", borderRadius: "4px" }}
+                  >
                     {p.status.toUpperCase()}
                   </span>
                 </td>
-                <td className={styles.td} style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
-                  {p.utr_reference || "N/A"}
+
+                {/* UTR Reference with Copy Button */}
+                <td className={styles.td}>
+                  {p.utr_reference ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <span className={styles.tagMono} style={{ fontSize: "0.75rem" }}>
+                        {p.utr_reference}
+                      </span>
+                      <button
+                        onClick={() => handleCopyUTR(p.utr_reference!)}
+                        className={styles.btnAction}
+                        style={{ padding: "0.15rem 0.35rem", fontSize: "0.68rem" }}
+                        title="Copy UTR Reference"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  ) : (
+                    <span style={{ color: "var(--text-secondary)", fontSize: "0.775rem" }}>Awaiting UTR</span>
+                  )}
+                  {p.admin_notes && (
+                    <div className={styles.auditTrailLine}>
+                      <span>Note: {p.admin_notes}</span>
+                    </div>
+                  )}
                 </td>
+
+                {/* Actions */}
                 <td className={styles.td} style={{ textAlign: "right" }}>
-                  {p.status === "pending" && (
+                  {p.status === "pending" ? (
                     <button
                       onClick={() => setPayoutModal({ open: true, payout: p, utr: "", notes: "" })}
                       className={styles.btnCreate}
-                      style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem" }}
+                      style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
                     >
                       Mark Paid
                     </button>
+                  ) : (
+                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Settled</span>
                   )}
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={7} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2rem" }}>
+              <td colSpan={7} style={{ textAlign: "center", color: "var(--text-secondary)", padding: "2.5rem" }}>
                 No payout requests found.
               </td>
             </tr>
@@ -129,37 +188,73 @@ export default function AdminPayoutsTab({
 
       {/* PAYOUT MARK PAID MODAL */}
       {payoutModal.open && payoutModal.payout && (
-        <div className={styles.modalBackdrop} onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}>
+        <div
+          className={styles.modalBackdrop}
+          onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}
+        >
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "480px" }}>
             <div className={styles.modalHeader}>
               <h3 className={styles.modalTitle}>Complete UPI Payout</h3>
-              <button className={styles.modalCloseBtn} onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}
+                aria-label="Close payout modal"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
 
             <div className={styles.modalBody}>
-              <p style={{ fontSize: "0.9rem", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
-                Transfer <strong>₹{payoutModal.payout.amount}</strong> to UPI ID: <strong style={{ color: "var(--accent)" }}>{payoutModal.payout.upi_id}</strong>
-              </p>
+              <div
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "4px",
+                  padding: "0.85rem",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <div style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>Payout Recipient:</div>
+                <div style={{ fontWeight: 600 }}>@{payoutModal.payout.user_profile?.username || "student"}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.5rem" }}>
+                  <span>UPI ID:</span>
+                  <strong style={{ color: "var(--accent, #f59e0b)", fontFamily: "var(--font-mono, monospace)" }}>
+                    {payoutModal.payout.upi_id}
+                  </strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem" }}>
+                  <span>Amount to Disburse:</span>
+                  <strong style={{ color: "#22c55e", fontFamily: "var(--font-mono, monospace)" }}>
+                    ₹{payoutModal.payout.amount}
+                  </strong>
+                </div>
+              </div>
 
-              <div className={styles.inputGroup} style={{ marginTop: "1rem" }}>
-                <label className={styles.label}>Bank UTR Reference Number <span style={{ color: "#ef4444" }}>*</span></label>
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>
+                  Bank UTR Reference Number <span style={{ color: "#ef4444" }}>*</span>
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. UTR1234567890"
+                  placeholder="e.g. 429810842918"
                   className={styles.input}
                   required
                   value={payoutModal.utr}
                   onChange={(e) => setPayoutModal({ ...payoutModal, utr: e.target.value })}
                 />
+                <span style={{ fontSize: "0.725rem", color: "var(--text-secondary)" }}>
+                  Mandatory transaction reference ID provided by your UPI or banking app.
+                </span>
               </div>
 
-              <div className={styles.inputGroup} style={{ marginTop: "1rem" }}>
-                <label className={styles.label}>Admin Notes (Optional)</label>
+              <div className={styles.inputGroup}>
+                <label className={styles.label}>Admin Audit Notes (Optional)</label>
                 <input
                   type="text"
-                  placeholder="Payment notes..."
+                  placeholder="e.g. Disbursed via ICICI Business UPI"
                   className={styles.input}
                   value={payoutModal.notes}
                   onChange={(e) => setPayoutModal({ ...payoutModal, notes: e.target.value })}
@@ -167,7 +262,7 @@ export default function AdminPayoutsTab({
               </div>
             </div>
 
-            <div className={styles.modalFooter} style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+            <div className={styles.modalFooter}>
               <button
                 type="button"
                 onClick={() => setPayoutModal({ open: false, payout: null, utr: "", notes: "" })}
@@ -177,7 +272,9 @@ export default function AdminPayoutsTab({
               </button>
               <button
                 type="button"
-                onClick={() => handleCompletePayoutSubmit(payoutModal.payout!.id, payoutModal.utr, payoutModal.notes)}
+                onClick={() =>
+                  handleCompletePayoutSubmit(payoutModal.payout!.id, payoutModal.utr, payoutModal.notes)
+                }
                 className={styles.btnSave}
               >
                 Confirm Payout Complete

@@ -3,7 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaThumbsUp, FaRegThumbsUp, FaCheck, FaMessage, FaFilePdf, FaShareNodes, FaTrash } from "react-icons/fa6";
+import {
+  LuThumbsUp,
+  LuMessageSquare,
+  LuFileText,
+  LuShare2,
+  LuTrash2,
+  LuCircleCheck,
+} from "react-icons/lu";
 import styles from "../../app/discussions/discussions.module.css";
 import { useToast } from "@/components/providers/ToastProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -111,7 +118,6 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // If user clicked interactive inner elements like note link or author profile, don't trigger card router push
     const target = e.target as HTMLElement;
     if (target.closest("a") || target.closest("button")) {
       return;
@@ -129,139 +135,122 @@ export default function DiscussionCard({ post, onVoteToggle, onDelete }: Discuss
   const authorInitial = (post.author?.username || "S").charAt(0).toUpperCase();
 
   return (
-    <article className={styles.twitterCard} onClick={handleCardClick}>
-      {/* Left Author Avatar Circle */}
-      <div className={styles.avatarCircle}>
-        {authorInitial}
-      </div>
+    <>
+      <article className={styles.threadCard} onClick={handleCardClick} role="article">
+        {/* Left Upvote Pill */}
+        <button
+          type="button"
+          onClick={handleVote}
+          className={`${styles.votePill} ${hasVoted ? styles.votePillActive : ""}`}
+          title={hasVoted ? "Remove upvote" : "Upvote this question"}
+          aria-label={`Upvote question, current count ${upvotes}`}
+        >
+          <LuThumbsUp size={15} />
+          <span className={styles.voteCount}>{upvotes}</span>
+        </button>
 
-      {/* Main Content Area */}
-      <div className={styles.cardContent}>
-        {/* Top Header Row */}
-        <div className={styles.cardHeader}>
-          <div className={styles.authorMeta}>
-            <span className={styles.authorName}>
-              {post.author?.full_name || post.author?.username || "Student"}
-            </span>
-            <span className={styles.authorHandle}>
-              @{post.author?.username || "student"}
-            </span>
-            <span className={styles.badgePill}>{post.branch}</span>
-            <span className={styles.badgePill}>{post.semester}</span>
-            <span className={styles.metaTime}>{formattedDate}</span>
+        {/* Main Content Area */}
+        <div className={styles.cardContent}>
+          {/* Top Header Row */}
+          <div className={styles.cardHeader}>
+            <div className={styles.authorMeta}>
+              <div className={styles.avatarCircle}>{authorInitial}</div>
+              <span className={styles.authorName}>
+                {post.author?.full_name || post.author?.username || "Student"}
+              </span>
+              <span className={styles.authorHandle}>
+                @{post.author?.username || "student"}
+              </span>
+              <span className={styles.postDate}>• {formattedDate}</span>
+            </div>
+
+            {post.is_resolved && (
+              <span className={styles.solvedBadge}>
+                <LuCircleCheck size={12} /> Solved
+              </span>
+            )}
           </div>
 
-          {post.is_resolved && (
-            <span className={styles.solvedBadge}>
-              <FaCheck /> Solved
-            </span>
+          {/* Question Title */}
+          <h3 className={styles.cardTitle}>{post.title}</h3>
+
+          {/* Question Excerpt */}
+          {post.content && (
+            <p className={styles.cardText}>{post.content}</p>
           )}
-        </div>
 
-        {/* Post Title */}
-        <h3 className={styles.cardTitle}>
-          <Link href={`/discussions/${post.id}`} className={styles.cardTitleLink}>
-            {post.title}
-          </Link>
-        </h3>
+          {/* Tags & Note Link Row */}
+          <div className={styles.monoTagsRow}>
+            {post.university && (
+              <span className={styles.monoTag}>{post.university}</span>
+            )}
+            {post.branch && (
+              <span className={styles.monoTag}>{post.branch}</span>
+            )}
+            {post.semester && (
+              <span className={styles.monoTag}>{post.semester}</span>
+            )}
 
-        {/* Content Snippet */}
-        <p className={styles.cardTextSnippet}>{post.content}</p>
-
-        {/* Linked Note Pill & Tags */}
-        {(post.linked_note || (post.tags && post.tags.length > 0)) && (
-          <div className={styles.tagsRow}>
+            {/* Attached Study Note Link */}
             {post.linked_note && (
               <Link
                 href={`/notes/${post.linked_note.id}`}
-                className={styles.noteLinkPill}
+                className={styles.attachedNotePill}
                 onClick={(e) => e.stopPropagation()}
-                title={`View linked note: ${post.linked_note.title}`}
+                title={`Study note: ${post.linked_note.title}`}
               >
-                <FaFilePdf /> Note: {post.linked_note.title}
+                <LuFileText size={13} />
+                <span>Note: {post.linked_note.title}</span>
               </Link>
             )}
-
-            {post.tags && post.tags.map((t, idx) => (
-              <span key={idx} className={styles.tagPill}>
-                #{t}
-              </span>
-            ))}
           </div>
-        )}
 
-        {/* Horizontal Twitter / X Style Action Bar */}
-        <div className={styles.twitterActionBar}>
-          {/* Comment / Reply Action */}
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${styles.actionComment}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/discussions/${post.id}`);
-            }}
-            title="View discussion thread & replies"
-          >
-            <FaMessage style={{ fontSize: "0.85rem" }} />
-            <span>{post.replies_count || 0}</span>
-          </button>
+          {/* Card Footer: Replies count, share, delete */}
+          <div className={styles.cardFooter}>
+            <span className={styles.repliesCount}>
+              <LuMessageSquare size={14} />
+              <span>{post.replies_count || 0} {post.replies_count === 1 ? "answer" : "answers"}</span>
+            </span>
 
-          {/* Upvote Action */}
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${styles.actionUpvote} ${hasVoted ? styles.actionUpvoted : ""}`}
-            onClick={handleVote}
-            disabled={isVoting}
-            title="Upvote post"
-          >
-            {hasVoted ? (
-              <FaThumbsUp style={{ fontSize: "0.85rem" }} />
-            ) : (
-              <FaRegThumbsUp style={{ fontSize: "0.85rem" }} />
-            )}
-            <span>{upvotes}</span>
-          </button>
+            <div className={styles.cardActionBtns}>
+              <button
+                type="button"
+                className={styles.btnActionIcon}
+                onClick={handleShare}
+                title="Share discussion"
+                aria-label="Share discussion link"
+              >
+                <LuShare2 size={14} />
+              </button>
 
-          {/* Share Action */}
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${styles.actionShare}`}
-            onClick={handleShare}
-            title="Copy discussion link"
-          >
-            <FaShareNodes style={{ fontSize: "0.85rem" }} />
-            <span>Share</span>
-          </button>
-
-          {/* Delete Action (Author only) */}
-          {isAuthor && (
-            <button
-              type="button"
-              className={`${styles.actionBtn} ${styles.actionDelete}`}
-              onClick={handleDeleteClick}
-              disabled={isDeleting}
-              title="Delete your doubt"
-            >
-              <FaTrash style={{ fontSize: "0.85rem" }} />
-              <span>{isDeleting ? "Deleting..." : "Delete"}</span>
-            </button>
-          )}
+              {isAuthor && (
+                <button
+                  type="button"
+                  className={`${styles.btnActionIcon} ${styles.btnActionDanger}`}
+                  onClick={handleDeleteClick}
+                  title="Delete discussion"
+                  aria-label="Delete discussion"
+                >
+                  <LuTrash2 size={14} />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      </article>
 
-      {isAuthor && (
-        <ConfirmDialog
-          isOpen={showDeleteConfirm}
-          title="Delete this doubt?"
-          description="This doubt and all of its replies will be permanently removed. This action cannot be undone."
-          confirmText="Delete doubt"
-          cancelText="Cancel"
-          variant="danger"
-          isLoading={isDeleting}
-          onConfirm={handleConfirmDelete}
-          onClose={() => setShowDeleteConfirm(false)}
-        />
-      )}
-    </article>
+      {/* Delete Confirmation Modal */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete this discussion?"
+        description="Are you sure you want to permanently delete your doubt topic and all its responses? This action cannot be undone."
+        confirmText="Delete Doubt"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setShowDeleteConfirm(false)}
+      />
+    </>
   );
 }

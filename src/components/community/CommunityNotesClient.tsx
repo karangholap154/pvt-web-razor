@@ -1,24 +1,26 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Note, BRANCHES, SEMESTERS } from "@/data/mockData";
+import { Note, SEMESTERS } from "@/data/mockData";
 import { UNIVERSITIES } from "@/utils/constants";
 import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
 import NoteCard from "@/components/cards/NoteCard";
+import BranchSelect from "@/components/ui/BranchSelect";
 import styles from "./CommunityNotes.module.css";
 import {
-  FaGraduationCap,
-  FaBookOpen,
-  FaMoneyBillWave,
-  FaUserGroup,
-  FaMagnifyingGlass,
-  FaXmark,
-  FaCloudArrowUp,
-  FaShieldHalved,
-} from "react-icons/fa6";
+  LuUsers,
+  LuGraduationCap,
+  LuBookOpen,
+  LuBanknote,
+  LuCloudUpload,
+  LuSearch,
+  LuX,
+  LuArrowRight,
+  LuInfo,
+} from "react-icons/lu";
 
 interface NoteMeta {
   id: string;
@@ -35,7 +37,6 @@ interface CommunityNotesClientProps {
 
 export default function CommunityNotesClient({
   initialNotes = [],
-  initialMeta = [],
 }: CommunityNotesClientProps) {
   const searchParams = useSearchParams();
 
@@ -48,7 +49,6 @@ export default function CommunityNotesClient({
 
   // Live Data States
   const [notes, setNotes] = useState<Note[]>(initialNotes);
-  const [metaNotes, setMetaNotes] = useState<NoteMeta[]>(initialMeta);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Sync URL search params if present
@@ -75,17 +75,7 @@ export default function CommunityNotesClient({
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Dynamic available universities from meta + constant fallbacks
-  const availableUniversities = useMemo(() => {
-    const univSet = new Set<string>();
-    metaNotes.forEach((m) => {
-      if (m.university) univSet.add(m.university);
-    });
-    UNIVERSITIES.forEach((u) => univSet.add(u.value));
-    return Array.from(univSet).sort();
-  }, [metaNotes]);
-
-  // Fetch community-only notes across any selected university (never locking to user profile)
+  // Fetch community-only notes across any selected university
   useEffect(() => {
     // Initial SSR cache passthrough
     if (
@@ -96,7 +86,6 @@ export default function CommunityNotesClient({
       initialNotes.length > 0
     ) {
       setNotes(initialNotes);
-      setMetaNotes(initialMeta);
       return;
     }
 
@@ -132,9 +121,6 @@ export default function CommunityNotesClient({
           );
 
           setNotes(formatted);
-          if (data.meta) {
-            setMetaNotes(data.meta);
-          }
         }
       } catch (err) {
         console.error("Error fetching community notes:", err);
@@ -149,7 +135,7 @@ export default function CommunityNotesClient({
     return () => {
       isSubscribed = false;
     };
-  }, [selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta]);
+  }, [selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes]);
 
   const handleClearFilters = () => {
     setSelectedUniv("All universities");
@@ -166,292 +152,335 @@ export default function CommunityNotesClient({
     debouncedSearchQuery !== "";
 
   return (
-    <main className={styles.container}>
-      {/* ── Community Hero Section ──────────────────────────────────── */}
-      <section className={styles.heroSection}>
-        <div className={styles.heroContent}>
-          <div className={styles.heroBadge}>
-            <FaUserGroup /> Open Student Exchange
+    <div className={styles.pageWrapper}>
+      <main className={styles.container}>
+        {/* ================================================================
+            HEADER & HERO SECTION
+            ================================================================ */}
+        <section className={styles.headerSection}>
+          <div className={styles.tagBadge}>
+            <LuUsers size={13} />
+            <span>Student Study Directory</span>
           </div>
-          <h1 className={styles.heroTitle}>
-            Community <span className={styles.heroTitleAccent}>Study Notes Hub</span>
+          <h1 className={styles.headerTitle}>
+            Peer-Contributed Study <span className={styles.titleHighlight}>Notes &amp; Guides</span>
           </h1>
-          <p className={styles.heroSubtitle}>
-            Browse, download, and share university class notes, chapter summaries, handwritten PDFs, and exam formula sheets contributed by engineering students across universities.
+          <p className={styles.headerSubtitle}>
+            Browse, download, and share unit-wise revision sheets, viva questions, and handwritten notes contributed by engineering scholars across universities.
           </p>
+        </section>
 
-          <div className={styles.heroActions}>
-            <Link href="/contribute" className={styles.btnContribute}>
-              <FaCloudArrowUp /> Upload Your Notes & Earn UPI Payouts
-            </Link>
-            <Link href="/notes" className={styles.btnOfficialSwitch}>
-              <FaShieldHalved style={{ color: "#fbbf24" }} /> Need Complete Syllabus? View Official Notes →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Value Props & Trust Highlights ─────────────────────────── */}
-      <section className={styles.statsRow}>
-        <div className={styles.statCard}>
-          <div className={styles.statIconWrapper}>
-            <FaGraduationCap />
-          </div>
-          <div>
-            <div className={styles.statTitle}>All Universities Open</div>
-            <div className={styles.statDesc}>No university lock. Freely explore notes from any college or university.</div>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIconWrapper}>
-            <FaBookOpen />
-          </div>
-          <div>
-            <div className={styles.statTitle}>Chapter & Unit Specific</div>
-            <div className={styles.statDesc}>Find unit-wise class summaries, quick revision formulas & PYQs.</div>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIconWrapper}>
-            <FaMoneyBillWave />
-          </div>
-          <div>
-            <div className={styles.statTitle}>70% - 90% Author Share</div>
-            <div className={styles.statDesc}>Student contributors earn direct UPI payouts for every download.</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Advisory Disclaimer Banner ──────────────────────────────── */}
-      <div className={styles.advisoryBanner}>
-        <div className={styles.advisoryIcon}>ℹ️</div>
-        <div className={styles.advisoryText}>
-          <strong>Community Notes Advisory:</strong> Study notes in this section are contributed directly by student peers and fellow engineers. Most uploads cover specific modules or chapters (e.g. Unit 1–2), class notes, or quick formula sheets and may not be a complete subject syllabus. Review the preview before unlocking.
-        </div>
-      </div>
-
-      {/* ── Open Multi-University Filter Bar ────────────────────────── */}
-      <section className={styles.filterBar}>
-        <div className={styles.filterRow}>
-          {/* University Selector (Open to ALL universities) */}
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="community-univ-filter">
-              University
-            </label>
-            <select
-              id="community-univ-filter"
-              value={selectedUniv}
-              onChange={(e) => setSelectedUniv(e.target.value)}
-              className={`${styles.filterSelect} ${styles.filterSelectSpecial}`}
-            >
-              <option value="All universities">🎓 All Universities (Open Access)</option>
-              {availableUniversities.map((u) => (
-                <option key={u} value={u}>
-                  {u}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Branch Selector */}
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="community-branch-filter">
-              Branch / Discipline
-            </label>
-            <select
-              id="community-branch-filter"
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="All branches">All Branches</option>
-              {BRANCHES.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Semester Selector */}
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="community-semester-filter">
-              Semester
-            </label>
-            <select
-              id="community-semester-filter"
-              value={selectedSemester}
-              onChange={(e) => setSelectedSemester(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="All semesters">All Semesters</option>
-              {SEMESTERS.map((s) => (
-                <option key={s} value={s}>
-                  Semester {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Search Input */}
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="community-search-input">
-              Search Topics & Chapters
-            </label>
-            <div className={styles.searchInputWrapper}>
-              <FaMagnifyingGlass className={styles.searchInputIcon} />
-              <input
-                id="community-search-input"
-                type="text"
-                placeholder="Search notes, chapters, topics..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className={styles.btnClearSearch}
-                  aria-label="Clear search"
-                >
-                  <FaXmark />
-                </button>
-              )}
+        {/* ================================================================
+            PERSISTENT CONTRIBUTOR CALLOUT BANNER (DESIGN.md 4.4)
+            ================================================================ */}
+        <section className={styles.contributorBanner}>
+          <div className={styles.contributorBannerContent}>
+            <div className={styles.contributorBannerIcon}>
+              <LuBanknote size={22} />
+            </div>
+            <div>
+              <h2 className={styles.contributorBannerHeading}>
+                Have good notes from this semester? Earn up to 90% per unlock
+              </h2>
+              <p className={styles.contributorBannerSub}>
+                Publish your study materials, set your price, and receive direct UPI payouts on every student download.
+              </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Results Header & Active Filter Pills ────────────────────── */}
-      <div className={styles.resultsHeader}>
-        <div className={styles.resultsCount}>
-          <span>Community Notes</span>
-          <span className={styles.resultsCountBadge}>
-            {notes.length} {notes.length === 1 ? "note" : "notes"} available
-          </span>
-        </div>
-
-        {hasActiveFilters && (
-          <div className={styles.activeFiltersList}>
-            {selectedUniv !== "All universities" && (
-              <span className={styles.filterTag}>
-                🎓 {selectedUniv}
-                <button
-                  type="button"
-                  onClick={() => setSelectedUniv("All universities")}
-                  className={styles.filterTagRemove}
-                  aria-label="Remove university filter"
-                >
-                  <FaXmark />
-                </button>
-              </span>
-            )}
-
-            {selectedBranch !== "All branches" && (
-              <span className={styles.filterTag}>
-                📘 {selectedBranch}
-                <button
-                  type="button"
-                  onClick={() => setSelectedBranch("All branches")}
-                  className={styles.filterTagRemove}
-                  aria-label="Remove branch filter"
-                >
-                  <FaXmark />
-                </button>
-              </span>
-            )}
-
-            {selectedSemester !== "All semesters" && (
-              <span className={styles.filterTag}>
-                Sem {selectedSemester}
-                <button
-                  type="button"
-                  onClick={() => setSelectedSemester("All semesters")}
-                  className={styles.filterTagRemove}
-                  aria-label="Remove semester filter"
-                >
-                  <FaXmark />
-                </button>
-              </span>
-            )}
-
-            {debouncedSearchQuery && (
-              <span className={styles.filterTag}>
-                &ldquo;{debouncedSearchQuery}&rdquo;
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className={styles.filterTagRemove}
-                  aria-label="Remove search filter"
-                >
-                  <FaXmark />
-                </button>
-              </span>
-            )}
-
-            <button type="button" onClick={handleClearFilters} className={styles.btnClearAll}>
-              Clear All
-            </button>
+          <div className={styles.contributorBannerActions}>
+            <Link href="/contribute" className={styles.btnContributePrimary}>
+              <LuCloudUpload size={16} />
+              <span>Contribute Notes</span>
+            </Link>
+            <Link href="/notes" className={styles.btnOfficialLink}>
+              <span>Official Syllabus Notes</span>
+              <LuArrowRight size={14} />
+            </Link>
           </div>
-        )}
-      </div>
+        </section>
 
-      {/* ── Community Notes Grid / Skeletons / Empty State ─────────── */}
-      {isLoading ? (
-        <div className={styles.notesGrid}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
-              <div className={styles.skeletonShimmer} style={{ height: "22px", width: "70%" }} />
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <div className={styles.skeletonShimmer} style={{ height: "22px", width: "80px" }} />
-                <div className={styles.skeletonShimmer} style={{ height: "22px", width: "50px" }} />
-              </div>
-              <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.5rem" }} />
-              <div className={styles.skeletonShimmer} style={{ height: "14px", width: "80%" }} />
-              <div style={{ marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
-                <div className={styles.skeletonShimmer} style={{ height: "36px", borderRadius: "8px" }} />
-              </div>
+        {/* ================================================================
+            4-PILLAR TRUST & SCOPE STRIP
+            ================================================================ */}
+        <section className={styles.trustRow} aria-label="Community directory features">
+          <div className={styles.trustCard}>
+            <div className={styles.trustIconWrap}>
+              <LuGraduationCap size={16} />
             </div>
-          ))}
+            <div>
+              <h3 className={styles.trustTitle}>All Universities Open</h3>
+              <p className={styles.trustDesc}>Freely explore notes from MU, SPPU, DBATU &amp; any engineering college.</p>
+            </div>
+          </div>
+
+          <div className={styles.trustCard}>
+            <div className={styles.trustIconWrap}>
+              <LuBookOpen size={16} />
+            </div>
+            <div>
+              <h3 className={styles.trustTitle}>Module &amp; Viva Specific</h3>
+              <p className={styles.trustDesc}>Unit-wise summaries, handwritten formulas, and lab practical sheets.</p>
+            </div>
+          </div>
+
+          <div className={styles.trustCard}>
+            <div className={styles.trustIconWrap}>
+              <LuBanknote size={16} />
+            </div>
+            <div>
+              <h3 className={styles.trustTitle}>70% – 90% Author Share</h3>
+              <p className={styles.trustDesc}>Student authors receive automated direct UPI disbursements.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            ADVISORY DISCLAIMER BANNER
+            ================================================================ */}
+        <div className={styles.advisoryBanner} role="note">
+          <LuInfo className={styles.advisoryIcon} size={16} />
+          <div className={styles.advisoryText}>
+            <strong>Community Notes Advisory:</strong> Study notes in this section are contributed directly by student peers and fellow engineers. Most uploads cover specific modules or chapters (e.g. Unit 1–2), class notes, or quick formula sheets and may not be a complete subject syllabus. Review the PDF preview before unlocking.
+          </div>
         </div>
-      ) : notes.length === 0 ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📝</div>
-          <h3 className={styles.emptyTitle}>No community notes found</h3>
-          <p className={styles.emptyText}>
-            {hasActiveFilters
-              ? "No student-contributed study notes matched your current filter criteria. Try broadening your filters or search term."
-              : "No student notes have been published yet for this selection."}
-          </p>
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
-            {hasActiveFilters && (
+
+        {/* ================================================================
+            FILTER BAR (ENGINEERING DESK: CHIPS + BRANCHSELECT + SEMESTER)
+            ================================================================ */}
+        <section className={styles.filterSection} aria-label="Filter community notes">
+          {/* University Chips Row */}
+          <div className={styles.uniChipsBar}>
+            <span className={styles.uniChipsLabel}>UNIVERSITY:</span>
+            <div className={styles.uniChipsRow} role="radiogroup" aria-label="Filter notes by university">
               <button
                 type="button"
-                onClick={handleClearFilters}
-                className={styles.btnOfficialSwitch}
+                role="radio"
+                aria-checked={selectedUniv === "All universities"}
+                onClick={() => setSelectedUniv("All universities")}
+                className={`${styles.uniChip} ${selectedUniv === "All universities" ? styles.uniChipActive : ""}`}
               >
-                Reset Filters
+                All Universities
               </button>
-            )}
-            <Link href="/contribute" className={styles.btnContribute}>
-              <FaCloudArrowUp /> Be The First To Upload Notes
-            </Link>
+              {UNIVERSITIES.map((uni) => {
+                const isSelected = selectedUniv === uni.value || selectedUniv === uni.abbr;
+                return (
+                  <button
+                    key={uni.abbr}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    onClick={() => setSelectedUniv(uni.value)}
+                    className={`${styles.uniChip} ${isSelected ? styles.uniChipActive : ""}`}
+                    title={uni.value}
+                  >
+                    {uni.abbr}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
+          <div className={styles.filterGrid}>
+            {/* Branch Selector using unified BranchSelect */}
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="community-branch-filter">
+                Branch / Discipline
+              </label>
+              <BranchSelect
+                id="community-branch-filter"
+                variant="light"
+                includeAllOption
+                allOptionLabel="All branches"
+                value={selectedBranch}
+                onChange={setSelectedBranch}
+              />
+            </div>
+
+            {/* Semester Selector */}
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="community-semester-filter">
+                Semester
+              </label>
+              <select
+                id="community-semester-filter"
+                value={selectedSemester}
+                onChange={(e) => setSelectedSemester(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="All semesters">All Semesters</option>
+                {SEMESTERS.map((s) => (
+                  <option key={s} value={s}>
+                    Semester {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Search Input */}
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="community-search-input">
+                Search Topics &amp; Chapters
+              </label>
+              <div className={styles.searchWrapper}>
+                <LuSearch className={styles.searchIcon} size={16} aria-hidden="true" />
+                <input
+                  id="community-search-input"
+                  type="text"
+                  placeholder="Filter by title, topic..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className={styles.btnClearSearch}
+                    aria-label="Clear search"
+                  >
+                    <LuX size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            RESULTS HEADER & ACTIVE FILTERS
+            ================================================================ */}
+        <div className={styles.resultsHeader}>
+          <div className={styles.resultsCount}>
+            <span>Community Notes</span>
+            <span className={styles.resultsCountBadge}>
+              {notes.length} {notes.length === 1 ? "note" : "notes"} available
+            </span>
+          </div>
+
+          {hasActiveFilters && (
+            <div className={styles.activeFiltersList}>
+              {selectedUniv !== "All universities" && (
+                <span className={styles.filterTag}>
+                  🎓 {selectedUniv}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedUniv("All universities")}
+                    className={styles.filterTagRemove}
+                    aria-label="Remove university filter"
+                  >
+                    <LuX size={12} />
+                  </button>
+                </span>
+              )}
+
+              {selectedBranch !== "All branches" && (
+                <span className={styles.filterTag}>
+                  📘 {selectedBranch}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedBranch("All branches")}
+                    className={styles.filterTagRemove}
+                    aria-label="Remove branch filter"
+                  >
+                    <LuX size={12} />
+                  </button>
+                </span>
+              )}
+
+              {selectedSemester !== "All semesters" && (
+                <span className={styles.filterTag}>
+                  Sem {selectedSemester}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSemester("All semesters")}
+                    className={styles.filterTagRemove}
+                    aria-label="Remove semester filter"
+                  >
+                    <LuX size={12} />
+                  </button>
+                </span>
+              )}
+
+              {debouncedSearchQuery && (
+                <span className={styles.filterTag}>
+                  &ldquo;{debouncedSearchQuery}&rdquo;
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className={styles.filterTagRemove}
+                    aria-label="Remove search filter"
+                  >
+                    <LuX size={12} />
+                  </button>
+                </span>
+              )}
+
+              <button type="button" onClick={handleClearFilters} className={styles.btnClearAll}>
+                Clear All
+              </button>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className={styles.notesGrid}>
-          {notes.map((note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              variant="catalog"
-            />
-          ))}
-        </div>
-      )}
-    </main>
+
+        {/* ================================================================
+            COMMUNITY NOTES GRID / SKELETONS / EMPTY STATE
+            ================================================================ */}
+        {isLoading ? (
+          <div className={styles.notesGrid}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={styles.skeletonCard}>
+                <div className={styles.skeletonShimmer} style={{ height: "24px", width: "70%" }} />
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div className={styles.skeletonShimmer} style={{ height: "20px", width: "80px" }} />
+                  <div className={styles.skeletonShimmer} style={{ height: "20px", width: "50px" }} />
+                </div>
+                <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%", marginTop: "0.5rem" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "14px", width: "80%" }} />
+                <div style={{ marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--line-200, #E3E8F1)" }}>
+                  <div className={styles.skeletonShimmer} style={{ height: "38px", borderRadius: "10px" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : notes.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIconWrap}>
+              <LuBookOpen size={24} />
+            </div>
+            <h2 className={styles.emptyTitle}>No community notes found</h2>
+            <p className={styles.emptyText}>
+              {hasActiveFilters
+                ? "No student-contributed study notes matched your current filter combination. Try resetting your filters or search keyword."
+                : "No student notes have been published yet for this selection."}
+            </p>
+            <div className={styles.emptyActions}>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className={styles.btnOfficialLink}
+                >
+                  Reset Filters
+                </button>
+              )}
+              <Link href="/contribute" className={styles.btnContributePrimary}>
+                <LuCloudUpload size={16} />
+                <span>Upload First Note</span>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.notesGrid}>
+            {notes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                variant="catalog"
+              />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
   );
 }

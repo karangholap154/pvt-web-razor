@@ -1,0 +1,52 @@
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  user-select: none;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.logoLink:hover {
+  opacity: 0.9;
+}
+
+.logoMark {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  background-color: var(--ink-900, #0B1020);
+  border-radius: var(--radius-sm, 8px);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* 5px highlighter bar inset 7px from left, right, bottom */
+.highlighterBar {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 7px;
+  height: 5px;
+  background-color: var(--hl-400, #FFE14D);
+  border-radius: 2px;
+}
+
+.wordmark {
+  font-family: var(--font-display), var(--font-inter), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+  color: var(--ink-900, #0B1020);
+  white-space: nowrap;
+}
+
+.onDark .logoMark {
+  border: 1px solid var(--ink-600, #2A3550);
+}
+
+.onDark .wordmark {
+  color: #FFFFFF;
+}

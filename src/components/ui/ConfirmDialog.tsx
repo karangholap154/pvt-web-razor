@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { FaTrash, FaTriangleExclamation, FaCircleQuestion } from "react-icons/fa6";
 import styles from "./ConfirmDialog.module.css";
@@ -41,13 +41,13 @@ export default function ConfirmDialog({
   const cardRef = useRef<HTMLDivElement>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (onClose) {
       onClose();
     } else if (onCancel) {
       onCancel();
     }
-  };
+  }, [onClose, onCancel]);
 
   const resolvedDescription = description ?? message ?? "";
   const resolvedConfirmText = confirmText ?? confirmLabel ?? "Confirm";
@@ -103,7 +103,7 @@ export default function ConfirmDialog({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, isLoading, onClose, onCancel]);
+  }, [isOpen, isLoading, handleClose]);
 
   if (!mounted || !isOpen) return null;
 

@@ -8,21 +8,22 @@ import { SEMESTERS } from "@/data/mockData";
 import BranchSelect from "@/components/ui/BranchSelect";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { 
-  FaUser, 
-  FaSliders, 
-  FaClock, 
-  FaGraduationCap, 
-  FaEnvelope, 
-  FaCalendarDays, 
-  FaBook, 
-  FaCircleCheck,
-  FaCircleExclamation,
-  FaFilePdf,
-  FaKey,
-  FaLaptop,
-  FaMobileScreenButton,
-  FaTabletScreenButton
-} from "react-icons/fa6";
+  LuUser, 
+  LuSlidersHorizontal, 
+  LuClock, 
+  LuGraduationCap, 
+  LuMail, 
+  LuCalendar, 
+  LuBookOpen, 
+  LuCircleCheck,
+  LuCircleAlert,
+  LuFileText,
+  LuKey,
+  LuLaptop,
+  LuSmartphone,
+  LuTablet,
+  LuShieldCheck
+} from "react-icons/lu";
 import { parseUserAgent } from "@/utils/userAgent";
 import { supabase } from "@/utils/supabaseClient";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -346,68 +347,81 @@ export default function ProfileClient({
 
   return (
     <div className={styles.container}>
-      {/* Modern Profile Card Banner */}
+      {/* ── Top Eyebrow Tag ── */}
+      <div className={styles.topNavRow}>
+        <div className={styles.eyebrowTag}>
+          <LuShieldCheck size={14} />
+          <span>STUDENT ACCOUNT • SETTINGS DESK</span>
+        </div>
+      </div>
+
+      {/* ── 1. Scholar Dossier Hero Banner (DESIGN.md §4.15 & §4.5) ── */}
       <div className={styles.profileBanner}>
         <div className={styles.profileBannerOverlay} />
         <div className={styles.profileBannerContent}>
-          <div className={styles.avatarWrapper}>
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={fullName || "User Avatar"}
-                fill
-                sizes="96px"
-                unoptimized
-                className={styles.avatarImage}
-              />
-            ) : (
-              <div className={styles.avatarInitials}>
-                {getInitials(fullName, email)}
-              </div>
-            )}
-          </div>
-          
-          <div className={styles.userMainInfo}>
-            <div className={styles.nameRow}>
-              <h1 className={styles.userName}>{fullName || "Student"}</h1>
-              {isAdmin ? (
-                <span className={styles.roleBadgeAdmin}>Administrator</span>
+          <div className={styles.profileIdentityGroup}>
+            <div className={styles.avatarWrapper}>
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={fullName || "User Avatar"}
+                  fill
+                  sizes="92px"
+                  unoptimized
+                  className={styles.avatarImage}
+                />
               ) : (
-                <span className={styles.roleBadgeStudent}>Student</span>
+                <div className={styles.avatarInitials}>
+                  {getInitials(fullName, email)}
+                </div>
               )}
             </div>
-            {username && (
-              <p style={{ color: "var(--accent)", fontWeight: 700, fontSize: "0.9rem", margin: "0 0 0.15rem" }}>
-                @{username}
+            
+            <div className={styles.userMainInfo}>
+              <div className={styles.nameRow}>
+                <h1 className={styles.userName}>{fullName || "Student"}</h1>
+                {isAdmin ? (
+                  <span className={styles.roleBadgeAdmin}>Administrator</span>
+                ) : (
+                  <span className={styles.roleBadgeStudent}>Student</span>
+                )}
+              </div>
+              {username && (
+                <p className={styles.handleText}>
+                  @{username}
+                </p>
+              )}
+              <p className={styles.userEmailText} title={email}>
+                <LuMail className={styles.infoIcon} size={15} /> 
+                <span className={styles.userEmailValue}>{email}</span>
               </p>
-            )}
-            <p className={styles.userEmailText}>
-              <FaEnvelope className={styles.infoIcon} /> {email}
-            </p>
-            <p className={styles.userUnivText}>
-              <FaGraduationCap className={styles.infoIcon} /> {university || "No University Set"}
-            </p>
+              <p className={styles.userUnivText} title={university || "No University Set"}>
+                <LuGraduationCap className={styles.infoIcon} size={15} /> 
+                <span className={styles.userUnivValue}>{university || "No University Set"}</span>
+              </p>
+            </div>
           </div>
 
+          {/* 3-Cell Academic Metrics Strip */}
           <div className={styles.statsContainer}>
             <div className={styles.statCard}>
               <span className={styles.statLabel}>Member Since</span>
               <span className={styles.statValue}>
-                <FaCalendarDays className={styles.statIcon} />
+                <LuCalendar className={styles.statIcon} size={15} />
                 {createdAt ? new Date(createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "N/A"}
               </span>
             </div>
             <div className={styles.statCard}>
               <span className={styles.statLabel}>Unlocked Notes</span>
               <span className={styles.statValue}>
-                <FaBook className={styles.statIcon} />
+                <LuBookOpen className={styles.statIcon} size={15} />
                 {purchases.length} {purchases.length === 1 ? "File" : "Files"}
               </span>
             </div>
             <div className={styles.statCard}>
               <span className={styles.statLabel}>Preferences</span>
               <span className={`${styles.statValue} ${branch && semester ? styles.statusConfigured : styles.statusPending}`}>
-                <FaSliders className={styles.statIcon} />
+                <LuSlidersHorizontal className={styles.statIcon} size={15} />
                 {branch && semester ? "Configured" : "Incomplete"}
               </span>
             </div>
@@ -416,47 +430,60 @@ export default function ProfileClient({
       </div>
 
       <div className={styles.mainLayout}>
-        {/* Horizontal Navigation Tabs */}
-        <div className={styles.tabsContainer}>
+        {/* ── 2. Horizontal Navigation Tabs (DESIGN.md §3.17) ── */}
+        <div className={styles.tabsContainer} role="tablist">
           <button 
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "account"}
             className={`${styles.tabBtn} ${activeTab === "account" ? styles.tabBtnActive : ""}`}
             onClick={() => { setActiveTab("account"); setMessage(null); }}
           >
-            <FaUser className={styles.tabIcon} />
+            <LuUser className={styles.tabIcon} />
             <span>Account Details</span>
           </button>
           <button 
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "preferences"}
             className={`${styles.tabBtn} ${activeTab === "preferences" ? styles.tabBtnActive : ""}`}
             onClick={() => { setActiveTab("preferences"); setMessage(null); }}
           >
-            <FaSliders className={styles.tabIcon} />
+            <LuSlidersHorizontal className={styles.tabIcon} />
             <span>Study Preferences</span>
           </button>
           <button 
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "purchases"}
             className={`${styles.tabBtn} ${activeTab === "purchases" ? styles.tabBtnActive : ""}`}
             onClick={() => { setActiveTab("purchases"); setMessage(null); }}
           >
-            <FaClock className={styles.tabIcon} />
-            <span>Purchase History</span>
+            <LuClock className={styles.tabIcon} />
+            <span>Purchase History ({purchases.length})</span>
           </button>
           <button 
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "sessions"}
             className={`${styles.tabBtn} ${activeTab === "sessions" ? styles.tabBtnActive : ""}`}
             onClick={() => { setActiveTab("sessions"); setMessage(null); }}
           >
-            <FaKey className={styles.tabIcon} />
+            <LuKey className={styles.tabIcon} />
             <span>Active Sessions</span>
           </button>
         </div>
 
-        {/* Content Area */}
+        {/* ── 3. Workstation Content Area ── */}
         <div className={styles.contentArea}>
           <div className={styles.card}>
             
+            {/* Account Details Tab */}
             {activeTab === "account" && (
               <form onSubmit={handleSubmit} className={styles.formElement}>
                 <div className={styles.cardHeader}>
                   <h2 className={styles.cardTitle}>Personal Information</h2>
-                  <p className={styles.cardSub}>Update your display name or review registered institution details.</p>
+                  <p className={styles.cardSub}>Update your display name and manage your registered student handle.</p>
                 </div>
 
                 <div className={styles.formGrid}>
@@ -470,7 +497,7 @@ export default function ProfileClient({
                       readOnly
                       disabled
                     />
-                    <span className={styles.inputHelp}>Your email address is managed securely via credentials and cannot be edited.</span>
+                    <span className={styles.inputHelp}>Your email address is managed securely via credentials and cannot be edited directly.</span>
                   </div>
 
                   <div className={styles.formGroup}>
@@ -484,13 +511,13 @@ export default function ProfileClient({
                       placeholder="e.g. Jane Doe"
                       required
                     />
-                    <span className={styles.inputHelp}>Enter your first and last name. This is displayed on certificates and dashboards.</span>
+                    <span className={styles.inputHelp}>Enter your formal first and last name. This is displayed on invoices and certificates.</span>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="username">Username</label>
+                    <label className={styles.label} htmlFor="username">Username Handle</label>
                     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                      <span style={{ position: "absolute", left: "0.85rem", fontWeight: 700, color: "var(--accent)", fontSize: "1rem", pointerEvents: "none" }}>@</span>
+                      <span style={{ position: "absolute", left: "0.85rem", fontWeight: 700, color: "var(--blue-500, #2447F5)", fontFamily: "var(--font-jetbrains, monospace)", fontSize: "1rem", pointerEvents: "none" }}>@</span>
                       <input
                         type="text"
                         id="username"
@@ -501,22 +528,22 @@ export default function ProfileClient({
                         maxLength={15}
                         autoComplete="off"
                         spellCheck={false}
-                        style={{ paddingLeft: "2.1rem" }}
+                        style={{ paddingLeft: "2.1rem", fontFamily: "var(--font-jetbrains, monospace)" }}
                       />
                       {usernameCheckState === "checking" && (
-                        <span style={{ position: "absolute", right: "0.8rem", width: "14px", height: "14px", border: "2px solid var(--border)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                        <span style={{ position: "absolute", right: "0.8rem", width: "14px", height: "14px", border: "2px solid var(--line-300, #CDD4E2)", borderTopColor: "var(--blue-500, #2447F5)", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
                       )}
-                      {usernameCheckState === "available" && <span style={{ position: "absolute", right: "0.85rem", color: "#22c55e", fontWeight: 700 }}>✓</span>}
-                      {(usernameCheckState === "taken" || usernameCheckState === "invalid") && <span style={{ position: "absolute", right: "0.85rem", color: "#ef4444", fontWeight: 700 }}>✗</span>}
+                      {usernameCheckState === "available" && <span style={{ position: "absolute", right: "0.85rem", color: "var(--success, #0F7B4F)", fontWeight: 700 }}>✓</span>}
+                      {(usernameCheckState === "taken" || usernameCheckState === "invalid") && <span style={{ position: "absolute", right: "0.85rem", color: "var(--error, #C42B3A)", fontWeight: 700 }}>✗</span>}
                     </div>
-                    {usernameCheckState === "available" && <span style={{ fontSize: "0.78rem", color: "#22c55e", fontWeight: 600 }}>@{username} is available!</span>}
-                    {usernameCheckState === "taken" && <span style={{ fontSize: "0.78rem", color: "#ef4444", fontWeight: 600 }}>Username already taken.</span>}
-                    {usernameCheckState === "invalid" && <span style={{ fontSize: "0.78rem", color: "#ef4444", fontWeight: 600 }}>3–15 chars: start/end with letter/number/_, dots allowed in middle only.</span>}
-                    <span className={styles.inputHelp}>Your unique public handle (e.g. @{email.split("@")[0]}). Visible to others on contributions and reviews.</span>
+                    {usernameCheckState === "available" && <span style={{ fontSize: "0.78rem", color: "var(--success, #0F7B4F)", fontWeight: 600, fontFamily: "var(--font-jetbrains, monospace)" }}>@{username} is available!</span>}
+                    {usernameCheckState === "taken" && <span style={{ fontSize: "0.78rem", color: "var(--error, #C42B3A)", fontWeight: 600, fontFamily: "var(--font-jetbrains, monospace)" }}>Username already taken.</span>}
+                    {usernameCheckState === "invalid" && <span style={{ fontSize: "0.78rem", color: "var(--error, #C42B3A)", fontWeight: 600, fontFamily: "var(--font-jetbrains, monospace)" }}>3–15 chars: start/end with letter/number/_, dots allowed in middle only.</span>}
+                    <span className={styles.inputHelp}>Your unique public handle (e.g. @{email.split("@")[0]}). Visible on peer contributions and discussions.</span>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="university">University / College</label>
+                    <label className={styles.label} htmlFor="university">Registered University</label>
                     <input
                       type="text"
                       id="university"
@@ -524,9 +551,9 @@ export default function ProfileClient({
                       value={university}
                       readOnly
                       disabled
-                      placeholder="e.g. Stanford University"
+                      placeholder="e.g. Mumbai University"
                     />
-                    <span className={styles.inputHelp}>Your university affiliation is locked and set during checkout/registration.</span>
+                    <span className={styles.inputHelp}>Your institutional affiliation is calibrated during initial onboarding for syllabus alignment.</span>
                   </div>
                 </div>
 
@@ -537,25 +564,32 @@ export default function ProfileClient({
                         <circle className={styles.spinnerCircle} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className={styles.spinnerPath} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Saving...
+                      <span>Saving...</span>
                     </>
                   ) : "Save Changes"}
                 </button>
               </form>
             )}
 
+            {/* Study Preferences Tab */}
             {activeTab === "preferences" && (
               <form onSubmit={handleSubmit} className={styles.formElement}>
                 <div className={styles.cardHeader}>
                   <h2 className={styles.cardTitle}>Study Preferences</h2>
-                  <p className={styles.cardSub}>Set default parameters to personalize your library dashboard content catalog.</p>
+                  <p className={styles.cardSub}>Set default branch and term filters to streamline your catalog browsing experience.</p>
                 </div>
 
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="branch">Default Branch</label>
-                    <BranchSelect id="branch" value={branch} onChange={setBranch} placeholder="Search or select your branch..." />
-                    <span className={styles.inputHelp}>Your course materials will automatically filter to this stream when you log in.</span>
+                    <label className={styles.label} htmlFor="branch">Default Engineering Branch</label>
+                    <BranchSelect 
+                      id="branch" 
+                      value={branch} 
+                      onChange={setBranch} 
+                      placeholder="Search or select your branch..." 
+                      variant="light"
+                    />
+                    <span className={styles.inputHelp}>Catalog notes will automatically pre-filter to this discipline upon sign in.</span>
                   </div>
 
                   <div className={styles.formGroup}>
@@ -571,7 +605,7 @@ export default function ProfileClient({
                         <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
-                    <span className={styles.inputHelp}>Filter syllabus sheets and lectures according to this term duration.</span>
+                    <span className={styles.inputHelp}>Filter syllabus sheets and question guides to your current academic semester.</span>
                   </div>
                 </div>
 
@@ -582,27 +616,28 @@ export default function ProfileClient({
                         <circle className={styles.spinnerCircle} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className={styles.spinnerPath} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Saving...
+                      <span>Saving...</span>
                     </>
                   ) : "Save Preferences"}
                 </button>
               </form>
             )}
 
+            {/* Purchase History Tab */}
             {activeTab === "purchases" && (
               <div>
                 <div className={styles.cardHeader}>
                   <h2 className={styles.cardTitle}>Purchase History & Invoices</h2>
-                  <p className={styles.cardSub}>View billing invoices, transaction order logs, and access permissions.</p>
+                  <p className={styles.cardSub}>Review unlocked study materials, transaction order receipts, and download official PDF tax invoices.</p>
                 </div>
                 
                 {purchases.length === 0 ? (
                   <div className={styles.emptyState}>
                     <div className={styles.emptyIconContainer}>
-                      <FaBook className={styles.emptyIcon} />
+                      <LuBookOpen className={styles.emptyIcon} size={28} />
                     </div>
                     <p className={styles.emptyStateTitle}>No purchase history found</p>
-                    <p className={styles.emptyStateDesc}>You haven&apos;t made any paid note purchases. Premium notes will unlock and list invoices here.</p>
+                    <p className={styles.emptyStateDesc}>You haven&apos;t made any paid note purchases. Premium notes will unlock and generate invoices here.</p>
                   </div>
                 ) : (
                   <div className={styles.tableContainer}>
@@ -610,7 +645,7 @@ export default function ProfileClient({
                       <thead>
                         <tr>
                           <th>Date</th>
-                          <th>Note</th>
+                          <th>Note Resource</th>
                           <th>Order ID</th>
                           <th>Amount</th>
                           <th>Status</th>
@@ -622,8 +657,10 @@ export default function ProfileClient({
                           <tr key={p.id} className={styles.tableRow}>
                             <td className={styles.tableDate}>{formatDate(p.date)}</td>
                             <td className={styles.tableTitle}>{p.noteTitle}</td>
-                            <td className={styles.tableOrderId}>{p.orderId}</td>
-                            <td className={styles.tableAmount}>₹{p.amount}</td>
+                            <td>
+                              <span className={styles.tableOrderId}>{p.orderId}</span>
+                            </td>
+                            <td className={styles.tableAmount}>₹{p.amount.toLocaleString("en-IN")}</td>
                             <td>
                               <span className={`${styles.badge} ${p.status === "success" ? styles.badgeSuccess : styles.badgeFailed}`}>
                                 {p.status === "success" ? "Paid" : p.status}
@@ -637,8 +674,8 @@ export default function ProfileClient({
                                   className={styles.btnDownload}
                                   title="Download Invoice PDF"
                                 >
-                                  <FaFilePdf className={styles.downloadIcon} />
-                                  <span>PDF</span>
+                                  <LuFileText className={styles.downloadIcon} size={13} />
+                                  <span>PDF Receipt</span>
                                 </button>
                               ) : (
                                 <span className={styles.textMuted}>—</span>
@@ -653,12 +690,13 @@ export default function ProfileClient({
               </div>
             )}
 
+            {/* Active Sessions Tab */}
             {activeTab === "sessions" && (
               <div>
                 <div className={styles.sessionHeaderContainer}>
                   <div className={styles.cardHeader} style={{ marginBottom: 0, borderBottom: "none", paddingBottom: 0 }}>
                     <h2 className={styles.cardTitle}>Active Sessions</h2>
-                    <p className={styles.cardSub}>Review and manage devices where you are currently signed in.</p>
+                    <p className={styles.cardSub}>Review and manage connected devices where you are currently signed in.</p>
                   </div>
                   {sessions.length > 1 && (
                     <button
@@ -695,11 +733,11 @@ export default function ProfileClient({
                           <div className={styles.sessionDetails}>
                             <div className={styles.deviceIconContainer}>
                               {s.device === "Mobile" ? (
-                                <FaMobileScreenButton className={styles.deviceIcon} />
+                                <LuSmartphone className={styles.deviceIcon} size={20} />
                               ) : s.device === "Tablet" ? (
-                                <FaTabletScreenButton className={styles.deviceIcon} />
+                                <LuTablet className={styles.deviceIcon} size={20} />
                               ) : (
-                                <FaLaptop className={styles.deviceIcon} />
+                                <LuLaptop className={styles.deviceIcon} size={20} />
                               )}
                             </div>
                             <div className={styles.deviceText}>
@@ -741,6 +779,7 @@ export default function ProfileClient({
               </div>
             )}
 
+            {/* Alerts & Feedback */}
             {message && (
               <div
                 className={`${styles.message} ${
@@ -748,9 +787,9 @@ export default function ProfileClient({
                 }`}
               >
                 {message.type === "success" ? (
-                  <FaCircleCheck className={styles.msgIcon} />
+                  <LuCircleCheck className={styles.msgIcon} size={18} />
                 ) : (
-                  <FaCircleExclamation className={styles.msgIcon} />
+                  <LuCircleAlert className={styles.msgIcon} size={18} />
                 )}
                 <span>{message.text}</span>
               </div>

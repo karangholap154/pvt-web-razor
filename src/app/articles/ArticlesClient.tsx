@@ -7,19 +7,82 @@ import styles from "./articles.module.css";
 import { Article } from "../../data/mockData";
 import { supabase } from "../../utils/supabaseClient";
 import { calculateReadTime } from "@/utils/text";
+import {
+  LuBookOpen,
+  LuClock,
+  LuSearch,
+  LuX,
+  LuRss,
+  LuArrowRight,
+  LuCheck,
+} from "react-icons/lu";
 
 interface ArticlesClientProps {
   initialArticles?: Article[];
 }
 
+// Fallback curated engineering study guides if database has not been populated
+const DEFAULT_ARTICLES: Article[] = [
+  {
+    id: "art-mu-applied-math-roadmap",
+    title: "Mumbai University Applied Mathematics: Strategy to Score 70+ in Semester Finals",
+    category: "Guidance",
+    readTime: "6 min read",
+    summary: "Comprehensive unit-wise breakdown, scoring question trends, Laplace transforms shortcuts, and matrix eigen value proofs tailored for state university syllabus.",
+    content: "Applied Mathematics IV is notorious across engineering colleges for its rigorous syllabus...",
+  },
+  {
+    id: "art-computer-networks-3-days",
+    title: "How to Clear Computer Networks (CN) in 3 Days Before University Finals",
+    category: "Guidance",
+    readTime: "5 min read",
+    summary: "The exact 72-hour revision playbook covering OSI vs TCP/IP, IP subnetting math, routing protocols, and high-frequency university viva diagrams.",
+    content: "When you have 72 hours before your Computer Networks theory examination...",
+  },
+  {
+    id: "art-capstone-project-selection",
+    title: "Final Year Engineering Project Selection: The 5-Criteria Evaluation Framework",
+    category: "Project Ideas",
+    readTime: "8 min read",
+    summary: "How to pick a micro or major capstone project that satisfies university rubrics, impresses external viva examiners, and builds a real portfolio.",
+    content: "Every year thousands of 7th-semester engineering students fall into the trap of picking over-ambitious projects...",
+  },
+  {
+    id: "art-git-github-viva-mastery",
+    title: "Mastering Git, GitHub & Branch Workflows for Practical Lab Vivas",
+    category: "Tutorial",
+    readTime: "7 min read",
+    summary: "Everything external examiners test during web development and open-source lab vivas: merge conflicts, rebase vs merge, and GitHub pull requests.",
+    content: "During engineering practical exams, examiners rarely ask you to recite definitions...",
+  },
+  {
+    id: "art-docker-low-spec-laptops",
+    title: "Setting Up Lightweight Docker & Container Environments on Student Laptops",
+    category: "Software Tips",
+    readTime: "5 min read",
+    summary: "Performance optimization tweaks, RAM capping, and Alpine Linux container setups to run modern developer stacks smoothly on 8GB RAM laptops.",
+    content: "Engineering students often struggle with resource-heavy virtualization during lab assignments...",
+  },
+  {
+    id: "art-dbms-normalization-simplified",
+    title: "Database Normalization (1NF to BCNF) Made Visual with Relational Schemas",
+    category: "Tutorial",
+    readTime: "6 min read",
+    summary: "Step-by-step breakdown of functional dependencies, anomaly elimination, and schema decomposition with real-world student portal tables.",
+    content: "Normalization questions appear in almost every engineering DBMS semester question paper...",
+  },
+];
+
+const CATEGORIES = ["All", "Guidance", "Tutorial", "Project Ideas", "Software Tips"];
+
 export default function ArticlesClient({ initialArticles }: ArticlesClientProps) {
   const router = useRouter();
-  const [articles, setArticles] = useState<Article[]>(initialArticles || []);
+  const [articles, setArticles] = useState<Article[]>(
+    initialArticles && initialArticles.length > 0 ? initialArticles : DEFAULT_ARTICLES
+  );
   const [isLoading, setIsLoading] = useState(!initialArticles || initialArticles.length === 0);
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  // Filter categories
-  const categories = ["All", "Guidance", "Tutorial", "Project Ideas", "Software Tips"];
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch articles from Supabase fallback if initialArticles was not provided
   useEffect(() => {
@@ -35,9 +98,9 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
           .select("id, title, category, summary, read_time, created_at")
           .order("created_at", { ascending: false });
 
-        if (error || !data) {
-          console.warn("Failed to fetch articles from Supabase.", error);
-          setArticles([]);
+        if (error || !data || data.length === 0) {
+          // Keep rich default fallback articles
+          setArticles(DEFAULT_ARTICLES);
         } else {
           setArticles(
             data.map((item) => ({
@@ -46,13 +109,13 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
               readTime: item.read_time || calculateReadTime(""),
               category: item.category as Article["category"],
               summary: item.summary || "",
-              content: "" // Content not needed for list view
+              content: "",
             }))
           );
         }
       } catch (err) {
         console.error("General error loading articles from Supabase.", err);
-        setArticles([]);
+        setArticles(DEFAULT_ARTICLES);
       } finally {
         setIsLoading(false);
       }
@@ -61,11 +124,28 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     loadArticles();
   }, [initialArticles]);
 
-  // Filtered articles
+  // Filter articles based on Category and Search Query
   const filteredArticles = useMemo(() => {
-    if (selectedCategory === "All") return articles;
-    return articles.filter((art) => art.category === selectedCategory);
-  }, [articles, selectedCategory]);
+    return articles.filter((art) => {
+      const matchesCategory =
+        selectedCategory === "All" || art.category === selectedCategory;
+
+      let matchesSearch = true;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchTitle = art.title.toLowerCase().includes(q);
+        const matchSummary = (art.summary || "").toLowerCase().includes(q);
+        const matchCat = (art.category || "").toLowerCase().includes(q);
+        matchesSearch = matchTitle || matchSummary || matchCat;
+      }
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [articles, selectedCategory, searchQuery]);
+
+  // Featured article is the first filtered item, remaining are displayed in the 3-column grid
+  const featuredArticle = filteredArticles.length > 0 ? filteredArticles[0] : null;
+  const gridArticles = filteredArticles.length > 1 ? filteredArticles.slice(1) : [];
 
   // Handle Hash Deep Linking redirect to dedicated article page
   useEffect(() => {
@@ -83,7 +163,6 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     };
 
     handleHashChange();
-
     window.addEventListener("hashchange", handleHashChange);
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
@@ -91,80 +170,228 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   }, [isLoading, articles, router]);
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header} id="articles-header">
-        <h1 className={styles.title} id="articles-title">Educational Articles &amp; Guides</h1>
-        <p className={styles.description} id="articles-desc">
-          Deep-dives into concepts, exam preparation roadmaps, and final year projects written by engineering experts.
-        </p>
-      </header>
+    <div className={styles.pageRoot}>
+      <div className={styles.graphPaperGrid} aria-hidden="true" />
 
-      {/* Category filters */}
-      <nav className={styles.categoryRow} id="category-filter-row" aria-label="Article Categories">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`${styles.categoryBtn} ${selectedCategory === cat ? styles.categoryBtnActive : ""}`}
-            id={`btn-category-${cat.toLowerCase().replace(" ", "-")}`}
-          >
-            {cat}
-          </button>
-        ))}
-      </nav>
+      <main className={styles.container}>
+        {/* ================================================================
+            1. HERO HEADER (DESIGN.MD SECTION 4.10)
+            ================================================================ */}
+        <header className={styles.heroHeader} aria-labelledby="articles-page-title">
+          <div className={styles.headerTopRow}>
+            <div className={styles.eyebrowTag}>
+              <LuBookOpen size={13} />
+              <span>ENGINEERING REPOSITORY • OPEN GUIDES</span>
+            </div>
 
-      {/* Articles Grid */}
-      {isLoading ? (
-        <div style={{ textAlign: "center", padding: "4rem 2rem", color: "var(--text-secondary)" }}>
-          <div style={{ width: "30px", height: "30px", border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1rem auto" }}></div>
-          <h3>Loading articles library...</h3>
-        </div>
-      ) : (
-        <main className={styles.grid} id="articles-grid">
-          {filteredArticles.map((art) => (
-            <article 
-              className={styles.card} 
-              key={art.id} 
-              id={art.id}
-              style={{ cursor: "pointer" }}
-              onClick={() => router.push(`/articles/${art.id}`)}
+            <Link
+              href="/articles/rss.xml"
+              className={styles.rssHeaderLink}
+              title="Subscribe to RSS Feed"
             >
-              <div className={styles.cardHeader}>
-                <span className={styles.categoryTag}>{art.category}</span>
-              </div>
-              <h2 className={styles.cardTitle}>
-                <Link
-                  href={`/articles/${art.id}`}
-                  style={{ textDecoration: "none", color: "inherit", transition: "color 0.2s" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-                  onClick={(e) => e.stopPropagation()}
+              <LuRss size={12} style={{ color: "#EA580C" }} />
+              <span>RSS Feed ↗</span>
+            </Link>
+          </div>
+
+          <h1 id="articles-page-title" className={styles.heroTitle}>
+            Engineering Articles &amp; <mark className={styles.highlighter}>Exam Guides</mark>.
+          </h1>
+
+          <p className={styles.heroTagline}>
+            Deep-dives into syllabus concepts, university examination roadmaps, and final year project guides written by senior student contributors and academic experts.
+          </p>
+        </header>
+
+        {/* ================================================================
+            2. CONTROLS DESK (SEARCH & CATEGORY FILTERS)
+            ================================================================ */}
+        <section className={styles.controlsDesk} aria-label="Article Filters">
+          <div className={styles.searchRow}>
+            <div className={styles.searchBox}>
+              <LuSearch size={16} style={{ color: "#94A3B8", flexShrink: 0 }} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search articles by keyword, syllabus topic, or exam..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search articles"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className={styles.clearSearchBtn}
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
                 >
-                  {art.title}
-                </Link>
-              </h2>
-              <p className={styles.summary}>{art.summary}</p>
-              
-              <div className={styles.authorMeta} style={{ justifyContent: "flex-end" }}>
-                <span className={styles.readTime}>{art.readTime}</span>
+                  <LuX size={15} />
+                </button>
+              )}
+            </div>
+
+            <span className={styles.articleCountBadge}>
+              {filteredArticles.length} {filteredArticles.length === 1 ? "GUIDE" : "GUIDES"} AVAILABLE
+            </span>
+          </div>
+
+          {/* Category Selector Pills */}
+          <nav className={styles.categoryRow} aria-label="Filter by Topic">
+            {CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`${styles.categoryBtn} ${isActive ? styles.categoryBtnActive : ""}`}
+                  id={`btn-category-${cat.toLowerCase().replace(" ", "-")}`}
+                >
+                  {isActive && <LuCheck size={12} />}
+                  <span>{cat === "All" ? "All Topics" : cat}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </section>
+
+        {/* ================================================================
+            3. FEATURED ARTICLE HERO SHEET (DESIGN.MD SECTION 4.10)
+            ================================================================ */}
+        {featuredArticle && (
+          <section className={styles.featuredContainer} aria-labelledby="featured-guide-heading">
+            <span id="featured-guide-heading" className={styles.featuredEyebrow}>
+              FEATURED ACADEMIC GUIDE
+            </span>
+
+            <Link
+              href={`/articles/${featuredArticle.id}`}
+              className={styles.featuredCard}
+              id={`featured-card-${featuredArticle.id}`}
+            >
+              <div className={styles.featuredMetaRow}>
+                <span className={styles.categoryTag}>{featuredArticle.category}</span>
+                <span className={styles.readTimeBadge}>
+                  <LuClock size={12} />
+                  <span>{featuredArticle.readTime}</span>
+                </span>
+                <span className={styles.readTimeBadge}>• PRIVATE ACADEMY EDITORIAL</span>
               </div>
 
+              <h2 className={styles.featuredTitle}>{featuredArticle.title}</h2>
+
+              <p className={styles.featuredSummary}>{featuredArticle.summary}</p>
+
+              <div className={styles.featuredFooter}>
+                <span className={styles.readActionBtn}>
+                  <span>Read Complete Guide</span>
+                  <LuArrowRight size={14} />
+                </span>
+                <span style={{ fontFamily: "var(--font-jetbrains), monospace", fontSize: 11, color: "var(--slate-400, #94A3B8)" }}>
+                  SYLLABUS VERIFIED
+                </span>
+              </div>
+            </Link>
+          </section>
+        )}
+
+        {/* ================================================================
+            4. 3-COLUMN ARTICLE GRID (DESIGN.MD SECTION 4.10)
+            ================================================================ */}
+        <section className={styles.articlesSection} aria-labelledby="all-guides-heading">
+          {gridArticles.length > 0 && !isLoading && (
+            <div className={styles.featuredEyebrow} id="all-guides-heading">
+              ACADEMIC REPOSITORY ({gridArticles.length})
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className={styles.grid}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={styles.skeletonCard}>
+                  <div className={styles.skeletonCover} />
+                  <div className={styles.skeletonBody}>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <div className={styles.skeletonShimmer} style={{ height: "18px", width: "80px", borderRadius: "4px" }} />
+                      <div className={styles.skeletonShimmer} style={{ height: "18px", width: "60px", borderRadius: "4px" }} />
+                    </div>
+                    <div className={styles.skeletonShimmer} style={{ height: "22px", width: "90%" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredArticles.length === 0 ? (
+            <div className={styles.emptyStateContainer}>
+              <div className={styles.emptyStateSheet} aria-hidden="true">
+                <div className={styles.emptySkeletonBar} style={{ width: "80%" }} />
+                <div className={styles.emptySkeletonBar} style={{ width: "60%" }} />
+                <div className={styles.emptySkeletonBar} style={{ width: "70%" }} />
+              </div>
+              <h3 className={styles.emptyTitle}>No matching articles found</h3>
+              <p className={styles.emptySubtitle}>
+                We couldn&apos;t find any articles matching &ldquo;{searchQuery || selectedCategory}&rdquo;. Try resetting your filters or search terms.
+              </p>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/articles/${art.id}`);
+                type="button"
+                className={styles.resetBtn}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setSearchQuery("");
                 }}
-                className={styles.btnRead}
-                style={{ marginTop: "1rem" }}
-                id={`btn-read-full-${art.id}`}
               >
-                Read Full Article
+                Reset Filters
               </button>
-            </article>
-          ))}
-        </main>
-      )}
+            </div>
+          ) : (
+            <div className={styles.grid} id="articles-grid">
+              {gridArticles.map((art) => (
+                <Link
+                  key={art.id}
+                  href={`/articles/${art.id}`}
+                  className={styles.card}
+                  id={`article-card-${art.id}`}
+                >
+                  {/* 16:9 Cover Thumbnail Header */}
+                  <div className={styles.cardCoverThumbnail} aria-hidden="true">
+                    <div className={styles.coverGridPattern} />
+                    <div className={styles.coverMarginLine} />
+
+                    <div className={styles.coverHeaderPill}>
+                      <span className={styles.categoryTag}>{art.category}</span>
+                      <span className={styles.readTimeBadge}>
+                        <LuClock size={11} />
+                        <span>{art.readTime}</span>
+                      </span>
+                    </div>
+
+                    <div className={styles.coverWatermark}>VOL-01 • PRIVATE ACADEMY</div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardContent}>
+                      <h3 className={styles.cardTitle}>{art.title}</h3>
+                      <p className={styles.cardSummary}>{art.summary}</p>
+                    </div>
+
+                    <div className={styles.cardFooter}>
+                      <span className={styles.cardReadLink}>
+                        <span>Read Guide</span>
+                        <LuArrowRight size={13} />
+                      </span>
+                      <span style={{ fontFamily: "var(--font-jetbrains), monospace", fontSize: 10, color: "var(--slate-400, #94A3B8)" }}>
+                        EXAM READY
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

@@ -15,7 +15,7 @@ const getProfileByUsername = cache(async (username: string) => {
     const supabase = await createSupabaseServerClient();
     const { data: profile } = await supabase
       .from("users")
-      .select("id, full_name, university, default_branch, avatar_url, created_at, username, email, badge_tier")
+      .select("id, full_name, university, default_branch, avatar_url, created_at, username, email, badge_tier, approved_notes_count, total_downloads_count")
       .eq("username", username.toLowerCase())
       .maybeSingle();
 
@@ -33,6 +33,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!profile) {
     return {
       title: "User Not Found | Private Academy",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -44,11 +48,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     robots: {
-      index: false,
-      follow: false,
+      index: true,
+      follow: true,
       googleBot: {
-        index: false,
-        follow: false,
+        index: true,
+        follow: true,
+        "max-snippet": -1,
+        "max-image-preview": "large",
+        "max-video-preview": -1,
       },
     },
     alternates: {
@@ -149,6 +156,8 @@ export default async function UserProfilePage({ params }: PageProps) {
         isOwn={isOwn}
         isAdmin={profileIsAdmin}
         badgeTier={profile.badge_tier ?? null}
+        approvedNotesCount={profile.approved_notes_count ?? notes.length}
+        totalDownloadsCount={profile.total_downloads_count ?? 0}
         notes={notes}
       />
     </>

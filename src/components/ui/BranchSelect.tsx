@@ -15,6 +15,7 @@ interface BranchSelectProps {
   disabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  variant?: "dark" | "light";
 }
 
 export default function BranchSelect({
@@ -28,7 +29,9 @@ export default function BranchSelect({
   disabled,
   className,
   style,
+  variant = "dark",
 }: BranchSelectProps) {
+  const isLight = variant === "light";
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,19 +90,29 @@ export default function BranchSelect({
         style={{
           display: "flex",
           alignItems: "center",
-          backgroundColor: "rgba(24, 24, 27, 0.85)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: isOpen ? "1px solid var(--accent, #fbbf24)" : "1px solid rgba(255, 255, 255, 0.12)",
-          borderRadius: "var(--radius-sm, 8px)",
-          padding: "0.6rem 0.85rem",
+          backgroundColor: isLight ? "var(--paper, #F7F8FB)" : "rgba(24, 24, 27, 0.85)",
+          backdropFilter: isLight ? "none" : "blur(12px)",
+          WebkitBackdropFilter: isLight ? "none" : "blur(12px)",
+          border: isOpen
+            ? isLight
+              ? "1px solid var(--blue-500, #2447F5)"
+              : "1px solid var(--accent, #fbbf24)"
+            : isLight
+            ? "1px solid var(--line-300, #CDD4E2)"
+            : "1px solid rgba(255, 255, 255, 0.12)",
+          borderRadius: isLight ? "var(--radius-md, 10px)" : "var(--radius-sm, 8px)",
+          padding: isLight ? "0 0.85rem" : "0.6rem 0.85rem",
           cursor: disabled ? "not-allowed" : "pointer",
-          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "all 0.15s ease",
           boxShadow: isOpen
-            ? "0 0 0 3px rgba(251, 191, 36, 0.2), 0 8px 20px rgba(0, 0, 0, 0.4)"
-            : "0 4px 12px rgba(0, 0, 0, 0.2)",
+            ? isLight
+              ? "0 0 0 3px rgba(36, 71, 245, 0.12)"
+              : "0 0 0 3px rgba(251, 191, 36, 0.2), 0 8px 20px rgba(0, 0, 0, 0.4)"
+            : "none",
           opacity: disabled ? 0.6 : 1,
           minHeight: "42px",
+          height: "42px",
+          boxSizing: "border-box",
         }}
       >
         <input
@@ -117,13 +130,14 @@ export default function BranchSelect({
           required={required && !value}
           style={{
             width: "100%",
+            minWidth: 0,
             background: "transparent",
             border: "none",
             outline: "none",
-            color: "var(--text-primary, #f8fafc)",
-            fontFamily: "var(--font-sans)",
-            fontSize: "0.875rem",
-            fontWeight: 600,
+            color: isLight ? "var(--ink-900, #0B1020)" : "var(--text-primary, #f8fafc)",
+            fontFamily: isLight ? "var(--font-inter), sans-serif" : "var(--font-sans)",
+            fontSize: isLight ? "13.5px" : "0.875rem",
+            fontWeight: isLight ? 500 : 600,
             cursor: disabled ? "not-allowed" : "text",
           }}
         />
@@ -135,7 +149,7 @@ export default function BranchSelect({
             style={{
               background: "none",
               border: "none",
-              color: "#94a3b8",
+              color: isLight ? "var(--slate-400, #94A3B8)" : "#94a3b8",
               cursor: "pointer",
               padding: "2px 4px",
               display: "flex",
@@ -150,11 +164,12 @@ export default function BranchSelect({
 
         <FaChevronDown
           style={{
-            fontSize: "0.8rem",
-            color: "var(--accent, #fbbf24)",
+            fontSize: "0.75rem",
+            color: isLight ? "var(--slate-500, #4A5468)" : "var(--accent, #fbbf24)",
             transition: "transform 0.2s ease",
             transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
             flexShrink: 0,
+            marginLeft: "0.4rem",
           }}
         />
       </div>
@@ -170,14 +185,16 @@ export default function BranchSelect({
             right: 0,
             maxHeight: "240px",
             overflowY: "auto",
-            backgroundColor: "#121215",
-            border: "1px solid rgba(251, 191, 36, 0.3)",
-            borderRadius: "var(--radius-sm, 8px)",
+            backgroundColor: isLight ? "#FFFFFF" : "#121215",
+            border: isLight ? "1px solid var(--line-300, #CDD4E2)" : "1px solid rgba(251, 191, 36, 0.3)",
+            borderRadius: isLight ? "var(--radius-md, 10px)" : "var(--radius-sm, 8px)",
             padding: "0.35rem",
             margin: 0,
             listStyle: "none",
             zIndex: 1050,
-            boxShadow: "0 12px 32px rgba(0, 0, 0, 0.7)",
+            boxShadow: isLight
+              ? "0 10px 25px -5px rgba(11, 16, 32, 0.15), 0 8px 10px -6px rgba(11, 16, 32, 0.1)"
+              : "0 12px 32px rgba(0, 0, 0, 0.7)",
           }}
         >
           {filteredOptions.length === 0 ? (
@@ -185,7 +202,7 @@ export default function BranchSelect({
               style={{
                 padding: "0.75rem 1rem",
                 fontSize: "0.85rem",
-                color: "#94a3b8",
+                color: isLight ? "var(--slate-500, #4A5468)" : "#94a3b8",
                 textAlign: "center",
               }}
             >
@@ -201,12 +218,24 @@ export default function BranchSelect({
                   aria-selected={isSelected}
                   onClick={() => handleSelect(branch)}
                   style={{
-                    padding: "0.6rem 0.85rem",
+                    padding: isLight ? "0.55rem 0.85rem" : "0.6rem 0.85rem",
                     borderRadius: "6px",
-                    fontSize: "0.85rem",
-                    fontWeight: isSelected ? 700 : 500,
-                    color: isSelected ? "var(--accent, #fbbf24)" : "var(--text-primary, #f8fafc)",
-                    backgroundColor: isSelected ? "rgba(251, 191, 36, 0.1)" : "transparent",
+                    fontSize: isLight ? "13px" : "0.85rem",
+                    fontWeight: isSelected ? (isLight ? 600 : 700) : 500,
+                    color: isLight
+                      ? isSelected
+                        ? "var(--blue-600, #1D39C4)"
+                        : "var(--ink-900, #0B1020)"
+                      : isSelected
+                      ? "var(--accent, #fbbf24)"
+                      : "var(--text-primary, #f8fafc)",
+                    backgroundColor: isLight
+                      ? isSelected
+                        ? "var(--blue-50, #EEF2FF)"
+                        : "transparent"
+                      : isSelected
+                      ? "rgba(251, 191, 36, 0.1)"
+                      : "transparent",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
@@ -215,7 +244,9 @@ export default function BranchSelect({
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                      e.currentTarget.style.backgroundColor = isLight
+                        ? "var(--paper, #F7F8FB)"
+                        : "rgba(255, 255, 255, 0.05)";
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -225,7 +256,14 @@ export default function BranchSelect({
                   }}
                 >
                   <span>{branch}</span>
-                  {isSelected && <FaCheck style={{ fontSize: "0.75rem", color: "var(--accent, #fbbf24)" }} />}
+                  {isSelected && (
+                    <FaCheck
+                      style={{
+                        fontSize: "0.75rem",
+                        color: isLight ? "var(--blue-600, #1D39C4)" : "var(--accent, #fbbf24)",
+                      }}
+                    />
+                  )}
                 </li>
               );
             })
