@@ -201,6 +201,15 @@ export default function DiscussionsClient() {
   return (
     <div className={styles.pageWrapper}>
       <main className={styles.mainContainer}>
+        {/* Eyebrow Header */}
+        <div className={styles.deskEyebrow}>
+          <span className={styles.deskEyebrowTag}>[ENGINEERING COMMONS • COMMUNITY FORUM]</span>
+          <span className={styles.deskEyebrowStatus}>
+            <span className={styles.statusDot} />
+            LIVE DOUBT CLEARING
+          </span>
+        </div>
+
         {/* ================================================================
             FORUM HEADER BANNER
             ================================================================ */}
