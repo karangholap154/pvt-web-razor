@@ -213,12 +213,12 @@
 
 .authCard {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
-  border-radius: var(--radius-xl, 18px);
+  border-radius: var(--radius-lg, 16px);
   padding: 36px 32px;
-  box-shadow: 0 16px 40px -16px rgba(11, 16, 32, 0.08);
+  box-shadow: 0 4px 24px rgba(11, 16, 32, 0.05);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -231,7 +231,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .brandMark {
@@ -252,6 +252,41 @@
   border-radius: 2px;
 }
 
+/* Engineer's Notebook Eyebrow */
+.deskEyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.deskEyebrowTag {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--blue-500, #2447F5);
+}
+
+.deskEyebrowStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--emerald-600, #0F7B4F);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #0F7B4F;
+  box-shadow: 0 0 6px rgba(15, 123, 79, 0.45);
+}
+
 .titleArea {
   display: flex;
   flex-direction: column;
@@ -260,11 +295,12 @@
 
 .cardTitle {
   font-family: var(--font-bricolage), sans-serif;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--ink-900, #0B1020);
   margin: 0;
+  line-height: 1.2;
 }
 
 .cardSubtitle {
@@ -279,10 +315,10 @@
 .tabsContainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background-color: var(--paper, #F7F8FB);
+  background-color: var(--line-100, #F0F3F8);
   border: 1px solid var(--line-300, #CDD4E2);
   border-radius: 10px;
-  padding: 4px;
+  padding: 3px;
   gap: 4px;
 }
 
@@ -290,14 +326,17 @@
   background: transparent;
   border: none;
   border-radius: 7px;
-  padding: 9px 12px;
+  height: 38px;
+  padding: 0 12px;
   font-family: var(--font-inter), sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: var(--slate-600, #4A5468);
   cursor: pointer;
   transition: all 150ms ease;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tabBtn:hover:not(.tabBtnActive) {
@@ -308,7 +347,7 @@
   background-color: #FFFFFF;
   color: var(--ink-900, #0B1020);
   font-weight: 700;
-  box-shadow: 0 1px 4px rgba(11, 16, 32, 0.08);
+  box-shadow: 0 1px 3px rgba(11, 16, 32, 0.08);
 }
 
 /* Google OAuth Button */
@@ -318,7 +357,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  height: 44px;
+  height: 48px;
   background-color: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
   border-radius: var(--radius-md, 10px);
@@ -404,7 +443,7 @@
 
 .inputWithIcon {
   width: 100%;
-  height: 44px;
+  height: 48px;
   padding: 0 42px 0 40px;
   background-color: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
@@ -489,13 +528,13 @@
   color: var(--ink-900, #0B1020);
 }
 
-/* Primary Submit Button */
+/* Primary Action Submit Button (Klein Blue DESIGN.md §2.1) */
 .submitBtn {
   width: 100%;
-  height: 46px;
-  background-color: var(--ink-900, #0B1020);
+  height: 48px;
+  background-color: var(--blue-500, #2447F5);
   color: #FFFFFF;
-  border: 1px solid var(--ink-900, #0B1020);
+  border: 1px solid #1B37C7;
   border-radius: var(--radius-md, 10px);
   font-family: var(--font-inter), sans-serif;
   font-size: 14px;
@@ -510,9 +549,9 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background-color: #1A2338;
+  background-color: #1B37C7;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(11, 16, 32, 0.15);
+  box-shadow: 0 4px 14px rgba(36, 71, 245, 0.25);
 }
 
 .submitBtn:disabled {
@@ -605,7 +644,7 @@
 
 .whatsappBtn {
   width: 100%;
-  height: 44px;
+  height: 46px;
   background-color: #25D366;
   color: #FFFFFF;
   border: none;
@@ -629,7 +668,7 @@
 
 .emailBtn {
   width: 100%;
-  height: 44px;
+  height: 46px;
   background-color: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
   border-radius: var(--radius-md, 10px);
@@ -652,7 +691,7 @@
   transform: translateY(-1px);
 }
 
-/* Alert Banners */
+/* Alert Banners — Engineer's Notebook Semantic Tokens */
 .alertBanner {
   display: flex;
   align-items: flex-start;
@@ -673,9 +712,9 @@
   font-family: var(--font-inter), sans-serif;
   font-size: 13px;
   line-height: 1.5;
-  background-color: #FEF2F2;
-  border: 1px solid #FECACA;
-  color: #DC2626;
+  background-color: #FDE8EA;
+  border: 1px solid #F8B4B9;
+  color: #C42B3A;
 }
 
 .successAlert {
@@ -687,9 +726,9 @@
   font-family: var(--font-inter), sans-serif;
   font-size: 13px;
   line-height: 1.5;
-  background-color: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  color: #16A34A;
+  background-color: #E4F5EC;
+  border: 1px solid #A3E0C0;
+  color: #0F7B4F;
 }
 
 .infoAlert {
@@ -703,7 +742,7 @@
   line-height: 1.5;
   background-color: #EFF6FF;
   border: 1px solid #BFDBFE;
-  color: #2563EB;
+  color: var(--blue-500, #2447F5);
 }
 
 /* ==========================================================================

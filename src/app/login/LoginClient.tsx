@@ -8,19 +8,18 @@ import { supabase } from "../../utils/supabaseClient";
 import { ALLOWED_DOMAINS } from "../../utils/constants";
 import { FcGoogle } from "react-icons/fc";
 import { 
-  FiMail, 
-  FiArrowLeft, 
-  FiLock, 
-  FiEye, 
-  FiEyeOff, 
-  FiAlertCircle, 
-  FiCheckCircle, 
-  FiInfo, 
-  FiCheck,
-  FiBookOpen,
-  FiDownloadCloud,
-  FiShield
-} from "react-icons/fi";
+  LuMail, 
+  LuArrowLeft, 
+  LuLock, 
+  LuEye, 
+  LuEyeOff, 
+  LuCircleAlert, 
+  LuCircleCheck, 
+  LuInfo, 
+  LuBookOpen,
+  LuCloudDownload,
+  LuShieldCheck
+} from "react-icons/lu";
 import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../components/providers/AuthProvider";
 
@@ -225,19 +224,19 @@ function LoginForm() {
             <ul className={styles.perksList}>
               <li className={styles.perkItem}>
                 <span className={styles.perkIcon}>
-                  <FiDownloadCloud size={16} />
+                  <LuCloudDownload size={16} />
                 </span>
                 <span>Instant offline PDF downloads with handwritten derivations</span>
               </li>
               <li className={styles.perkItem}>
                 <span className={styles.perkIcon}>
-                  <FiBookOpen size={16} />
+                  <LuBookOpen size={16} />
                 </span>
                 <span>Synchronized cross-device library &amp; video walkthroughs</span>
               </li>
               <li className={styles.perkItem}>
                 <span className={styles.perkIcon}>
-                  <FiShield size={16} />
+                  <LuShieldCheck size={16} />
                 </span>
                 <span>Reviewed &amp; aligned with university syllabus curriculum</span>
               </li>
@@ -256,6 +255,15 @@ function LoginForm() {
               <div className={styles.brandMark}>
                 <div className={styles.brandBar} />
               </div>
+            </div>
+
+            {/* Eyebrow Header */}
+            <div className={styles.deskEyebrow}>
+              <span className={styles.deskEyebrowTag}>[PORTAL • AUTHENTICATION]</span>
+              <span className={styles.deskEyebrowStatus}>
+                <span className={styles.statusDot} />
+                SECURE GATE
+              </span>
             </div>
 
             {/* Title Area */}
@@ -279,19 +287,19 @@ function LoginForm() {
             {/* Status & Error Alerts */}
             {error && (
               <div className={styles.errorAlert} role="alert">
-                <FiAlertCircle size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <LuCircleAlert size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
                 <span>{error}</span>
               </div>
             )}
             {successMsg && (
               <div className={styles.successAlert} role="status">
-                <FiCheckCircle size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <LuCircleCheck size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
                 <span>{successMsg}</span>
               </div>
             )}
             {infoMsg && (
               <div className={styles.infoAlert} role="status">
-                <FiInfo size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <LuInfo size={18} style={{ flexShrink: 0, marginTop: "1px" }} />
                 <span>{infoMsg}</span>
               </div>
             )}
@@ -310,7 +318,7 @@ function LoginForm() {
                   className={styles.backBtn}
                   disabled={loading}
                 >
-                  <FiArrowLeft size={16} />
+                  <LuArrowLeft size={16} />
                   <span>Back to Sign In</span>
                 </button>
 
@@ -336,7 +344,7 @@ function LoginForm() {
                   href="mailto:info@privateacademy.in?subject=Account%20Recovery%20Request&body=Hello%20Private%20Academy%20Support,%0A%0AI%20need%20help%20recovering%20access%20to%20my%20account.%20Here%20are%20my%20details:%0A-%20Email:%20%0A-%20Purchase%20Details/Transaction%20ID:%20"
                   className={styles.emailBtn}
                 >
-                  <FiMail size={18} />
+                  <LuMail size={18} />
                   <span>Email Support</span>
                 </a>
               </div>
@@ -400,7 +408,7 @@ function LoginForm() {
                     </label>
                     <div className={styles.inputWrapper}>
                       <span className={styles.inputFieldIcon}>
-                        <FiMail size={16} />
+                        <LuMail size={16} />
                       </span>
                       <input
                         type="email"
@@ -421,7 +429,7 @@ function LoginForm() {
                     </label>
                     <div className={styles.inputWrapper}>
                       <span className={styles.inputFieldIcon}>
-                        <FiLock size={16} />
+                        <LuLock size={16} />
                       </span>
                       <input
                         type={showPassword ? "text" : "password"}
@@ -439,7 +447,7 @@ function LoginForm() {
                         onClick={() => setShowPassword((prev) => !prev)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                       >
-                        {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                        {showPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
                       </button>
                     </div>
                   </div>
@@ -452,7 +460,7 @@ function LoginForm() {
                         </label>
                         <div className={styles.inputWrapper}>
                           <span className={styles.inputFieldIcon}>
-                            <FiLock size={16} />
+                            <LuLock size={16} />
                           </span>
                           <input
                             type={showConfirmPassword ? "text" : "password"}
@@ -470,7 +478,7 @@ function LoginForm() {
                             onClick={() => setShowConfirmPassword((prev) => !prev)}
                             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                           >
-                            {showConfirmPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                            {showConfirmPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
                           </button>
                         </div>
                       </div>
