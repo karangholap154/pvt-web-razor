@@ -166,7 +166,7 @@ export default function ContactClient() {
             ================================================================ */}
         <header className={styles.heroHeader} aria-labelledby="contact-page-title">
           <div className={styles.eyebrowTag}>
-            <LuMessageCircle size={13} />
+            <span className={styles.statusDot} />
             <span>COMMUNICATION DESK • 24H SLA</span>
           </div>
 
@@ -196,7 +196,7 @@ export default function ContactClient() {
                 aria-label="Email Private Academy Support"
               >
                 <div className={styles.channelCardLeft}>
-                  <div className={styles.channelIconBadge} style={{ backgroundColor: "#EFF6FF", color: "#2563EB" }}>
+                  <div className={styles.channelIconBadge} style={{ backgroundColor: "var(--blue-50, #EEF2FF)", color: "var(--blue-500, #2447F5)" }}>
                     <LuMail size={20} />
                   </div>
                   <div className={styles.channelInfo}>
@@ -204,7 +204,7 @@ export default function ContactClient() {
                     <p className={styles.channelDesc}>info@privateacademy.in</p>
                   </div>
                 </div>
-                <div className={styles.channelActionTag} style={{ color: "#2563EB" }}>
+                <div className={styles.channelActionTag} style={{ color: "var(--blue-500, #2447F5)" }}>
                   <span>Send Email</span>
                   <LuExternalLink size={13} />
                 </div>
@@ -213,7 +213,7 @@ export default function ContactClient() {
               {/* Response Time SLA Card */}
               <div className={styles.channelCard} style={{ cursor: "default" }}>
                 <div className={styles.channelCardLeft}>
-                  <div className={styles.channelIconBadge} style={{ backgroundColor: "#F0FDF4", color: "#16A34A" }}>
+                  <div className={styles.channelIconBadge} style={{ backgroundColor: "#E4F5EC", color: "#0F7B4F" }}>
                     <LuClock size={20} />
                   </div>
                   <div className={styles.channelInfo}>
@@ -221,7 +221,7 @@ export default function ContactClient() {
                     <p className={styles.channelDesc}>Within 24 hours on all academic days</p>
                   </div>
                 </div>
-                <div className={styles.channelActionTag} style={{ color: "#16A34A" }}>
+                <div className={styles.channelActionTag} style={{ color: "#0F7B4F" }}>
                   <span>24h SLA</span>
                 </div>
               </div>
@@ -229,7 +229,7 @@ export default function ContactClient() {
               {/* Location Card */}
               <div className={styles.channelCard} style={{ cursor: "default" }}>
                 <div className={styles.channelCardLeft}>
-                  <div className={styles.channelIconBadge} style={{ backgroundColor: "#FFF7ED", color: "#EA580C" }}>
+                  <div className={styles.channelIconBadge} style={{ backgroundColor: "#FFF8D1", color: "#B45309" }}>
                     <LuMapPin size={20} />
                   </div>
                   <div className={styles.channelInfo}>
@@ -237,7 +237,7 @@ export default function ContactClient() {
                     <p className={styles.channelDesc}>Maharashtra, India (MU, SPPU &amp; DBATU)</p>
                   </div>
                 </div>
-                <div className={styles.channelActionTag} style={{ color: "#EA580C" }}>
+                <div className={styles.channelActionTag} style={{ color: "#B45309" }}>
                   <span>Statewide</span>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function ContactClient() {
                   href="mailto:info@privateacademy.in?subject=Note%20Request%20-%20Private%20Academy"
                   className={styles.quickActionCard}
                 >
-                  <span className={styles.quickActionBadge}>Request</span>
+                  <span className={`${styles.quickActionBadge} ${styles.badgeRequest}`}>Request</span>
                   <div className={styles.quickActionTitle}>Need Specific Notes?</div>
                   <p className={styles.quickActionDesc}>Request materials not yet published for your syllabus</p>
                 </a>
@@ -264,7 +264,7 @@ export default function ContactClient() {
                   href="mailto:info@privateacademy.in?subject=Issue%20Report%20-%20Private%20Academy"
                   className={styles.quickActionCard}
                 >
-                  <span className={styles.quickActionBadge} style={{ color: "#DC2626", backgroundColor: "#FEE2E2" }}>Report</span>
+                  <span className={`${styles.quickActionBadge} ${styles.badgeReport}`}>Report</span>
                   <div className={styles.quickActionTitle}>Report an Issue</div>
                   <p className={styles.quickActionDesc}>Flag broken links, missing pages, or syllabus deviations</p>
                 </a>
@@ -273,7 +273,7 @@ export default function ContactClient() {
                   href="mailto:info@privateacademy.in?subject=Platform%20Suggestion%20-%20Private%20Academy"
                   className={styles.quickActionCard}
                 >
-                  <span className={styles.quickActionBadge} style={{ color: "#D97706", backgroundColor: "#FEF3C7" }}>Idea</span>
+                  <span className={`${styles.quickActionBadge} ${styles.badgeIdea}`}>Idea</span>
                   <div className={styles.quickActionTitle}>Suggest Feedback</div>
                   <p className={styles.quickActionDesc}>Propose new tools, features, or branch study guides</p>
                 </a>

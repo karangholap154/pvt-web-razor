@@ -75,6 +75,15 @@
   margin-bottom: 20px;
 }
 
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #0F7B4F;
+  box-shadow: 0 0 6px rgba(15, 123, 79, 0.45);
+  flex-shrink: 0;
+}
+
 .heroTitle {
   font-family: var(--font-bricolage), sans-serif;
   font-size: clamp(34px, 5vw, 56px);
@@ -261,6 +270,24 @@
   width: fit-content;
 }
 
+.badgeRequest {
+  color: var(--blue-500, #2447F5);
+  background-color: var(--blue-50, #EEF2FF);
+  border: 1px solid var(--blue-300, #A3BFFA);
+}
+
+.badgeReport {
+  color: var(--error, #C42B3A);
+  background-color: var(--error-bg, #FDE8EA);
+  border: 1px solid #F8B4B9;
+}
+
+.badgeIdea {
+  color: #B45309;
+  background-color: #FFF8D1;
+  border: 1px solid #FFE14D;
+}
+
 .quickActionTitle {
   font-size: 13.5px;
   font-weight: 700;
@@ -369,9 +396,9 @@
 .formDeskCard {
   background-color: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
-  border-radius: var(--radius-2xl, 24px);
+  border-radius: var(--radius-xl, 16px);
   padding: 36px 32px;
-  box-shadow: 0 12px 36px -16px rgba(11, 16, 32, 0.08);
+  box-shadow: 0 4px 16px -6px rgba(11, 16, 32, 0.05);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -431,17 +458,33 @@
 }
 
 .formInput,
-.formSelect,
+.formSelect {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  color: var(--ink-900, #0B1020);
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-sm, 8px);
+  padding: 0 14px;
+  height: 48px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .formTextarea {
   font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   color: var(--ink-900, #0B1020);
-  background-color: var(--paper, #F7F8FB);
+  background-color: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
-  border-radius: var(--radius-md, 10px);
-  padding: 10px 14px;
+  border-radius: var(--radius-sm, 8px);
+  padding: 12px 14px;
+  min-height: 120px;
+  resize: vertical;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
   box-sizing: border-box;
 }
@@ -450,13 +493,13 @@
 .formSelect:focus,
 .formTextarea:focus {
   border-color: var(--blue-500, #2447F5);
-  box-shadow: 0 0 0 2px rgba(36, 71, 245, 0.15);
+  box-shadow: 0 0 0 3px rgba(36, 71, 245, 0.12);
   background-color: #FFFFFF;
 }
 
-.formTextarea {
-  resize: vertical;
-  min-height: 110px;
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: var(--slate-400, #94A3B8);
 }
 
 /* Honeypot field (hidden from view) */
@@ -467,31 +510,32 @@
 
 .submitBtn {
   font-family: var(--font-inter), sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #FFFFFF;
   background-color: var(--blue-500, #2447F5);
-  border: none;
-  border-radius: var(--radius-md, 10px);
-  padding: 14px 24px;
+  border: 1px solid #1B37C7;
+  border-radius: var(--radius-sm, 8px);
+  height: 48px;
+  padding: 0 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(36, 71, 245, 0.2);
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 1px 2px rgba(11, 16, 32, 0.08);
   width: 100%;
 }
 
 .submitBtn:hover {
-  background-color: var(--blue-600, #1B38D1);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(36, 71, 245, 0.3);
+  background-color: #1B37C7;
+  border-color: #132799;
 }
 
 .submitBtn:active {
-  transform: translateY(0);
+  background-color: #132799;
+  transform: translateY(1px);
 }
 
 /* Success Confirmation Banner */
