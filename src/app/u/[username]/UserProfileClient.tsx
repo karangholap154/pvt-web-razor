@@ -19,6 +19,7 @@ import {
   LuTrendingUp,
   LuBanknote,
   LuCloudUpload,
+  LuShieldCheck,
 } from "react-icons/lu";
 
 interface UserProfileClientProps {
@@ -172,11 +173,17 @@ export default function UserProfileClient({
   return (
     <div className={styles.pageWrapper}>
       <main className={styles.container}>
-        {/* ── Back Navigation Link ── */}
-        <Link href="/" className={styles.backLink}>
-          <LuArrowLeft size={16} />
-          <span>Back to Library</span>
-        </Link>
+        {/* ── Top Navigation & Eyebrow Row ── */}
+        <div className={styles.topNavRow}>
+          <Link href="/" className={styles.backLink}>
+            <LuArrowLeft size={16} />
+            <span>Back to Library</span>
+          </Link>
+          <div className={styles.eyebrowTag}>
+            <LuShieldCheck size={14} />
+            <span>CONTRIBUTOR PORTFOLIO • VERIFIED SCHOLAR</span>
+          </div>
+        </div>
 
         {/* ================================================================
             PROFILE HERO CARD (HEADER BAND WITH GRAPH PAPER)

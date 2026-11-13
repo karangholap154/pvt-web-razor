@@ -22,6 +22,32 @@
   gap: 28px;
 }
 
+/* ── Top Navigation & Eyebrow Row ── */
+.topNavRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eyebrowTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--blue-500, #2447F5);
+  background-color: var(--blue-50, #EEF2FF);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--blue-300, #A3BFFA);
+  white-space: nowrap;
+}
+
 /* ── Back Navigation Link ── */
 .backLink {
   display: inline-flex;
@@ -235,27 +261,27 @@
 }
 
 .tierBadgeLegend {
-  background-color: #FDF2F8;
-  color: #DB2777;
-  border: 1px solid #FBCFE8;
+  background-color: #FFF8D1;
+  color: var(--ink-900, #0B1020);
+  border: 1px solid #FFE14D;
 }
 
 .tierBadgeTop {
-  background-color: #FFFBEB;
-  color: #D97706;
-  border: 1px solid #FDE68A;
+  background-color: var(--blue-50, #EEF2FF);
+  color: var(--blue-500, #2447F5);
+  border: 1px solid var(--blue-300, #A3BFFA);
 }
 
 .tierBadgeRising {
-  background-color: #EEF2FF;
-  color: #2447F5;
-  border: 1px solid #A3BFFA;
+  background-color: #E4F5EC;
+  color: #0F7B4F;
+  border: 1px solid #A3E0C0;
 }
 
 .tierBadgeContributor {
-  background-color: #F0FDF4;
-  color: #15803D;
-  border: 1px solid #BBF7D0;
+  background-color: var(--line-100, #F0F3F8);
+  color: var(--slate-600, #4A5468);
+  border: 1px solid var(--line-300, #CDD4E2);
 }
 
 .metaRow {
@@ -497,8 +523,9 @@
   gap: 6px;
   padding: 10px 20px;
   border-radius: var(--radius-md, 10px);
-  background-color: var(--ink-900, #0B1020);
+  background-color: var(--blue-500, #2447F5);
   color: #FFFFFF;
+  border: 1px solid #1B37C7;
   font-family: var(--font-inter), sans-serif;
   font-size: 13px;
   font-weight: 700;
@@ -508,8 +535,9 @@
 }
 
 .btnContribute:hover {
-  background-color: #1A2338;
+  background-color: #1B37C7;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(36, 71, 245, 0.25);
 }
 
 /* Bottom Share Bar */

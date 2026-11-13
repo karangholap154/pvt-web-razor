@@ -154,7 +154,7 @@
 }
 
 .userName {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-bricolage), sans-serif;
   font-size: 1.65rem;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -395,7 +395,7 @@
 }
 
 .cardTitle {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-bricolage), sans-serif;
   font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -507,14 +507,14 @@
   color: var(--ink-900, #0B1020);
 }
 
-/* Primary Action Buttons (DESIGN.md §3.1) */
+/* Primary Action Buttons (DESIGN.md §2.1 & §3.1) */
 .btnSubmit {
   align-self: flex-start;
-  height: 44px;
+  height: 48px;
   background-color: var(--blue-500, #2447F5);
   color: #FFFFFF;
-  border: none;
-  font-weight: 600;
+  border: 1px solid #1B37C7;
+  font-weight: 700;
   font-size: 0.9rem;
   font-family: var(--font-inter), sans-serif;
   padding: 0 1.5rem;
@@ -532,7 +532,7 @@
 .btnSubmit:hover:not(:disabled) {
   background-color: var(--blue-600, #1B38D1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(36, 71, 245, 0.25);
+  box-shadow: 0 4px 14px rgba(36, 71, 245, 0.25);
 }
 
 .btnSubmit:active:not(:disabled) {
@@ -727,7 +727,7 @@
 }
 
 .emptyStateTitle {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-bricolage), sans-serif;
   font-size: 1.15rem;
   font-weight: 800;
   color: var(--ink-900, #0B1020);
