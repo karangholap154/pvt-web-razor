@@ -15,12 +15,15 @@ import {
   LuWallet, 
   LuClock, 
   LuCircleCheck, 
-  LuCircleX, 
+  LuCircleAlert, 
   LuTrash2, 
   LuLogOut, 
   LuSearch, 
   LuBanknote,
-  LuX
+  LuX,
+  LuFileText,
+  LuVideo,
+  LuSparkles
 } from "react-icons/lu";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import NoteCard from "@/components/cards/NoteCard";
@@ -346,8 +349,12 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
           <main className={styles.mainContent}>
             {/* Welcome Banner */}
             <div className={styles.welcomeHeader}>
+              <div className={styles.eyebrowTag}>
+                <span className={styles.pulseDot} />
+                <span>STUDENT &amp; CONTRIBUTOR WORKSPACE</span>
+              </div>
               <h1 className={styles.welcomeTitle}>
-                Welcome back, <span className={styles.usernameHighlight}>{username}</span> 👋
+                Welcome back, <span className={styles.usernameHighlight}>{username}</span>
               </h1>
               <p className={styles.welcomeSubtitle}>
                 Manage your unlocked study library, track contributor peer submissions, and collect earnings.
@@ -462,9 +469,8 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
                     type="button"
                     onClick={() => setIsContributeOpen(true)}
                     className={styles.btnExplore}
-                    style={{ margin: 0 }}
                   >
-                    <LuCloudUpload size={16} style={{ marginRight: 6 }} />
+                    <LuCloudUpload size={16} />
                     <span>Upload New Note</span>
                   </button>
                 </div>
@@ -503,7 +509,7 @@ export default function DashboardClient({ username, notes }: DashboardClientProp
                             )}
                             {sub.status === "rejected" && (
                               <span className={`${styles.statusBadge} ${styles.statusRejected}`}>
-                                <LuCircleX size={12} /> Needs Revision
+                                <LuCircleAlert size={12} /> Needs Revision
                               </span>
                             )}
                           </div>
