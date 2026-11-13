@@ -14,6 +14,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/notes`,
+      lastModified: currentDate,
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/community-notes`,
+      lastModified: currentDate,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/articles`,
       lastModified: currentDate,
       changeFrequency: "daily",
@@ -90,6 +102,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic routes fetched from Supabase
   let noteRoutes: MetadataRoute.Sitemap = [];
   let articleRoutes: MetadataRoute.Sitemap = [];
+  let userRoutes: MetadataRoute.Sitemap = [];
+  let discussionRoutes: MetadataRoute.Sitemap = [];
 
   try {
     // 1. Fetch public notes
@@ -119,9 +133,50 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       }));
     }
+
+    // 3. Fetch public scholar contributor profiles
+    const { data: dbUsers } = await supabaseAdmin
+      .from("users")
+      .select("username, created_at")
+      .not("username", "is", null);
+
+    if (dbUsers && dbUsers.length > 0) {
+      userRoutes = dbUsers
+        .filter((u) => u.username && u.username.trim().length > 0)
+        .map((u) => ({
+          url: `${baseUrl}/u/${encodeURIComponent(u.username)}`,
+          lastModified: u.created_at ? new Date(u.created_at) : currentDate,
+          changeFrequency: "weekly",
+          priority: 0.7,
+        }));
+    }
+
+    // 4. Fetch public discussions
+    const { data: dbDiscussions } = await supabaseAdmin
+      .from("discussions")
+      .select("id, created_at, updated_at");
+
+    if (dbDiscussions && dbDiscussions.length > 0) {
+      discussionRoutes = dbDiscussions.map((disc) => ({
+        url: `${baseUrl}/discussions/${disc.id}`,
+        lastModified: disc.updated_at
+          ? new Date(disc.updated_at)
+          : disc.created_at
+          ? new Date(disc.created_at)
+          : currentDate,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      }));
+    }
   } catch (err) {
     console.error("Error generating dynamic sitemap entries:", err);
   }
 
-  return [...staticRoutes, ...noteRoutes, ...articleRoutes];
+  return [
+    ...staticRoutes,
+    ...noteRoutes,
+    ...articleRoutes,
+    ...userRoutes,
+    ...discussionRoutes,
+  ];
 }

@@ -33,6 +33,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!profile) {
     return {
       title: "User Not Found | Private Academy",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -44,11 +48,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     robots: {
-      index: false,
-      follow: false,
+      index: true,
+      follow: true,
       googleBot: {
-        index: false,
-        follow: false,
+        index: true,
+        follow: true,
+        "max-snippet": -1,
+        "max-image-preview": "large",
+        "max-video-preview": -1,
       },
     },
     alternates: {
