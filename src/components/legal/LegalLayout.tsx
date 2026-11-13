@@ -4,11 +4,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "./legal.module.css";
 import {
-  LuFileText,
   LuArrowRight,
   LuLifeBuoy,
   LuBookmark,
-  LuExternalLink,
 } from "react-icons/lu";
 
 export interface TocItem {

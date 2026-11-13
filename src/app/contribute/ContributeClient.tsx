@@ -15,11 +15,9 @@ import {
   LuBanknote,
   LuCalculator,
   LuChevronDown,
-  LuCheck,
   LuGraduationCap,
   LuCrown,
   LuZap,
-  LuArrowRight,
   LuFileText,
 } from "react-icons/lu";
 

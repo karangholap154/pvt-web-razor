@@ -5,14 +5,12 @@ import Link from "next/link";
 import styles from "./Careers.module.css";
 import {
   LuBriefcase,
-  LuClock,
   LuCheck,
   LuChevronDown,
   LuArrowRight,
   LuSparkles,
   LuAward,
   LuSend,
-  LuShieldCheck,
 } from "react-icons/lu";
 
 export interface JobRole {

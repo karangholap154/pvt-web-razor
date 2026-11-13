@@ -27,8 +27,7 @@ import {
   LuBookOpen, 
   LuLayers, 
   LuCalendar,
-  LuCircleAlert,
-  LuExternalLink
+  LuCircleAlert
 } from "react-icons/lu";
 
 interface NoteDetailsClientProps {

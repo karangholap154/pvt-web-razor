@@ -356,7 +356,7 @@ export default function NoteViewer({
             }`}
           >
             <div className={styles.nvSpinner} />
-            <span>Rendering Engineer's Notes…</span>
+            <span>Rendering Engineer&apos;s Notes…</span>
           </div>
         )}
 

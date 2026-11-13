@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/components/providers/AuthProvider";
 import Logo from "@/components/brand/Logo";
@@ -39,10 +39,26 @@ export default function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentUni, setCurrentUni] = useState("MU");
+  const [currentUni, setCurrentUni] = useState(() => {
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|; )selected_university=([^;]*)/);
+      if (match && match[1]) {
+        return decodeURIComponent(match[1]);
+      }
+    }
+    return "MU";
+  });
 
   const pathname = usePathname();
   const router = useRouter();
+
+  // Reset open menus synchronously when route changes
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setMenuOpen(false);
+    setDropdownOpen(false);
+  }
 
   // Scroll detection for navbar shadow/border
   useEffect(() => {
@@ -52,12 +68,6 @@ export default function Navbar({
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Close menus on route change
-  useEffect(() => {
-    setMenuOpen(false);
-    setDropdownOpen(false);
-  }, [pathname]);
 
   // Handle escape key to close open menus
   useEffect(() => {
@@ -90,16 +100,6 @@ export default function Navbar({
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
-
-  // Read cookie or query for selected university if present
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      const match = document.cookie.match(/(?:^|; )selected_university=([^;]*)/);
-      if (match && match[1]) {
-        setCurrentUni(decodeURIComponent(match[1]));
-      }
-    }
-  }, []);
 
   const handleUniversityChange = (uni: string) => {
     setCurrentUni(uni);

@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import { Note } from "../../data/mockData";
 import ContributeModal from "@/components/contribute/ContributeModalDynamic";
@@ -20,10 +19,7 @@ import {
   LuLogOut, 
   LuSearch, 
   LuBanknote,
-  LuX,
-  LuFileText,
-  LuVideo,
-  LuSparkles
+  LuX
 } from "react-icons/lu";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import NoteCard from "@/components/cards/NoteCard";
@@ -55,7 +51,6 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ username, notes }: DashboardClientProps) {
-  const router = useRouter();
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<"library" | "submissions" | "earnings">("library");

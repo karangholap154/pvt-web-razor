@@ -11,7 +11,6 @@ import {
   LuMessageCircle,
   LuMail,
   LuCode,
-  LuLayers,
 } from "react-icons/lu";
 
 export interface ProjectItem {

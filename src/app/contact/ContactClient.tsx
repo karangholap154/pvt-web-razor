@@ -10,7 +10,6 @@ import {
   LuSend,
   LuCheck,
   LuExternalLink,
-  LuMessageCircle,
 } from "react-icons/lu";
 
 // Custom SVG Icons for Social Platforms

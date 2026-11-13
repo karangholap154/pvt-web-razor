@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Note, SEMESTERS } from "@/data/mockData";
@@ -37,7 +37,6 @@ interface CommunityNotesClientProps {
 
 export default function CommunityNotesClient({
   initialNotes = [],
-  initialMeta = [],
 }: CommunityNotesClientProps) {
   const searchParams = useSearchParams();
 
@@ -50,7 +49,6 @@ export default function CommunityNotesClient({
 
   // Live Data States
   const [notes, setNotes] = useState<Note[]>(initialNotes);
-  const [metaNotes, setMetaNotes] = useState<NoteMeta[]>(initialMeta);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Sync URL search params if present
@@ -77,16 +75,6 @@ export default function CommunityNotesClient({
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Dynamic available universities from meta + constant fallbacks
-  const availableUniversities = useMemo(() => {
-    const univSet = new Set<string>();
-    metaNotes.forEach((m) => {
-      if (m.university) univSet.add(m.university);
-    });
-    UNIVERSITIES.forEach((u) => univSet.add(u.value));
-    return Array.from(univSet).sort();
-  }, [metaNotes]);
-
   // Fetch community-only notes across any selected university
   useEffect(() => {
     // Initial SSR cache passthrough
@@ -98,7 +86,6 @@ export default function CommunityNotesClient({
       initialNotes.length > 0
     ) {
       setNotes(initialNotes);
-      setMetaNotes(initialMeta);
       return;
     }
 
@@ -134,9 +121,6 @@ export default function CommunityNotesClient({
           );
 
           setNotes(formatted);
-          if (data.meta) {
-            setMetaNotes(data.meta);
-          }
         }
       } catch (err) {
         console.error("Error fetching community notes:", err);
@@ -151,7 +135,7 @@ export default function CommunityNotesClient({
     return () => {
       isSubscribed = false;
     };
-  }, [selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta]);
+  }, [selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes]);
 
   const handleClearFilters = () => {
     setSelectedUniv("All universities");

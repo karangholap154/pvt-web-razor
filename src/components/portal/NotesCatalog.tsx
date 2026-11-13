@@ -9,7 +9,6 @@ import {
   LuFolder,
   LuFolderOpen,
   LuGraduationCap,
-  LuChevronRight,
   LuArrowLeft,
   LuSearch,
   LuX,

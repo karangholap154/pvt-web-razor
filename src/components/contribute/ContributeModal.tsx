@@ -12,8 +12,6 @@ import {
   LuX,
   LuCheck,
   LuSparkles,
-  LuShieldCheck,
-  LuIndianRupee,
 } from "react-icons/lu";
 
 interface ContributeModalProps {

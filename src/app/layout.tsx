@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
-import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next"; 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { checkIsAdmin } from "../utils/auth";
@@ -11,7 +10,6 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 import "@/styles/tokens.css";
-import styles from "./layout.module.css";
 
 // Notebook typography: Display (Bricolage), Body (Inter), Spec metadata (JetBrains Mono)
 const display = Bricolage_Grotesque({
