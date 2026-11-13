@@ -4,14 +4,16 @@
   z-index: 50;
   width: 100%;
   height: 76px;
-  background-color: var(--paper, #F7F8FB);
-  border-bottom: 1px solid var(--line-300, #CDD4E2);
-  transition: background-color 200ms ease, box-shadow 200ms ease;
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .scrolled {
-  background-color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--line-300, #CDD4E2);
   box-shadow: 0 4px 20px -8px rgba(11, 16, 32, 0.08);
+  backdrop-filter: blur(8px);
 }
 
 .container {
@@ -53,13 +55,13 @@
   opacity: 0.75;
 }
 
-/* Active highlighter stroke indicator (2px hl-400 offset 6px) */
+/* Active highlighter stroke indicator (2px hl-400 offset 6px, DESIGN.md §3.5) */
 .navLinkActive::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -2px;
+  bottom: 0px;
   height: 2px;
   background-color: var(--hl-400, #FFE14D);
   border-radius: 1px;
@@ -321,13 +323,15 @@
 }
 
 .mobileNavLink {
-  font-family: var(--font-display), var(--font-inter), sans-serif;
-  font-size: 26px;
+  font-family: var(--font-display), var(--font-bricolage), sans-serif;
+  font-size: clamp(24px, 5.5vw, 28px);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--ink-900, #0B1020);
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   transition: transform 150ms ease, color 150ms ease;
 }
 
@@ -338,6 +342,16 @@
 
 .mobileNavLinkActive {
   color: var(--blue-500, #2447F5);
+}
+
+.mobileNavLinkActive::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--blue-500, #2447F5);
+  box-shadow: 0 0 6px rgba(36, 71, 245, 0.4);
 }
 
 /* Secondary "More" links */

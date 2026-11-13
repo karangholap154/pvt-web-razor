@@ -59,6 +59,18 @@ export default function Navbar({
     setDropdownOpen(false);
   }, [pathname]);
 
+  // Handle escape key to close open menus
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setDropdownOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Handle outside click for dropdown
   useEffect(() => {
     if (!dropdownOpen) return;

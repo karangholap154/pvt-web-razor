@@ -157,22 +157,71 @@
   max-width: 320px;
 }
 
-/* --- Giant Wordmark (Cropped, Display 800) --- */
+.statusRow {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--success, #0F7B4F);
+  box-shadow: 0 0 8px rgba(15, 123, 79, 0.45);
+  flex-shrink: 0;
+}
+
+.statusLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--slate-600, #4A5468);
+}
+
+.supportEmail {
+  font-weight: 600;
+  color: var(--ink-900, #0B1020);
+}
+
+.locationText {
+  color: var(--slate-600, #4A5468);
+  font-size: 14px;
+}
+
+.rssLink {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--blue-500, #2447F5);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.rssLink:hover {
+  color: var(--blue-600, #1B38D1);
+}
+
+/* --- Giant Wordmark (Cropped, Display 800, DESIGN.md §3.15) --- */
 .wordmarkWrapper {
   width: 100%;
   max-width: 100%;
   overflow: hidden;
   user-select: none;
   pointer-events: none;
-  margin-top: 40px;
-  margin-bottom: 20px;
+  margin-top: 48px;
+  margin-bottom: 24px;
 }
 
 .giantWordmark {
   font-family: var(--font-display), var(--font-inter), sans-serif;
   font-weight: 800;
-  font-size: clamp(48px, 12vw, 150px);
-  line-height: 0.95;
+  font-size: 150px;
+  line-height: 0.9;
   letter-spacing: -0.04em;
   color: var(--line-200, #E3E8F1);
   white-space: nowrap;
@@ -209,6 +258,12 @@
   text-decoration: underline;
 }
 
+@media (max-width: 1024px) {
+  .giantWordmark {
+    font-size: clamp(80px, 12vw, 130px);
+  }
+}
+
 @media (max-width: 640px) {
   .footer {
     padding: 56px 0 32px 0;
@@ -227,6 +282,12 @@
   .grid {
     gap: 24px;
     margin-bottom: 40px;
+  }
+  .giantWordmark {
+    font-size: 64px;
+    line-height: 1.0;
+    white-space: normal;
+    letter-spacing: -0.03em;
   }
 }
 

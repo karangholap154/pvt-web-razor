@@ -96,11 +96,9 @@ export default function Footer() {
             <p className={styles.brandTagline}>
               Engineering study hub built by a student, for students. Syllabus-aligned notes, derivations, and question guides.
             </p>
-            <div style={{ marginTop: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "var(--success)" }} />
-              <span className="label-mono" style={{ color: "var(--slate-600)", fontSize: "11px" }}>
-                All Systems Operational
-              </span>
+            <div className={styles.statusRow}>
+              <span className={styles.statusDot} aria-hidden="true" />
+              <span className={styles.statusLabel}>All Systems Operational</span>
             </div>
           </div>
 
@@ -124,7 +122,7 @@ export default function Footer() {
             <span className={styles.colHeader}>Legal</span>
             <ul className={styles.linkList}>
               <li className={styles.linkItem}><Link href="/privacy-policy">Privacy Policy</Link></li>
-              <li className={styles.linkItem}><Link href="/terms-and-condition">Terms & Conditions</Link></li>
+              <li className={styles.linkItem}><Link href="/terms-and-condition">Terms &amp; Conditions</Link></li>
               <li className={styles.linkItem}><Link href="/refund-policy">Refund Policy</Link></li>
               <li className={styles.linkItem}><Link href="/shipping-policy">Shipping Policy</Link></li>
               <li className={styles.linkItem}><Link href="/disclaimer">Disclaimer</Link></li>
@@ -136,23 +134,22 @@ export default function Footer() {
             <span className={styles.colHeader}>Support</span>
             <ul className={styles.linkList}>
               <li className={styles.linkItem}>
-                <a href="mailto:info@privateacademy.in" style={{ fontWeight: 600, color: "var(--ink-900)" }}>
+                <a href="mailto:info@privateacademy.in" className={styles.supportEmail}>
                   info@privateacademy.in
                 </a>
               </li>
               <li className={styles.linkItem}>
                 <Link href="/contact">Contact Form</Link>
               </li>
-              <li className={styles.linkItem} style={{ color: "var(--slate-600)", fontSize: "14px", marginTop: "4px" }}>
+              <li className={`${styles.linkItem} ${styles.locationText}`}>
                 Mumbai, Maharashtra, India
               </li>
-              <li className={styles.linkItem} style={{ marginTop: "8px" }}>
+              <li className={styles.linkItem}>
                 <a
                   href="/rss.xml"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="label-mono"
-                  style={{ color: "var(--blue-500)", textDecoration: "underline" }}
+                  className={styles.rssLink}
                 >
                   RSS 2.0 Feed ↗
                 </a>
