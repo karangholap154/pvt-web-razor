@@ -1,0 +1,239 @@
+/* Engineer's Notebook — Global Root Loading Screen */
+
+.loadingContainer {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  background-color: var(--paper, #F7F8FB);
+  padding: 2.5rem 1.5rem 5rem;
+  overflow: hidden;
+}
+
+/* Subtle Graph-Paper Grid Background */
+.graphGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(var(--grid-line, #E1E6F0) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line, #E1E6F0) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at 50% 20%, #000 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 20%, #000 40%, transparent 80%);
+  opacity: 0.65;
+  z-index: 0;
+}
+
+.contentWrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Spec Status Ribbon */
+.statusRibbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: 9999px;
+  width: fit-content;
+  box-shadow: 0 1px 3px rgba(11, 16, 32, 0.04);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--blue-500, #2447F5);
+  box-shadow: 0 0 8px rgba(36, 71, 245, 0.5);
+  animation: pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.statusLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  color: var(--slate-600, #4A5468);
+  text-transform: uppercase;
+}
+
+/* Shimmer Sweep Animation on Light Paper */
+@keyframes shimmerSweep {
+  0% {
+    background-position: -600px 0;
+  }
+  100% {
+    background-position: 600px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--line-200, #E3E8F1) 25%,
+    #F4F6FB 50%,
+    var(--line-200, #E3E8F1) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmerSweep 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Hero Section Skeleton */
+.heroSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.eyebrowBar {
+  height: 16px;
+  width: 220px;
+}
+
+.titleBarMajor {
+  height: 48px;
+  width: 75%;
+  max-width: 680px;
+}
+
+.titleBarMinor {
+  height: 48px;
+  width: 55%;
+  max-width: 520px;
+}
+
+.descriptionBar {
+  height: 18px;
+  width: 85%;
+  max-width: 640px;
+}
+
+/* 3-Tap Filter Desk Skeleton */
+.filterDeskSkeleton {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 4px 20px -8px rgba(11, 16, 32, 0.06);
+}
+
+.filterDeskHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filterChipRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filterInputRow {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .filterInputRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .filterInputRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 6-Card Notebook Grid Skeleton */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 1.5rem;
+}
+
+.cardSkeleton {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 2px 8px -2px rgba(11, 16, 32, 0.04);
+  min-height: 290px;
+}
+
+/* Card Drafting Thumbnail Header */
+.cardHeaderPreview {
+  height: 96px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--line-200, #E3E8F1);
+  background-color: var(--paper, #F7F8FB);
+  position: relative;
+  overflow: hidden;
+}
+
+.cardHeaderPreview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(var(--grid-line, #E1E6F0) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line, #E1E6F0) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.5;
+}
+
+.tagRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cardTitleBar {
+  height: 22px;
+  width: 90%;
+}
+
+.cardSubBar {
+  height: 16px;
+  width: 65%;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line-200, #E3E8F1);
+}

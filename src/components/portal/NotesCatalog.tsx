@@ -301,22 +301,44 @@ export default function NotesCatalog({
       {isLoading ? (
         <div className={styles.grid}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#FFFFFF",
-                border: "1px solid #D5DBE8",
-                borderRadius: "14px",
-                height: "280px",
-                padding: "20px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-              }}
-            >
-              <div style={{ height: "140px", backgroundColor: "var(--paper)", borderRadius: "8px", border: "1px solid var(--line-200)" }} />
-              <div style={{ height: "12px", width: "40%", backgroundColor: "var(--line-200)", borderRadius: "4px" }} />
-              <div style={{ height: "20px", width: "80%", backgroundColor: "var(--line-200)", borderRadius: "4px" }} />
+            <div key={i} className={styles.skeletonCard}>
+              <div className={styles.skeletonPreview}>
+                <div
+                  className={styles.skeletonShimmer}
+                  style={{
+                    position: "absolute",
+                    top: "10px",
+                    left: "10px",
+                    height: "18px",
+                    width: "75px",
+                    borderRadius: "4px",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div className={styles.skeletonShimmer} style={{ height: "20px", width: "70px", borderRadius: "4px" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "20px", width: "50px", borderRadius: "4px" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "20px", width: "60px", borderRadius: "4px" }} />
+              </div>
+
+              <div className={styles.skeletonShimmer} style={{ height: "22px", width: "90%" }} />
+              <div className={styles.skeletonShimmer} style={{ height: "16px", width: "65%" }} />
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.75rem",
+                  marginTop: "auto",
+                  paddingTop: "1rem",
+                  borderTop: "1px solid var(--line-200, #E3E8F1)",
+                }}
+              >
+                <div className={styles.skeletonShimmer} style={{ height: "24px", width: "65px", borderRadius: "4px" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "36px", width: "110px", borderRadius: "8px" }} />
+              </div>
             </div>
           ))}
         </div>

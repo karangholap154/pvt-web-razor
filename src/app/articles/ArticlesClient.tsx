@@ -299,13 +299,30 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
             4. 3-COLUMN ARTICLE GRID (DESIGN.MD SECTION 4.10)
             ================================================================ */}
         <section className={styles.articlesSection} aria-labelledby="all-guides-heading">
-          {gridArticles.length > 0 && (
+          {gridArticles.length > 0 && !isLoading && (
             <div className={styles.featuredEyebrow} id="all-guides-heading">
               ACADEMIC REPOSITORY ({gridArticles.length})
             </div>
           )}
 
-          {filteredArticles.length === 0 ? (
+          {isLoading ? (
+            <div className={styles.grid}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={styles.skeletonCard}>
+                  <div className={styles.skeletonCover} />
+                  <div className={styles.skeletonBody}>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <div className={styles.skeletonShimmer} style={{ height: "18px", width: "80px", borderRadius: "4px" }} />
+                      <div className={styles.skeletonShimmer} style={{ height: "18px", width: "60px", borderRadius: "4px" }} />
+                    </div>
+                    <div className={styles.skeletonShimmer} style={{ height: "22px", width: "90%" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "14px", width: "100%" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "14px", width: "75%" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredArticles.length === 0 ? (
             <div className={styles.emptyStateContainer}>
               <div className={styles.emptyStateSheet} aria-hidden="true">
                 <div className={styles.emptySkeletonBar} style={{ width: "80%" }} />

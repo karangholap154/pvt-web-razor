@@ -340,9 +340,36 @@ export default function DiscussionsClient() {
             DISCUSSIONS FEED LIST
             ================================================================ */}
         {isLoading && page === 1 ? (
-          <div style={{ textAlign: "center", padding: "4rem 2rem", color: "var(--slate-600, #4A5468)" }}>
-            <div style={{ width: "32px", height: "32px", border: "3px solid var(--line-300, #CDD4E2)", borderTopColor: "var(--blue-500, #2447F5)", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
-            <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem" }}>Loading discussions feed...</p>
+          <div className={styles.feedList}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={styles.skeletonDiscussionRow}>
+                {/* Author & Meta Row */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    className={styles.skeletonShimmer}
+                    style={{ width: "32px", height: "32px", borderRadius: "50%", flexShrink: 0 }}
+                  />
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
+                    <div className={styles.skeletonShimmer} style={{ height: "14px", width: "120px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "11px", width: "80px" }} />
+                  </div>
+                  <div className={styles.skeletonShimmer} style={{ height: "22px", width: "60px", borderRadius: "4px" }} />
+                </div>
+
+                {/* Title and Excerpt */}
+                <div className={styles.skeletonShimmer} style={{ height: "20px", width: "85%", marginTop: "4px" }} />
+                <div className={styles.skeletonShimmer} style={{ height: "14px", width: "95%" }} />
+
+                {/* Tag Pills & Stats Footer */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <div className={styles.skeletonShimmer} style={{ height: "20px", width: "55px", borderRadius: "4px" }} />
+                    <div className={styles.skeletonShimmer} style={{ height: "20px", width: "45px", borderRadius: "4px" }} />
+                  </div>
+                  <div className={styles.skeletonShimmer} style={{ height: "24px", width: "70px", borderRadius: "6px" }} />
+                </div>
+              </div>
+            ))}
           </div>
         ) : discussions.length === 0 ? (
           <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#FFFFFF", borderRadius: "18px", border: "1px solid var(--line-300, #CDD4E2)" }}>

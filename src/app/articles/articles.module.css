@@ -678,3 +678,61 @@
     transform: none !important;
   }
 }
+
+/* Skeleton Card Loader */
+.skeletonCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-300, #CDD4E2);
+  border-radius: var(--radius-lg, 14px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonCover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--paper, #F7F8FB);
+  border-bottom: 1px solid var(--line-200, #E3E8F1);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeletonCover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(#E1E6F0 1px, transparent 1px),
+    linear-gradient(90deg, #E1E6F0 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.5;
+}
+
+.skeletonBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonShimmer {
+  background: linear-gradient(
+    90deg,
+    var(--line-200, #E3E8F1) 25%,
+    #F4F6FB 50%,
+    var(--line-200, #E3E8F1) 75%
+  );
+  background-size: 600px 100%;
+  animation: articleShimmerSweep 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes articleShimmerSweep {
+  0% {
+    background-position: -600px 0;
+  }
+  100% {
+    background-position: 600px 0;
+  }
+}

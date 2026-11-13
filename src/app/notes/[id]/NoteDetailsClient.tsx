@@ -505,7 +505,22 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
               {activeTab === "related" && (
                 <div className={styles.tabPanel}>
                   {loadingRecommendedNotes ? (
-                    <div className={styles.recommendedState}>Loading related notes...</div>
+                    <div className={styles.recommendedGrid}>
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className={styles.skeletonCard}>
+                          <div className={styles.skeletonPreview} />
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <div className={styles.skeletonShimmer} style={{ height: "18px", width: "65px", borderRadius: "4px" }} />
+                            <div className={styles.skeletonShimmer} style={{ height: "18px", width: "45px", borderRadius: "4px" }} />
+                          </div>
+                          <div className={styles.skeletonShimmer} style={{ height: "20px", width: "85%" }} />
+                          <div className={styles.skeletonShimmer} style={{ height: "14px", width: "65%" }} />
+                          <div style={{ marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid var(--line-200, #E3E8F1)" }}>
+                            <div className={styles.skeletonShimmer} style={{ height: "34px", borderRadius: "8px" }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : recommendedNotes.length > 0 ? (
                     <div className={styles.recommendedGrid}>
                       {recommendedNotes.map((rec) => (
