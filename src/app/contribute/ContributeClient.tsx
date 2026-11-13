@@ -79,6 +79,24 @@ export default function ContributeClient() {
     nextTierGoal = `Next Tier: Rising Scholar (75% Share) — Needs ${notesNeeded > 0 ? `${notesNeeded} more approved note(s)` : ""}${notesNeeded > 0 && salesNeeded > 0 ? " & " : ""}${salesNeeded > 0 ? `${salesNeeded} more purchase(s)` : ""}.`;
   }
 
+  // Calculate percentage to next tier
+  let tierProgressPercent = 100;
+  if (rawBadgeTier === "legend") {
+    tierProgressPercent = 100;
+  } else if (rawBadgeTier === "top_author") {
+    const notesProgress = Math.min(1, totalNotes / 10);
+    const salesProgress = Math.min(1, totalSalesCount / 100);
+    tierProgressPercent = Math.min(99, Math.round((notesProgress * 0.5 + salesProgress * 0.5) * 100));
+  } else if (rawBadgeTier === "rising") {
+    const notesProgress = Math.min(1, totalNotes / 5);
+    const salesProgress = Math.min(1, totalSalesCount / 50);
+    tierProgressPercent = Math.min(99, Math.round((notesProgress * 0.5 + salesProgress * 0.5) * 100));
+  } else {
+    const notesProgress = Math.min(1, totalNotes / 3);
+    const salesProgress = Math.min(1, totalSalesCount / 25);
+    tierProgressPercent = Math.min(99, Math.round((notesProgress * 0.5 + salesProgress * 0.5) * 100));
+  }
+
   const faqs = [
     {
       q: "Who can contribute study notes on Private Academy?",
@@ -336,6 +354,57 @@ export default function ContributeClient() {
                 </div>
               </div>
 
+              {/* Quick Milestone Presets */}
+              <div className={styles.presetsRow}>
+                <span className={styles.presetsLabel}>QUICK MILESTONES:</span>
+                <div className={styles.presetButtons}>
+                  <button
+                    type="button"
+                    className={styles.presetBtn}
+                    onClick={() => {
+                      setNumNotes(1);
+                      setPricePerNote(49);
+                      setSalesPerNote(10);
+                    }}
+                  >
+                    1 Note (70%)
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.presetBtn}
+                    onClick={() => {
+                      setNumNotes(3);
+                      setPricePerNote(49);
+                      setSalesPerNote(25);
+                    }}
+                  >
+                    Rising (75%)
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.presetBtn}
+                    onClick={() => {
+                      setNumNotes(5);
+                      setPricePerNote(49);
+                      setSalesPerNote(50);
+                    }}
+                  >
+                    Top Author (82%)
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.presetBtn}
+                    onClick={() => {
+                      setNumNotes(10);
+                      setPricePerNote(49);
+                      setSalesPerNote(100);
+                    }}
+                  >
+                    Legend (90%)
+                  </button>
+                </div>
+              </div>
+
             </div>
 
             {/* Right Output Column */}
@@ -349,6 +418,20 @@ export default function ContributeClient() {
                 <h3 className={styles.outputTierTitle}>
                   {(shareRate * 100).toFixed(0)}% Contributor Revenue Share
                 </h3>
+              </div>
+
+              {/* Progress to Next Milestone Track */}
+              <div className={styles.tierProgressBarWrap}>
+                <div className={styles.tierProgressHeader}>
+                  <span className={styles.tierProgressLabel}>TIER PROGRESS</span>
+                  <span className={styles.tierProgressVal}>{tierProgressPercent}%</span>
+                </div>
+                <div className={styles.tierProgressTrack} role="progressbar" aria-valuenow={tierProgressPercent} aria-valuemin={0} aria-valuemax={100}>
+                  <div
+                    className={styles.tierProgressFill}
+                    style={{ width: `${tierProgressPercent}%` }}
+                  />
+                </div>
               </div>
 
               <div className={styles.metricsList}>

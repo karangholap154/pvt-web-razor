@@ -4,10 +4,11 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Note, BRANCHES, SEMESTERS } from "@/data/mockData";
+import { Note, SEMESTERS } from "@/data/mockData";
 import { UNIVERSITIES } from "@/utils/constants";
 import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
 import NoteCard from "@/components/cards/NoteCard";
+import BranchSelect from "@/components/ui/BranchSelect";
 import styles from "./CommunityNotes.module.css";
 import {
   LuUsers,
@@ -260,48 +261,55 @@ export default function CommunityNotesClient({
         </div>
 
         {/* ================================================================
-            FILTER BAR (OPEN MULTI-UNIVERSITY SELECTOR)
+            FILTER BAR (ENGINEERING DESK: CHIPS + BRANCHSELECT + SEMESTER)
             ================================================================ */}
         <section className={styles.filterSection} aria-label="Filter community notes">
-          <div className={styles.filterGrid}>
-            {/* University Selector */}
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel} htmlFor="community-univ-filter">
-                University
-              </label>
-              <select
-                id="community-univ-filter"
-                value={selectedUniv}
-                onChange={(e) => setSelectedUniv(e.target.value)}
-                className={styles.filterSelect}
+          {/* University Chips Row */}
+          <div className={styles.uniChipsBar}>
+            <span className={styles.uniChipsLabel}>UNIVERSITY:</span>
+            <div className={styles.uniChipsRow} role="radiogroup" aria-label="Filter notes by university">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={selectedUniv === "All universities"}
+                onClick={() => setSelectedUniv("All universities")}
+                className={`${styles.uniChip} ${selectedUniv === "All universities" ? styles.uniChipActive : ""}`}
               >
-                <option value="All universities">All Universities (Open Access)</option>
-                {availableUniversities.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
+                All Universities
+              </button>
+              {UNIVERSITIES.map((uni) => {
+                const isSelected = selectedUniv === uni.value || selectedUniv === uni.abbr;
+                return (
+                  <button
+                    key={uni.abbr}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    onClick={() => setSelectedUniv(uni.value)}
+                    className={`${styles.uniChip} ${isSelected ? styles.uniChipActive : ""}`}
+                    title={uni.value}
+                  >
+                    {uni.abbr}
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Branch Selector */}
+          <div className={styles.filterGrid}>
+            {/* Branch Selector using unified BranchSelect */}
             <div className={styles.filterGroup}>
               <label className={styles.filterLabel} htmlFor="community-branch-filter">
                 Branch / Discipline
               </label>
-              <select
+              <BranchSelect
                 id="community-branch-filter"
+                variant="light"
+                includeAllOption
+                allOptionLabel="All branches"
                 value={selectedBranch}
-                onChange={(e) => setSelectedBranch(e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="All branches">All Branches</option>
-                {BRANCHES.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedBranch}
+              />
             </div>
 
             {/* Semester Selector */}
@@ -330,7 +338,7 @@ export default function CommunityNotesClient({
                 Search Topics &amp; Chapters
               </label>
               <div className={styles.searchWrapper}>
-                <LuSearch className={styles.searchIcon} size={16} />
+                <LuSearch className={styles.searchIcon} size={16} aria-hidden="true" />
                 <input
                   id="community-search-input"
                   type="text"

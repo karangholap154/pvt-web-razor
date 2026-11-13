@@ -264,14 +264,67 @@
   background-color: #FFFFFF;
   border: 1px solid var(--line-300, #CDD4E2);
   border-radius: var(--radius-lg, 14px);
-  padding: 20px;
+  padding: 18px 20px;
   margin-bottom: 24px;
   box-shadow: 0 2px 12px rgba(11, 16, 32, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.uniChipsBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--line-200, #E3E8F1);
+}
+
+.uniChipsLabel {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--slate-600, #4A5468);
+}
+
+.uniChipsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.uniChip {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--line-300, #CDD4E2);
+  background-color: var(--paper, #F7F8FB);
+  color: var(--ink-900, #0B1020);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.uniChip:hover {
+  border-color: var(--blue-500, #2447F5);
+  background-color: #FFFFFF;
+}
+
+.uniChipActive {
+  background-color: var(--blue-50, #EEF2FF);
+  border-color: var(--blue-500, #2447F5);
+  color: var(--blue-500, #2447F5);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px var(--blue-500, #2447F5);
 }
 
 .filterGrid {
   display: grid;
-  grid-template-columns: 1.4fr 1.2fr 1fr 1.4fr;
+  grid-template-columns: 1.6fr 1fr 1.6fr;
   gap: 14px;
   align-items: flex-end;
 }
