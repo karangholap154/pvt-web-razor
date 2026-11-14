@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -23,15 +23,23 @@ import type { DiscussionPost } from "@/types/discussions";
 import { IS_DISCUSSIONS_COMING_SOON } from "@/config/featureFlags";
 import BranchSelect from "@/components/ui/BranchSelect";
 
-export default function DiscussionsClient() {
+interface DiscussionsClientProps {
+  initialDiscussions?: DiscussionPost[];
+  initialTotalPages?: number;
+}
+
+export default function DiscussionsClient({
+  initialDiscussions = [],
+  initialTotalPages = 1,
+}: DiscussionsClientProps = {}) {
   const router = useRouter();
   const toast = useToast();
   const { authState, email: userEmail, university: userUniversity, defaultBranch, defaultSemester, refreshAuth } = useAuth();
 
-  const [discussions, setDiscussions] = useState<DiscussionPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [discussions, setDiscussions] = useState<DiscussionPost[]>(initialDiscussions);
+  const [isLoading, setIsLoading] = useState(initialDiscussions.length === 0);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,8 +97,25 @@ export default function DiscussionsClient() {
     }
   }, [activeUniversity, selectedBranch, selectedSemester, debouncedQuery, activeTab]);
 
+  const isInitialMount = useRef(true);
+
   useEffect(() => {
     if (authState === "loading") return;
+
+    if (
+      isInitialMount.current &&
+      initialDiscussions.length > 0 &&
+      activeUniversity === "All Universities" &&
+      selectedBranch === "All branches" &&
+      selectedSemester === "All semesters" &&
+      !debouncedQuery.trim() &&
+      activeTab === "all" &&
+      refreshKey === 0
+    ) {
+      isInitialMount.current = false;
+      return;
+    }
+    isInitialMount.current = false;
     let isCancelled = false;
 
     async function fetchInitialDiscussions() {
@@ -134,7 +159,7 @@ export default function DiscussionsClient() {
     return () => {
       isCancelled = true;
     };
-  }, [authState, activeUniversity, selectedBranch, selectedSemester, debouncedQuery, activeTab, refreshKey]);
+  }, [authState, activeUniversity, selectedBranch, selectedSemester, debouncedQuery, activeTab, refreshKey, initialDiscussions.length]);
 
   // Clear all active filters
   const handleClearFilters = () => {
