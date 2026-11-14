@@ -54,7 +54,7 @@ export default function NotFound() {
           </p>
 
           {/* Fast Search Desk (§4.18) */}
-          <form action="/notes" method="GET" className={styles.searchForm} role="search">
+          <form action="/" method="GET" className={styles.searchForm} role="search">
             <LuSearch className={styles.searchIcon} size={18} aria-hidden="true" />
             <input
               type="text"
@@ -77,7 +77,7 @@ export default function NotFound() {
             </div>
 
             <nav className={styles.indexList} aria-label="Syllabus recovery links">
-              <Link href="/notes" className={styles.indexRow}>
+              <Link href="/" className={styles.indexRow}>
                 <div className={styles.indexRowContent}>
                   <div className={styles.indexIconBox}>
                     <LuFileText size={16} />

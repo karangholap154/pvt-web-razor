@@ -235,7 +235,7 @@ export default function NoteDetailsClient({ note }: NoteDetailsClientProps) {
   };
 
   // Determine back navigation destination
-  const backDestination = isStudentNote ? "/community-notes" : "/notes";
+  const backDestination = isStudentNote ? "/community-notes" : "/";
   const backLabel = isStudentNote ? "Community Notes" : "Official Notes";
 
   return (

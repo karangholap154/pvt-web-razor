@@ -465,7 +465,7 @@ export default function AboutClient() {
               <span>info@privateacademy.in</span>
             </a>
 
-            <Link href="/notes" className={styles.btnSecondary}>
+            <Link href="/" className={styles.btnSecondary}>
               <LuBookOpen size={15} />
               <span>Explore Study Notes</span>
             </Link>

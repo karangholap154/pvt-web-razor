@@ -111,19 +111,19 @@ export default function Navbar({
       document.cookie = `selected_university=${encodeURIComponent(uni)}; path=/; max-age=31536000`;
     }
     // If on catalog, update route
-    if (pathname === "/notes" || pathname === "/community-notes") {
-      router.push(`${pathname}?university=${uni}`);
+    if (pathname === "/" || pathname === "/notes" || pathname === "/community-notes") {
+      router.push(`${pathname === "/notes" ? "/" : pathname}?university=${uni}`);
     }
   };
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
+    if (href === "/") return pathname === "/" || pathname === "/notes";
     return pathname.startsWith(href);
   };
 
   // 5 primary navigation tabs per DESIGN.md Section 3.5
   const primaryLinks = [
-    { href: "/notes", label: "Official Notes" },
+    { href: "/", label: "Official Notes" },
     { href: "/community-notes", label: "Community Notes" },
     { href: "/discussions", label: "Discussions" },
     { href: "/projects", label: "Projects" },

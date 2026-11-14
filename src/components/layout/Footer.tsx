@@ -106,7 +106,7 @@ export default function Footer() {
           <div className={styles.linksCol}>
             <span className={styles.colHeader}>Explore</span>
             <ul className={styles.linkList}>
-              <li className={styles.linkItem}><Link href="/notes">Official Notes</Link></li>
+              <li className={styles.linkItem}><Link href="/">Official Notes</Link></li>
               <li className={styles.linkItem}><Link href="/community-notes">Community Notes</Link></li>
               <li className={styles.linkItem}><Link href="/discussions">Discussions</Link></li>
               <li className={styles.linkItem}><Link href="/projects">Projects</Link></li>

@@ -89,7 +89,7 @@ export default function CommunityNotesClient({
               <LuCloudUpload size={16} />
               <span>Contribute Notes</span>
             </Link>
-            <Link href="/notes" className={styles.btnOfficialLink}>
+            <Link href="/" className={styles.btnOfficialLink}>
               <span>Official Syllabus Notes</span>
               <LuArrowRight size={14} />
             </Link>

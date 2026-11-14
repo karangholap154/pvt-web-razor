@@ -273,7 +273,7 @@ export default function NotesCatalog({
             Contributed by engineering peers and scholars. Submissions typically cover specific units, formulas, or revision summaries. Inspect the preview before unlocking.
           </p>
           <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginTop: "4px" }}>
-            <Link href="/notes" className={styles.bannerLink}>
+            <Link href="/" className={styles.bannerLink}>
               Looking for verified full-subject syllabus? Browse Official Notes →
             </Link>
             <Link href="/contribute" className={styles.bannerLink} style={{ color: "var(--ink-900)" }}>
