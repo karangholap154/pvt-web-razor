@@ -41,7 +41,7 @@ export async function sendOrderReceiptEmail(payload: OrderReceiptEmailPayload) {
       subject: `Order Confirmation: ${noteTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-          <div style="background-color: #4f46e5; color: #ffffff; padding: 20px; text-align: center;">
+          <div style="background-color: #2447F5; color: #ffffff; padding: 20px; text-align: center;">
             <h1 style="margin: 0; font-size: 24px;">Thank You for Your Purchase!</h1>
           </div>
           <div style="padding: 24px; background-color: #ffffff;">
@@ -58,7 +58,7 @@ export async function sendOrderReceiptEmail(payload: OrderReceiptEmailPayload) {
             
             <div style="text-align: center; margin-top: 24px;">
               <a href="${SITE_URL}/dashboard" 
-                 style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
+                 style="background-color: #2447F5; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
                 Go to Dashboard
               </a>
             </div>
@@ -109,7 +109,7 @@ export async function sendContactFormEmail(payload: ContactFormEmailPayload) {
         <p><strong>Email:</strong> ${userEmail}</p>
         <p><strong>Subject:</strong> ${subject}</p>
         <p><strong>Message:</strong></p>
-        <blockquote style="background: #f9f9f9; border-left: 4px solid #4f46e5; padding: 10px;">${message}</blockquote>
+        <blockquote style="background: #f9f9f9; border-left: 4px solid #2447F5; padding: 10px;">${message}</blockquote>
       `,
     });
 
@@ -222,7 +222,7 @@ export async function sendContributionStatusUpdateEmail(payload: ContributionSta
               isApproved
                 ? `<p>Your note is now available to engineering students. You can track downloads & earnings split from your profile dashboard.</p>
                    <div style="text-align: center; margin-top: 24px;">
-                     <a href="${SITE_URL}/contribute" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
+                     <a href="${SITE_URL}/contribute" style="background-color: #2447F5; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
                        View Dashboard
                      </a>
                    </div>`
