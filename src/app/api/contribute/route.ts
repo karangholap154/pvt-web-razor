@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { checkRateLimitAsync } from "@/utils/rateLimiter";
 import { sendSubmissionAlertEmail } from "@/utils/resend";
+import { requireUser } from "@/utils/authHelpers";
+import { isValidPdfBuffer, generateSafePdfFileName } from "@/utils/fileValidation";
 
 export async function POST(request: Request) {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-    }
+    const auth = await requireUser();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { user } = auth;
 
     const { data: userProfile } = await supabaseAdmin
       .from("users")
@@ -72,21 +70,13 @@ export async function POST(request: Request) {
     const price = Math.min(99, Math.max(0, rawPrice));
 
     // Upload to Supabase Storage: Use submissions-bucket (or notes-bucket fallback)
-    const timestamp = Date.now();
-    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = `pending/${user.id}/${timestamp}_${sanitizedFilename}`;
+    const filePath = generateSafePdfFileName(file.name, `pending/${user.id}`);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Validate PDF magic bytes (%PDF- => 0x25 0x50 0x44 0x46)
-    if (
-      buffer.length < 4 ||
-      buffer[0] !== 0x25 ||
-      buffer[1] !== 0x50 ||
-      buffer[2] !== 0x44 ||
-      buffer[3] !== 0x46
-    ) {
+    // Validate PDF magic bytes
+    if (!isValidPdfBuffer(buffer)) {
       return NextResponse.json(
         { error: "Invalid PDF format. File header does not match valid PDF specification." },
         { status: 400 }
@@ -166,12 +156,9 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-    }
+    const auth = await requireUser();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { user } = auth;
 
     const { data: submissions, error } = await supabaseAdmin
       .from("note_submissions")
@@ -193,12 +180,9 @@ export async function GET() {
 
 export async function DELETE(request: Request) {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-    }
+    const auth = await requireUser();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { user } = auth;
 
     const { searchParams } = new URL(request.url);
     const submissionId = searchParams.get("id");

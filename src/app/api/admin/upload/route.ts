@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { requireAdmin } from "@/utils/authHelpers";
-import { slugify } from "@/utils/text";
+import { isValidPdfBuffer, generateSafePdfFileName } from "@/utils/fileValidation";
 
 export async function POST(request: Request) {
   try {
@@ -26,14 +25,8 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Validate PDF magic bytes (%PDF- => 0x25 0x50 0x44 0x46)
-    if (
-      buffer.length < 4 ||
-      buffer[0] !== 0x25 ||
-      buffer[1] !== 0x50 ||
-      buffer[2] !== 0x44 ||
-      buffer[3] !== 0x46
-    ) {
+    // Validate PDF magic bytes
+    if (!isValidPdfBuffer(buffer)) {
       return NextResponse.json(
         { error: "Invalid PDF file header. Uploaded file is not a valid PDF document." },
         { status: 400 }
@@ -41,12 +34,7 @@ export async function POST(request: Request) {
     }
 
     // Generate unique slugified filename
-    const originalName = file.name.substring(0, file.name.lastIndexOf("."));
-    const fileExt = "pdf";
-    const timestamp = Math.floor(Date.now() / 1000);
-    const rand = crypto.randomBytes(3).toString("hex");
-    const uniqueName = `${slugify(originalName)}-${timestamp}-${rand}.${fileExt}`;
-    const filePath = `pdfs/${uniqueName}`;
+    const filePath = generateSafePdfFileName(file.name, "pdfs");
 
     // 4. Upload to Supabase Storage
     const { error } = await supabase.storage
