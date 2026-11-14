@@ -16,16 +16,58 @@ export async function GET(request: Request) {
     const supabase = await createSupabaseServerClient();
 
     // 1. Fetch metadata (lightweight branch/semester note summaries for folder tree & counts)
-    let metaQuery = supabase.from("notes").select("id, title, branch, semester, university, subject, resource_type");
-    if (university && university !== "All universities") {
-      metaQuery = metaQuery.eq("university", university);
+    let allNotesMeta: {
+      id: string;
+      title: string;
+      branch: string;
+      semester: string;
+      university?: string;
+      subject?: string;
+      resource_type?: string;
+    }[] | null = null;
+
+    try {
+      const { data: rpcMeta, error: rpcError } = await supabase.rpc("get_catalog_folder_meta", {
+        p_university: university && university !== "All universities" ? university : null,
+        p_source: source || "all",
+      });
+
+      if (!rpcError && rpcMeta) {
+        allNotesMeta = rpcMeta.map((m) => ({
+          id: m.id,
+          title: m.title,
+          branch: m.branch,
+          semester: m.semester,
+          university: m.university || undefined,
+          subject: m.subject || undefined,
+          resource_type: m.resource_type || undefined,
+        }));
+      }
+    } catch {
+      // Fall through to query fallback
     }
-    if (source === "official") {
-      metaQuery = metaQuery.or("resource_type.eq.official_subject,and(is_community_contributed.is.null,resource_type.is.null),and(is_community_contributed.eq.false,resource_type.is.null)");
-    } else if (source === "community") {
-      metaQuery = metaQuery.or("resource_type.neq.official_subject,is_community_contributed.eq.true");
+
+    if (!allNotesMeta) {
+      let metaQuery = supabase.from("notes").select("id, title, branch, semester, university, subject, resource_type");
+      if (university && university !== "All universities") {
+        metaQuery = metaQuery.eq("university", university);
+      }
+      if (source === "official") {
+        metaQuery = metaQuery.or("resource_type.eq.official_subject,and(is_community_contributed.is.null,resource_type.is.null),and(is_community_contributed.eq.false,resource_type.is.null)");
+      } else if (source === "community") {
+        metaQuery = metaQuery.or("resource_type.neq.official_subject,is_community_contributed.eq.true");
+      }
+      const { data: fallbackMeta } = await metaQuery;
+      allNotesMeta = (fallbackMeta || []).map((m) => ({
+        id: m.id,
+        title: m.title,
+        branch: m.branch,
+        semester: m.semester,
+        university: m.university || undefined,
+        subject: m.subject || undefined,
+        resource_type: m.resource_type || undefined,
+      }));
     }
-    const { data: allNotesMeta } = await metaQuery;
 
     // 2. Build filtered notes query with relational contributor join
     let query = supabase

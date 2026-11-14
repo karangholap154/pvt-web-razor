@@ -65,6 +65,25 @@ export async function checkRateLimitAsync(
     const now = Date.now();
     const resetIso = new Date(now + windowMs).toISOString();
 
+    // 1. Primary: Attempt atomic single-roundtrip RPC execution
+    const { data: rpcData, error: rpcError } = await supabaseAdmin.rpc("increment_rate_limit", {
+      p_key: key,
+      p_reset_at: resetIso,
+    });
+
+    if (!rpcError && rpcData && rpcData.length > 0) {
+      const record = rpcData[0];
+      const count = record.current_count;
+      const resetMs = new Date(record.reset_at).getTime();
+
+      if (count > limit) {
+        const retryAfterSeconds = Math.max(1, Math.ceil((resetMs - now) / 1000));
+        return { allowed: false, retryAfterSeconds };
+      }
+      return { allowed: true, retryAfterSeconds: 0 };
+    }
+
+    // 2. Resilient Fallback: Standard table select and upsert/update
     const { data: record, error } = await supabaseAdmin
       .from("rate_limits")
       .select("count, reset_at")

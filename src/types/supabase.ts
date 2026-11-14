@@ -473,7 +473,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_rate_limit: {
+        Args: {
+          p_key: string
+          p_reset_at: string
+        }
+        Returns: {
+          current_count: number
+          reset_at: string
+        }[]
+      }
+      get_catalog_folder_meta: {
+        Args: {
+          p_university?: string | null
+          p_source?: string | null
+        }
+        Returns: {
+          id: string
+          title: string
+          branch: string
+          semester: string
+          university: string | null
+          subject: string | null
+          resource_type: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
