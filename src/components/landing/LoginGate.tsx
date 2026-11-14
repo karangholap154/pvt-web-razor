@@ -123,7 +123,7 @@ export default function LoginGate({
                   Found <strong>{resultsCount}</strong> matching study {resultsCount === 1 ? "sheet" : "sheets"}
                   {selectedUniv && selectedUniv !== "All universities" ? ` in ${selectedUniv}` : ""}
                 </span>
-                <span className={styles.viewNotesLink}>View notes ↗</span>
+                <span className={styles.viewNotesLink}>View notes</span>
               </div>
             )}
           </div>
