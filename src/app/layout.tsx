@@ -8,8 +8,8 @@ import Navbar from "./Navbar";
 import FooterWrapper from "./FooterWrapper";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
-import "./globals.css";
 import "@/styles/tokens.css";
+import "./globals.css";
 
 // Notebook typography: Display (Bricolage), Body (Inter), Spec metadata (JetBrains Mono)
 const display = Bricolage_Grotesque({
