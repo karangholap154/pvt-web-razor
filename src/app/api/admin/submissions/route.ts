@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
-import { isAdmin } from "@/utils/auth";
+import { requireAdmin } from "@/utils/authHelpers";
 import { calculateBadgeTier, getPlatformCommissionRate } from "@/utils/badgeUtils";
 import { sendContributionStatusUpdateEmail } from "@/utils/resend";
 import { slugify } from "@/utils/text";
 
 export async function GET(request: Request) {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user } } = await supabaseServer.auth.getUser();
-
-    if (!user || !user.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Unauthorized admin access required" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
 
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get("status");
@@ -69,12 +64,8 @@ async function deleteStorageFileByUrl(fileUrl: string) {
 
 export async function POST(request: Request) {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user } } = await supabaseServer.auth.getUser();
-
-    if (!user || !user.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Unauthorized admin access required" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
 
     const body = await request.json();
     const { submissionId, action, finalPrice, adminFeedback, finalSubject, finalResourceType } = body;

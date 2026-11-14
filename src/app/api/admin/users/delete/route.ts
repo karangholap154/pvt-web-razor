@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
-import { createSupabaseServerClient } from "@/utils/supabaseServer";
-import { isAdmin } from "@/utils/auth";
+import { requireAdmin } from "@/utils/authHelpers";
 
 export async function DELETE(request: Request) {
   try {
     // 1. Verify caller has admin privileges
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { user } = auth;
 
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");

@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
-import { isAdmin } from "@/utils/auth";
+import { requireAdmin } from "@/utils/authHelpers";
 
 export async function GET(request: Request) {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user } } = await supabaseServer.auth.getUser();
-
-    if (!user || !user.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Unauthorized admin access required" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
 
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get("status");
@@ -49,12 +44,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabaseServer = await createSupabaseServerClient();
-    const { data: { user } } = await supabaseServer.auth.getUser();
-
-    if (!user || !user.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Unauthorized admin access required" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
 
     const { requestId, action, utrReference, adminNotes } = await request.json();
 

@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { requireAdmin } from "@/utils/authHelpers";
 import { slugify } from "@/utils/text";
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     // 2. Parse form data
     const formData = await request.formData();

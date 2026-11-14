@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { requireAdmin } from "@/utils/authHelpers";
 import { slugify } from "@/utils/text";
 
 // 1. Create Note (POST)
 export async function POST(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     const {
       title,
@@ -71,12 +67,9 @@ export async function POST(request: Request) {
 // 2. Update Note (PUT)
 export async function PUT(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     const {
       id,
@@ -132,12 +125,9 @@ export async function PUT(request: Request) {
 // 3. Delete Note (DELETE)
 export async function DELETE(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

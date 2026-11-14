@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
-import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../../utils/auth";
-import { checkRateLimitAsync } from "../../../../../utils/rateLimiter";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
+import { requireAdmin } from "@/utils/authHelpers";
+import { checkRateLimitAsync } from "@/utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
@@ -16,12 +15,8 @@ export async function POST(request: Request) {
       );
     }
     // 1. Verify admin privilege
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
 
     // 2. Parse request JSON
     const { userId, password } = await request.json();

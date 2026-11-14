@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createSupabaseServerClient } from "../../../../utils/supabaseServer";
-import { isAdmin } from "../../../../utils/auth";
+import { requireAdmin } from "@/utils/authHelpers";
 import { slugify } from "@/utils/text";
 
 // Helper to parse tech stack to array of strings
@@ -16,12 +15,9 @@ function parseTechStack(input: unknown): string[] {
 // 1. Create Project (POST)
 export async function POST(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     const { title, branch, techStack, description, githubUrl } = await request.json();
 
@@ -68,12 +64,9 @@ export async function POST(request: Request) {
 // 2. Update Project (PUT)
 export async function PUT(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     const { id, title, branch, techStack, description, githubUrl } = await request.json();
 
@@ -115,12 +108,9 @@ export async function PUT(request: Request) {
 // 3. Delete Project (DELETE)
 export async function DELETE(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user?.email || !(await isAdmin(user.email))) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const auth = await requireAdmin();
+    if (auth.errorResponse) return auth.errorResponse;
+    const { supabase } = auth;
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
