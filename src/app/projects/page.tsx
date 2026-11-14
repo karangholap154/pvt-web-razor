@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { supabaseAdmin } from "../../utils/supabaseAdmin";
+import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import ProjectsClient, { ProjectItem } from "./ProjectsClient";
 
 export const revalidate = 3600; // Cache static page for 1 hour with ISR revalidation
@@ -26,7 +26,8 @@ export default async function ProjectsPage() {
   let projects: ProjectItem[] = [];
   
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
       .from("projects")
       .select("*")
       .order("title", { ascending: true });
