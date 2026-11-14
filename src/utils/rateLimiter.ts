@@ -65,18 +65,14 @@ export async function checkRateLimitAsync(
     const now = Date.now();
     const resetIso = new Date(now + windowMs).toISOString();
 
-    // Cast client to dynamic query table for rate_limits
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const client = supabaseAdmin as any;
-
-    const { data: record, error } = await client
+    const { data: record, error } = await supabaseAdmin
       .from("rate_limits")
       .select("count, reset_at")
       .eq("key", key)
       .maybeSingle();
 
     if (error || !record || new Date(record.reset_at).getTime() < now) {
-      await client
+      await supabaseAdmin
         .from("rate_limits")
         .upsert(
           { key, count: 1, reset_at: resetIso },
@@ -93,7 +89,7 @@ export async function checkRateLimitAsync(
       return { allowed: false, retryAfterSeconds };
     }
 
-    await client
+    await supabaseAdmin
       .from("rate_limits")
       .update({ count: Number(record.count || 0) + 1 })
       .eq("key", key);

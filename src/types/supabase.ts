@@ -439,6 +439,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          count: number
+          created_at: string | null
+          key: string
+          reset_at: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string | null
+          key: string
+          reset_at: string
+        }
+        Update: {
+          count?: number
+          created_at?: string | null
+          key?: string
+          reset_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
