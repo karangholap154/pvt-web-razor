@@ -17,6 +17,7 @@ import AdminConsole from "./AdminConsole";
 import styles from "./admin.module.css";
 import { Note, Article } from "../../data/mockData";
 import { Tables } from "../../types/supabase";
+import { calculateReadTime } from "@/utils/text";
 
 interface ProjectDb {
   id: string;
@@ -66,11 +67,19 @@ export default async function AdminPage() {
   let users: Tables<"users">[] = [];
 
   try {
-    // Fetch notes
-    const { data: dbNotes } = await supabase
-      .from("notes")
-      .select("*")
-      .order("title", { ascending: true });
+    const [
+      { data: dbNotes },
+      { data: dbArticles },
+      { data: dbProjects },
+      { data: dbPurchases },
+      { data: dbUsers },
+    ] = await Promise.all([
+      supabase.from("notes").select("*").order("title", { ascending: true }),
+      supabase.from("articles").select("*").order("created_at", { ascending: false }),
+      supabase.from("projects").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin.from("purchases").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin.from("users").select("*").order("created_at", { ascending: false }),
+    ]);
 
     if (dbNotes) {
       notes = dbNotes.map((item) => ({
@@ -86,17 +95,10 @@ export default async function AdminPage() {
       }));
     }
 
-    // Fetch articles
-    const { data: dbArticles } = await supabase
-      .from("articles")
-      .select("*")
-      .order("created_at", { ascending: false });
-
     if (dbArticles) {
       articles = dbArticles.map((item) => {
         const content = item.content || "";
-        const words = content.trim().split(/\s+/).filter(Boolean).length;
-        const readTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
+        const readTime = calculateReadTime(content);
 
         const cleanText = content
           .replace(/[#*`_]/g, "")
@@ -115,12 +117,6 @@ export default async function AdminPage() {
       });
     }
 
-    // Fetch projects
-    const { data: dbProjects } = await supabase
-      .from("projects")
-      .select("*")
-      .order("created_at", { ascending: false });
-
     if (dbProjects) {
       projects = dbProjects.map((item) => ({
         id: item.id,
@@ -132,20 +128,10 @@ export default async function AdminPage() {
       }));
     }
 
-    // Fetch purchases for analytics
-    const { data: dbPurchases } = await supabaseAdmin
-      .from("purchases")
-      .select("*")
-      .order("created_at", { ascending: false });
     if (dbPurchases) {
       purchases = dbPurchases;
     }
 
-    // Fetch users for analytics
-    const { data: dbUsers } = await supabaseAdmin
-      .from("users")
-      .select("*")
-      .order("created_at", { ascending: false });
     if (dbUsers) {
       users = dbUsers;
     }
