@@ -203,10 +203,16 @@ select option:checked {
   color: var(--blue-500, #2447F5);
 }
 
-/* Mobile Responsiveness Utilities */
+/* Mobile Responsiveness & Form Accessibility Utilities */
 @media (max-width: 640px) {
+  /* Enforce 16px font on touch inputs to prevent iOS Safari auto-zoom on focus naturally */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
   select {
-    font-size: 0.825rem;
     padding-left: 0.75rem;
     padding-right: 2.2rem !important;
     background-position: right 0.65rem center;
@@ -218,3 +224,4 @@ select option:checked {
     display: none !important;
   }
 }
+
