@@ -210,7 +210,15 @@ export type Database = {
           is_community_contributed?: boolean | null
           platform_commission_rate?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_contributor_id_fkey"
+            columns: ["contributor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       note_submissions: {
         Row: {

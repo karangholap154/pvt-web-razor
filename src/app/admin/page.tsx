@@ -18,6 +18,7 @@ import styles from "./admin.module.css";
 import { Note, Article } from "../../data/mockData";
 import { Tables } from "../../types/supabase";
 import { calculateReadTime } from "@/utils/text";
+import { mapDbRowToNote } from "@/utils/noteMapper";
 
 interface ProjectDb {
   id: string;
@@ -82,17 +83,7 @@ export default async function AdminPage() {
     ]);
 
     if (dbNotes) {
-      notes = dbNotes.map((item) => ({
-        id: item.id,
-        title: item.title,
-        university: item.university || undefined,
-        branch: item.branch as Note["branch"],
-        semester: item.semester as Note["semester"],
-        description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-        downloadUrl: item.download_url || "",
-        videoUrl: item.video_url || "",
-        price: item.price ? Number(item.price) : 0,
-      }));
+      notes = dbNotes.map((item) => mapDbRowToNote(item));
     }
 
     if (dbArticles) {

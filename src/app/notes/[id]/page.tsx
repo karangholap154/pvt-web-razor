@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import NoteDetailsClient from "./NoteDetailsClient";
 import { Note } from "../../../data/mockData";
+import { mapDbRowToNote } from "@/utils/noteMapper";
 
 interface NotePageProps {
   params: Promise<{ id: string }>;
@@ -72,24 +73,8 @@ export default async function NotePage({ params }: NotePageProps) {
     notFound();
   }
 
-  const userProfile = Array.isArray(item.users) ? item.users[0] : item.users;
-
   // Format to client Note structure
-  const note: Note = {
-    id: item.id,
-    title: item.title,
-    branch: item.branch as Note["branch"],
-    semester: item.semester as Note["semester"],
-    description: `${item.title} - ${item.branch} Engineering, ${item.semester} | ${item.university || ""}`,
-    downloadUrl: item.download_url || "",
-    videoUrl: item.video_url || "",
-    price: item.price ? Number(item.price) : 0,
-    university: item.university || undefined,
-    is_community_contributed: item.is_community_contributed,
-    contributor_id: item.contributor_id,
-    contributor_username: userProfile?.username ?? null,
-    contributor_name: userProfile?.full_name ?? null,
-  };
+  const note: Note = mapDbRowToNote(item);
 
   const jsonLd = {
     "@context": "https://schema.org",
