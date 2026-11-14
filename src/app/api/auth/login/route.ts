@@ -6,14 +6,25 @@ import { checkRateLimitAsync } from "../../../../utils/rateLimiter";
 
 export async function POST(request: Request) {
   try {
-    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
-    const { allowed, retryAfterSeconds } = await checkRateLimitAsync(`login_${clientIp}`, 10, 15 * 60 * 1000);
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("x-real-ip")?.trim() ||
+      request.headers.get("cf-connecting-ip")?.trim() ||
+      "unknown";
 
-    if (!allowed) {
-      return NextResponse.json(
-        { error: `Too many login attempts. Please try again in ${retryAfterSeconds} seconds.` },
-        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+    // 1. IP-level rate limiting (safeguard against volumetric attacks from a single IP)
+    if (clientIp !== "unknown") {
+      const { allowed: ipAllowed, retryAfterSeconds: ipRetry } = await checkRateLimitAsync(
+        `login_ip_${clientIp}`,
+        30,
+        15 * 60 * 1000
       );
+      if (!ipAllowed) {
+        return NextResponse.json(
+          { error: `Too many login attempts from this network. Please try again in ${ipRetry} seconds.` },
+          { status: 429, headers: { "Retry-After": String(ipRetry) } }
+        );
+      }
     }
 
     const { email, password } = await request.json();
@@ -26,6 +37,26 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+
+    // 2. Account-specific rate limiting (prevents brute-force on an account without locking out entire unknown IPs)
+    const accountRateKey =
+      clientIp !== "unknown"
+        ? `login_${clientIp}_${cleanEmail}`
+        : `login_account_${cleanEmail}`;
+
+    const { allowed, retryAfterSeconds } = await checkRateLimitAsync(
+      accountRateKey,
+      10,
+      15 * 60 * 1000
+    );
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: `Too many login attempts for this account. Please try again in ${retryAfterSeconds} seconds.` },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+      );
+    }
+
     const domain = cleanEmail.split("@").pop() || "";
 
     // 1. Domain restriction
