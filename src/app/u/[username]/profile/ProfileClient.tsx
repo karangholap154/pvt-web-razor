@@ -27,6 +27,7 @@ import {
 import { parseUserAgent } from "@/utils/userAgent";
 import { supabase } from "@/utils/supabaseClient";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { isValidUsername } from "@/utils/constants";
 
 interface Purchase {
   id: string;
@@ -101,8 +102,6 @@ export default function ProfileClient({
   type UsernameCheckState = "idle" | "checking" | "available" | "taken" | "invalid" | "unchanged";
   const [usernameCheckState, setUsernameCheckState] = useState<UsernameCheckState>(initialUsername ? "unchanged" : "idle");
   const usernameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Dot allowed in middle only — not first/last char, no consecutive dots
-  const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -116,7 +115,7 @@ export default function ProfileClient({
       setUsernameCheckState(normalized === initialUsername ? "unchanged" : "idle");
       return;
     }
-    if (!USERNAME_REGEX.test(normalized)) {
+    if (!isValidUsername(normalized)) {
       setUsernameCheckState("invalid");
       return;
     }

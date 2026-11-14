@@ -10,6 +10,7 @@ import {
   LuShieldCheck,
   LuMail,
 } from "react-icons/lu";
+import { isValidUsername } from "@/utils/constants";
 
 interface UsernameGateProps {
   email: string | null;
@@ -17,9 +18,6 @@ interface UsernameGateProps {
 }
 
 type CheckState = "idle" | "checking" | "available" | "taken" | "invalid";
-
-// Dot allowed in middle only — not first/last char, no consecutive dots
-const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
 
 export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
   const [username, setUsername] = useState("");
@@ -37,7 +35,7 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
       setCheckState("idle");
       return;
     }
-    if (!USERNAME_REGEX.test(normalized)) {
+    if (!isValidUsername(normalized)) {
       setCheckState("invalid");
       return;
     }
@@ -62,7 +60,7 @@ export default function UsernameGate({ email, onComplete }: UsernameGateProps) {
     e.preventDefault();
     setError(null);
     const normalized = username.trim().toLowerCase();
-    if (!USERNAME_REGEX.test(normalized)) {
+    if (!isValidUsername(normalized)) {
       setError("Invalid username format.");
       return;
     }

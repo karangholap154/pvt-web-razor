@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
-
-// Dot allowed in middle only — not first/last char, no consecutive dots
-const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
+import { isValidUsername } from "@/utils/constants";
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +12,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ available: false, error: "Username is required." }, { status: 400 });
     }
 
-    if (!USERNAME_REGEX.test(username)) {
+    if (!isValidUsername(username)) {
       return NextResponse.json({
         available: false,
         error: "3–15 chars: start/end with a letter, number or underscore. Dots allowed in the middle only.",

@@ -7,6 +7,7 @@ import { Note } from "@/data/mockData";
 import { Tag, PriceChip, TierBadge } from "@/components/ui/PillsAndBadges";
 import Button from "@/components/ui/Button";
 import { LuPlay, LuDownload, LuFileText } from "react-icons/lu";
+import { getShortUniversity, getShortBranch } from "@/utils/constants";
 import styles from "./NoteCard.module.css";
 
 export interface NoteCardProps {
@@ -16,42 +17,6 @@ export interface NoteCardProps {
   onAction?: (note: Note) => void;
   actionLabel?: string;
   id?: string;
-}
-
-/**
- * Shorten university name for compact spec metadata
- */
-function getShortUniversity(uni?: string): string {
-  if (!uni) return "MU";
-  const upper = uni.toUpperCase();
-  if (upper.includes("MUMBAI")) return "MU";
-  if (upper.includes("PUNE") || upper.includes("SPPU")) return "SPPU";
-  if (upper.includes("NAGPUR")) return "NU";
-  if (upper.includes("AMRAVATI")) return "AU";
-  if (upper.includes("BATU")) return "DBATU";
-  if (upper.includes("SHIVAJI")) return "SUK";
-  return upper.length > 6 ? upper.slice(0, 5) : upper;
-}
-
-/**
- * Shorten branch name for compact spec metadata (e.g. COMP, IT, EXTC)
- */
-function getShortBranch(branch?: string): string {
-  if (!branch) return "ENGINEERING";
-  const b = branch.toUpperCase();
-  if (b.includes("COMPUTER") || b.includes("CSE")) return "COMP";
-  if (b.includes("INFORMATION") || b.includes("IT")) return "IT";
-  if (b.includes("AIML")) return "AIML";
-  if (b.includes("AIDS") || b.includes("DATA SCIENCE")) return "AIDS";
-  if (b.includes("EXTC") || b.includes("TELECOMMUNICATION")) return "EXTC";
-  if (b.includes("MECHANICAL")) return "MECH";
-  if (b.includes("ELECTRICAL")) return "ELEC";
-  if (b.includes("CIVIL")) return "CIVIL";
-  if (b.includes("ROBOTICS")) return "ROBOTICS";
-  if (b.includes("AUTOMOBILE")) return "AUTO";
-  if (b.includes("CHEMICAL")) return "CHEM";
-  if (b.includes("BIOMEDICAL")) return "BIOMED";
-  return branch.split(" ")[0].toUpperCase();
 }
 
 export default function NoteCard({

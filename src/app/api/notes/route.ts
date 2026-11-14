@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
+import { getBranchFilterValues } from "@/utils/constants";
 
 export async function GET(request: Request) {
   try {
@@ -42,15 +43,7 @@ export async function GET(request: Request) {
     }
 
     if (branch && branch !== "All branches") {
-      const branchAliases: Record<string, string[]> = {
-        "Information Technology (IT)": ["Information Technology (IT)", "Information Technology", "IT"],
-        "Information Technology": ["Information Technology (IT)", "Information Technology", "IT"],
-        "Artificial Intelligence & Machine Learning (AIML)": ["Artificial Intelligence & Machine Learning (AIML)", "AIML"],
-        "AIML": ["Artificial Intelligence & Machine Learning (AIML)", "AIML"],
-        "Computer Science & Engineering (CSE)": ["Computer Science & Engineering (CSE)", "CSE"],
-        "Electronics & Telecommunication (EXTC)": ["Electronics & Telecommunication (EXTC)", "EXTC"],
-      };
-      const matchBranches = branchAliases[branch] || [branch];
+      const matchBranches = getBranchFilterValues(branch);
       if (matchBranches.length === 1) {
         query = query.eq("branch", matchBranches[0]);
       } else {

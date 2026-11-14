@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabaseServer";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
-
-// Dot allowed in middle only — not first/last char, no consecutive dots
-// Pattern: first=[a-z0-9_], middle=[a-z0-9_.]{1,13}, last=[a-z0-9_] = 3-15 chars total
-const USERNAME_REGEX = /^(?!.*\.\.)[a-z0-9_][a-z0-9_.]{1,13}[a-z0-9_]$/;
+import { isValidUsername } from "@/utils/constants";
 
 export async function PUT(request: Request) {
   try {
@@ -26,7 +23,7 @@ export async function PUT(request: Request) {
     if (username !== undefined && username !== null && username !== "") {
       normalizedUsername = username.trim().toLowerCase();
       const testable: string = normalizedUsername ?? "";
-      if (!USERNAME_REGEX.test(testable)) {
+      if (!isValidUsername(testable)) {
         return NextResponse.json(
           { error: "Username must be 3–15 characters and contain only lowercase letters, numbers, or underscores." },
           { status: 400 }
