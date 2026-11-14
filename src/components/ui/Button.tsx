@@ -62,10 +62,18 @@ export const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Bu
         {loading ? (
           <span className={styles.spinner} aria-hidden="true" />
         ) : (
-          leftIcon && <span className="inline-flex items-center">{leftIcon}</span>
+          leftIcon && (
+            <span className={styles.iconWrapper} aria-hidden="true">
+              {leftIcon}
+            </span>
+          )
         )}
         <span>{children}</span>
-        {!loading && rightIcon && <span className="inline-flex items-center">{rightIcon}</span>}
+        {!loading && rightIcon && (
+          <span className={styles.iconWrapper} aria-hidden="true">
+            {rightIcon}
+          </span>
+        )}
       </>
     );
 

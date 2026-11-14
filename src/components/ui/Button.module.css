@@ -124,3 +124,13 @@
     transform: rotate(360deg);
   }
 }
+
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
