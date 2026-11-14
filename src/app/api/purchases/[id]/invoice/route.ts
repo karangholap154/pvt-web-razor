@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../../../utils/supabaseAdmin";
-import { checkIsAdmin } from "../../../../../utils/auth";
+import { isAdmin } from "../../../../../utils/auth";
 import PDFDocument from "pdfkit";
 import path from "path";
 
@@ -58,7 +58,7 @@ export async function GET(
     }
 
     // 3. Authorization check: must be owner or admin
-    const userIsAdmin = checkIsAdmin(requesterEmail);
+    const userIsAdmin = await isAdmin(requesterEmail);
     const isOwner = purchase.email.trim().toLowerCase() === requesterEmail;
 
     if (!isOwner && !userIsAdmin) {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "../../../utils/supabaseServer";
 import { supabaseAdmin } from "../../../utils/supabaseAdmin";
-import { checkIsAdmin } from "../../../utils/auth";
+import { isAdmin } from "../../../utils/auth";
 import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 
 export async function GET(request: Request) {
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       const email = user.email.trim().toLowerCase();
 
       // Check if user is admin (admin bypass)
-      const userIsAdmin = checkIsAdmin(email);
+      const userIsAdmin = await isAdmin(email);
       if (!userIsAdmin) {
         // Query purchases table for this user and note
         const { data: purchase, error: purchaseError } = await supabaseAdmin
