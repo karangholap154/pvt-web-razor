@@ -76,19 +76,98 @@ export default async function NotePage({ params }: NotePageProps) {
   // Format to client Note structure
   const note: Note = mapDbRowToNote(item);
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+  const url = `${baseUrl}/notes/${id}`;
+  const isFree = !item.price || Number(item.price) === 0;
+
+  const contributor = item.users as { username?: string | null; full_name?: string | null } | null;
+  const authorEntity = contributor?.full_name || contributor?.username
+    ? {
+        "@type": "Person",
+        name: contributor.full_name || contributor.username,
+        url: contributor.username ? `${baseUrl}/u/${contributor.username}` : undefined,
+      }
+    : {
+        "@type": "EducationalOrganization",
+        name: "Private Academy Engineering",
+        url: baseUrl,
+      };
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "LearningResource",
-    "name": item.title,
-    "description": `${item.title} - ${item.branch} Engineering, ${item.semester}`,
-    "educationalLevel": "Higher Education / Engineering",
-    "learningResourceType": "Study Note & Lecture Guide",
-    "provider": {
-      "@type": "Organization",
-      "name": "Private Academy Engineering",
-      "logo": "https://www.privateacademy.in/pvtimg.png"
-    },
-    "url": `https://www.privateacademy.in/notes/${id}`
+    "@graph": [
+      {
+        "@type": "LearningResource",
+        "@id": `${url}#learning-resource`,
+        name: item.title,
+        description: `${item.title} - ${item.branch} Engineering, ${item.semester} study note ${item.university ? `for ${item.university}` : ""}.`,
+        educationalLevel: "Higher Education / Undergraduate Engineering",
+        learningResourceType: "Study Note & Lecture Guide",
+        inLanguage: "en",
+        url,
+        dateCreated: item.created_at || undefined,
+        thumbnailUrl: `${baseUrl}/pvtimg.png`,
+        provider: {
+          "@type": "EducationalOrganization",
+          name: "Private Academy Engineering",
+          url: baseUrl,
+          logo: `${baseUrl}/pvtimg.png`,
+        },
+        author: authorEntity,
+        about: [
+          { "@type": "Thing", name: item.branch },
+          ...(item.subject ? [{ "@type": "Thing", name: item.subject }] : []),
+        ],
+        educationalAlignment: item.university
+          ? {
+              "@type": "AlignmentObject",
+              alignmentType: "educationalSubject",
+              educationalFramework: item.university,
+              targetName: `${item.branch} - ${item.semester}`,
+            }
+          : undefined,
+        isAccessibleForFree: isFree,
+        ...(!isFree
+          ? {
+              offers: {
+                "@type": "Offer",
+                price: Number(item.price),
+                priceCurrency: "INR",
+                availability: "https://schema.org/InStock",
+                url,
+                seller: {
+                  "@type": "Organization",
+                  name: "Private Academy",
+                },
+              },
+            }
+          : {}),
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: baseUrl,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: item.branch ? `${item.branch} Notes` : "Notes",
+            item: `${baseUrl}/?branch=${encodeURIComponent(item.branch || "")}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: item.title,
+            item: url,
+          },
+        ],
+      },
+    ],
   };
 
   return (

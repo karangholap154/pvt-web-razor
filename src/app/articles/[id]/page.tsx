@@ -83,19 +83,65 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     content: item.content || "",
   };
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.privateacademy.in";
+  const url = `${baseUrl}/articles/${id}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "TechArticle",
-    "headline": item.title,
-    "description": item.summary || "",
-    "articleBody": item.content || "",
-    "category": item.category || "Education",
-    "url": `https://www.privateacademy.in/articles/${id}`,
-    "publisher": {
-      "@type": "Organization",
-      "name": "Private Academy Engineering",
-      "logo": "https://www.privateacademy.in/pvtimg.png"
-    }
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": `${url}#article`,
+        headline: item.title,
+        description: item.summary || "",
+        articleBody: item.content || "",
+        category: item.category || "Engineering Education",
+        url,
+        inLanguage: "en",
+        image: `${baseUrl}/pvtimg.png`,
+        datePublished: item.created_at || undefined,
+        dateModified: item.created_at || undefined,
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": url,
+        },
+        author: {
+          "@type": "Organization",
+          name: "Private Academy Editorial",
+          url: baseUrl,
+        },
+        publisher: {
+          "@type": "EducationalOrganization",
+          name: "Private Academy Engineering",
+          url: baseUrl,
+          logo: `${baseUrl}/pvtimg.png`,
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: baseUrl,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Articles",
+            item: `${baseUrl}/articles`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: item.title,
+            item: url,
+          },
+        ],
+      },
+    ],
   };
 
   return (

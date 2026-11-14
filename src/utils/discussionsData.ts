@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
-import type { DiscussionPost } from "@/types/discussions";
+import type { DiscussionPost, DiscussionReply } from "@/types/discussions";
 
 export interface InitialDiscussionsResult {
   discussions: DiscussionPost[];
@@ -104,3 +105,116 @@ export async function getInitialDiscussions(limit: number = 10): Promise<Initial
     return { discussions: [], total: 0, totalPages: 1 };
   }
 }
+
+export interface DiscussionThreadResult {
+  discussion: DiscussionPost;
+  replies: DiscussionReply[];
+}
+
+/**
+ * Pre-fetches a single discussion thread and its replies for SSR, metadata, and JSON-LD.
+ * Wrapped in React cache() so generateMetadata and page render share the same query.
+ */
+export const getDiscussionThread = cache(async (id: string): Promise<DiscussionThreadResult | null> => {
+  try {
+    const supabase = getPublicSupabaseClient();
+
+    const { data: discussion, error: discError } = await supabase
+      .from("discussions")
+      .select("*, notes(id, title, branch, semester, university)")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (discError || !discussion) {
+      return null;
+    }
+
+    const { data: rawReplies } = await supabase
+      .from("discussion_replies")
+      .select("*")
+      .eq("discussion_id", id)
+      .order("is_accepted_answer", { ascending: false })
+      .order("upvotes_count", { ascending: false })
+      .order("created_at", { ascending: true });
+
+    const replies = rawReplies || [];
+    const allUserIds = Array.from(
+      new Set([discussion.user_id, ...replies.map((r) => r.user_id)])
+    );
+
+    const userMap: Record<string, { username: string | null; full_name?: string | null; badge_tier?: string | null }> = {};
+    if (allUserIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("users")
+        .select("id, username, full_name, badge_tier")
+        .in("id", allUserIds);
+
+      if (profiles) {
+        profiles.forEach((p) => {
+          userMap[p.id] = { username: p.username, full_name: p.full_name, badge_tier: p.badge_tier };
+        });
+      }
+    }
+
+    const rawNote = discussion.notes;
+    const linkedNote = Array.isArray(rawNote) ? rawNote[0] : rawNote;
+
+    const enrichedDiscussion: DiscussionPost = {
+      id: discussion.id,
+      user_id: discussion.user_id,
+      note_id: discussion.note_id,
+      university: discussion.university,
+      branch: discussion.branch,
+      semester: discussion.semester,
+      title: discussion.title,
+      content: discussion.content,
+      tags: discussion.tags || [],
+      upvotes_count: discussion.upvotes_count || 0,
+      replies_count: discussion.replies_count || 0,
+      is_resolved: Boolean(discussion.is_resolved),
+      created_at: discussion.created_at || new Date().toISOString(),
+      updated_at: discussion.updated_at || undefined,
+      author: {
+        id: discussion.user_id,
+        username: userMap[discussion.user_id]?.username || "Anonymous",
+        full_name: userMap[discussion.user_id]?.full_name,
+        badge_tier: userMap[discussion.user_id]?.badge_tier || "contributor",
+      },
+      linked_note: linkedNote
+        ? {
+            id: linkedNote.id,
+            title: linkedNote.title,
+            branch: linkedNote.branch,
+            semester: linkedNote.semester,
+            university: linkedNote.university || undefined,
+          }
+        : null,
+      has_user_voted: false,
+    };
+
+    const enrichedReplies: DiscussionReply[] = replies.map((r) => ({
+      id: r.id,
+      discussion_id: r.discussion_id,
+      user_id: r.user_id,
+      content: r.content,
+      is_accepted_answer: Boolean(r.is_accepted_answer),
+      upvotes_count: r.upvotes_count || 0,
+      created_at: r.created_at || new Date().toISOString(),
+      author: {
+        id: r.user_id,
+        username: userMap[r.user_id]?.username || "Anonymous",
+        full_name: userMap[r.user_id]?.full_name,
+        badge_tier: userMap[r.user_id]?.badge_tier || "contributor",
+      },
+      has_user_voted: false,
+    }));
+
+    return {
+      discussion: enrichedDiscussion,
+      replies: enrichedReplies,
+    };
+  } catch (err) {
+    console.error("Error in getDiscussionThread:", err);
+    return null;
+  }
+});
