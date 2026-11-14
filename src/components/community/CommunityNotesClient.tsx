@@ -1,14 +1,11 @@
 "use client";
-/* eslint-disable react-hooks/set-state-in-effect */
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Note, SEMESTERS } from "@/data/mockData";
 import { UNIVERSITIES } from "@/utils/constants";
-import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
 import NoteCard from "@/components/cards/NoteCard";
 import BranchSelect from "@/components/ui/BranchSelect";
+import { useNotesFilter, NoteMeta } from "@/hooks/useNotesFilter";
 import styles from "./CommunityNotes.module.css";
 import {
   LuUsers,
@@ -22,14 +19,6 @@ import {
   LuInfo,
 } from "react-icons/lu";
 
-interface NoteMeta {
-  id: string;
-  title: string;
-  branch: string;
-  semester: string;
-  university?: string;
-}
-
 interface CommunityNotesClientProps {
   initialNotes?: Note[];
   initialMeta?: NoteMeta[];
@@ -37,119 +26,27 @@ interface CommunityNotesClientProps {
 
 export default function CommunityNotesClient({
   initialNotes = [],
+  initialMeta = [],
 }: CommunityNotesClientProps) {
-  const searchParams = useSearchParams();
-
-  // Filter States (University defaults to "All universities" so any student can browse all notes freely)
-  const [selectedUniv, setSelectedUniv] = useState<string>("All universities");
-  const [selectedBranch, setSelectedBranch] = useState<string>("All branches");
-  const [selectedSemester, setSelectedSemester] = useState<string>("All semesters");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
-
-  // Live Data States
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Sync URL search params if present
-  useEffect(() => {
-    const u = searchParams.get("university");
-    const b = searchParams.get("branch");
-    const s = searchParams.get("semester");
-    const q = searchParams.get("q");
-
-    if (u) setSelectedUniv(u);
-    if (b) setSelectedBranch(b);
-    if (s) setSelectedSemester(s);
-    if (q) {
-      setSearchQuery(q);
-      setDebouncedSearchQuery(q);
-    }
-  }, [searchParams]);
-
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Fetch community-only notes across any selected university
-  useEffect(() => {
-    // Initial SSR cache passthrough
-    if (
-      selectedUniv === "All universities" &&
-      selectedBranch === "All branches" &&
-      selectedSemester === "All semesters" &&
-      !debouncedSearchQuery &&
-      initialNotes.length > 0
-    ) {
-      setNotes(initialNotes);
-      return;
-    }
-
-    let isSubscribed = true;
-
-    async function fetchCommunityNotes() {
-      setIsLoading(true);
-      try {
-        const queryParams = new URLSearchParams();
-        queryParams.set("source", "community");
-
-        if (selectedUniv && selectedUniv !== "All universities") {
-          queryParams.set("university", selectedUniv);
-        }
-        if (selectedBranch && selectedBranch !== "All branches") {
-          queryParams.set("branch", selectedBranch);
-        }
-        if (selectedSemester && selectedSemester !== "All semesters") {
-          queryParams.set("semester", selectedSemester);
-        }
-        if (debouncedSearchQuery && debouncedSearchQuery.trim() !== "") {
-          queryParams.set("q", debouncedSearchQuery.trim());
-        }
-
-        const res = await fetch(`/api/notes?${queryParams.toString()}`);
-        if (!res.ok) throw new Error("Failed to load community notes");
-
-        const data = await res.json();
-        if (isSubscribed) {
-          const rawNotes = data.notes || [];
-          const formatted: Note[] = rawNotes.map((item: RawNoteRow) =>
-            mapDbRowToNote(item)
-          );
-
-          setNotes(formatted);
-        }
-      } catch (err) {
-        console.error("Error fetching community notes:", err);
-        if (isSubscribed) setNotes([]);
-      } finally {
-        if (isSubscribed) setIsLoading(false);
-      }
-    }
-
-    fetchCommunityNotes();
-
-    return () => {
-      isSubscribed = false;
-    };
-  }, [selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes]);
-
-  const handleClearFilters = () => {
-    setSelectedUniv("All universities");
-    setSelectedBranch("All branches");
-    setSelectedSemester("All semesters");
-    setSearchQuery("");
-    setDebouncedSearchQuery("");
-  };
-
-  const hasActiveFilters =
-    selectedUniv !== "All universities" ||
-    selectedBranch !== "All branches" ||
-    selectedSemester !== "All semesters" ||
-    debouncedSearchQuery !== "";
+  const {
+    notes,
+    isLoading,
+    selectedUniv,
+    setSelectedUniv,
+    selectedBranch,
+    setSelectedBranch,
+    selectedSemester,
+    setSelectedSemester,
+    searchQuery,
+    setSearchQuery,
+    debouncedSearchQuery,
+    clearFilters: handleClearFilters,
+    hasActiveFilters,
+  } = useNotesFilter({
+    initialNotes,
+    initialMeta,
+    catalogMode: "community",
+  });
 
   return (
     <div className={styles.pageWrapper}>

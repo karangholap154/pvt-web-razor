@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -8,7 +7,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import styles from "./HomeContent.module.css";
 import { Note } from "../../data/mockData";
 import { downloadNotePdf } from "@/utils/download";
-import { mapDbRowToNote, RawNoteRow } from "@/utils/noteMapper";
+import { useNotesFilter, NoteMeta } from "@/hooks/useNotesFilter";
 import { useRazorpayCheckout } from "@/hooks/useRazorpayCheckout";
 import UniversityGate from "../landing/UniversityGate";
 import UsernameGate from "../landing/UsernameGate";
@@ -33,7 +32,7 @@ import {
 
 interface HomeContentProps {
   initialNotes?: Note[];
-  initialMeta?: { id: string; title: string; branch: string; semester: string; university?: string }[];
+  initialMeta?: NoteMeta[];
   catalogMode?: "official" | "community" | "all";
 }
 
@@ -57,36 +56,33 @@ export default function HomeContent({
     refreshAuth 
   } = useAuth();
 
-  // Live database states
-  const [metaNotes, setMetaNotes] = useState<{ id: string; title: string; branch: string; semester: string; university?: string }[]>(initialMeta);
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedUniv, setSelectedUniv] = useState("All universities");
+  // Unified notes filtering, debouncing & API synchronization hook
+  const {
+    notes,
+    metaNotes,
+    isLoading,
+    selectedUniv,
+    setSelectedUniv,
+    availableUniversities,
+    selectedBranch,
+    setSelectedBranch,
+    selectedSemester,
+    setSelectedSemester,
+    searchQuery,
+    setSearchQuery,
+    debouncedSearchQuery,
+    setDebouncedSearchQuery,
+    clearFilters: handleClearFilters,
+  } = useNotesFilter({
+    initialNotes,
+    initialMeta,
+    catalogMode,
+    userUniversity,
+    defaultBranch,
+    defaultSemester,
+    authState,
+  });
 
-  const availableUniversities = useMemo(() => {
-    const set = new Set<string>();
-    metaNotes.forEach((m) => {
-      if (m.university) set.add(m.university);
-    });
-    if (set.size === 0) {
-      ["Mumbai University", "SPPU (Pune)", "DBATU", "RTMNU (Nagpur)"].forEach((u) => set.add(u));
-    }
-    return Array.from(set).sort();
-  }, [metaNotes]);
-
-  // Finder & Filter states
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 180);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  const [selectedBranch, setSelectedBranch] = useState("All branches");
-  const [selectedSemester, setSelectedSemester] = useState("All semesters");
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Modal states
@@ -113,104 +109,7 @@ export default function HomeContent({
     },
   });
 
-  // Sync URL search params into filter state on load if present
-  useEffect(() => {
-    const b = searchParams.get("branch");
-    const s = searchParams.get("semester");
-    const q = searchParams.get("q");
-    const u = searchParams.get("university");
-    if (b) setSelectedBranch(b);
-    if (s) setSelectedSemester(s);
-    if (u) setSelectedUniv(u);
-    if (q) {
-      setSearchQuery(q);
-      setDebouncedSearchQuery(q);
-    }
-  }, [searchParams]);
-
-  // Set default filters when auth state is ready or preferences change
-  useEffect(() => {
-    if (authState === "ready") {
-      if (defaultBranch && !searchParams.get("branch")) setSelectedBranch(defaultBranch);
-      if (defaultSemester && !searchParams.get("semester")) setSelectedSemester(defaultSemester);
-    }
-  }, [authState, defaultBranch, defaultSemester, searchParams]);
-
-  // ── Fetch server-side filtered notes via /api/notes ─────────────────────
-  useEffect(() => {
-    // For unauthenticated visitors on default initial load, use pre-rendered initialNotes to preserve Supabase bandwidth
-    if (
-      authState === "unauthenticated" &&
-      selectedUniv === "All universities" &&
-      selectedBranch === "All branches" &&
-      selectedSemester === "All semesters" &&
-      !debouncedSearchQuery &&
-      initialNotes.length > 0
-    ) {
-      setNotes(initialNotes);
-      setMetaNotes(initialMeta);
-      return;
-    }
-
-    if (authState === "loading") return;
-    if (authState === "ready" && !userUniversity) return;
-
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const queryParams = new URLSearchParams();
-        const activeUniv = userUniversity || (selectedUniv !== "All universities" ? selectedUniv : "");
-
-        if (activeUniv) {
-          queryParams.set("university", activeUniv);
-        }
-        if (selectedBranch && selectedBranch !== "All branches") {
-          queryParams.set("branch", selectedBranch);
-        }
-        if (selectedSemester && selectedSemester !== "All semesters") {
-          queryParams.set("semester", selectedSemester);
-        }
-        if (debouncedSearchQuery && debouncedSearchQuery.trim() !== "") {
-          queryParams.set("q", debouncedSearchQuery.trim());
-        }
-        if (catalogMode && catalogMode !== "all") {
-          queryParams.set("source", catalogMode);
-        }
-
-        const res = await fetch(`/api/notes?${queryParams.toString()}`);
-        if (!res.ok) {
-          throw new Error(`Failed to fetch notes: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-
-        const formattedNotes: Note[] = (data.notes || []).map((item: RawNoteRow) =>
-          mapDbRowToNote(item)
-        );
-
-        setNotes(formattedNotes);
-        if (data.meta) {
-          setMetaNotes(data.meta);
-        }
-      } catch (err) {
-        console.error("Error loading notes from API:", err);
-        setNotes([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadData();
-  }, [authState, userUniversity, selectedUniv, selectedBranch, selectedSemester, debouncedSearchQuery, initialNotes, initialMeta, catalogMode]);
-
   const filteredNotes = notes;
-
-  const handleClearFilters = () => {
-    setSearchQuery("");
-    setDebouncedSearchQuery("");
-    setSelectedBranch("All branches");
-    setSelectedSemester("All semesters");
-  };
 
   const scrollToCatalog = () => {
     const el = document.getElementById("notes-catalog");
