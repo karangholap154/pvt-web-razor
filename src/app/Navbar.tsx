@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -39,15 +40,18 @@ export default function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentUni, setCurrentUni] = useState(() => {
-    if (typeof document !== "undefined") {
-      const match = document.cookie.match(/(?:^|; )selected_university=([^;]*)/);
-      if (match && match[1]) {
-        return decodeURIComponent(match[1]);
+  const [currentUni, setCurrentUni] = useState("MU");
+
+  // Sync saved university preference from cookie after hydration without mismatch
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )selected_university=([^;]*)/);
+    if (match && match[1]) {
+      const cookieUni = decodeURIComponent(match[1]);
+      if (cookieUni) {
+        setCurrentUni(cookieUni);
       }
     }
-    return "MU";
-  });
+  }, []);
 
   const pathname = usePathname();
   const router = useRouter();
